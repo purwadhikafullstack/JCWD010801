@@ -1,6 +1,16 @@
 # Purwadhika Final Project Repository
 
-This is monorepo contain frontend project using ReactJS and backend project using ExpressJS.
+This is the final project of JCWD 0108 TEAM 1 "α Mart":
+
+Amadeo Filberto Marli
+
+Alvian Aryo Bimo
+
+Raffael
+
+Rifky Rizkita Gandawidura
+
+This is monorepo contains a frontend project using ReactJS and a backend project using ExpressJS.
 
 ## Available Scripts
 
