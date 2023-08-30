@@ -17,7 +17,6 @@ app.use(
 app.use(express.json());
 
 //#region API ROUTES
-
 // ===========================
 // NOTE : Add your routes here
 

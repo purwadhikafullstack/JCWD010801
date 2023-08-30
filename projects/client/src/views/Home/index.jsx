@@ -1,5 +1,5 @@
 const HomepageView = () => {
-  return <div>Home</div>;
+  return <div>WELCOME TO α MART TEST</div>;
 };
 
 export default HomepageView;
