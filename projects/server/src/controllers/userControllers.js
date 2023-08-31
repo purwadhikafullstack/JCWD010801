@@ -4,16 +4,24 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require("fs");
 const handlebars = require("handlebars");
+const { Op } = require("sequelize");
 
 module.exports = {
     userLogin: async (req, res) => {
         try {
-            const { email, password } = req.body;
-            const checkLogin = await user.findOne({ where: { email: email } });
+            const { data, password } = req.body;
+            const checkLogin = await user.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: data },
+                        { username: data },
+                    ]
+                }
+            });
             if (!checkLogin) throw { message: "User not Found." };
 
             const isValid = await bcrypt.compare(password, checkLogin.password);
-            if (!isValid) throw { message: "Username or Password Incorrect." };
+            if (!isValid) throw { message: "Password Incorrect." };
 
             const payload = { id: checkLogin.id };
             const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
