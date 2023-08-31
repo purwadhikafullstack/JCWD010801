@@ -34,7 +34,7 @@ export const RegisterFields = () => {
   const handleSubmit = async (data) => {
     try {
       const response = await Axios.post(
-        "http://localhost:8000/api/users/register",
+        "http://localhost:8000/api/user/register",
         data
       );
       console.log(response);
@@ -42,7 +42,7 @@ export const RegisterFields = () => {
       
       toast.success(response.data.message, {
         position: "top-right",
-        autoClose: 2000,
+        autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -54,7 +54,7 @@ export const RegisterFields = () => {
       console.log(error);
       toast.error(error.response.data.message, {
         position: "top-right",
-        autoClose: 2000,
+        autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,

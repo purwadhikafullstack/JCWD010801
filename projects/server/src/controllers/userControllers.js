@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require("fs");
 const handlebars = require("handlebars");
+const { Op } = require("sequelize");
+const transporter = require("../middlewares/transporter");
 
 module.exports = {
     userLogin: async (req, res) => {
@@ -84,6 +86,7 @@ module.exports = {
         });
       } catch (error) {
         res.status(400).send(error);
+        console.log(error);
       }
     },
 }
