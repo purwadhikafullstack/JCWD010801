@@ -10,20 +10,16 @@ module.exports = {
         try {
             const { email, password } = req.body;
             const checkLogin = await user.findOne({ where: { email: email } });
-
-            if (!checkLogin) throw { message: "User not Found." }
-            if (checkLogin.isSuspended == true) throw { message: "You are Suspended." }
-            if (!checkLogin.isAdmin == false) throw { message: "You have to Login on Admin Login." }
-
+            if (!checkLogin) throw { message: "User not Found." };
+            
             const isValid = await bcrypt.compare(password, checkLogin.password);
             if (!isValid) throw { message: "Username or Password Incorrect." };
 
-            const payload = { id: checkLogin.id, isAdmin: checkLogin.isAdmin };
+            const payload = { id: checkLogin.id};
             const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
             res.status(200).send({
                 message: "Login success",
-                user: checkLogin,
                 token
             });
         } catch (error) {
