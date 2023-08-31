@@ -1,8 +1,11 @@
 import axios from "axios";
 import "./App.css";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 function App() {
+  const token = localStorage.getItem("token");
+  const dispatch = useDispatch();
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -12,7 +15,19 @@ function App() {
       );
       setMessage(data?.message || "");
     })();
+    const keepLogin = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/user/keeplogin`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        dispatch(setValue(response.data));
+      } catch (error) {
+        localStorage.removeItem("token");
+      }
+    };
+    keepLogin();
   }, []);
+  
   return (
     <div className="App">
       <header className="App-header">
