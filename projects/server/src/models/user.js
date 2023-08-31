@@ -14,15 +14,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
+    firstName: { type: DataTypes.STRING, allowNull: false },
+    lastName: { type: DataTypes.STRING, allowNull: false },
+    username: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
     phone: { type: DataTypes.STRING, allowNull: false },
     password: { type: DataTypes.STRING, allowNull: false },
-    name: { type: DataTypes.STRING, allowNull: false },
     gender: DataTypes.STRING,
-    birthdate: DataTypes.DATEONLY,
+    birthDate: DataTypes.DATEONLY,
     avatar: DataTypes.STRING,
-    isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
     referralCode: DataTypes.STRING,
   }, {
     sequelize,
