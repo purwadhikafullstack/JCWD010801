@@ -34,7 +34,7 @@ export const RegisterFields = () => {
   const handleSubmit = async (data) => {
     try {
       const response = await Axios.post(
-        "http://localhost:8000/api/user/register",
+        `${process.env.REACT_APP_API_BASE_URL}/user/register`,
         data
       );
       console.log(response);
