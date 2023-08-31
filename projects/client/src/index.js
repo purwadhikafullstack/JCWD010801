@@ -6,6 +6,7 @@ import { routes } from "./routes";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import { store } from "./redux";
+import { ToastContainer } from "react-toastify";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -17,6 +18,7 @@ root.render(
       <ChakraProvider>
         <RouterProvider router={router} />
       </ChakraProvider>
+      <ToastContainer />
     </Provider>
   </React.StrictMode>
 );

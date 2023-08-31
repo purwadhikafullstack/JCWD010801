@@ -8,11 +8,11 @@ import { Field, ErrorMessage, Formik, Form } from "formik";
 import { useDispatch } from "react-redux";
 import { setValue } from "../../../redux/userSlice";
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { BsFillPersonFill, BsFillLockFill } from 'react-icons/bs';
+import { BsFillPersonPlusFill, BsFillLockFill } from 'react-icons/bs';
 import { Box, Button, Flex, Heading, Input, InputGroup, InputRightElement, Text, VStack } from "@chakra-ui/react"
 import { toast } from "react-toastify";
 
-export const UserLogin = () => {
+export const AdminLogin = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const handleClick = () => setShow(!show);
@@ -26,7 +26,7 @@ export const UserLogin = () => {
     });
     const handleSubmit = async (datalogin) => {
         try {
-            const response = await Axios.post("http://localhost:8000/api/user/userlogin", datalogin);
+            const response = await Axios.post("http://localhost:8000/api/user/adminlogin", datalogin);
             dispatch(setValue(response.data.user));
             localStorage.setItem("token", response.data.token);
             setSuccess(true);
@@ -64,11 +64,11 @@ export const UserLogin = () => {
                 {(props) => {
                     return (
                         <Box as={Form} mt={["0px", "0px", "100px"]}>
-                            <Heading w={"200px"} mr={["0px", "150px", "150px"]} mb={"20px"}
-                                fontSize={"30px"} fontFamily={"monospace"}>Shop Now.</Heading>
+                            <Heading mr={["0px", "100px", "110px"]} mb={"20px"}
+                                fontSize={"30px"} fontFamily={"monospace"}>Admin Login.</Heading>
                             <Flex justifyContent={"center"}>
                                 <Box mt={"10px"} mr={"10px"}>
-                                    <BsFillPersonFill size={22} />
+                                    <BsFillPersonPlusFill size={22} />
                                 </Box>
                                 <VStack>
                                     <Field as={Input} name="data" placeholder="E-mail or Username"
@@ -94,8 +94,7 @@ export const UserLogin = () => {
                                 </InputRightElement>
                             </InputGroup>
                             <Flex justifyContent={"space-between"}>
-                                <Text as={Link} to="/" mt={"5px"} ml={["0px", "25px", "80px"]} fontSize={"9px"} color={"blue.400"}
-                                    _hover={{ color: "blue.200" }} >Forget Password</Text>
+                                <Text as={Link} to="/" mt={"5px"} ml={["0px", "25px", "80px"]} fontSize={"9px"} color={"blue.400"} _hover={{ color: "blue.200" }} >Forget Password</Text>
                                 <Button isDisabled={!props.dirty} type="submit" mt={"10px"} mr={["0px", "25px", "35px"]}
                                     bg={"#373433"} color={"white"} borderRadius={"20px"}>
                                     <Text fontSize={"13px"}>Sign In ‎ </Text>
