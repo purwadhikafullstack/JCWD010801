@@ -46,7 +46,7 @@ export const EmblaCarousel = ({ slides, options }) => {
       </div>
 
 
-      {/* <div className="embla__dots">
+      <div className="embla__dots">
         {scrollSnaps.map((_, index) => (
           <DotButton
             key={index}
@@ -56,7 +56,7 @@ export const EmblaCarousel = ({ slides, options }) => {
             )}
           />
         ))}
-      </div> */}
+      </div>
     </div>
   )
 }

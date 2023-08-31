@@ -1,5 +1,3 @@
-import { Footer } from "../components/footer";
-import { Navbar } from "../components/navbar";
 import HomepageView from "../views/Home";
 import { Stack } from "@chakra-ui/react"
 

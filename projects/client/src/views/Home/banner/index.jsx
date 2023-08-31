@@ -1,10 +1,10 @@
 import React from 'react'
 import { EmblaCarousel } from './carousel'
 import './embla.css'
+import {images} from './imageByIndex'
 
 const OPTIONS = { loop: true }
-const SLIDE_COUNT = 5
-const SLIDES = Array.from(Array(SLIDE_COUNT).keys())
+const SLIDES = Array.from(Array(images.length).keys())
 
 export const Banner = () => (
   <main className="sandbox">

@@ -78,8 +78,8 @@
     /* bottom: 50%; */
     transform: translateY(-50%);
     /* left: 80%; */
-    top: 0;
-    right: 0;
+    /* top: 0;
+    right: 0; */
   }
   .embla__button {
     z-index: 1;
