@@ -27,7 +27,7 @@ export const UserLogin = () => {
     });
     const handleSubmit = async (datalogin) => {
         try {
-            const response = await Axios.post("http://localhost:8000/api/users/userlogin", datalogin);
+            const response = await Axios.post("http://localhost:8000/api/user/userlogin", datalogin);
             dispatch(setValue(response.data.user));
             localStorage.setItem("token", response.data.token);
             setSuccess(true);

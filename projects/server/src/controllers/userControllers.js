@@ -1,5 +1,5 @@
 const db = require('../models');
-const users = db.User;
+const user = db.User;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require("fs");
@@ -9,7 +9,7 @@ module.exports = {
     userLogin: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const checkLogin = await users.findOne({ where: { email: email } });
+            const checkLogin = await user.findOne({ where: { email: email } });
 
             if (!checkLogin) throw { message: "User not Found." }
             if (checkLogin.isSuspended == true) throw { message: "You are Suspended." }
