@@ -5,17 +5,11 @@ import { Login } from "../pages/login";
 
 import { Registerpage } from "../pages/Register";
 const Routes = (
-    <>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<Login />} />
-    </>
-)
+  <>
+    <Route path="/" element={<Homepage />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Registerpage />} />;
+  </>
+);
 
-const Routes = (
-    <>
-<Route path="/" element={<Homepage />} />;
-<Route path="/register" element={<Registerpage/>} />;
-    </>
-)
 export const routes = createRoutesFromElements(Routes);
-
