@@ -46,4 +46,4 @@ module.exports = {
             message: "Forbidden! You are not an administrator."
         });
     }
-}
+};
