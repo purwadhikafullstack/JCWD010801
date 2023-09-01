@@ -2,7 +2,7 @@ import { Route, createRoutesFromElements } from "react-router-dom";
 
 import Homepage from "../pages/Home";
 import { Login } from "../pages/login";
-import { Registerpage } from "../pages/register1";
+import { Registerpage } from "../pages/register";
 
 const Routes = (
   <>
