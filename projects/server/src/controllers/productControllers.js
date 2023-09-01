@@ -9,12 +9,65 @@ module.exports = {
             const { productName, price, description, CategoryId, stock, weight } = req.body;
             const imgURL = req.file.filename;
 
-            if (!productName) throw { message: "Product name cannot be empty." };
-            if (!price) throw { message: "Price cannot be empty." };
-            if (!description) throw { message: "Descriptiion cannot be empty." };
-            if (!CategoryId) throw { message: "Category ID cannot be empty." };
-            if (!stock) throw { message: "Stock cannot be empty. Please input a minimum of 1 unit." };
-            if (!weight) throw { message: "Weight cannot be empty. Please input a minimum of 1 gram." };
+            if (!productName) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Product name cannot be empty."
+                });
+            };
+
+            if (await products.findOne({
+                where: {
+                    productName: productName
+                }
+            })) {
+                res.status(400).send({
+                    status: 400,
+                    message: "Product name already exists."
+                });
+            };
+
+            if (!price) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Price cannot be empty."
+                });
+            };
+
+            if (!description) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Description cannot be empty."
+                });
+            };
+
+            if (!CategoryId) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Category ID cannot be empty."
+                });
+            };
+
+            if (!stock) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Stock cannot be empty. Please input a minimum of 1 unit."
+                });
+            };
+
+            if (!weight) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Weight cannot be empty. Please input a minimum of 1 gram."
+                });
+            };
+
+            if (!imgURL) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Please assign a product image."
+                });
+            };
 
             const newProduct = await products.create({
                 productName,
@@ -112,6 +165,40 @@ module.exports = {
                 page: page,
                 totalPage: Math.ceil(totalCategories / limit),
                 result: result
+            });
+        } catch (error) {
+            res.status(500).send({
+                status: 500,
+                message: "Internal server error."
+            });
+        }
+    },
+    getCategoryById: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                return res.status(400).send({
+                    status: 400,
+                    message: "Please input a category ID."
+                });
+            };
+
+            const result = await categories.findOne({
+                where: {
+                    id: id
+                }
+            });
+
+            if (!result) {
+                return res.status(404).send({
+                    status: 404,
+                    message: "Category not found. Please input a valid category ID."
+                });
+            };
+
+            res.status(200).send({
+                result
             });
         } catch (error) {
             res.status(500).send({
