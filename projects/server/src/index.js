@@ -37,6 +37,7 @@ server.get("/api/greetings", (req, res, next) => {
   });
 });
 
+
 // ===========================
 
 // not found
@@ -74,7 +75,7 @@ server.listen(PORT, (err) => {
   if (err) {
     console.log(`ERROR: ${err}`);
   } else {
-    // db.sequelize.sync({ alter: true });
+    db.sequelize.sync({ alter: true });
     console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
   }
 });
