@@ -1,11 +1,9 @@
 import HomepageView from "../views/Home";
-import { Stack } from "@chakra-ui/react"
+// import { Container } from "@chakra-ui/react"
 
 const Homepage = () => {
   return (
-    <Stack w='100vw'>
       <HomepageView/>
-    </Stack>
   );
 };
 

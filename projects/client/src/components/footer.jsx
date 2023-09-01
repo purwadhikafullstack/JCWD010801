@@ -5,10 +5,12 @@ export const Footer = ({isNotDisabled = true}) => {
     return (
         <>
         {isNotDisabled && (
-            <Stack overflow={'hidden'} w='100vw' bgColor='gray.200' gap={4} p={'1rem 2rem'} alignItems={'center'}>
-                <Flex  >
-                    <Image src={logo} w={'150px'} />
-                    <Flex justifyContent={'space-between'} >
+            <Stack w='100%' bgColor='gray.100' gap={4} p={'2rem 5rem'} alignItems={'center'}>
+                <Flex w='100%' h='100%' justifyContent={'space-between'} >
+                    <Stack>
+                        <Image src={logo} w={'200px'} />
+                    </Stack>
+                    <Flex w='40%' gap={'3rem'} justifyContent={'space-between'} >
                         <Stack gap={3} p={2}>
                             <Text fontWeight={'bold'}>
                                 LOCATION
@@ -43,9 +45,23 @@ export const Footer = ({isNotDisabled = true}) => {
                                 Yogyakarta
                             </Text>
                         </Stack>
+                        <Stack gap={3} p={2}>
+                            <Text fontWeight={'bold'}>
+                                SOCIALS
+                            </Text>
+                            <Text cursor={'pointer'} _hover={{fontWeight: 'medium'}} color={'gray'} >
+                                Instagram
+                            </Text>
+                            <Text cursor={'pointer'} _hover={{fontWeight: 'medium'}} color={'gray'} >
+                                Twitter
+                            </Text>
+                            <Text cursor={'pointer'} _hover={{fontWeight: 'medium'}} color={'gray'} >
+                                Whatsapp
+                            </Text>
+                        </Stack>
                     </Flex>
                 </Flex>
-                <Divider colorScheme="gray" />
+                <Divider colorScheme="blackAlpha" />
                 <Text>
                     Copyright © 2023 Alphamart. All rights reserved.
                 </Text>

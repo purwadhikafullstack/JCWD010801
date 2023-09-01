@@ -4,12 +4,12 @@ import './embla.css'
 import {images} from './imageByIndex'
 
 const OPTIONS = { loop: true }
+// const SLIDES = Array.from(Array(images.length).keys())
 const SLIDES = Array.from(Array(images.length).keys())
+console.log(SLIDES)
 
-export const Banner = () => (
-  <main className="sandbox">
-    <section className="sandbox__carousel">
-      <EmblaCarousel slides={SLIDES} options={OPTIONS} />
-    </section>
-  </main>
-)
+export const Banner = ({ slides, options }) => {
+    return (
+        <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+    )
+}
