@@ -39,7 +39,6 @@ export const RegisterFields = () => {
         `${process.env.REACT_APP_API_BASE_URL}/user/register`,
         data
       );
-      console.log(response);
       navigate("/login");     
       toast.success(response.data.message, {
         position: "top-right",
@@ -52,7 +51,6 @@ export const RegisterFields = () => {
         theme: "dark",
     });
     } catch (error) {
-      console.log(error);
       toast.error(error.response.data.message, {
         position: "top-right",
         autoClose: 5000,
