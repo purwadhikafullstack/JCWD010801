@@ -2,11 +2,19 @@ import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Axios from "axios";
-import { Box, Button, Input, Text, FormControl, InputRightElement, InputGroup } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Input,
+  Text,
+  FormControl,
+  InputRightElement,
+  InputGroup,
+} from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 export const RegisterFields = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +47,7 @@ export const RegisterFields = () => {
         `${process.env.REACT_APP_API_BASE_URL}/user/register`,
         data
       );
-      navigate("/login");     
+      navigate("/login");
       toast.success(response.data.message, {
         position: "top-right",
         autoClose: 5000,
@@ -49,7 +57,7 @@ export const RegisterFields = () => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-    });
+      });
     } catch (error) {
       toast.error(error.response.data.message, {
         position: "top-right",
@@ -60,7 +68,7 @@ export const RegisterFields = () => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-    });
+      });
     }
   };
 
@@ -83,8 +91,14 @@ export const RegisterFields = () => {
     >
       {(props) => (
         <Form>
-          <Box >
-            <Text mb="4" mt={"4"} color="gray.600" textAlign="center" fontSize="2xl">
+          <Box>
+            <Text
+              mb="4"
+              mt={"4"}
+              color="gray.600"
+              textAlign="center"
+              fontSize="2xl"
+            >
               Sign Up
             </Text>
             <Field name="username">
@@ -175,75 +189,75 @@ export const RegisterFields = () => {
               )}
             </Field>
             <FormControl mb="3">
-            <InputGroup>
-              <Field name="password">
-                {({ field }) => (
-                  <Input
-                    {...field}
-                    id="password"
-                    borderRadius="20px"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    pr="3rem"
-                  />
-                )}
-              </Field>
-              <InputRightElement width="3rem">
-                <Box
-                  h="100%"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  onClick={() => setShowPassword(!showPassword)}
-                  cursor="pointer"
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </Box>
-              </InputRightElement>
-            </InputGroup>
-            <ErrorMessage
-              name="password"
-              component="div"
-              style={{
-                color: "red",
-              }}
-            />
-          </FormControl>
-          <FormControl mb="3">
-            <InputGroup>
-              <Field name="confirmPassword">
-                {({ field }) => (
-                  <Input
-                    {...field}
-                    id="confirmPassword"
-                    borderRadius="20px"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm Password"
-                    pr="3rem" 
-                  />
-                )}
-              </Field>
-              <InputRightElement width="3rem">
-                <Box
-                  h="100%"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  cursor="pointer"
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </Box>
-              </InputRightElement>
-            </InputGroup>
-            <ErrorMessage
-              name="confirmPassword"
-              component="div"
-              style={{
-                color: "red",
-              }}
-            />
-          </FormControl>
+              <InputGroup>
+                <Field name="password">
+                  {({ field }) => (
+                    <Input
+                      {...field}
+                      id="password"
+                      borderRadius="20px"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      pr="3rem"
+                    />
+                  )}
+                </Field>
+                <InputRightElement width="3rem">
+                  <Box
+                    h="100%"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    onClick={() => setShowPassword(!showPassword)}
+                    cursor="pointer"
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </Box>
+                </InputRightElement>
+              </InputGroup>
+              <ErrorMessage
+                name="password"
+                component="div"
+                style={{
+                  color: "red",
+                }}
+              />
+            </FormControl>
+            <FormControl mb="3">
+              <InputGroup>
+                <Field name="confirmPassword">
+                  {({ field }) => (
+                    <Input
+                      {...field}
+                      id="confirmPassword"
+                      borderRadius="20px"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm Password"
+                      pr="3rem"
+                    />
+                  )}
+                </Field>
+                <InputRightElement width="3rem">
+                  <Box
+                    h="100%"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    cursor="pointer"
+                  >
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </Box>
+                </InputRightElement>
+              </InputGroup>
+              <ErrorMessage
+                name="confirmPassword"
+                component="div"
+                style={{
+                  color: "red",
+                }}
+              />
+            </FormControl>
             <Button
               type="submit"
               bgColor={"#373433"}

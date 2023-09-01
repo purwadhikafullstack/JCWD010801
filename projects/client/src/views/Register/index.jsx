@@ -33,7 +33,6 @@ export const RegisterpageView = () => {
         w={["260px", "380px", "400px"]}
         minH={["90%", "700px"]}
         pb={"5"}
-       
         bg="#F6F6F6"
       >
         <Flex align="center" justify="center" h="100%" w={"100%"}>
