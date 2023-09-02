@@ -37,6 +37,7 @@ server.get("/api/greetings", (req, res, next) => {
   });
 });
 
+
 // ===========================
 
 // not found
