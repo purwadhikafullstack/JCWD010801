@@ -2,6 +2,7 @@ import Homepage from "../pages/Home";
 import { Route, createRoutesFromElements } from "react-router-dom";
 import { Login } from "../pages/login";
 import { Registerpage } from "../pages/register";
+import { ProductDetail } from "../pages/productDetail";
 
 const Routes = (
     <>

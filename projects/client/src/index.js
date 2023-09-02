@@ -8,9 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
 import { store } from "./redux";
 
-
 const root = ReactDOM.createRoot(document.getElementById("root"));
-
 const router = createBrowserRouter(routes);
 
 root.render(
@@ -19,7 +17,7 @@ root.render(
       <ChakraProvider>
         <RouterProvider router={router} />
       </ChakraProvider>
-    <ToastContainer/>
+      <ToastContainer />
     </Provider>
   </React.StrictMode>
 );

@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { Box, Button, Flex, IconButton, Image } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, Image, Tabs, Tab, TabPanels, TabPanel, TabList, CSSReset, useColorModeValue } from "@chakra-ui/react";
 import { MinusIcon, AddIcon } from "@chakra-ui/icons";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -27,25 +27,55 @@ export const ProductDetail = () => {
         fetchData();
     }, []);
 
-    console.log(category);
+    const decreaseQuantity = () => {
+        if (quantity > 1) {
+            setQuantity(quantity - 1);
+        }
+    };
+
+    const increaseQuantity = () => {
+        setQuantity(quantity + 1);
+    };
+
+    const tabStyles = useColorModeValue(
+        {
+            _selected: {
+                color: "gray.900",
+                borderColor: "gray.900",
+                bg: "transparent",
+            },
+        },
+        {
+            _selected: {
+                color: "gray.900", //DARK MODE.
+                borderColor: "gray.900",
+                bg: "transparent",
+            },
+        }
+    );
 
     return (
         <Box>
             {/* <Box><Navbar /></Box> */}
             <Flex
+                justify={'center'}
+                align={'center'}
+                ml={'70px'}
                 pt={{ base: "70px", sm: "100px" }}
                 pl={{ base: "10px", sm: "30px", md: "50px" }}
                 wrap={"wrap"}
-                w={{ base: "100vw", sm: "100vw", md: "100vw" }}
+                w={{ base: "1280px", sm: "1280px", md: "1280px" }}
                 gap={"20px"}
             >
 
                 <Box>
                     {Object.keys(category).length > 0 && (
-                        <Box fontSize={{ base: "16px", sm: "18px", md: "20px" }} color="gray.600" mb="10px">
+                        <Box fontSize={{ base: "16px", sm: "18px", md: "20px" }} color="gray.600" mb="20px">
                             <Link to="/products">Browse Products</Link>
                             {" > "}
                             <Link to={`/category/${product.CategoryId}`}>{category}</Link>
+                            {" > "}
+                            {product.productName}
                         </Box>
                     )}
                     <Box>
@@ -59,35 +89,36 @@ export const ProductDetail = () => {
                         />
                     </Box>
                 </Box>
-                <Box>
-                    <Box mb={"110px"} alignContent={"center"} mr={{ base: "5px" }} pl={'50px'}>
+                <Box w={'450px'} h={'425px'} borderRadius={'20px'} ml={'50px'} boxShadow={"7px 7px 7px gray"}>
+                    <Box mb={"110px"} alignContent={"center"} mr={{ base: "5px" }} mx={'25px'}>
                         <Box
-                            pb={"20px"}
-                            borderBottom={"2px solid gray"}
-                            textShadow={"2px 2px 2px gray"}
-                            fontSize={{ base: "25px", sm: "35px", md: "45px" }}
-                            color={"gray.700"}
+                            pt={"10px"}
+                            pb={"5px"}
+                            borderBottom={"1px solid #D3D3D3"}
+                            textShadow={"5px 5px 5px gray"}
+                            fontSize={{ base: "40px", sm: "42px", md: "49px" }}
+                            color={"gray.800"}
                             fontFamily={"sans-serif"}
                             fontWeight={"bold"}
                         >
                             {product.productName}
                         </Box>
                         <Flex
-                            fontSize={"20px"}
-                            color={"gray.600"}
-                            pb={"10px"}
-                            borderBottom={"2px solid gray"}
+                            color={"gray.700"}
+                            textShadow={"2px 2px 2px gray"}
+                            py={2}
+                            borderBottom={"1px solid #D3D3D3"}
                             fontFamily={"sans-serif"}
                         >
-                            <Box fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
+                            <Box fontSize={{ base: "25px", sm: "27px", md: "34px" }} fontWeight={'bold'}>
                                 Rp. {(product.price)?.toLocaleString("id-ID")},00
                             </Box>
                         </Flex>
                         <Flex
                             fontSize={"20px"}
                             color={"gray.600"}
-                            pb={"10px"}
-                            borderBottom={"2px solid gray"}
+                            py={3}
+                            borderBottom={"1px solid #D3D3D3"}
                             fontFamily={"sans-serif"}
                         >
                             <Box fontWeight={"bold"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
@@ -100,44 +131,100 @@ export const ProductDetail = () => {
                         <Flex
                             fontSize={"20px"}
                             color={"gray.600"}
-                            pb={"10px"}
-                            borderBottom={"2px solid gray"}
+                            py={3}
+                            borderBottom={"1px solid #D3D3D3"}
                             fontFamily={"sans-serif"}
                         >
                             <Box fontWeight={"bold"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-                                Product Weight :
+                                Weight :
                             </Box>
                             <Box ml={"5px"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
                                 {product.weight} grams
                             </Box>
                         </Flex>
-                        <Box w={{ base: "250px", sm: "220px", md: "300px" }} fontSize={{ base: "15px", sm: "17px", md: "24px" }} fontFamily={"heading"} color={"gray.600"}>
-                            <Box fontWeight={"bold"}>Product Description :</Box>
-                            <Box>{product.description}</Box>
-                            {/* Quantity Selection */}
-                            <Flex align="center" mt="20px">
-                                <IconButton
-                                    aria-label="Decrease Quantity"
-                                    icon={<MinusIcon />}
-                                    size="sm"
-                                    ml="10px"
-                                />
-                                <Box px="10px" fontSize="18px">{quantity}</Box>
-                                <IconButton
-                                    aria-label="Increase Quantity"
-                                    icon={<AddIcon />}
-                                    size="sm"
-                                />
-                                <Button
-                                    mt="20px"
-                                    colorScheme="blue"
+                        <Box
+                            w={{ base: "300px", sm: "270px", md: "350px" }}
+                            fontSize={{ base: "15px", sm: "17px", md: "24px" }}
+                            fontFamily={"heading"}
+                            color={"gray.600"}
+                            pt={2}
+                        >
+                            <Flex
+                                alignItems="center"
+                                w="100%"
+                                mt="25px"
+                            >
+                                <Flex
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    w="115px"
+                                    h="45px"
+                                    border="1px solid black"
+                                    borderRadius="8px"
                                 >
+                                    <IconButton
+                                        aria-label="Decrease Quantity"
+                                        icon={<MinusIcon />}
+                                        size="sm"
+                                        onClick={decreaseQuantity}
+                                        bg="transparent"
+                                    />
+                                    <Box px="10px" fontSize="18px">
+                                        {quantity}
+                                    </Box>
+                                    <IconButton
+                                        aria-label="Increase Quantity"
+                                        icon={<AddIcon />}
+                                        size="sm"
+                                        onClick={increaseQuantity}
+                                        bg="transparent"
+                                    />
+                                </Flex>
+                                <Button ml={'25px'} style={{ backgroundColor: '#000000', color: 'white' }}>
                                     Add to Cart
                                 </Button>
                             </Flex>
                         </Box>
                     </Box>
                 </Box>
+                <CSSReset />
+                <Tabs mt="20px" w="1280px" isLazy="true" justify='center' align="center">
+                    <TabList>
+                        <Tab
+                            width="33.33%"
+                            variant="unstyled"
+                            sx={tabStyles}
+                        >
+                            Product Details
+                        </Tab>
+                        <Tab
+                            width="33.33%"
+                            variant="unstyled"
+                            sx={tabStyles}
+                        >
+                            Choose Delivery Branch
+                        </Tab>
+                        <Tab
+                            width="33.33%"
+                            variant="unstyled"
+                            sx={tabStyles}
+                        >
+                            Product Reviews
+                        </Tab>
+                    </TabList>
+                    <TabPanels>
+                        <TabPanel>
+                            <Box fontWeight={"bold"}>Product Description :</Box>
+                            <Box mt={'35px'}>{product.description}</Box>
+                        </TabPanel>
+                        <TabPanel>
+                            {/* Choose Delivery Branch Tab */}
+                        </TabPanel>
+                        <TabPanel>
+                            {/* Product Review Tab */}
+                        </TabPanel>
+                    </TabPanels>
+                </Tabs>
             </Flex>
         </Box>
     )
