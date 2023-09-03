@@ -1,16 +1,15 @@
-import Homepage from "../pages/Home";
-import { Route, createRoutesFromElements } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { Login } from "../pages/login";
 import { Registerpage } from "../pages/register";
 import { ProductDetail } from "../pages/productDetail";
+import { Search } from "../pages/search";
+import { SearchResponsiveBeta } from "../pages/search_resBeta";
 
-const Routes = (
-    <>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/register" element={<Registerpage />} />;
-    </>
-);
-
-export const routes = createRoutesFromElements(Routes);
+export const AppRouter = createBrowserRouter([
+  { path: "/", element: <Login /> },
+  { path: "/login", element: <Login /> },
+  { path: "/product/:id", element: <ProductDetail /> },
+  { path: "/register", element: <Registerpage /> },
+  { path: "/search", element: <Search /> },
+  { path: "/searchBeta", element: <SearchResponsiveBeta /> },
+]);

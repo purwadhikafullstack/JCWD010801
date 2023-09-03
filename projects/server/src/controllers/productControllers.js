@@ -236,35 +236,52 @@ module.exports = {
     },
     getAllProducts: async (req, res) => {
         try {
-            const search = req.query.search || ""
-            const page = req.query.page || 1
-            const limit = req.query.limit || 10
-            const sort = req.query.sort || "ASC"
-            const sortBy = req.query.sortBy || "productName"
+            const { search = '', CategoryId, page = 1, sortBy = 'productName', sortOrder = 'ASC', itemLimit = 15 } = req.query;
 
-            const queriedCount = await products.count(
-                { where: { productName: { [Op.like]: `%${search}%` }, isDeleted: false } }
-            )
-            const result = await products.findAll(
-                {
-                    where: { productName: { [Op.like]: `%${search}%` }, isDeleted: false },
-                    order: [[sortBy, sort]],
-                    limit,
-                    offset: limit * (page - 1)
-                }
-            )
-            return (
-                res.status(200).send({
-                    totalPages: Math.ceil(queriedCount / limit),
-                    currentPage: page,
-                    result
-                })
-            )
+            const whereCondition = {
+                productName: { [Op.like]: `%${search}%` },
+                isDeleted: false,
+            };
 
+            if (CategoryId) {
+                whereCondition.CategoryId = CategoryId;
+            };
+
+            const queriedCount = await products.count({
+                where: whereCondition,
+            });
+
+            let orderCriteria = [];
+            if (sortBy === 'productName') {
+                orderCriteria.push(['productName', sortOrder]);
+            } else if (sortBy === 'price') {
+                orderCriteria.push(['price', sortOrder]);
+            } else if (sortBy === 'createdAt') {
+                orderCriteria.push(['createdAt', sortOrder]);
+            } else {
+                orderCriteria.push(['productName', 'ASC']);
+            };
+
+            const result = await products.findAll({
+                where: whereCondition,
+                order: orderCriteria,
+                limit: itemLimit,
+                offset: itemLimit * (page - 1),
+            });
+
+            const totalPages = Math.ceil(queriedCount / itemLimit);
+
+            return res.status(200).send({
+                totalProducts: queriedCount,
+                totalPages,
+                currentPage: page,
+                result,
+            });
         } catch (error) {
-            res.status(500).send({
+            console.error(error);
+            return res.status(500).send({
                 status: 500,
-                message: "Internal server error."
+                message: 'Internal server error.',
             });
         }
     },

@@ -107,7 +107,7 @@ module.exports = {
                 email,
                 phone,
                 password: hashPassword,
-                RoleId: 0,
+                RoleId: 1,
             });
             const payload = { id: result.id };
             const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
@@ -129,4 +129,4 @@ module.exports = {
             res.status(400).send(error);
         }
     },
-}
+};

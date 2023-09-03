@@ -3,20 +3,21 @@ import { Box, Button, Flex, IconButton, Image, Tabs, Tab, TabPanels, TabPanel, T
 import { MinusIcon, AddIcon } from "@chakra-ui/icons";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-// import { Navbar } from "../components/navbar";
+import { Navbar } from "../components/navbar";
+import { Footer } from "../components/footer";
 
 export const ProductDetail = () => {
     const params = useParams();
     // const data = useSelector((state) => state.user.value.isAdmin);
     const [product, setProduct] = useState([]);
-    const [category, setCategory] = useState({});
+    const [category, setCategory] = useState("");
     const [quantity, setQuantity] = useState(1);
 
     const fetchData = async () => {
         try {
-            const productResponse = await Axios.get(`http://localhost:8000/api/product/${params.id}`);
+            const productResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/${params.id}`);
             setProduct(productResponse.data.result);
-            const categoryResponse = await Axios.get(`http://localhost:8000/api/product/category/${productResponse.data.result.CategoryId}`);
+            const categoryResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/category/${productResponse.data.result.CategoryId}`);
             setCategory(categoryResponse.data.result.category);
         } catch (error) {
             console.error(error);
@@ -55,29 +56,25 @@ export const ProductDetail = () => {
     );
 
     return (
-        <Box>
-            {/* <Box><Navbar /></Box> */}
+        <Box align={'center'}>
+            <Box><Navbar /></Box>
             <Flex
                 justify={'center'}
                 align={'center'}
-                ml={'70px'}
-                pt={{ base: "70px", sm: "100px" }}
-                pl={{ base: "10px", sm: "30px", md: "50px" }}
+                pt={{ base: "25px", sm: "45px" }}
                 wrap={"wrap"}
                 w={{ base: "1280px", sm: "1280px", md: "1280px" }}
                 gap={"20px"}
             >
 
-                <Box>
-                    {Object.keys(category).length > 0 && (
-                        <Box fontSize={{ base: "16px", sm: "18px", md: "20px" }} color="gray.600" mb="20px">
-                            <Link to="/products">Browse Products</Link>
-                            {" > "}
-                            <Link to={`/category/${product.CategoryId}`}>{category}</Link>
-                            {" > "}
-                            {product.productName}
-                        </Box>
-                    )}
+                <Box >
+                    <Box fontSize={{ base: "16px", sm: "18px", md: "20px" }} color="gray.600" mb="20px" textAlign={'left'}>
+                        <Link to="/search">Browse Products</Link>
+                        {" > "}
+                        <Link to={`/category/${product.CategoryId}`}>{category}</Link>
+                        {" > "}
+                        {product.productName}
+                    </Box>
                     <Box>
                         <Image
                             alignSelf={'left'}
@@ -85,13 +82,13 @@ export const ProductDetail = () => {
                             boxShadow={"1px 2px 3px black"}
                             w={{ base: "550px", sm: "550px", md: "600px", lg: "700px" }}
                             h={{ base: "350px", sm: "350px", md: "400px", lg: "520px" }}
-                            src={`http://localhost:8000/products/${product?.imgURL}`}
+                            src={`${process.env.REACT_APP_BASE_URL}/products/${product?.imgURL}`}
                         />
                     </Box>
                 </Box>
-                <Box w={'450px'} h={'425px'} borderRadius={'20px'} ml={'50px'} boxShadow={"7px 7px 7px gray"}>
+                <Box w={'450px'} h={'475px'} borderRadius={'20px'} ml={'50px'} boxShadow={"7px 7px 7px gray"}>
                     <Box mb={"110px"} alignContent={"center"} mr={{ base: "5px" }} mx={'25px'}>
-                        <Box
+                        <Flex
                             pt={"10px"}
                             pb={"5px"}
                             borderBottom={"1px solid #D3D3D3"}
@@ -102,7 +99,7 @@ export const ProductDetail = () => {
                             fontWeight={"bold"}
                         >
                             {product.productName}
-                        </Box>
+                        </Flex>
                         <Flex
                             color={"gray.700"}
                             textShadow={"2px 2px 2px gray"}
@@ -125,7 +122,7 @@ export const ProductDetail = () => {
                                 In Stock :
                             </Box>
                             <Box ml={"5px"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-                                {product.stock} units
+                                {product.stock} Units
                             </Box>
                         </Flex>
                         <Flex
@@ -136,10 +133,10 @@ export const ProductDetail = () => {
                             fontFamily={"sans-serif"}
                         >
                             <Box fontWeight={"bold"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-                                Weight :
+                                Weight ‎ ‎ :
                             </Box>
                             <Box ml={"5px"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-                                {product.weight} grams
+                                {(product.weight / 1000).toFixed(2)} Kilograms
                             </Box>
                         </Flex>
                         <Box
@@ -152,7 +149,7 @@ export const ProductDetail = () => {
                             <Flex
                                 alignItems="center"
                                 w="100%"
-                                mt="25px"
+                                mt="35px"
                             >
                                 <Flex
                                     alignItems="center"
@@ -161,6 +158,7 @@ export const ProductDetail = () => {
                                     h="45px"
                                     border="1px solid black"
                                     borderRadius="8px"
+                                    ml={'-25px'}
                                 >
                                     <IconButton
                                         aria-label="Decrease Quantity"
@@ -180,7 +178,21 @@ export const ProductDetail = () => {
                                         bg="transparent"
                                     />
                                 </Flex>
-                                <Button ml={'25px'} style={{ backgroundColor: '#000000', color: 'white' }}>
+                                <Button
+                                    backgroundColor={'#000000'}
+                                    color={'white'}
+                                    ml={'25px'}
+                                    _hover={{
+                                        textColor: '#0A0A0B',
+                                        bg: '#F0F0F0',
+                                        _before: {
+                                            bg: 'inherit',
+                                        },
+                                        _after: {
+                                            bg: 'inherit',
+                                        },
+                                    }}
+                                >
                                     Add to Cart
                                 </Button>
                             </Flex>
@@ -212,7 +224,7 @@ export const ProductDetail = () => {
                             Product Reviews
                         </Tab>
                     </TabList>
-                    <TabPanels>
+                    <TabPanels mb={'50px'}>
                         <TabPanel>
                             <Box fontWeight={"bold"}>Product Description :</Box>
                             <Box mt={'35px'}>{product.description}</Box>
@@ -226,6 +238,7 @@ export const ProductDetail = () => {
                     </TabPanels>
                 </Tabs>
             </Flex>
+            <Box><Footer /></Box>
         </Box>
     )
 };
