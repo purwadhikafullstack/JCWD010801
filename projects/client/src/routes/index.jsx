@@ -4,6 +4,7 @@ import { Registerpage } from "../pages/register";
 import { ProductDetail } from "../pages/productDetail";
 import { Search } from "../pages/search";
 import { SearchResponsiveBeta } from "../pages/search_resBeta";
+import { VerificationPage } from "../pages/verification";
 
 export const AppRouter = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -12,4 +13,5 @@ export const AppRouter = createBrowserRouter([
   { path: "/register", element: <Registerpage /> },
   { path: "/search", element: <Search /> },
   { path: "/searchBeta", element: <SearchResponsiveBeta /> },
+  { path: "/verification/:token", element:<VerificationPage /> },
 ]);
