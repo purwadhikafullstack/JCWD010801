@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import AlphamartLogo from "../../assets/public/AM_logo_trans.png";
-import Alpha from "../../assets/public/AM_logo_only_trans.png"
+import Alpha from "../../assets/public/AM_logo_only_trans.png";
 import { useNavigate } from "react-router-dom";
 import { CiLocationOn } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
@@ -33,7 +33,7 @@ export const NavbarMobile = () => {
 
   return (
     <>
-      <Flex display={{ base: "flex", lg: "none" }} >
+      <Flex display={{ base: "flex", lg: "none" }}>
         <Button
           onClick={onOpen}
           bgColor={"white"}
@@ -49,7 +49,7 @@ export const NavbarMobile = () => {
             display={{ base: "block", lg: "none" }}
           />
         </Button>
-        <Image src={Alpha} w={'40px'} />
+        <Image src={Alpha} w={"40px"} />
       </Flex>
       <Drawer isOpen={isOpen} placement={"left"} onClose={onClose} size={"xs"}>
         <DrawerOverlay>
@@ -84,7 +84,7 @@ export const NavbarMobile = () => {
                 </ListItem>
                 <ListItem
                   cursor={"pointer"}
-                  onClick={() => navigate('/searchBeta')}
+                  onClick={() => navigate("/searchBeta")}
                   p={2}
                   borderRadius={"10px"}
                 >

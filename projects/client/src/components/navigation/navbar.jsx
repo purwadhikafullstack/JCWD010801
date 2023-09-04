@@ -39,9 +39,9 @@ export const Navbar = ({ isNotDisabled = true }) => {
   const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
 
   const logout = () => {
-    localStorage.removeItem('token')
-    navigate('/')
-  }
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   return (
     <>
@@ -49,15 +49,15 @@ export const Navbar = ({ isNotDisabled = true }) => {
         <Flex
           alignItems={"center"}
           justifyContent={"space-between"}
-          position={'sticky'}
+          position={"sticky"}
           top={0}
           zIndex={10}
           w={"100%"}
           bgColor={"white"}
         >
           <Flex
-            mx={{ base: '10px', md: '30px', lg: '50px' }}
-            my={{ base: '20px', lg: 0 }}
+            mx={{ base: "10px", md: "30px", lg: "50px" }}
+            my={{ base: "20px", lg: 0 }}
             w="100%"
             h="100%"
             justifyContent={"space-between"}
@@ -68,38 +68,52 @@ export const Navbar = ({ isNotDisabled = true }) => {
               cursor={"pointer"}
               onClick={() => navigate("/")}
               src={logo}
-              w={'150px'}
+              w={"150px"}
             />
             <Flex
               gap={"2rem"}
               alignItems={"center"}
-              display={{ base: 'none', lg: 'flex' }}
+              display={{ base: "none", lg: "flex" }}
               justifyContent={"space-between"}
             >
               <Flex gap="2" alignItems={"center"} justifyContent={"center"}>
                 <Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
                 <Stack gap={0}>
-                  <Text fontSize={{base: 'xs', lg: 'sm'}}>Deliver to</Text>
+                  <Text fontSize={{ base: "xs", lg: "sm" }}>Deliver to</Text>
                   <Text
                     onClick={() => navigate("/")}
                     cursor={"pointer"}
-                    fontSize={{base: 'sm', lg: 'md'}}
+                    fontSize={{ base: "sm", lg: "md" }}
                     fontWeight={"medium"}
                   >
                     Address
                   </Text>
                 </Stack>
               </Flex>
-              <Text onClick={() => navigate('/search')} fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
+              <Text
+                onClick={() => navigate("/search")}
+                fontSize={{ base: "sm", lg: "md" }}
+                cursor={"pointer"}
+                fontWeight={"medium"}
+              >
                 Shop
               </Text>
-              <Text onClick={() => navigate('/')} fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
+              <Text
+                onClick={() => navigate("/")}
+                fontSize={{ base: "sm", lg: "md" }}
+                cursor={"pointer"}
+                fontWeight={"medium"}
+              >
                 Voucher
               </Text>
               <Popover>
                 <PopoverTrigger>
                   <Flex gap={3} alignItems={"center"}>
-                    <Text fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
+                    <Text
+                      fontSize={{ base: "sm", lg: "md" }}
+                      cursor={"pointer"}
+                      fontWeight={"medium"}
+                    >
                       Branch 1 (useLocation)
                     </Text>
                     <Icon as={BsChevronDown} w={4} h={4} color={"black"} />
@@ -107,7 +121,11 @@ export const Navbar = ({ isNotDisabled = true }) => {
                 </PopoverTrigger>
                 <PopoverContent>
                   <PopoverHeader justifyContent={"center"} w="100%">
-                    <Text textAlign={'center'} fontWeight={"medium"} fontSize={"lg"}>
+                    <Text
+                      textAlign={"center"}
+                      fontWeight={"medium"}
+                      fontSize={"lg"}
+                    >
                       Select Branch Location
                     </Text>
                   </PopoverHeader>
@@ -115,24 +133,26 @@ export const Navbar = ({ isNotDisabled = true }) => {
                     {branches.map((item, index) => {
                       return (
                         <>
-                        <Text
-                          textAlign={'center'}
-                          as={Box}
-                          key={index}
-                          role={"group"}
-                          borderRadius={"md"}
-                          p={2}
-                          fontWeight={400}
-                          color={"gray.500"}
-                          _hover={{
-                            bgColor: "blackAlpha.100",
-                            color: "black",
-                            fontWeight: 500,
-                          }}
-                        >
-                          {item}
-                        </Text>
-                        {(index + 1) !== branches.length && <Divider size={'xl'} colorScheme="gray"/>}
+                          <Text
+                            textAlign={"center"}
+                            as={Box}
+                            key={index}
+                            role={"group"}
+                            borderRadius={"md"}
+                            p={2}
+                            fontWeight={400}
+                            color={"gray.500"}
+                            _hover={{
+                              bgColor: "blackAlpha.100",
+                              color: "black",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {item}
+                          </Text>
+                          {index + 1 !== branches.length && (
+                            <Divider size={"xl"} colorScheme="gray" />
+                          )}
                         </>
                       );
                     })}
@@ -141,8 +161,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
               </Popover>
             </Flex>
             <Flex gap={3} alignItems={"center"}>
-              <SearchMobile/>
-              <InputGroup display={{ base: 'none', sm: 'block' }}>
+              <SearchMobile />
+              <InputGroup display={{ base: "none", sm: "block" }}>
                 <Input
                   type="search"
                   bgColor={"whiteAlpha.300"}
@@ -153,58 +173,59 @@ export const Navbar = ({ isNotDisabled = true }) => {
                   <Icon as={LuSearch} />
                 </InputLeftElement>
               </InputGroup>
-                  <Button bgColor={'white'} rounded={'full'} cursor={"pointer"}>
+              <Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
+                <Icon as={BsCart} w="5" h="5" color={"black"} />
+              </Button>
+              <Menu alignSelf={"center"}>
+                <MenuButton>
+                  <Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
                     <Icon
-                      as={BsCart}
+                      as={BsPerson}
                       w="5"
                       h="5"
-                      color={"black"}
+                      color="black"
+                      cursor={"pointer"}
                     />
                   </Button>
-                  <Menu alignSelf={'center'}>
-                    <MenuButton>
-                      <Button bgColor={'white'} rounded={'full'} cursor={"pointer"} >
-                        <Icon as={BsPerson} w="5" h="5" color="black"cursor={'pointer'} />
-                      </Button>
-                    </MenuButton>
-                    {token ? (
-                    <MenuList>
-                      <Stack
-                        alignItems={"center"}
-                        justifyContent={"center"}
-                        p="3"
-                      >
-                        <Avatar size={"lg"} />
-                        <Text fontWeight={"bold"}>Username</Text>
-                        <Text>Email</Text>
-                      </Stack>
-                      <MenuDivider />
-                      <MenuItem onClick={() => navigate("/")} gap="3">
-                        <Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
-                        <Text>Dashboard</Text>
-                      </MenuItem>
-                      <MenuItem onClick={() => navigate("/")} gap="3">
-                        <Icon as={BsPerson} w="5" h="5" color="black" />
-                        <Text>Profile</Text>
-                      </MenuItem>
-                      <MenuItem onClick={logout} gap="3">
-                        <Icon as={MdLogout} w="5" h="5" color="black" />
-                        <Text>Logout</Text>
-                      </MenuItem>
-                    </MenuList>
-                    ): (
-                        <MenuList>
-                            <MenuItem onClick={() => navigate("/login")} gap="3">
-                                <Icon as={MdLogin} w="5" h="5" color="black" />
-                                <Text>Sign In</Text>
-                            </MenuItem>
-                            <MenuItem onClick={() => navigate("/register")} gap="3">
-                                <Icon as={MdAppRegistration} w="5" h="5" color="black" />
-                                <Text>Register</Text>
-                            </MenuItem>
-                        </MenuList>
-                    )}
-                  </Menu>
+                </MenuButton>
+                {token ? (
+                  <MenuList>
+                    <Stack
+                      alignItems={"center"}
+                      justifyContent={"center"}
+                      p="3"
+                    >
+                      <Avatar size={"lg"} />
+                      <Text fontWeight={"bold"}>Username</Text>
+                      <Text>Email</Text>
+                    </Stack>
+                    <MenuDivider />
+                    <MenuItem onClick={() => navigate("/")} gap="3">
+                      <Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
+                      <Text>Dashboard</Text>
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/")} gap="3">
+                      <Icon as={BsPerson} w="5" h="5" color="black" />
+                      <Text>Profile</Text>
+                    </MenuItem>
+                    <MenuItem onClick={logout} gap="3">
+                      <Icon as={MdLogout} w="5" h="5" color="black" />
+                      <Text>Logout</Text>
+                    </MenuItem>
+                  </MenuList>
+                ) : (
+                  <MenuList>
+                    <MenuItem onClick={() => navigate("/login")} gap="3">
+                      <Icon as={MdLogin} w="5" h="5" color="black" />
+                      <Text>Sign In</Text>
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/register")} gap="3">
+                      <Icon as={MdAppRegistration} w="5" h="5" color="black" />
+                      <Text>Register</Text>
+                    </MenuItem>
+                  </MenuList>
+                )}
+              </Menu>
             </Flex>
           </Flex>
         </Flex>
