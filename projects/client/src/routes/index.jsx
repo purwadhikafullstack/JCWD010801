@@ -15,5 +15,3 @@ export const AppRouter = createBrowserRouter([
   { path: "/searchBeta", element: <SearchResponsiveBeta /> },
   { path: "/verification/:token", element:<VerificationPage /> },
 ]);
-
-export const routes = createRoutesFromElements(Routes);

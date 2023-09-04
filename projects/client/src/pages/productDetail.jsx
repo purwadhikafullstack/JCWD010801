@@ -108,7 +108,7 @@ export const ProductDetail = () => {
                             fontFamily={"sans-serif"}
                         >
                             <Box fontSize={{ base: "25px", sm: "27px", md: "34px" }} fontWeight={'bold'}>
-                                Rp. {(product.price)?.toLocaleString("id-ID")},00
+                                Rp. {(product.price)?.toLocaleString("id-ID")}
                             </Box>
                         </Flex>
                         <Flex
