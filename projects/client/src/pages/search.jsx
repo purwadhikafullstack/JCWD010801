@@ -288,7 +288,6 @@ export const Search = () => {
                             placeholder="Select a Category"
                             value={selectedCategory.toString()}
                             onChange={(e) => {
-                                console.log("Selected Category:", e.target.value);
                                 setSelectedCategory(parseInt(e.target.value, 10));
                             }}
                             w={"200px"}
