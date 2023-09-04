@@ -2,11 +2,13 @@ import React from 'react'
 import { EmblaCarousel } from './carousel'
 import './embla.css'
 import {images} from './imageByIndex'
+import { Image } from "@chakra-ui/react";
 
 const OPTIONS = { loop: true }
 // const SLIDES = Array.from(Array(images.length).keys())
 const SLIDES = Array.from(Array(images.length).keys())
 console.log(SLIDES)
+console.log(images)
 
 export const Banner = ({ slides, options }) => {
     return (

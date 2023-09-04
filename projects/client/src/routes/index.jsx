@@ -4,7 +4,7 @@ import Homepage from "../pages/Home";
 import { Layout } from "../pages/layout";    
 import { Login } from "../pages/login";
 
-import { Registerpage } from "../pages/register";
+import { Registerpage } from "../pages/Register";
 const Routes = (
     <>
         <Route path="/" element={<Layout/>}>

@@ -2,16 +2,22 @@ import { Banner } from "./banner";
 import { Stack } from "@chakra-ui/react";
 import { Features } from "./features";
 import { Categories } from "./categories";
-import { SUggestion } from "./products";
+import { Suggestion } from "./products";
+import { Newsletter } from "./newsletter";
 
 const HomepageView = () => {
   // return <div>WELCOME TO α MART TEST</div>;
   return (
-    <Stack m={'3rem 5rem'} gap ={'4rem'}>
+    <Stack
+    mx={{ base: '10px', md: '30px', lg: '50px' }}
+    my={{ base: '30px' }}
+    gap ={'4rem'}
+    >
       <Banner/>
+      <Suggestion/>
       <Features/>
       <Categories/>
-      <SUggestion/>
+      <Newsletter/>
     </Stack>
   )
 };
