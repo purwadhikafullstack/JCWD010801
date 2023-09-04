@@ -18,7 +18,7 @@ const { userRouters, adminRouters, productRouters } = require("./routers");
 
 server.use(cors());
 server.use(express.json());
-server.use(express.static('./public'));
+server.use(express.static('./src/public'));
 
 //#region API ROUTES
 // ===========================

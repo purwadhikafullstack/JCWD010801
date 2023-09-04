@@ -1,12 +1,11 @@
 import React from "react";
-import { Flex, Image, Box } from "@chakra-ui/react";
-
 import source from "../../assets/public/AM_backgroundLogin.png";
 import sourceLogo from "../../assets/public/AM_logo_white.png";
 import sourceGraphic from "../../assets/public/AM_graphic.png";
+import { Flex, Image, Box } from "@chakra-ui/react";
 import { RegisterFields } from "./components/registerField";
 
-export const RegisterpageView = () => {
+export const RegisterPageView = () => {
   return (
     <Flex minH="100vh" justifyContent="center">
       <Image position="absolute" w="full" h="100%" src={source} />
@@ -33,7 +32,7 @@ export const RegisterpageView = () => {
         w={["260px", "380px", "400px"]}
         minH={["90%", "700px"]}
         pb={"5"}
-       
+
         bg="#F6F6F6"
       >
         <Flex align="center" justify="center" h="100%" w={"100%"}>

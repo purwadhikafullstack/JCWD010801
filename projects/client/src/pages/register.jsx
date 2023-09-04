@@ -1,5 +1,5 @@
-import { RegisterpageView } from "../views/Register";
+import { RegisterPageView } from "../views/Register";
 
 export const Registerpage = () => {
-  return <RegisterpageView />;
+  return <RegisterPageView />;
 };
