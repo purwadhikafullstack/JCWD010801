@@ -288,7 +288,6 @@ export const Search = () => {
                             placeholder="Select a Category"
                             value={selectedCategory.toString()}
                             onChange={(e) => {
-                                console.log("Selected Category:", e.target.value);
                                 setSelectedCategory(parseInt(e.target.value, 10));
                             }}
                             w={"200px"}
@@ -330,12 +329,14 @@ export const Search = () => {
                                     return (
                                         <Box
                                             key={data.id}
-                                            onClick={() => productDetail(data.id)}
+                                            display="flex"
+                                            flexDirection="column"
                                             cursor={"pointer"}
                                             boxShadow={"0px 0px 5px gray"}
                                             borderRadius={"10px"}
                                             w={"190px"}
                                             h={"250px"}
+                                            onClick={() => productDetail(data.id)}
                                         >
                                             <Box h={"165px"}>
                                                 <Image
@@ -346,22 +347,45 @@ export const Search = () => {
                                                 />
                                             </Box>
                                             <Box
+                                                flex="1"
+                                                display="flex"
+                                                flexDirection="column"
                                                 borderBottomRadius={"10px"}
                                                 textShadow={"0px 0px 1px gray"}
                                                 justifyContent={"center"}
                                                 fontFamily={"revert"}
-                                                bgColor={'#F0F0F0'}
+                                                bgColor={"#F0F0F0"}
                                                 color={"gray.700"}
-                                                pt={'10px'}
+                                                pt={"10px"}
                                                 pb={'25px'}
                                                 px={"25px"}
-                                                fontSize={"14px"}
+                                                width="100%"
+                                                whiteSpace="nowrap"
+                                                overflow="hidden"
+                                                textOverflow="ellipsis"
                                             >
-                                                <Box color={"gray.700"} mb={1} textAlign={'center'} fontWeight={"bold"} fontSize={'16px'}>{data.productName}</Box>
-                                                <Box color={"gray.700"} textAlign={'center'} fontSize={'15px'}>
+                                                <Box
+                                                    color={"gray.700"}
+                                                    mb={1}
+                                                    textAlign={'center'}
+                                                    fontWeight={"bold"}
+                                                    fontSize={'16px'}
+                                                    overflow="hidden"
+                                                    textOverflow="ellipsis"
+                                                >
+                                                    {data.productName}
+                                                </Box>
+                                                <Box
+                                                    color={"gray.700"}
+                                                    textAlign={'center'}
+                                                    fontSize={'15px'}
+                                                    overflow="hidden"
+                                                    textOverflow="ellipsis"
+                                                >
                                                     Rp. {(data.price).toLocaleString("id-ID")}
                                                 </Box>
                                             </Box>
+
                                         </Box>
                                     );
                                 })}
@@ -383,7 +407,7 @@ export const Search = () => {
                                         }}
                                         onClick={prevPage}
                                     >
-                                        Prev
+                                        Prev.
                                     </Button>
                                 )}
                                 {page < totalPages && (
