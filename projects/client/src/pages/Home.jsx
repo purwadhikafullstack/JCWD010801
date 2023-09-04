@@ -1,8 +1,8 @@
-import HomepageView from "../views/Home";
+import { HomepageView } from "../views/Home";
 
 const Homepage = () => {
   return (
-      <HomepageView/>
+      <HomepageView />
   );
 };
 

@@ -5,8 +5,7 @@ import { Categories } from "./categories";
 import { Suggestion } from "./products";
 import { Newsletter } from "./newsletter";
 
-const HomepageView = () => {
-  // return <div>WELCOME TO α MART TEST</div>;
+export const HomepageView = () => {
   return (
     <Stack
     mx={{ base: '10px', md: '30px', lg: '50px' }}
@@ -21,5 +20,3 @@ const HomepageView = () => {
     </Stack>
   )
 };
-
-export default HomepageView;

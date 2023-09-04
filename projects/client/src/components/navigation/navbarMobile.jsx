@@ -33,7 +33,7 @@ export const NavbarMobile = () => {
 
   return (
     <>
-      <Flex >
+      <Flex display={{ base: "flex", lg: "none" }} >
         <Button
           onClick={onOpen}
           bgColor={"white"}
@@ -84,7 +84,7 @@ export const NavbarMobile = () => {
                 </ListItem>
                 <ListItem
                   cursor={"pointer"}
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate('/searchBeta')}
                   p={2}
                   borderRadius={"10px"}
                 >

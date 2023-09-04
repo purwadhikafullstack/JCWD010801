@@ -13,14 +13,14 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     imgURL: DataTypes.STRING,
-    isDeleted : {
-      type : DataTypes.BOOLEAN,
-      defaultValue:false
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     sequelize,
     modelName: 'Categories',
-    timestamps : false
+    timestamps: false
   });
   return Categories;
 };

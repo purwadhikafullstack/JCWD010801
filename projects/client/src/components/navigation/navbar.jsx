@@ -90,10 +90,10 @@ export const Navbar = ({ isNotDisabled = true }) => {
                   </Text>
                 </Stack>
               </Flex>
-              <Text fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
+              <Text onClick={() => navigate('/search')} fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
                 Shop
               </Text>
-              <Text fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
+              <Text onClick={() => navigate('/')} fontSize={{base: 'sm', lg: 'md'}} cursor={"pointer"} fontWeight={"medium"}>
                 Voucher
               </Text>
               <Popover>

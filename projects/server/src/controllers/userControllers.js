@@ -88,16 +88,17 @@ module.exports = {
         }
     },
     register: async (req, res) => {
-      try {
-        const { username, firstName, lastName,email, phone, password } = req.body;
-        const isAccountExist = await user.findOne({
-          where: { [Op.or]: { username, email } },
-        });
-        if (isAccountExist && isAccountExist.email === email) {
-          throw { message: "Enail has been used" };
-        } else if (isAccountExist && isAccountExist.username === username) {
-          throw { message: "Username has been used" };
-        }
+        try {
+            const { username, firstName, lastName, email, phone, password } = req.body;
+            const isAccountExist = await user.findOne({
+                where: { [Op.or]: { username, email } },
+            });
+            if (isAccountExist && isAccountExist.email === email) {
+                throw { message: "Enail has been used" };
+            } else if (isAccountExist && isAccountExist.username === username) {
+                throw { message: "Username has been used" };
+            };
+          
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(password, salt);
         const result = await user.create({
@@ -107,7 +108,7 @@ module.exports = {
           email,
           phone,
           password: hashPassword,
-          RoleId: 0,
+          RoleId: 1,
         });
         const payload = { id: result.id };
         const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
@@ -124,9 +125,36 @@ module.exports = {
           status: true,
           message: "Register success. Check your email to verify",
           result,
+          token,
         });
       } catch (error) {
         res.status(400).send(error);
       }
     },
-}
+    verificationAccount: async (req,res) => {
+        try {
+            const isAccountExist = await user.findOne({
+                where:{
+                    id:req.user.id,
+                }
+            })
+            if (isAccountExist.isVerified) throw {message :"Account is already verified"}
+            const result = await user.update(
+                {
+                  isVerified: true,
+                },
+                {
+                  where: {
+                    id: isAccountExist.id,
+                  },
+                }
+              );
+              res.status(200).send({
+                message: "Verify success",
+              });
+            
+        } catch (error) {
+            res.status(400).send(error);
+        }
+    },
+};

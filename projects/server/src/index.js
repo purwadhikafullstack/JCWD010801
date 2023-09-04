@@ -18,7 +18,7 @@ const { userRouters, adminRouters, productRouters } = require("./routers");
 
 server.use(cors());
 server.use(express.json());
-server.use(express.static('./public'));
+server.use(express.static('./src/public'));
 
 //#region API ROUTES
 // ===========================
@@ -75,7 +75,7 @@ server.listen(PORT, (err) => {
   if (err) {
     console.log(`ERROR: ${err}`);
   } else {
-    db.sequelize.sync({ alter: true });
+    // db.sequelize.sync({ alter: true });
     console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
   }
 });
