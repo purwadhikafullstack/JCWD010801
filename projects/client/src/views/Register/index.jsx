@@ -1,8 +1,8 @@
 import React from "react";
-import { Flex, Image, Box } from "@chakra-ui/react";
 import source from "../../assets/public/AM_backgroundLogin.png";
 import sourceLogo from "../../assets/public/AM_logo_white.png";
 import sourceGraphic from "../../assets/public/AM_graphic.png";
+import { Flex, Image, Box } from "@chakra-ui/react";
 import { RegisterFields } from "./components/registerField";
 
 export const RegisterPageView = () => {
