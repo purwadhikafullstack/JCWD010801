@@ -12,9 +12,9 @@ import { BsFillPersonFill, BsFillPersonPlusFill } from 'react-icons/bs';
 export const Login = () => {
     // const token = localStorage.getItem("token");
     // useEffect(() => {
-    //     // if (token) {
-    //     //     navigate("/");
-    //     // }
+        // if (token) {
+        //     navigate("/");
+        // }
     // }, []);
     return (
         <>
@@ -67,4 +67,4 @@ export const Login = () => {
             </Flex>
         </>
     );
-}
+};
