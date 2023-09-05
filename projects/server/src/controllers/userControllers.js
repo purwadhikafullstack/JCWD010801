@@ -158,4 +158,47 @@ module.exports = {
             res.status(400).send(error);
         }
     },
+    forgotPassword: async(req, res) => {
+        try {
+            const result = user.findOne({ where: { email: req.body.email } });
+            if ( !result ) throw { message: 'Email not found' };
+
+            const payload = { email: req.body.email };
+            const token = jwt.sign( payload, process.env.KEY_JWT, { expiresIn: '1h' } );
+
+            const data = await fs.readFileSync( './src/templates/resetPassword.html', 'utf-8' );
+            const tempCompile = await handlebars.compile( data );
+            const tempResult = tempCompile( { username: result.username, token } );
+            await transporter.sendMail({
+                from: process.env.NODEMAILER_USER,
+                to: req.body.email,
+                subject: 'Reset Password',
+                html: tempResult
+            });
+
+            res.status(200).send({
+                status: true,
+                message: 'Reset password link sent. Please check your email.',
+                token
+            });
+            
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+    resetPassword: async(req, res) => {
+        try {
+            const salt = await bcrypt.genSalt(10);
+            const hashPassword = await bcrypt.hash( req.body.password, salt );
+            user.update({ password: hashPassword }, { where: { id: req.user.id } });
+
+            res.status(200).send({
+                status: true,
+                message: 'Reset password successful'
+            });
+
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    }
 };
