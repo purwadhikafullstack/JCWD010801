@@ -30,7 +30,7 @@ export const AdminLogin = () => {
             dispatch(setValue(response.data.user));
             localStorage.setItem("token", response.data.token);
             setSuccess(true);
-            navigate("/");
+            navigate("/adminslist");
             toast.success("Welcome", {
                 position: "top-right",
                 autoClose: 4000,

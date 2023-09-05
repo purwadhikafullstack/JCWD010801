@@ -1,9 +1,6 @@
+import { AdminListPage } from "../views/Admin List"
 
 
 export const AdminsList = () => {
-    return (
-        <>
-        cek
-        </>
-    )
+    return <AdminListPage />
 }

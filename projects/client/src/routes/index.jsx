@@ -5,8 +5,8 @@ import { ProductDetail } from "../pages/productDetail";
 import { Search } from "../pages/search";
 import { SearchResponsiveBeta } from "../pages/search_resBeta";
 import { VerificationPage } from "../pages/verification";
-import { BranchesList } from "../pages/brancheslist";
-import { AdminsList } from "../pages/adminslist";
+import { BranchesList } from "../pages/branchesList";
+import { AdminsList } from "../pages/adminsList";
 
 export const AppRouter = createBrowserRouter([
   { path: "/", element: <Login /> },
