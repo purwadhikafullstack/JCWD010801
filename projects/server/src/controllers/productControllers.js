@@ -211,7 +211,7 @@ module.exports = {
         try {
             const id = req.params.id;
             const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 8;
+            const limit = parseInt(req.query.limit) || 15;
             const queriedCount = await products.count({
                 where: { CategoryId: id, isDeleted: false }
             });
@@ -236,7 +236,8 @@ module.exports = {
     },
     getAllProducts: async (req, res) => {
         try {
-            const { search = '', CategoryId, page = 1, sortBy = 'productName', sortOrder = 'ASC', itemLimit = 15 } = req.query;
+            const { search = '', CategoryId, page = 1, sortBy = 'productName', sortOrder = 'ASC' } = req.query;
+            const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
             const whereCondition = {
                 productName: { [Op.like]: `%${search}%` },
@@ -273,6 +274,7 @@ module.exports = {
 
             return res.status(200).send({
                 totalProducts: queriedCount,
+                productsPerPage: itemLimit,
                 totalPages,
                 currentPage: page,
                 result,

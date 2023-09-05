@@ -1,9 +1,9 @@
 import { Button, Flex } from "@chakra-ui/react";
 
-export const Pagination = ({ page, totalPages, prevPage, nextPage, goToPage, lastPage }) => {
+export const Pagination = ({ page, totalPages, prevPage, nextPage, goToPage, lastPage, isMobile }) => {
 	const getPageButtons = () => {
-		const pagesToShow = 6;
 		const pageButtons = [];
+		const pagesToShow = isMobile ? 0 : 6;
 		let startPage = Math.max(1, Math.min(page - Math.floor(pagesToShow / 2), totalPages - pagesToShow + 1));
 		let endPage = Math.min(totalPages, startPage + pagesToShow - 1);
 
@@ -45,7 +45,7 @@ export const Pagination = ({ page, totalPages, prevPage, nextPage, goToPage, las
 			);
 		}
 
-		if (page > 1) {
+		if (page > 1 && !isMobile) {
 			pageButtons.push(
 				<Button
 					key="first"
@@ -66,7 +66,7 @@ export const Pagination = ({ page, totalPages, prevPage, nextPage, goToPage, las
 					First
 				</Button>
 			);
-		} else {
+		} else if (!isMobile) {
 			pageButtons.push(
 				<Button key="first-disabled" isDisabled backgroundColor="#000000" color="white">
 					First
@@ -114,7 +114,15 @@ export const Pagination = ({ page, totalPages, prevPage, nextPage, goToPage, las
 			}
 		}
 
-		if (page < lastPage) {
+		if (isMobile) {
+			pageButtons.push(
+				<Button key="show-current-page" isDisabled>
+					Page {page} / {totalPages}
+				</Button>
+			);
+		}
+
+		if (page < lastPage && !isMobile) {
 			pageButtons.push(
 				<Button
 					key="last"
@@ -135,7 +143,7 @@ export const Pagination = ({ page, totalPages, prevPage, nextPage, goToPage, las
 					Last
 				</Button>
 			);
-		} else {
+		} else if (!isMobile) {
 			pageButtons.push(
 				<Button key="last-disabled" isDisabled backgroundColor="#000000" color="white">
 					Last
