@@ -5,13 +5,17 @@ import { ProductDetail } from "../pages/productDetail";
 import { Search } from "../pages/search";
 import { SearchResponsiveBeta } from "../pages/search_resBeta";
 import { VerificationPage } from "../pages/verification";
+import Homepage from "../pages/Home";
+import { Layout } from "../pages/layout";
 
 export const AppRouter = createBrowserRouter([
-  { path: "/", element: <Login /> },
+  { path: "/", element: <Layout />, children: [
+    { path: "/", element: <Homepage /> },
+    { path: "/search", element: <Search /> },
+    { path: "/searchBeta", element: <SearchResponsiveBeta /> },
+    { path: "/product/:id", element: <ProductDetail /> }
+  ] },
   { path: "/login", element: <Login /> },
-  { path: "/product/:id", element: <ProductDetail /> },
   { path: "/register", element: <Registerpage /> },
-  { path: "/search", element: <Search /> },
-  { path: "/searchBeta", element: <SearchResponsiveBeta /> },
   { path: "/verification/:token", element:<VerificationPage /> },
 ]);
