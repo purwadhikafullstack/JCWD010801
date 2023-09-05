@@ -10,7 +10,7 @@ export const Error404PageView = () => {
 			justifyContent="space-between"
 		>
 			<Navbar />
-			<ErrorPageLayout title={"404 - Page not found"} />
+			<ErrorPageLayout title={"404 - Page not found"} timer={5000} />
 			<Footer />
 		</Flex>
 	);

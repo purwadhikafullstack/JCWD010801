@@ -1,20 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; // Import useState
 import { useNavigate } from "react-router-dom";
 import { Center, Text, Flex, Image } from "@chakra-ui/react";
 import { CircularProgress } from "@chakra-ui/react";
 import logo from "../assets/public/AM_logo_trans.png";
-export const ErrorPageLayout = ({ title }) => {
+
+export const ErrorPageLayout = ({ title, timer }) => {
 	const navigate = useNavigate();
+	const [countdown, setCountdown] = useState(timer / 1000);
+
 	useEffect(() => {
-		const timer = setTimeout(() => {
+		const interval = setInterval(() => {
+			setCountdown((prevCountdown) => prevCountdown - 1);
+		}, 1000);
+		if (countdown === 0) {
 			navigate("/");
-		}, 5000);
+		}
 		return () => {
-			if (timer) {
-				clearTimeout(timer);
-			}
+			clearInterval(interval);
 		};
-	}, []);
+	}, [countdown]);
 
 	return (
 		<Center
@@ -31,7 +35,7 @@ export const ErrorPageLayout = ({ title }) => {
 			</Text>
 			<Flex alignItems="center" justifyContent="center" mt="4">
 				<Text fontSize={{ base: "sm", md: "md" }}>
-					Redirecting to homepage in 5 seconds...
+					Redirecting to homepage in {countdown} seconds...
 				</Text>
 				<CircularProgress
 					isIndeterminate
