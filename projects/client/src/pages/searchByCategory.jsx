@@ -1,13 +1,15 @@
 import Axios from "axios";
+import { useParams } from "react-router-dom";
 import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
 
-const Search = () => {
-	const [products, setProducts] = useState([]);
+const SearchByCategory = () => {
+    const CategoryId = useParams();
+    const [products, setProducts] = useState([]);
 	const [categories, setCategories] = useState([]);
-	const [selectedCategory, setSelectedCategory] = useState("");
+	const [selectedCategory, setSelectedCategory] = useState(CategoryId.CategoryId);
 	const [reload, setReload] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
@@ -15,7 +17,7 @@ const Search = () => {
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
 	const navigate = useNavigate();
-  
+
 	const fetchData = async (pageNum) => {
 		try {
 			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/all?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
@@ -292,8 +294,8 @@ const Search = () => {
 							value={selectedCategory.toString()}
 							onChange={(e) => {
 								setSelectedCategory(parseInt(e.target.value, 10));
-                setPage(1);
-                setReload(!reload);
+								setPage(1);
+								setReload(!reload);
 							}}
 							w={"200px"}
 							h={"30px"}
@@ -394,7 +396,7 @@ const Search = () => {
 									prevPage={prevPage}
 									nextPage={nextPage}
 									goToPage={goToPage}
-                  lastPage={totalPages}
+									lastPage={totalPages}
 								/>
 							</Flex>
 						</Box>
@@ -405,4 +407,4 @@ const Search = () => {
 	);
 };
 
-export default Search;
+export default SearchByCategory;
