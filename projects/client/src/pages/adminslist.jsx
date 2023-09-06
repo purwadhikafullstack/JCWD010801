@@ -1,4 +1,4 @@
-import { AdminListPage } from "../views/Admin List"
+import { AdminListPage } from "../views/AdminList"
 
 const AdminsList = () => {
     return <AdminListPage />
