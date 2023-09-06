@@ -41,18 +41,8 @@ const Login = () => {
 						<Image w={["100px", "200px", "400px"]} src={sourceGraphic} />
 					</Flex>
 				</Box>
-				<Box
-					w={["260px", "380px", "400px"]}
-					h={"500px"}
-					bg={"#F6F6F6"}
-					marginY={"auto"}
-					boxShadow="0px 0px 10px black"
-				>
-					<Flex
-						display={{ base: "flex", md: "none" }}
-						mt={"15px"}
-						justifyContent={"center"}
-					>
+				<Box w={["260px", "380px", "400px"]} h={"500px"} bg={"#F6F6F6"} marginY={"auto"} boxShadow="0px 0px 10px black">
+					<Flex display={{ base: "flex", md: "none" }} mt={"15px"} justifyContent={"center"}>
 						<Image w={["200px"]} src={sourceLogoBlack} />
 					</Flex>
 					<Box>
@@ -75,19 +65,10 @@ const Login = () => {
 									<Text>‎ Admin</Text>
 								</Tab>
 							</TabList>
-							<TabIndicator
-								mt="-1.5px"
-								height="2px"
-								bg="#373433"
-								borderRadius="1px"
-							/>
+							<TabIndicator mt="-1.5px" height="2px" bg="#373433" borderRadius="1px" />
 						</Tabs>
 					</Box>
-					<Flex
-						mt={["30px", "35px", "45px"]}
-						fontSize={"12px"}
-						justifyContent={"center"}
-					>
+					<Flex mt={["30px", "35px", "45px"]} fontSize={"12px"} justifyContent={"center"}>
 						<Text>Don't have an account? ‎</Text>
 						<Text
 							as={Link}

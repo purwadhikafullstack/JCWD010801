@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       User.belongsTo(models.Roles)
+      User.belongsTo(models.Branches)
     }
   }
   User.init({
