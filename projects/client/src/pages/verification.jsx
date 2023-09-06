@@ -1,5 +1,7 @@
 import { VerificationPageView } from "../views/Verification";
 
-export const VerificationPage = () => {
+const VerificationPage = () => {
   return <VerificationPageView />;
 };
+
+export default VerificationPage;

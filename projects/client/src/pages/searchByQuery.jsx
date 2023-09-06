@@ -1,11 +1,13 @@
 import Axios from "axios";
-import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Pagination } from "../components/navigation/pagination";
+import { useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
+import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
+import { Pagination } from "../components/navigation/pagination";
 
-const Search = () => {
+const SearchByQuery = () => {
+	const query = useParams();
 	const [products, setProducts] = useState([]);
 	const [itemLimit, setItemLimit] = useState(15);
 	const [categories, setCategories] = useState([]);
@@ -13,7 +15,7 @@ const Search = () => {
 	const [reload, setReload] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-	const [search, setSearch] = useState("");
+	const [search, setSearch] = useState(query.query);
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
 	const navigate = useNavigate();
@@ -21,7 +23,6 @@ const Search = () => {
 	const fetchData = async (pageNum) => {
 		try {
 			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/all?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
-
 			if (selectedCategory) {
 				apiURL += `&CategoryId=${selectedCategory}`;
 			}
@@ -92,7 +93,7 @@ const Search = () => {
 
 	useEffect(() => {
 		fetchData(page);
-	}, [reload, search, sortOrder, selectedCategory, sortBy]);
+	}, [reload, search, sortOrder, selectedCategory, sortBy, query]);
 
 	const customInputStyle = {
 		borderColor: "gray",
@@ -149,10 +150,10 @@ const Search = () => {
 	};
 
 	return (
-		<Box w={'100vw'}>
+		<Box w={"100vw"}>
 			{isMobile ? (
 				//! MOBILE DISPLAY
-				<Center flexDirection="column" h="150vh" w='100%'>
+				<Center flexDirection="column" h="150vh" w="100%">
 					<Box
 						bgColor={"#F0F0F0"}
 						mt={"15px"}
@@ -162,7 +163,7 @@ const Search = () => {
 						p={4}
 						position="relative"
 					>
-						<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={'center'}>
+						<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={"center"}>
 							Search For Products
 						</Box>
 						<Input
@@ -704,4 +705,4 @@ const Search = () => {
 	);
 };
 
-export default Search;
+export default SearchByQuery;
