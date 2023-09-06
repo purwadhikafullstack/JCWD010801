@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Branches.hasOne(models.User)
+      Branches.hasMany(models.User)
     }
   }
   Branches.init({
