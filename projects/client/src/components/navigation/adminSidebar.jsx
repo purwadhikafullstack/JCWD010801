@@ -12,7 +12,6 @@ export const AdminSidebar = () => {
 			bg={"gray.50"}
 			borderTopRightRadius={"30px"}
 			boxShadow="0px 0px 8px black"
-			justifyContent={"space-between"}
 			direction={"column"}
 		>
 			<Flex as={Link} to={"/"} justifyContent={"center"}>
