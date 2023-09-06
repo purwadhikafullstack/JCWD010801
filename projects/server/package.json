@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "start": "nodemon",
@@ -25,6 +25,7 @@
     "sequelize": "^6.32.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
     "nodemon": "^2.0.19"
   },
   "description": ""

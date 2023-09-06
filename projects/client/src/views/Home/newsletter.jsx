@@ -1,3 +1,4 @@
+import * as Yup from "yup";
 import {
   Flex,
   Stack,
@@ -11,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { Formik, Form, ErrorMessage, Field } from "formik";
 import { MdOutlineEmail } from "react-icons/md";
-import * as Yup from "yup";
 
 export const Newsletter = () => {
   const emailSchema = Yup.object().shape({
