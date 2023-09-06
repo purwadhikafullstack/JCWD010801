@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { AdminSidebar } from "../../components/navigation/adminSidebar";
 
 export const AdminListPage = () => {
 	const navigate = useNavigate();
@@ -52,9 +53,10 @@ export const AdminListPage = () => {
 		getBranches();
 	}, [search]);
 	return (
-		<>
-			<Box w={"full"} bg={"white"}>
-				<Flex mx={"80px"} mt={"20px"} justifyContent={"space-between"}>
+		<Flex bg={"white"}>
+		<AdminSidebar/>
+			<Box my={"auto"} w={"full"} >
+				<Flex mx={"80px"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
 							Admins ({countAdmins})
@@ -156,7 +158,7 @@ export const AdminListPage = () => {
 						);
 					})}
 				</Flex>
-				<Flex mb={"25px"} justifyContent={"center"}>
+				<Flex justifyContent={"center"}>
 					<Button
 						backgroundColor={"#000000"}
 						color={"white"}
@@ -217,6 +219,6 @@ export const AdminListPage = () => {
 					</Button>
 				</Flex>
 			</Box>
-		</>
+		</Flex>
 	);
 };
