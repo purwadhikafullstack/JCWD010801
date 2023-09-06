@@ -160,11 +160,12 @@ module.exports = {
     },
     forgotPassword: async(req, res) => {
         try {
-            const result = user.findOne({ where: { email: req.body.email } });
+            const result = await user.findOne({ where: { email: req.body.email } });
             if ( !result ) throw { message: 'Email not found' };
+            console.log(result)
 
-            const payload = { email: req.body.email };
-            const token = jwt.sign( payload, process.env.KEY_JWT, { expiresIn: '1h' } );
+            const payload = { id: result.id };
+            const token = jwt.sign( payload, process.env.KEY_JWT, { expiresIn: '1d' } );
 
             const data = await fs.readFileSync( './src/templates/resetPassword.html', 'utf-8' );
             const tempCompile = await handlebars.compile( data );

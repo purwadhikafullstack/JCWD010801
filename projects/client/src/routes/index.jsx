@@ -7,6 +7,8 @@ import { SearchResponsiveBeta } from "../pages/search_resBeta";
 import { VerificationPage } from "../pages/verification";
 import Homepage from "../pages/Home";
 import { Layout } from "../pages/layout";
+import { ForgotPasswordPage } from "../pages/forgotPassword";
+import { ResetPasswordPage } from "../pages/resetPassword";
 
 export const AppRouter = createBrowserRouter([
   { path: "/", element: <Layout />, children: [
@@ -17,5 +19,7 @@ export const AppRouter = createBrowserRouter([
   ] },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Registerpage /> },
-  { path: "/verification/:token", element:<VerificationPage /> },
+  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/reset/:token", element: <ResetPasswordPage /> },
+  { path: "/verification/:token", element:<VerificationPage /> }
 ]);

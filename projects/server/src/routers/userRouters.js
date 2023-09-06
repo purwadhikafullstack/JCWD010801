@@ -9,6 +9,6 @@ router.get("/keeplogin", verifyToken, userControllers.keepLogin);
 router.post("/register", checkRegister, userControllers.register);
 router.patch("/verification", verifyToken, userControllers.verificationAccount);
 router.put("/", checkEmail, userControllers.forgotPassword);
-router.patch("/reset", checkResetPassword, userControllers.resetPassword);
+router.patch("/reset", verifyToken, checkResetPassword, userControllers.resetPassword);
 
 module.exports = router;
