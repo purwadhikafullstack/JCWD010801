@@ -23,11 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    imageUrl: {
+    imgURL: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    logitude: {
+    longitude: {
       type: DataTypes.STRING,
       allowNull: true
     },
