@@ -61,4 +61,52 @@ module.exports = {
           console.log(error);
         }
       },
+      checkEmail: async( req, res, next ) => {
+        try {
+          await body("email")
+            .notEmpty()
+            .withMessage("Email must not be empty")
+            .isEmail()
+            .withMessage("invalid email")
+            .run(req);
+
+          const validation = validationResult( req );
+          if ( validation.isEmpty() ) next()
+          else throw { validation };
+        
+        } catch (err) {
+          console.log(err)
+        }
+      },
+      checkResetPassword: async( req, res, next ) => {
+        try {
+          await body("password")
+            .notEmpty()
+            .withMessage("Password must not be empty")
+            .isStrongPassword({
+              minLength: 6,
+              minLowercase: 1,
+              minUppercase: 1,
+              minNumbers: 1,
+              minSymbols: 1,
+            })
+            .withMessage(
+              "Password must be at least 6 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one symbol"
+            )
+            .run(req);
+          await body("confirmPassword")
+            .notEmpty()
+            .withMessage("Confirm password must not be empty")
+            .equals(req.body.password)
+            .withMessage("Passwords does not match")
+            .run(req);
+            
+          const validation = validationResult( req );
+          if ( validation.isEmpty() ) next()
+          else throw { validation };
+
+        } catch (err) {
+          console.log(err);
+        }
+      }
 }

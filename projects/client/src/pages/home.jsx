@@ -1,7 +1,7 @@
 import { HomePageView } from "../views/Home";
 
 const Homepage = () => {
-	return <HomePageView />;
+  return <HomePageView />;
 };
 
 export default Homepage;
