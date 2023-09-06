@@ -1,6 +1,7 @@
 import { AdminListPage } from "../views/Admin List"
 
-
-export const AdminsList = () => {
+const AdminsList = () => {
     return <AdminListPage />
 }
+
+export default AdminsList;
