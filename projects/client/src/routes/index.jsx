@@ -1,7 +1,7 @@
-import { lazy, Suspense } from "react";
-import { createBrowserRouter } from "react-router-dom";
 import Spinner from "../components/spinner";
 import Layout from "../pages/layout";
+import { lazy, Suspense } from "react";
+import { createBrowserRouter } from "react-router-dom";
 import { Error404page } from "../pages/error404";
 const Homepage = lazy(() => import("../pages/home"));
 const Login = lazy(() => import("../pages/login"));
@@ -88,5 +88,5 @@ export const AppRouter = createBrowserRouter([
 			</Suspense>
 		),
 	},
-	{path:"*", element:<Error404page/>},
+	{ path: "*", element: <Error404page /> },
 ]);
