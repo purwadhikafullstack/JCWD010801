@@ -28,14 +28,6 @@ export const AppRouter = createBrowserRouter([
 				),
 			},
 			{
-				path: "adminslist",
-				element: (
-					<Suspense fallback={<Spinner />}>
-						<AdminsList />
-					</Suspense>
-				),
-			},
-			{
 				path: "/search",
 				children: [
 					{
