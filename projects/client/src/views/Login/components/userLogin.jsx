@@ -9,17 +9,7 @@ import { useDispatch } from "react-redux";
 import { setValue } from "../../../redux/userSlice";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { BsFillPersonFill, BsFillLockFill } from "react-icons/bs";
-import {
-	Box,
-	Button,
-	Flex,
-	Heading,
-	Input,
-	InputGroup,
-	InputRightElement,
-	Text,
-	VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Input, InputGroup, InputRightElement, Text, VStack } from "@chakra-ui/react";
 import { toast } from "react-toastify";
 
 export const UserLogin = () => {
@@ -34,10 +24,7 @@ export const UserLogin = () => {
 	});
 	const handleSubmit = async (datalogin) => {
 		try {
-			const response = await Axios.post(
-				`${process.env.REACT_APP_API_BASE_URL}/user/userlogin`,
-				datalogin
-			);
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/userlogin`, datalogin);
 			dispatch(setValue(response.data.user));
 			localStorage.setItem("token", response.data.token);
 			setSuccess(true);
@@ -138,11 +125,7 @@ export const UserLogin = () => {
 									/>
 								</VStack>
 								<InputRightElement>
-									<Button
-										right={"25px"}
-										variant={"unstyled"}
-										onClick={handleClick}
-									>
+									<Button right={"25px"} variant={"unstyled"} onClick={handleClick}>
 										{show ? <FiEye /> : <FiEyeOff />}
 									</Button>
 								</InputRightElement>

@@ -1,14 +1,6 @@
 import Axios from "axios";
 import AddAdmin from "./components/addAdmin";
-import {
-	Avatar,
-	Box,
-	Button,
-	Flex,
-	Input,
-	Select,
-	Text,
-} from "@chakra-ui/react";
+import { Avatar, Box, Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -40,9 +32,7 @@ export const AdminListPage = () => {
 	};
 	const getBranches = async () => {
 		try {
-			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`
-			);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`);
 			setBranch(response.data);
 		} catch (err) {
 			console.log(err);
@@ -69,9 +59,7 @@ export const AdminListPage = () => {
 						<Text fontSize={"30px"} fontWeight={"bold"}>
 							Admins ({countAdmins})
 						</Text>
-						<Text fontWeight={"light"}>
-							Currently there are {countAdmins} admins from all branches
-						</Text>
+						<Text fontWeight={"light"}>Currently there are {countAdmins} admins from all branches</Text>
 					</Box>
 					<AddAdmin />
 				</Flex>
@@ -106,23 +94,11 @@ export const AdminListPage = () => {
 						onChange={(e) => setSearch(e.target.value)}
 					/>
 				</Flex>
-				<Flex
-					my={"20px"}
-					mx={"10px"}
-					maxW={"1400px"}
-					flexWrap={"wrap"}
-					justifyContent={"center"}
-				>
+				<Flex my={"20px"} mx={"10px"} maxW={"1400px"} flexWrap={"wrap"} justifyContent={"center"}>
 					{data?.map((item) => {
 						return (
 							<>
-								<Box
-									w={"240px"}
-									ml={"25px"}
-									my={"10px"}
-									bg={"#f7f7f9"}
-									borderRadius={"8px"}
-								>
+								<Box w={"240px"} ml={"25px"} my={"10px"} bg={"#f7f7f9"} borderRadius={"8px"}>
 									<Flex pt={"10px"} pl={"20px"}>
 										<Avatar />
 										<Box mt={"5px"}>

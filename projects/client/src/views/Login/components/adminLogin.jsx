@@ -9,17 +9,7 @@ import { useDispatch } from "react-redux";
 import { setValue } from "../../../redux/userSlice";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { BsFillPersonPlusFill, BsFillLockFill } from "react-icons/bs";
-import {
-	Box,
-	Button,
-	Flex,
-	Heading,
-	Input,
-	InputGroup,
-	InputRightElement,
-	Text,
-	VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Input, InputGroup, InputRightElement, Text, VStack } from "@chakra-ui/react";
 import { toast } from "react-toastify";
 
 export const AdminLogin = () => {
@@ -34,10 +24,7 @@ export const AdminLogin = () => {
 	});
 	const handleSubmit = async (datalogin) => {
 		try {
-			const response = await Axios.post(
-				`${process.env.REACT_APP_API_BASE_URL}/user/adminlogin`,
-				datalogin
-			);
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/adminlogin`, datalogin);
 			dispatch(setValue(response.data.user));
 			localStorage.setItem("token", response.data.token);
 			setSuccess(true);
@@ -78,12 +65,7 @@ export const AdminLogin = () => {
 				{(props) => {
 					return (
 						<Box as={Form} mt={["0px", "0px", "100px"]}>
-							<Heading
-								mr={["0px", "100px", "110px"]}
-								mb={"20px"}
-								fontSize={"30px"}
-								fontFamily={"monospace"}
-							>
+							<Heading mr={["0px", "100px", "110px"]} mb={"20px"} fontSize={"30px"} fontFamily={"monospace"}>
 								Admin Login
 							</Heading>
 							<Flex justifyContent={"center"}>
@@ -137,11 +119,7 @@ export const AdminLogin = () => {
 									/>
 								</VStack>
 								<InputRightElement>
-									<Button
-										right={"25px"}
-										variant={"unstyled"}
-										onClick={handleClick}
-									>
+									<Button right={"25px"} variant={"unstyled"} onClick={handleClick}>
 										{show ? <FiEye /> : <FiEyeOff />}
 									</Button>
 								</InputRightElement>

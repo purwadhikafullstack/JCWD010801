@@ -36,9 +36,7 @@ export default function AddAdmin() {
 		username: Yup.string().required("Write admin's username"),
 		firstName: Yup.string().required("Write admin's first name"),
 		lastName: Yup.string().required("Write admin's last name"),
-		email: Yup.string()
-			.email("Invalid email addres format")
-			.required("Write admin's Email"),
+		email: Yup.string().email("Invalid email addres format").required("Write admin's Email"),
 		phone: Yup.string().required("Write admin's Phone"),
 		password: Yup.string()
 			.required("Password is required")
@@ -50,11 +48,7 @@ export default function AddAdmin() {
 	});
 	const handleCreate = async (value) => {
 		try {
-			await Axios.post(
-				`${process.env.REACT_APP_API_BASE_URL}/admin/adminregister`,
-				value,
-				{}
-			);
+			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/adminregister`, value, {});
 			toast.success("New admin created", {
 				position: "top-center",
 				autoClose: 4000,
@@ -81,9 +75,7 @@ export default function AddAdmin() {
 	};
 	const getBranches = async () => {
 		try {
-			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`
-			);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`);
 			setBranch(response.data);
 		} catch (err) {
 			console.log(err);
@@ -114,12 +106,7 @@ export default function AddAdmin() {
 			>
 				Add Admin
 			</Button>
-			<Modal
-				initialFocusRef={initialRef}
-				finalFocusRef={finalRef}
-				isOpen={isOpen}
-				onClose={onClose}
-			>
+			<Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
 					<ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
@@ -282,12 +269,7 @@ export default function AddAdmin() {
 														}}
 													/>
 												</Box>
-												<Button
-													right={"30px"}
-													variant={"unstyled"}
-													size="sm"
-													onClick={handleClick}
-												>
+												<Button right={"30px"} variant={"unstyled"} size="sm" onClick={handleClick}>
 													{show ? <ViewIcon /> : <ViewOffIcon />}
 												</Button>
 											</Flex>
