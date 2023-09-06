@@ -1,4 +1,4 @@
-import useEmblaCarousel from "embla-carousel-react";
+// import useEmblaCarousel from "embla-carousel-react";
 import { Flex } from "@chakra-ui/react";
 
 export const CategoryCarousel = () => {

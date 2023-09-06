@@ -1,5 +1,7 @@
 import { RegisterPageView } from "../views/Register";
 
-export const Registerpage = () => {
+const RegisterPage = () => {
   return <RegisterPageView />;
 };
+
+export default RegisterPage;

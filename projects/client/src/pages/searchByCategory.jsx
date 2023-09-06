@@ -1,15 +1,17 @@
 import Axios from "axios";
-import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Pagination } from "../components/navigation/pagination";
+import { useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
+import { Pagination } from "../components/navigation/pagination";
+import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
 
-const Search = () => {
+const SearchByCategory = () => {
+	const CategoryId = useParams();
 	const [products, setProducts] = useState([]);
 	const [itemLimit, setItemLimit] = useState(15);
 	const [categories, setCategories] = useState([]);
-	const [selectedCategory, setSelectedCategory] = useState("");
+	const [selectedCategory, setSelectedCategory] = useState(CategoryId.CategoryId);
 	const [reload, setReload] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
@@ -149,10 +151,10 @@ const Search = () => {
 	};
 
 	return (
-		<Box w={'100vw'}>
+		<Box w={"100vw"}>
 			{isMobile ? (
 				//! MOBILE DISPLAY
-				<Center flexDirection="column" h="150vh" w='100%'>
+				<Center flexDirection="column" h="150vh" w="100%">
 					<Box
 						bgColor={"#F0F0F0"}
 						mt={"15px"}
@@ -162,7 +164,7 @@ const Search = () => {
 						p={4}
 						position="relative"
 					>
-						<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={'center'}>
+						<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={"center"}>
 							Search For Products
 						</Box>
 						<Input
@@ -704,4 +706,4 @@ const Search = () => {
 	);
 };
 
-export default Search;
+export default SearchByCategory;
