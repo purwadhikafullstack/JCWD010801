@@ -39,8 +39,6 @@ export const ResetPasswordFields = () => {
 
   const handleSubmit = async (value) => {
     try {
-        console.log(value)
-        console.log(token)
         console.log(`${process.env.REACT_APP_API_BASE_URL}/user/reset`)
       await axios.patch(
         `${process.env.REACT_APP_API_BASE_URL}/user/reset`,

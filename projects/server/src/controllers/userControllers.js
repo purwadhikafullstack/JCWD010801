@@ -162,7 +162,6 @@ module.exports = {
         try {
             const result = await user.findOne({ where: { email: req.body.email } });
             if ( !result ) throw { message: 'Email not found' };
-            console.log(result)
 
             const payload = { id: result.id };
             const token = jwt.sign( payload, process.env.KEY_JWT, { expiresIn: '1d' } );
