@@ -16,6 +16,7 @@ const Login = () => {
 	//     navigate("/");
 	// }
 	// }, []);
+	
 	return (
 		<>
 			<Image w={"full"} h={"100vh"} src={source} position={"absolute"} />
