@@ -1,9 +1,10 @@
 import Axios from "axios";
 import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
 import { useMediaQuery } from "react-responsive";
+import { FaSearch } from "react-icons/fa";
 
 const Search = () => {
 	const [products, setProducts] = useState([]);
@@ -17,6 +18,51 @@ const Search = () => {
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
 	const navigate = useNavigate();
+	const location = useLocation();
+
+	useEffect(() => {
+		fetchData(page);
+		// eslint-disable-next-line
+	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages]);
+
+	useEffect(() => {
+		const queryParams = new URLSearchParams(location.search);
+		const searchParam = queryParams.get("q") || "";
+		const sortByParam = queryParams.get("sort") || "productName";
+		const sortOrderParam = queryParams.get("order") || "ASC";
+		const categoryParam = queryParams.get("cat") || "";
+		const pageParam = queryParams.get("p") || 1;
+
+		setSearch(searchParam);
+		setSortBy(sortByParam);
+		setSortOrder(sortOrderParam);
+		setSelectedCategory(categoryParam);
+		setPage(pageParam);
+	}, [location.search]);
+
+	const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+	useEffect(() => {
+		if (isMobile) {
+			setItemLimit(5);
+			setReload(!reload);
+		} else {
+			setItemLimit(15);
+			setReload(!reload);
+		}
+		// eslint-disable-next-line
+	}, [isMobile]);
+
+	const mobileResOnMount = () => {
+		if (isMobile) {
+			setItemLimit(5);
+			setReload(!reload);
+		}
+	};
+
+	useEffect(() => {
+		mobileResOnMount();
+		// eslint-disable-next-line
+	}, []);
 
 	const fetchData = async (pageNum) => {
 		try {
@@ -32,7 +78,7 @@ const Search = () => {
 
 			const productsResponse = await Axios.get(apiURL);
 			setProducts(productsResponse.data.result);
-			setPage(productsResponse.data.currentPage);
+			// setPage(productsResponse.data.currentPage);
 			setTotalPages(productsResponse.data.totalPages);
 			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/categories`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
@@ -44,28 +90,6 @@ const Search = () => {
 			console.log(error);
 		}
 	};
-
-	const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-	useEffect(() => {
-		if (isMobile) {
-			setItemLimit(5);
-			setReload(!reload);
-		} else {
-			setItemLimit(15);
-			setReload(!reload);
-		}
-	}, [isMobile]);
-
-	const mobileResOnMount = () => {
-		if (isMobile) {
-			setItemLimit(5);
-			setReload(!reload);
-		}
-	};
-
-	useEffect(() => {
-		mobileResOnMount();
-	}, []);
 
 	const nextPage = () => {
 		if (page < totalPages) {
@@ -90,9 +114,15 @@ const Search = () => {
 		navigate(`/product/${id}`);
 	};
 
-	useEffect(() => {
-		fetchData(page);
-	}, [reload, search, sortOrder, selectedCategory, sortBy]);
+	const handleSearch = () => {
+		const newSearchParams = new URLSearchParams();
+		newSearchParams.set("q", search);
+		newSearchParams.set("sort", sortBy);
+		newSearchParams.set("order", sortOrder);
+		newSearchParams.set("cat", selectedCategory);
+		newSearchParams.set("p", page);
+		navigate(`?${newSearchParams.toString()}`);
+	};
 
 	const customInputStyle = {
 		borderColor: "gray",
@@ -148,11 +178,15 @@ const Search = () => {
 		},
 	};
 
+	if (page > totalPages) {
+		setPage(1);
+	}
+
 	return (
-		<Box w={'100vw'}>
+		<Box w={"100vw"}>
 			{isMobile ? (
 				//! MOBILE DISPLAY
-				<Center flexDirection="column" h="150vh" w='100%'>
+				<Center flexDirection="column" h="150vh" w="100%">
 					<Box
 						bgColor={"#F0F0F0"}
 						mt={"15px"}
@@ -162,13 +196,16 @@ const Search = () => {
 						p={4}
 						position="relative"
 					>
-						<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={'center'}>
+						<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={"center"}>
 							Search For Products
 						</Box>
 						<Input
 							type="search"
 							value={search}
-							onChange={(e) => setSearch(e.target.value)}
+							onChange={(e) => {
+								setPage(1);
+								setSearch(e.target.value);
+							}}
 							w={"100%"}
 							h={"30px"}
 							borderColor={"gray"}
@@ -317,7 +354,7 @@ const Search = () => {
 								placeholder="All Categories"
 								value={selectedCategory.toString()}
 								onChange={(e) => {
-									setSelectedCategory(parseInt(e.target.value, 10));
+									setSelectedCategory(Number.isNaN(e.target.value) ? "" : parseInt(e.target.value, 10));
 									setPage(1);
 									setReload(!reload);
 								}}
@@ -436,17 +473,28 @@ const Search = () => {
 								<Box mb={"15px"} fontSize={"22px"} color={"gray"}>
 									Search For Products
 								</Box>
-								<Input
-									type="search"
-									value={search}
-									onChange={(e) => setSearch(e.target.value)}
-									w={"200px"}
-									h={"30px"}
-									border={"1px solid gray"}
-									bgColor={"white"}
-									placeholder="Enter a Product Name"
-									{...customInputStyle}
-								/>
+								<Flex align={"center"} justify={"space-evenly"}>
+									<Input
+										type="search"
+										value={search}
+										w={"200px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										placeholder="Enter a Product Name"
+										{...customInputStyle}
+										onChange={(e) => {
+											setPage(1);
+											setSearch(e.target.value);
+										}}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												handleSearch();
+											}
+										}}
+									/>
+									<FaSearch size={20} onClick={handleSearch} style={{ cursor: "pointer" }} />
+								</Flex>
 							</Box>
 							<Box>
 								<Box mb={"5px"} fontWeight={"thin"} color={"gray"}>
@@ -589,7 +637,8 @@ const Search = () => {
 									placeholder="All Categories"
 									value={selectedCategory.toString()}
 									onChange={(e) => {
-										setSelectedCategory(parseInt(e.target.value, 10));
+										const selectedValue = parseInt(e.target.value, 10);
+										setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
 										setPage(1);
 										setReload(!reload);
 									}}
