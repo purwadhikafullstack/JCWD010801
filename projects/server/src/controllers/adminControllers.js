@@ -14,9 +14,9 @@ module.exports = {
 				where: { [Op.or]: { username, email } },
 			});
 			if (isAccountExist && isAccountExist.email === email) {
-				throw { message: "Enail has been used" };
+				throw { message: "E-mail has been used." };
 			} else if (isAccountExist && isAccountExist.username === username) {
-				throw { message: "Username has been used" };
+				throw { message: "Username has been used." };
 			}
 
 			const salt = await bcrypt.genSalt(10);
@@ -40,7 +40,11 @@ module.exports = {
 				token,
 			});
 		} catch (error) {
-			res.status(400).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	getAllAdmins: async (req, res) => {
@@ -69,7 +73,11 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			res.status(400).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	getAdmin: async (req, res) => {
@@ -80,7 +88,11 @@ module.exports = {
 			});
 			res.status(200).send(result);
 		} catch (error) {
-			res.status(200).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	getBranches: async (req, res) => {
@@ -88,7 +100,11 @@ module.exports = {
 			const result = await branches.findAll({});
 			res.status(200).send(result);
 		} catch (error) {
-			res.status(200).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	login: async (req, res) => {
@@ -109,14 +125,14 @@ module.exports = {
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
 			res.status(200).send({
-				message: "Login success",
+				message: "Login success.",
 				token,
 			});
 		} catch (error) {
-			res.status(500).send({
+			return res.status(500).send({
 				error,
 				status: 500,
-				message: "Internal server error",
+				message: "Internal server error.",
 			});
 		}
 	},
