@@ -8,9 +8,10 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 
 export const AdminListPage = () => {
 	const navigate = useNavigate();
+	const token = localStorage.getItem("token");
 	const superAdmin = useSelector((state) => state.user.value);
 	const [data, setData] = useState();
-	const [reload, setReload] = useState(0);
+	const [reload, setReload] = useState(true);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
@@ -42,7 +43,6 @@ export const AdminListPage = () => {
 	const prevPage = () => {
 		if (page > 1) getEmployee(page - 1);
 	};
-	console.log(branchId);
 	const nextPage = () => {
 		if (page < totalPage) {
 			getEmployee(page + 1);
@@ -50,12 +50,13 @@ export const AdminListPage = () => {
 	};
 	useEffect(() => {
 		if (superAdmin.RoleId === 1 || superAdmin.RoleId === 2) navigate("/");
+		if (!token) navigate("/");
 		getEmployee(page);
 		getBranches();
-	}, [search]);
+	}, [search, branchId]);
 	return (
 		<Flex pl={"80px"} pt={"45px"}>
-			<Box margin={"auto"}>
+			<Box w={"full"} margin={"auto"}>
 				<Flex mx={"80px"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>

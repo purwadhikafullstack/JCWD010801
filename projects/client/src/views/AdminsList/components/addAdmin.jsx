@@ -24,7 +24,7 @@ import {
 	Select,
 } from "@chakra-ui/react";
 
-export default function AddAdmin({reload, setReload}) {
+export default function AddAdmin({ reload, setReload }) {
 	const initialRef = useRef(null);
 	const finalRef = useRef(null);
 	const navigate = useNavigate();
@@ -59,8 +59,8 @@ export default function AddAdmin({reload, setReload}) {
 				progress: undefined,
 				theme: "dark",
 			});
-			navigate("/adminslist");
-			setReload(!reload)
+			navigate("/admindashboard/adminslist");
+			setReload(!reload);
 		} catch (err) {
 			toast.error(err.response.data.message, {
 				position: "top-center",
@@ -321,7 +321,7 @@ export default function AddAdmin({reload, setReload}) {
 											}}
 											mt={"10px"}
 											mr={3}
-										isDisabled={!props.dirty}
+											isDisabled={!props.dirty}
 										>
 											Add Admin
 										</Button>
