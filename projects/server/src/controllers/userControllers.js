@@ -90,7 +90,7 @@ module.exports = {
     register: async (req, res) => {
         try {
             const { username, firstName, lastName, email, phone, password } = req.body;
-            const isAccountExist = await user.findOne({
+            const isAccountExist = await users.findOne({
                 where: { [Op.or]: { username, email } },
             });
             if (isAccountExist && isAccountExist.email === email) {
