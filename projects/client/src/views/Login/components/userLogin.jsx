@@ -22,9 +22,9 @@ export const UserLogin = () => {
 		data: Yup.string().required("Email or Username is required"),
 		password: Yup.string().required("Password is required"),
 	});
-	const handleSubmit = async (datalogin) => {
+	const handleSubmit = async (dataLogin) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/login`, datalogin);
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/login`, dataLogin);
 			dispatch(setValue(response.data.user));
 			localStorage.setItem("token", response.data.token);
 			setSuccess(true);
