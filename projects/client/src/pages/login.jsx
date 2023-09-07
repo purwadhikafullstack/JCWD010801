@@ -2,21 +2,23 @@ import source from "../assets/public/AM_bg_login.png";
 import sourceLogo from "../assets/public/AM_logo_white.png";
 import sourceLogoBlack from "../assets/public/AM_logo_trans.png";
 import sourceGraphic from "../assets/public/AM_graphic.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserLogin } from "../views/Login/components/userLogin";
 import { AdminLogin } from "../views/Login/components/adminLogin";
 import { Box, Flex, Image, TabIndicator, Text } from "@chakra-ui/react";
 import { Tab, Tabs, TabPanels, TabPanel, TabList } from "@chakra-ui/react";
 import { BsFillPersonFill, BsFillPersonPlusFill } from "react-icons/bs";
+import { useEffect } from "react";
 
 const Login = () => {
-	// const token = localStorage.getItem("token");
-	// useEffect(() => {
-	// if (token) {
-	//     navigate("/");
-	// }
-	// }, []);
-	
+	const token = localStorage.getItem("token");
+	const navigate = useNavigate();
+	useEffect(() => {
+		if (token) {
+			navigate("/");
+		}
+	}, []);
+
 	return (
 		<>
 			<Image w={"full"} h={"100vh"} src={source} position={"absolute"} />
