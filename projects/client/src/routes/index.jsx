@@ -3,6 +3,7 @@ import Layout from "../pages/layout";
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { Error404page } from "../pages/error404";
+const LayoutSideBar = lazy(() => import("../pages/layoutSidebar"));
 const Homepage = lazy(() => import("../pages/home"));
 const Login = lazy(() => import("../pages/login"));
 const RegisterPage = lazy(() => import("../pages/register"));
@@ -70,6 +71,16 @@ export const AppRouter = createBrowserRouter([
 						<ProductDetail />
 					</Suspense>
 				),
+			},
+		],
+	},
+	{
+		path: "/admindashboard",
+		element: <LayoutSideBar />,
+		children: [
+			{
+				path: "adminslist",
+				element: <AdminsList />,
 			},
 		],
 	},

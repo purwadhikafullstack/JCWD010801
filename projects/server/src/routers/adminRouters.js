@@ -2,9 +2,10 @@ const router = require("express").Router();
 const { adminControllers } = require("../controllers");
 const { verifyToken } = require("../middlewares/auth");
 
-router.post("/adminregister", adminControllers.adminRegister);
-router.get("/alladmins", adminControllers.getAllAdmins);
-router.get("/getadmin/:id", adminControllers.getAdmin);
-router.get("/getbranches", adminControllers.getBranches);
+router.post("/", adminControllers.adminRegister);
+router.post("/login", adminControllers.login);
+router.get("/all", adminControllers.getAllAdmins);
+router.get("/branches", adminControllers.getBranches);
+router.get("/:id", adminControllers.getAdmin);
 
 module.exports = router;

@@ -24,7 +24,7 @@ import {
 	Select,
 } from "@chakra-ui/react";
 
-export default function AddAdmin() {
+export default function AddAdmin({ reload, setReload }) {
 	const initialRef = useRef(null);
 	const finalRef = useRef(null);
 	const navigate = useNavigate();
@@ -48,7 +48,7 @@ export default function AddAdmin() {
 	});
 	const handleCreate = async (value) => {
 		try {
-			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/adminregister`, value, {});
+			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin`, value, {});
 			toast.success("New admin created", {
 				position: "top-center",
 				autoClose: 4000,
@@ -60,6 +60,7 @@ export default function AddAdmin() {
 				theme: "dark",
 			});
 			navigate("/adminslist");
+			setReload(!reload);
 		} catch (err) {
 			toast.error(err.response.data.message, {
 				position: "top-center",
@@ -75,7 +76,7 @@ export default function AddAdmin() {
 	};
 	const getBranches = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
 			setBranch(response.data);
 		} catch (err) {
 			console.log(err);
@@ -125,11 +126,12 @@ export default function AddAdmin() {
 								BranchId: "",
 							}}
 							validationSchema={Formschema}
-							onSubmit={(value) => {
+							onSubmit={(value, action) => {
 								handleCreate(value);
+								action.resetForm();
 							}}
 						>
-							{() => {
+							{(props) => {
 								return (
 									<Form>
 										<FormControl>
@@ -319,10 +321,13 @@ export default function AddAdmin() {
 											}}
 											mt={"10px"}
 											mr={3}
+											isDisabled={!props.dirty}
 										>
 											Add Admin
 										</Button>
-										<Button onClick={onClose}>Cancel</Button>
+										<Button mt={"10px"} onClick={onClose}>
+											Cancel
+										</Button>
 									</Form>
 								);
 							}}
