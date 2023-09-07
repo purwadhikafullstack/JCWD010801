@@ -178,10 +178,6 @@ const Search = () => {
 		},
 	};
 
-	if (page > totalPages) {
-		setPage(1);
-	}
-
 	return (
 		<Box w={"100vw"}>
 			{isMobile ? (
