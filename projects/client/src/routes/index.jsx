@@ -12,7 +12,7 @@ const ProductDetail = lazy(() => import("../pages/productDetail"));
 const Search = lazy(() => import("../pages/search"));
 const SearchByCategory = lazy(() => import("../pages/searchByCategory"));
 const SearchByQuery = lazy(() => import("../pages/searchByQuery"));
-const AdminsList = lazy(() => import("../pages/adminsList"));
+const AdminsList  = lazy(() => import("../pages/adminsList"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -24,6 +24,14 @@ export const AppRouter = createBrowserRouter([
 				element: (
 					<Suspense fallback={<Spinner />}>
 						<Homepage />
+					</Suspense>
+				),
+			},
+			{
+				path: "adminslist",
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<AdminsList />
 					</Suspense>
 				),
 			},
