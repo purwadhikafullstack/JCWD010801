@@ -1,5 +1,5 @@
 const db = require('../models');
-const user = db.User;
+const users = db.Users;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require("fs");
@@ -11,7 +11,7 @@ module.exports = {
     userLogin: async (req, res) => {
         try {
             const { data, password } = req.body;
-            const checkLogin = await user.findOne({
+            const checkLogin = await users.findOne({
                 where: {
                     [Op.or]: [
                         { email: data },
@@ -43,7 +43,7 @@ module.exports = {
     adminLogin: async (req, res) => {
         try {
             const { data, password } = req.body;
-            const checkLogin = await user.findOne({
+            const checkLogin = await users.findOne({
                 where: {
                     [Op.or]: [
                         { email: data },
@@ -74,7 +74,7 @@ module.exports = {
     },
     keepLogin: async (req, res) => {
         try {
-            const result = await user.findOne({
+            const result = await users.findOne({
                 where: {
                     id: req.user.id
                 }
@@ -101,7 +101,7 @@ module.exports = {
 
             const salt = await bcrypt.genSalt(10);
             const hashPassword = await bcrypt.hash(password, salt);
-            const result = await user.create({
+            const result = await users.create({
                 username,
                 firstName,
                 lastName,
@@ -133,13 +133,13 @@ module.exports = {
     },
     verificationAccount: async (req, res) => {
         try {
-            const isAccountExist = await user.findOne({
+            const isAccountExist = await users.findOne({
                 where: {
                     id: req.user.id,
                 }
             })
             if (isAccountExist.isVerified) throw { message: "Account is already verified" }
-            const result = await user.update(
+            const result = await users.update(
                 {
                     isVerified: true,
                 },
@@ -160,7 +160,7 @@ module.exports = {
     },
     forgotPassword: async(req, res) => {
         try {
-            const result = await user.findOne({ where: { email: req.body.email } });
+            const result = await users.findOne({ where: { email: req.body.email } });
             if ( !result ) throw { message: 'Email not found' };
 
             const payload = { id: result.id };
@@ -190,7 +190,7 @@ module.exports = {
         try {
             const salt = await bcrypt.genSalt(10);
             const hashPassword = await bcrypt.hash( req.body.password, salt );
-            user.update({ password: hashPassword }, { where: { id: req.user.id } });
+            users.update({ password: hashPassword }, { where: { id: req.user.id } });
 
             res.status(200).send({
                 status: true,

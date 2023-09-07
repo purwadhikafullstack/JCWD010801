@@ -1,6 +1,6 @@
 const db = require("../models");
-const user = db.User;
-const branch = db.Branches;
+const users = db.Users;
+const branches = db.Branches;
 const role = db.Roles;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -18,7 +18,7 @@ module.exports = {
 				password,
 				BranchId,
 			} = req.body;
-			const isAccountExist = await user.findOne({
+			const isAccountExist = await users.findOne({
 				where: { [Op.or]: { username, email } },
 			});
 			if (isAccountExist && isAccountExist.email === email) {
@@ -29,7 +29,7 @@ module.exports = {
 
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(password, salt);
-			const result = await user.create({
+			const result = await users.create({
 				username,
 				firstName,
 				lastName,
@@ -59,13 +59,13 @@ module.exports = {
 			const offset = (page - 1) * limit;
 			const condition = { isDeleted: false, RoleId: 2 };
 			if (search) condition["username"] = { [Op.like]: `%${search}%` };
-			const result = await user.findAll({
+			const result = await users.findAll({
 				where: condition,
-				include: [{ model: branch }, { model: role }],
+				include: [{ model: branches }, { model: role }],
 				limit,
 				offset,
 			});
-			const countAdmins = await user.count({
+			const countAdmins = await users.count({
 				where: condition,
 			});
 			res.status(200).send({
@@ -80,9 +80,9 @@ module.exports = {
 	},
 	getAdmin: async (req, res) => {
 		try {
-			const result = await branch.findAll({
+			const result = await branches.findAll({
 				where: { id: req.params.id },
-				include: [{ model: user, model: role }],
+				include: [{ model: users, model: role }],
 			});
 			res.status(200).send(result);
 		} catch (error) {
@@ -91,7 +91,7 @@ module.exports = {
 	},
 	getBranches: async (req, res) => {
 		try {
-			const result = await branch.findAll({});
+			const result = await branches.findAll({});
 			res.status(200).send(result);
 		} catch (error) {
 			res.status(200).send(error);
