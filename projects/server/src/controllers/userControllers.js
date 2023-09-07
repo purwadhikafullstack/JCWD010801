@@ -8,7 +8,7 @@ const { Op } = require("sequelize");
 const transporter = require("../middlewares/transporter");
 
 module.exports = {
-    userLogin: async (req, res) => {
+    login: async (req, res) => {
         try {
             const { data, password } = req.body;
             const checkLogin = await users.findOne({
@@ -26,38 +26,6 @@ module.exports = {
             if (!isValid) throw { message: "Password Incorrect." };
 
             const payload = { id: checkLogin.id };
-            const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
-
-            res.status(200).send({
-                message: "Login success",
-                token
-            });
-        } catch (error) {
-            res.status(500).send({
-                error,
-                status: 500,
-                message: 'Internal server error',
-            });
-        }
-    },
-    adminLogin: async (req, res) => {
-        try {
-            const { data, password } = req.body;
-            const checkLogin = await users.findOne({
-                where: {
-                    [Op.or]: [
-                        { email: data },
-                        { username: data },
-                    ]
-                }
-            });
-            if (!checkLogin) throw { message: "User not Found." };
-            if (checkLogin.RoleId == 1) throw { message: "You have to Login on user Login." }
-
-            const isValid = await bcrypt.compare(password, checkLogin.password);
-            if (!isValid) throw { message: "Password Incorrect." };
-
-            const payload = { id: checkLogin.id, RoleId: checkLogin.RoleId };
             const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
             res.status(200).send({

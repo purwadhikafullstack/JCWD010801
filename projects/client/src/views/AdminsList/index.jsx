@@ -5,28 +5,28 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
-import { AdminSidebar } from "../../components/navigation/adminSidebar";
 
 export const AdminListPage = () => {
 	const navigate = useNavigate();
 	const superAdmin = useSelector((state) => state.user.value);
 	const [data, setData] = useState();
-	// const [reload, setReload] = useState(0);
+	const [reload, setReload] = useState(0);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [countAdmins, setCountAdmins] = useState();
 	const [branch, setBranch] = useState();
+	const [branchId, setBranchId] = useState("");
 	const getEmployee = async (pageNum) => {
 		try {
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/admin/alladmins?search=${search}&page=${pageNum}&limit=8`
+				`${process.env.REACT_APP_API_BASE_URL}/admin/alladmins?search=${search}&page=${pageNum}&limit=8&branchId=${branchId}`
 			);
 			setCountAdmins(response.data.countAdmins);
 			setData(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			console.log(response.data);
+			setReload(!reload);
 		} catch (error) {
 			console.log(error);
 		}
@@ -42,6 +42,7 @@ export const AdminListPage = () => {
 	const prevPage = () => {
 		if (page > 1) getEmployee(page - 1);
 	};
+	console.log(branchId);
 	const nextPage = () => {
 		if (page < totalPage) {
 			getEmployee(page + 1);
@@ -53,9 +54,8 @@ export const AdminListPage = () => {
 		getBranches();
 	}, [search]);
 	return (
-		<Flex>
-			<AdminSidebar />
-			<Box my={"auto"}>
+		<Flex pl={"80px"} pt={"45px"}>
+			<Box margin={"auto"}>
 				<Flex mx={"80px"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
@@ -63,7 +63,7 @@ export const AdminListPage = () => {
 						</Text>
 						<Text fontWeight={"light"}>Currently there are {countAdmins} admins from all branches</Text>
 					</Box>
-					<AddAdmin />
+					<AddAdmin reload={reload} setReload={setReload} />
 				</Flex>
 				<Flex mt={"20px"} justifyContent={"center"}>
 					<Select
@@ -72,8 +72,8 @@ export const AdminListPage = () => {
 						borderRadius={"20px"}
 						focusBorderColor="#373433"
 						placeholder="Sort by branch"
-						value={branch}
-						onChange={(e) => setBranch(e.target.value)}
+						value={branchId}
+						onChange={(e) => setBranchId(e.target.value)}
 					>
 						<option value="">All</option>
 						{branch?.map((item) => {

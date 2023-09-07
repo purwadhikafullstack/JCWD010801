@@ -1,18 +1,19 @@
-import { BsGraphUpArrow, BsPersonGear } from "react-icons/bs";
-import { SlLogout } from "react-icons/sl";
-import { FaBars } from "react-icons/fa";
 import source from "../../assets/public/AM_logo_white.png";
 import sourceLogo from "../../assets/public/AM_logo_only_white_trans.png";
-import { Box, Flex, IconButton, Image, Text } from "@chakra-ui/react";
-import { AiOutlineBranches } from "react-icons/ai";
-import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Box, Flex, IconButton, Image, Text } from "@chakra-ui/react";
+import { SlLogout } from "react-icons/sl";
+import { FaBars } from "react-icons/fa";
+import { AiOutlineBranches } from "react-icons/ai";
+import { BsGraphUpArrow, BsPersonGear } from "react-icons/bs";
 
 export const AdminSidebar = () => {
 	const [navSize, setNavsize] = useState("small");
 	return (
 		<Flex
-			w={navSize === "small" ? "100px" : "200px"}
+			position={"fixed"}
+			w={navSize === "small" ? "100px" : "170px"}
 			h={"100vh"}
 			backgroundColor={"blackAlpha.900"}
 			borderTopRightRadius={"30px"}
@@ -29,24 +30,30 @@ export const AdminSidebar = () => {
 						_hover={{ transform: "scale(1.1)" }}
 					/>
 				</Flex>
-				<Flex justifyContent={"center"}>
+			</Flex>
+			<Box>
+				<Flex
+					onClick={() => {
+						navSize === "small" ? setNavsize("large") : setNavsize("small");
+					}}
+					_hover={{ transform: "scale(1.1)" }}
+					transition="transform 0.3s ease-in-out"
+					justifyContent={"center"}
+				>
 					<IconButton
-						left={"7px"}
+						mb={"15px"}
 						variant={"unstyled"}
 						icon={<FaBars size={25} />}
 						color={"white"}
-						onClick={() => {
-							navSize === "small" ? setNavsize("large") : setNavsize("small");
-						}}
+						ml={navSize === "large" ? "0px" : "15px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
 					/>
 					{navSize === "large" ? (
-						<Text color={"white"} mt={"3px"} fontSize={"20px"}>
-							Menu
+						<Text color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
+							Dashboard
 						</Text>
 					) : null}
 				</Flex>
-			</Flex>
-			<Box>
 				<Flex
 					mb={"20px"}
 					color={"white"}
@@ -96,10 +103,10 @@ export const AdminSidebar = () => {
 			<Flex mb={"20px"} justifyContent={"center"} color={"white"}>
 				<SlLogout size={25} />
 				{navSize === "large" ? (
-						<Text color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-							Logout
-						</Text>
-					) : null}
+					<Text color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+						Logout
+					</Text>
+				) : null}
 			</Flex>
 		</Flex>
 	);

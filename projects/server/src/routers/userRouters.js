@@ -3,8 +3,7 @@ const { userControllers } = require('../controllers');
 const { verifyToken } = require("../middlewares/auth");
 const { checkRegister, checkEmail, checkResetPassword } = require("../middlewares/validator");
 
-router.post("/userlogin", userControllers.userLogin);
-router.post("/adminlogin", userControllers.adminLogin);
+router.post("/login", userControllers.login);
 router.get("/keeplogin", verifyToken, userControllers.keepLogin);
 router.post("/register", checkRegister, userControllers.register);
 router.patch("/verification", verifyToken, userControllers.verificationAccount);
