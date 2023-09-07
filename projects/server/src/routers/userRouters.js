@@ -15,6 +15,6 @@ router.patch("/profile", verifyToken, userControllers.updateProfile);
 router.patch("/email", checkUpdateEmail, verifyToken, userControllers.updateEmail);
 router.patch("/phone", checkUpdatePhone, verifyToken, userControllers.updatePhone);
 router.patch("/password", verifyToken, checkChangePassword, userControllers.changePassword);
-router.post("/avatar", verifyToken, multerUpload(`./src/public/avatars`, 'VA-IMG').single("file"), userControllers.updateAvatar);
+router.post("/avatar", verifyToken, multerUpload(`./src/public/avatars`, 'AV-IMG').single("file"), userControllers.updateAvatar);
 
 module.exports = router;
