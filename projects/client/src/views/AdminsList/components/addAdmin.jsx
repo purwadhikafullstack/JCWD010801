@@ -48,7 +48,7 @@ export default function AddAdmin({reload, setReload}) {
 	});
 	const handleCreate = async (value) => {
 		try {
-			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/register`, value, {});
+			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin`, value, {});
 			toast.success("New admin created", {
 				position: "top-center",
 				autoClose: 4000,
@@ -76,7 +76,7 @@ export default function AddAdmin({reload, setReload}) {
 	};
 	const getBranches = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
 			setBranch(response.data);
 		} catch (err) {
 			console.log(err);

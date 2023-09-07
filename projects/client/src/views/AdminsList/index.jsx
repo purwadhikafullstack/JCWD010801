@@ -20,7 +20,7 @@ export const AdminListPage = () => {
 	const getEmployee = async (pageNum) => {
 		try {
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/admin/alladmins?search=${search}&page=${pageNum}&limit=8&branchId=${branchId}`
+				`${process.env.REACT_APP_API_BASE_URL}/admin/all?search=${search}&page=${pageNum}&limit=8&branchId=${branchId}`
 			);
 			setCountAdmins(response.data.countAdmins);
 			setData(response.data.result);
@@ -33,7 +33,7 @@ export const AdminListPage = () => {
 	};
 	const getBranches = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
 			setBranch(response.data);
 		} catch (err) {
 			console.log(err);
