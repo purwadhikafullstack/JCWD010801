@@ -1,6 +1,5 @@
 const db = require('../models');
 const products = db.Products;
-const categories = db.Categories;
 const { Op } = require('sequelize');
 
 module.exports = {
@@ -92,28 +91,6 @@ module.exports = {
             });
         }
     },
-    addCategory: async (req, res) => {
-        try {
-            const { name } = req.body;
-            const imgURL = req.file.filename;
-            const result = await categories.create(
-                {
-                    category: name,
-                    imgURL: imgURL
-                }
-            );
-            res.status(201).send({
-                status: 201,
-                message: 'New category created successfully.',
-                newCategory: result
-            });
-        } catch (error) {
-            res.status(500).send({
-                status: 500,
-                message: "Internal server error."
-            });
-        }
-    },
     getProduct: async (req, res) => {
         try {
             const { id } = req.params;
@@ -141,64 +118,6 @@ module.exports = {
             res.status(200).send({
                 status: 200,
                 result: result
-            });
-        } catch (error) {
-            res.status(500).send({
-                status: 500,
-                message: "Internal server error."
-            });
-        }
-    },
-    getCategories: async (req, res) => {
-        try {
-            const page = parseInt(req.query.page) || 1
-            const limit = 8
-            const totalCategories = await categories.count({
-                where: { isDeleted: 0 }
-            })
-            const result = await categories.findAll({
-                where: { isDeleted: 0 },
-                limit,
-                offset: limit * (page - 1)
-            });
-            res.status(200).send({
-                page: page,
-                totalPage: Math.ceil(totalCategories / limit),
-                result: result
-            });
-        } catch (error) {
-            res.status(500).send({
-                status: 500,
-                message: "Internal server error."
-            });
-        }
-    },
-    getCategoryById: async (req, res) => {
-        try {
-            const { id } = req.params;
-
-            if (!id) {
-                return res.status(400).send({
-                    status: 400,
-                    message: "Please input a category ID."
-                });
-            };
-
-            const result = await categories.findOne({
-                where: {
-                    id: id
-                }
-            });
-
-            if (!result) {
-                return res.status(404).send({
-                    status: 404,
-                    message: "Category not found. Please input a valid category ID."
-                });
-            };
-
-            res.status(200).send({
-                result
             });
         } catch (error) {
             res.status(500).send({

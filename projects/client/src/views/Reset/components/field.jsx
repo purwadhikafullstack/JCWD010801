@@ -58,7 +58,6 @@ export const ResetPasswordFields = () => {
         theme: "dark",
       });
     } catch (err) {
-        console.log(err)
       toast.error(err.response.data.message, {
         position: "top-center",
         autoClose: 4000,

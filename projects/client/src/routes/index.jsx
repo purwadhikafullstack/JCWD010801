@@ -12,6 +12,8 @@ const Search = lazy(() => import("../pages/search"));
 const SearchByCategory = lazy(() => import("../pages/searchByCategory"));
 const SearchByQuery = lazy(() => import("../pages/searchByQuery"));
 const AdminsList  = lazy(() => import("../pages/adminsList"));
+const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
+const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -86,6 +88,22 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<RegisterPage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/forgot-password",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ForgotPasswordPage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/reset-password/:token",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ResetPasswordPage />
 			</Suspense>
 		),
 	},

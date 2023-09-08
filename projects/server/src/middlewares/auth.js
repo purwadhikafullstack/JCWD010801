@@ -36,8 +36,8 @@ module.exports = {
             });
         }
     },
-    checkRole: (req, res, next) => {
-        if (req.user.isAdmin) {
+    checkAdmin: (req, res, next) => {
+        if (req.user.RoleId >= 2) {
             return next();
         };
 
@@ -45,5 +45,15 @@ module.exports = {
             status: 403,
             message: "Forbidden! You are not an administrator."
         });
-    }
+    },
+    checkSuperAdmin: (req, res, next) => {
+        if (req.user.RoleId === 3) {
+            return next();
+        };
+
+        res.status(403).send({
+            status: 403,
+            message: "Forbidden! You are not an administrator."
+        });
+    },
 };

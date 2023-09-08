@@ -75,7 +75,7 @@ module.exports = {
           else throw { validation };
         
         } catch (err) {
-          console.log(err)
+          res.status(400).send(err);
         }
       },
       checkResetPassword: async( req, res, next ) => {
@@ -106,7 +106,7 @@ module.exports = {
           else throw { validation };
 
         } catch (err) {
-          console.log(err);
+          res.status(400).send(err);
         }
       }
 }

@@ -34,7 +34,7 @@ const Search = () => {
 			setProducts(productsResponse.data.result);
 			setPage(productsResponse.data.currentPage);
 			setTotalPages(productsResponse.data.totalPages);
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/categories`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
