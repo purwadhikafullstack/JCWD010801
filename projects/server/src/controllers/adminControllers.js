@@ -55,7 +55,25 @@ module.exports = {
 			const branchId = req.query.branchId;
 			const offset = (page - 1) * limit;
 			const condition = { isDeleted: false, RoleId: 2 };
-			if (search) condition["username"] = { [Op.like]: `%${search}%` };
+			if (search) {
+				condition[Op.or] = [
+					{
+						username: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+					{
+						firstName: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+					{
+						lastName: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+				];
+			}
 			if (branchId) condition["BranchId"] = branchId;
 			const result = await users.findAll({
 				where: condition,

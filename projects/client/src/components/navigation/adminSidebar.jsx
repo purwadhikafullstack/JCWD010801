@@ -7,9 +7,11 @@ import { SlLogout } from "react-icons/sl";
 import { FaBars } from "react-icons/fa";
 import { AiOutlineBranches } from "react-icons/ai";
 import { BsGraphUpArrow, BsPersonGear } from "react-icons/bs";
+import { useSelector } from "react-redux";
 
 export const AdminSidebar = () => {
 	const [navSize, setNavsize] = useState("small");
+	const superAdmin = useSelector((state) => state.user.value);
 	return (
 		<Flex
 			position={"fixed"}
@@ -49,12 +51,14 @@ export const AdminSidebar = () => {
 						justifyContent={navSize === "large" ? "start" : "center"}
 					/>
 					{navSize === "large" ? (
-						<Text color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
+						<Text cursor={"pointer"} color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
 							Dashboard
 						</Text>
 					) : null}
 				</Flex>
 				<Flex
+					as={Link}
+					to={"/admindashboard"}
 					mb={"20px"}
 					color={"white"}
 					transition="transform 0.3s ease-in-out"
@@ -64,12 +68,14 @@ export const AdminSidebar = () => {
 				>
 					<AiOutlineBranches size={30} />
 					{navSize === "large" ? (
-						<Text color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
 							Branches
 						</Text>
 					) : null}
 				</Flex>
 				<Flex
+					as={Link}
+					to={"/admindashboard"}
 					mb={"20px"}
 					color={"white"}
 					transition="transform 0.3s ease-in-out"
@@ -79,31 +85,38 @@ export const AdminSidebar = () => {
 				>
 					<BsGraphUpArrow size={27} />
 					{navSize === "large" ? (
-						<Text color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
+						<Text cursor={"pointer"} color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
 							Report
 						</Text>
 					) : null}
 				</Flex>
-				<Flex
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "20px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<BsPersonGear size={32} />
-					{navSize === "large" ? (
-						<Text color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
-							Menu
-						</Text>
-					) : null}
-				</Flex>
+				{superAdmin.RoleId === 3 ? (
+					<Flex
+						as={Link}
+						to={"/admindashboard/adminslist"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.1)" }}
+						ml={navSize === "large" ? "20px" : "0px"}
+						mt={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<Box mt={navSize === "large" ? "8px" : "0px"}>
+							<BsPersonGear size={32} />
+						</Box>
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"12px"} fontSize={"16px"}>
+								Admin Management
+							</Text>
+						) : null}
+					</Flex>
+				) : null}
 			</Box>
 			<Flex mb={"20px"} justifyContent={"center"} color={"white"}>
 				<SlLogout size={25} />
 				{navSize === "large" ? (
-					<Text color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+					<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
 						Logout
 					</Text>
 				) : null}
