@@ -2,13 +2,13 @@ import source from "../assets/public/AM_bg_login.png";
 import sourceLogo from "../assets/public/AM_logo_white.png";
 import sourceLogoBlack from "../assets/public/AM_logo_trans.png";
 import sourceGraphic from "../assets/public/AM_graphic.png";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserLogin } from "../views/Login/components/userLogin";
-import { AdminLogin } from "../views/Login/components/adminLogin";
 import { Box, Flex, Image, TabIndicator, Text } from "@chakra-ui/react";
 import { Tab, Tabs, TabPanels, TabPanel, TabList } from "@chakra-ui/react";
 import { BsFillPersonFill, BsFillPersonPlusFill } from "react-icons/bs";
-import { useEffect } from "react";
+import { UserLogin } from "../views/Login/components/userLogin";
+import { AdminLogin } from "../views/Login/components/adminLogin";
 
 const Login = () => {
 	const token = localStorage.getItem("token");

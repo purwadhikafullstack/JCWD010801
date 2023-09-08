@@ -57,7 +57,11 @@ export const AppRouter = createBrowserRouter([
 		children: [
 			{
 				path: "adminslist",
-				element: <AdminsList />,
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<AdminsList />
+					</Suspense>
+				),
 			},
 		],
 	},
