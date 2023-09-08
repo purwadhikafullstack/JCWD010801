@@ -64,13 +64,14 @@ module.exports = {
 				.withMessage("invalid email")
 				.run(req);
 
-			const validation = validationResult(req);
-			if (validation.isEmpty()) next();
-			else throw { validation };
-		} catch (err) {
-			console.log(err);
-		}
-	},
+          const validation = validationResult( req );
+          if ( validation.isEmpty() ) next()
+          else throw { validation };
+        
+        } catch (err) {
+          res.status(400).send(err);
+        }
+      },
 	checkResetPassword: async (req, res, next) => {
 		try {
 			await body("password")
@@ -97,6 +98,7 @@ module.exports = {
 			const validation = validationResult(req);
 			if (validation.isEmpty()) next();
 			else throw { validation };
+
 		} catch (err) {
 			res.status(500).send({
 				status: 500,

@@ -26,8 +26,8 @@ export const FeatureCard = ({ icon, title, description }) => {
         display={{ base: "flex", md: "none" }}
       >
         <Flex
-          w="20"
-          h="20"
+          minW="20"
+          minH="20"
           justifyContent={"center"}
           alignItems={"center"}
           borderRadius={"3"}
