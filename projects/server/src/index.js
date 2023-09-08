@@ -4,8 +4,8 @@ const cors = require("cors");
 const { join } = require("path");
 const PORT = process.env.PORT || 8000;
 const server = express();
-const db = require("./models");
-const { userRouters, adminRouters, productRouters } = require("./routers");
+const db = require('./models');
+const { userRouters, adminRouters, productRouters, categoryRouters } = require("./routers");
 
 // server.use(
 //   cors({
@@ -23,9 +23,10 @@ server.use(express.static("./src/public"));
 //#region API ROUTES
 // ===========================
 // NOTE : Add your routes here
-server.use("/api/user", userRouters);
-server.use("/api/admin", adminRouters);
-server.use("/api/product", productRouters);
+server.use('/api/user', userRouters);
+server.use('/api/admin', adminRouters);
+server.use('/api/product', productRouters);
+server.use('/api/category', categoryRouters)
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);
