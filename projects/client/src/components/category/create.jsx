@@ -11,7 +11,7 @@ import { refreshCategories } from "../../redux/categorySlice";
 export const CreateCategory = () => {
     const token = localStorage.getItem('token');
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { RoleId } = useSelector((state) => state.user.value)
+    const { RoleId } = useSelector((state) => state.user.value);
     const dispatch = useDispatch();
 
     const categorySchema = Yup.object().shape({
@@ -60,14 +60,20 @@ export const CreateCategory = () => {
 
     return (
         <>
-        {RoleId > 1 && (<ButtonTemp content={(<Icon as={HiPlus} w='7' h='7' />)} w={'30px'} borderRadius={'full'} onClick={onOpen} />)}
-        <Modal isOpen={isOpen} onClose={onClose}>
+        {RoleId > 1 && (
+        <ButtonTemp 
+        content={(<Icon as={HiPlus} w='10' h='10' />)} 
+        w={{ base: '40px', md: 'none' }} 
+        borderRadius={{ base: 'full', md: '10px' }} 
+        onClick={onOpen} 
+        />)}
+        <Modal size={{ base: 'xs', sm: 'sm', md: 'md' }} isOpen={isOpen} onClose={onClose}>
             <ModalOverlay/>
-            <ModalContent>
-                <ModalHeader>
+            <ModalContent borderRadius={'10px'}>
+                <ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
                     Add Category
                 </ModalHeader>
-                <ModalCloseButton />
+                <ModalCloseButton color={'white'} />
                 <Formik
                 initialValues={{ category: '', image: null }}
                 validationSchema={categorySchema}

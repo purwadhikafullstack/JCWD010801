@@ -45,7 +45,7 @@ export const RegisterFields = () => {
 	const handleSubmit = async (data) => {
 		try {
 			const response = await Axios.post(
-				`${process.env.REACT_APP_API_BASE_URL}/user/register`,
+				`${process.env.REACT_APP_API_BASE_URL}/user/`,
 				data
 			);
 			navigate("/login");

@@ -24,7 +24,7 @@ export const AdminLogin = () => {
 	});
 	const handleSubmit = async (datalogin) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/adminlogin`, datalogin);
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/login`, datalogin);
 			dispatch(setValue(response.data.user));
 			localStorage.setItem("token", response.data.token);
 			setSuccess(true);

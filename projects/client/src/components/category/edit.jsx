@@ -69,13 +69,13 @@ export const EditCategory = ({ id, categoryName, categoryImage }) => {
             <Icon as={MdOutlineModeEdit} w='5' h='5' />
             <Text>Edit</Text>
         </Flex>
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal size={{ base: 'xs', sm: 'sm', md: 'md' }} isOpen={isOpen} onClose={onClose}>
             <ModalOverlay/>
-            <ModalContent>
-                <ModalHeader>
+            <ModalContent borderRadius={'10px'}>
+                <ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
                     Edit Category
                 </ModalHeader>
-                <ModalCloseButton />
+                <ModalCloseButton color={'white'} />
                 <Formik
                 initialValues={{ category: '', image: '' }}
                 validationSchema={categorySchema}

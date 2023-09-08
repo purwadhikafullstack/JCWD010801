@@ -1,17 +1,17 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 module.exports = {
-    verifyToken: (req, res, next) => {
-        try {
-            let token = req.headers.authorization;
+	verifyToken: (req, res, next) => {
+		try {
+			let token = req.headers.authorization;
 
-            if (!token) {
-                throw {
-                    status: 401,
-                    message: "Token missing."
-                };
-            };
-            token = token.split(' ')[1];
+			if (!token) {
+				throw {
+					status: 401,
+					message: "Token missing.",
+				};
+			}
+			token = token.split(" ")[1];
 
             let verifiedUser;
             try {

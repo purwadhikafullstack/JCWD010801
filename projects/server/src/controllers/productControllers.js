@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 module.exports = {
     addProduct: async (req, res) => {
         try {
-            const { productName, price, description, CategoryId, stock, weight } = req.body;
+            const { productName, price, description, CategoryId, weight } = req.body;
             const imgURL = req.file.filename;
 
             if (!productName) {
@@ -43,14 +43,7 @@ module.exports = {
             if (!CategoryId) {
                 return res.status(400).send({
                     status: 400,
-                    message: "Category ID cannot be empty."
-                });
-            };
-
-            if (!stock) {
-                return res.status(400).send({
-                    status: 400,
-                    message: "Stock cannot be empty. Please input a minimum of 1 unit."
+                    message: "Please assign a category."
                 });
             };
 
@@ -74,7 +67,6 @@ module.exports = {
                 imgURL,
                 description,
                 CategoryId,
-                stock,
                 weight
             });
 
@@ -84,11 +76,11 @@ module.exports = {
                 product: newProduct,
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).send({
-                status: 500,
-                message: 'Internal server error.',
-            });
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
         }
     },
     getProduct: async (req, res) => {
@@ -120,10 +112,11 @@ module.exports = {
                 result: result
             });
         } catch (error) {
-            res.status(500).send({
-                status: 500,
-                message: "Internal server error."
-            });
+            return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
         }
     },
     getProductsByCategory: async (req, res) => {
@@ -147,10 +140,11 @@ module.exports = {
                 result
             });
         } catch (error) {
-            res.status(500).send({
-                status: 500,
-                message: error
-            });
+            return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
         }
     },
     getAllProducts: async (req, res) => {

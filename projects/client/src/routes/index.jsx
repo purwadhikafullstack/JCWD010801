@@ -3,14 +3,13 @@ import Layout from "../pages/layout";
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { Error404page } from "../pages/error404";
+const LayoutSideBar = lazy(() => import("../pages/layoutSidebar"));
 const Homepage = lazy(() => import("../pages/home"));
 const Login = lazy(() => import("../pages/login"));
 const RegisterPage = lazy(() => import("../pages/register"));
 const VerificationPage = lazy(() => import("../pages/verification"));
 const ProductDetail = lazy(() => import("../pages/productDetail"));
 const Search = lazy(() => import("../pages/search"));
-const SearchByCategory = lazy(() => import("../pages/searchByCategory"));
-const SearchByQuery = lazy(() => import("../pages/searchByQuery"));
 const AdminsList  = lazy(() => import("../pages/adminsList"));
 const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
 const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
@@ -38,32 +37,11 @@ export const AppRouter = createBrowserRouter([
 			},
 			{
 				path: "/search",
-				children: [
-					{
-						path: "",
-						element: (
-							<Suspense fallback={<Spinner />}>
-								<Search />
-							</Suspense>
-						),
-					},
-					{
-						path: "category/:CategoryId",
-						element: (
-							<Suspense fallback={<Spinner />}>
-								<SearchByCategory />
-							</Suspense>
-						),
-					},
-					{
-						path: "products/:query",
-						element: (
-							<Suspense fallback={<Spinner />}>
-								<SearchByQuery />
-							</Suspense>
-						),
-					},
-				],
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<Search />
+					</Suspense>
+				),
 			},
 			{
 				path: "/product/:id",
@@ -72,6 +50,16 @@ export const AppRouter = createBrowserRouter([
 						<ProductDetail />
 					</Suspense>
 				),
+			},
+		],
+	},
+	{
+		path: "/admindashboard",
+		element: <LayoutSideBar />,
+		children: [
+			{
+				path: "adminslist",
+				element: <AdminsList />,
 			},
 		],
 	},

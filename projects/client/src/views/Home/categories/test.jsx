@@ -5,15 +5,14 @@ import { Flex } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 
 export const HomeCategoryPrototype = () => {
-    const [ categoriesUser, setCategoriesUser ] = useState([]);
-    const [ categoriesAdmin, setCategoriesAdmin ] = useState([]);
+    const [ categories, setCategories ] = useState([]);
     const token = localStorage.getItem('token');
     const { refresh } = useSelector((state) => state.category.value);
 
     const fetchCategoryUser = async() => {
         try {
-            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
-            setCategoriesUser(data.result);
+            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user?limit=100`);
+            setCategories(data.result);
         } catch (err) {
             console.log(err);
         }
@@ -26,15 +25,15 @@ export const HomeCategoryPrototype = () => {
                     authorization: `Bearer ${token}`
                 }
             });
-            setCategoriesAdmin(data.result);
+            setCategories(data.result);
         } catch (err) {
             console.log(err);
         }
     };
 
     useEffect(() => {
-        // fetchCategoryUser();
-        fetchCategoryAdmin();
+        fetchCategoryUser();
+        // fetchCategoryAdmin();
     }, [ refresh ]);
 
     return (
@@ -50,7 +49,7 @@ export const HomeCategoryPrototype = () => {
         //    }
         //  }
         >
-        {categoriesAdmin.map(({ id, category, imgURL, isDeleted }, idx) => {
+        {categories.map(({ id, category, imgURL, isDeleted }, idx) => {
             return (
                 <CategoryCard 
                 key={idx} 
