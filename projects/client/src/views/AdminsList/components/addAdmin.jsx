@@ -25,9 +25,9 @@ import {
 } from "@chakra-ui/react";
 
 export default function AddAdmin({ reload, setReload }) {
+	const navigate = useNavigate();
 	const initialRef = useRef(null);
 	const finalRef = useRef(null);
-	const navigate = useNavigate();
 	const [show, setShow] = useState(false);
 	const [branch, setBranch] = useState();
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -59,7 +59,7 @@ export default function AddAdmin({ reload, setReload }) {
 				progress: undefined,
 				theme: "dark",
 			});
-			navigate("/adminslist");
+			navigate("/admindashboard/adminslist");
 			setReload(!reload);
 		} catch (err) {
 			toast.error(err.response.data.message, {
