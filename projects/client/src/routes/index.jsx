@@ -10,8 +10,6 @@ const RegisterPage = lazy(() => import("../pages/register"));
 const VerificationPage = lazy(() => import("../pages/verification"));
 const ProductDetail = lazy(() => import("../pages/productDetail"));
 const Search = lazy(() => import("../pages/search"));
-const SearchByCategory = lazy(() => import("../pages/searchByCategory"));
-const SearchByQuery = lazy(() => import("../pages/searchByQuery"));
 const AdminsList = lazy(() => import("../pages/adminsList"));
 
 export const AppRouter = createBrowserRouter([
@@ -37,32 +35,11 @@ export const AppRouter = createBrowserRouter([
 			},
 			{
 				path: "/search",
-				children: [
-					{
-						path: "",
-						element: (
-							<Suspense fallback={<Spinner />}>
-								<Search />
-							</Suspense>
-						),
-					},
-					{
-						path: "category/:CategoryId",
-						element: (
-							<Suspense fallback={<Spinner />}>
-								<SearchByCategory />
-							</Suspense>
-						),
-					},
-					{
-						path: "products/:query",
-						element: (
-							<Suspense fallback={<Spinner />}>
-								<SearchByQuery />
-							</Suspense>
-						),
-					},
-				],
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<Search />
+					</Suspense>
+				),
 			},
 			{
 				path: "/product/:id",

@@ -17,24 +17,24 @@ module.exports = {
 					[Op.or]: [{ email: data }, { username: data }],
 				},
 			});
-			if (!checkLogin) throw { message: "User not Found." };
-			if (checkLogin.RoleId != 1) throw { message: "You have to Login on admin login" };
+			if (!checkLogin) throw { message: "User is not Found." };
+			if (checkLogin.RoleId != 1) throw { message: "Please login on the admin login tab." };
 
 			const isValid = await bcrypt.compare(password, checkLogin.password);
-			if (!isValid) throw { message: "Password Incorrect." };
+			if (!isValid) throw { message: "Password is incorrect." };
 
 			const payload = { id: checkLogin.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
 			res.status(200).send({
-				message: "Login success",
+				message: "Login successful.",
 				token,
 			});
 		} catch (error) {
-			res.status(500).send({
+			return res.status(500).send({
 				error,
 				status: 500,
-				message: "Internal server error",
+				message: "Internal server error.",
 			});
 		}
 	},
@@ -47,7 +47,8 @@ module.exports = {
 			});
 			res.status(200).send(result);
 		} catch (error) {
-			res.status(500).send({
+			return res.status(500).send({
+				error,
 				status: 500,
 				message: "Internal server error.",
 			});
@@ -60,9 +61,9 @@ module.exports = {
 				where: { [Op.or]: { username, email } },
 			});
 			if (isAccountExist && isAccountExist.email === email) {
-				throw { message: "Enail has been used" };
+				throw { message: "E-mail has been used." };
 			} else if (isAccountExist && isAccountExist.username === username) {
-				throw { message: "Username has been used" };
+				throw { message: "Username has been used." };
 			}
 
 			const salt = await bcrypt.genSalt(10);
@@ -84,17 +85,21 @@ module.exports = {
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: email,
-				subject: "Verify account",
+				subject: "Verify Your AlphaMart Account",
 				html: tempResult,
 			});
 			res.status(200).send({
 				status: true,
-				message: "Register success. Check your email to verify",
+				message: "Register successful. Please check your e-mail to verify.",
 				result,
 				token,
 			});
 		} catch (error) {
-			res.status(400).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	verificationAccount: async (req, res) => {
@@ -107,8 +112,8 @@ module.exports = {
 			const isTokenExist = await tokenVerification.findOne({
 				where: { token: req.token },
 			});
-			if (isAccountExist.isVerified) throw { message: "Account is already verified" };
-			if (isTokenExist) throw { message: "Link is expired" };
+			if (isAccountExist.isVerified) throw { message: "Account is already verified." };
+			if (isTokenExist) throw { message: "Verification link is expired." };
 			const result = await users.update(
 				{
 					isVerified: true,
@@ -127,8 +132,11 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			res.status(400).send(error);
-			console.log(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	forgotPassword: async (req, res) => {
@@ -145,17 +153,21 @@ module.exports = {
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: req.body.email,
-				subject: "Reset Password",
+				subject: "Reset Your AlphaMart Account Password",
 				html: tempResult,
 			});
 
 			res.status(200).send({
 				status: true,
-				message: "Reset password link sent. Please check your email.",
+				message: "Reset password link sent. Please check your e-mail.",
 				token,
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	resetPassword: async (req, res) => {
@@ -166,10 +178,14 @@ module.exports = {
 
 			res.status(200).send({
 				status: true,
-				message: "Reset password successful",
+				message: "Reset password successful.",
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	updateProfile: async (req, res) => {
@@ -186,12 +202,15 @@ module.exports = {
 			);
 			res.status(200).send({
 				status: true,
-				message: "Your profile is updated",
+				message: "Your profile is updated.",
 				result,
 			});
 		} catch (error) {
-			res.status(400).send(error);
-			console.log(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	updateEmail: async (req, res) => {
@@ -214,17 +233,20 @@ module.exports = {
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: email,
-				subject: "Verify account",
+				subject: "Re-Verify Your AlphaMart Account",
 				html: tempResult,
 			});
 			res.status(200).send({
 				status: true,
-				message: "Email has been updated. Check your new email to verify",
+				message: "Your e-mail has been updated. Please check your new e-mail address to re-verify your account.",
 				result,
 			});
 		} catch (error) {
-			res.status(400).send(error);
-			console.log(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	updatePhone: async (req, res) => {
@@ -236,17 +258,20 @@ module.exports = {
 			const isAccountExist = await users.findOne({
 				where: { id: req.user.id },
 			});
-			if (isAccountExist && isAccountExist.phone !== currentPhone) throw { message: "Wrong current phone number" };
-			if (isPhoneExist && isPhoneExist.phone === phone) throw { message: "Phone number has been used" };
+			if (isAccountExist && isAccountExist.phone !== currentPhone) throw { message: "Incorrect old phone number." };
+			if (isPhoneExist && isPhoneExist.phone === phone) throw { message: "Phone number has been used." };
 			const result = await users.update({ phone }, { where: { id: isAccountExist.id } });
 			res.status(200).send({
 				status: true,
-				message: "Your phone number is updated",
+				message: "Your phone number has been updated.",
 				result,
 			});
 		} catch (error) {
-			res.status(400).send(error);
-			console.log(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	changePassword: async (req, res) => {
@@ -257,24 +282,32 @@ module.exports = {
 			});
 			const isValid = await bcrypt.compare(currentPassword, isAccountExist.password);
 			if (!isValid) throw { message: "Wrong current password" };
-			if (currentPassword === password) throw { message: "New pasword must be different" };
+			if (currentPassword === password) throw { message: "New pasword must be different." };
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(password, salt);
 			const result = await user.update({ password: hashPassword }, { where: { id: req.user.id } });
 			res.status(200).send({ result, message: "Password has been changed" });
 		} catch (error) {
-			res.status(400).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	updateAvatar: async (req, res) => {
 		try {
 			if (req.file == undefined) {
-				throw { message: "Image should not be empty" };
+				throw { message: "Image should not be empty." };
 			}
 			const result = await users.update({ avatar: req.file.filename }, { where: { id: req.user.id } });
 			res.status(200).send({ result, message: "Your image profile has been changed" });
 		} catch (error) {
-			res.status(400).send(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 };

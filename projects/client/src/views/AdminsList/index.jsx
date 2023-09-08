@@ -43,6 +43,7 @@ export const AdminListPage = () => {
 	const prevPage = () => {
 		if (page > 1) getEmployee(page - 1);
 	};
+
 	const nextPage = () => {
 		if (page < totalPage) {
 			getEmployee(page + 1);
