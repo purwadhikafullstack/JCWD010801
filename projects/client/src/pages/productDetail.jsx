@@ -42,6 +42,7 @@ const ProductDetail = () => {
 
 	useEffect(() => {
 		fetchData();
+		// eslint-disable-next-line
 	}, [id]);
 
 	const decreaseQuantity = () => {
@@ -77,7 +78,7 @@ const ProductDetail = () => {
 		<Box justify={"center"}>
 			{isMobile ? (
 				//! MOBILE DISPLAY
-				<Center flexDirection="column" h="100%" w="90%">
+				<Center flexDirection="column" h="100%" w="100%">
 					<Stack justify={"center"} align={"center"} wrap={"wrap"} gap={"20px"}>
 						<Box>
 							<Box fontSize={{ base: "16px", sm: "18px", md: "20px" }} color="gray.600" mb="20px" textAlign={"left"}>
@@ -85,7 +86,10 @@ const ProductDetail = () => {
 									Browse Products
 								</Link>
 								{" > "}
-								<Link to={`/search/category/${product.CategoryId}`} style={{ textDecoration: "underline" }}>
+								<Link
+									to={`/search?q=&sort=productName&order=ASC&cat=${product.CategoryId}&p=1`}
+									style={{ textDecoration: "underline" }}
+								>
 									{category}
 								</Link>
 								{" > "}
@@ -102,13 +106,7 @@ const ProductDetail = () => {
 								/>
 							</Box>
 						</Box>
-						<Box
-							w={"320px"}
-							h={"325px"}
-							borderRadius={"20px"}
-							boxShadow={"7px 7px 7px gray"}
-							mt={"10px"}
-						>
+						<Box w={"320px"} h={"325px"} borderRadius={"20px"} boxShadow={"7px 7px 7px gray"} mt={"10px"}>
 							<Box mb={"110px"} alignContent={"center"} mx={"25px"}>
 								<Flex
 									pt={"10px"}
@@ -257,7 +255,10 @@ const ProductDetail = () => {
 									Browse Products
 								</Link>
 								{" > "}
-								<Link to={`/search/category/${product.CategoryId}`} style={{ textDecoration: "underline" }}>
+								<Link
+									to={`/search?q=&sort=productName&order=ASC&cat=${product.CategoryId}&p=1`}
+									style={{ textDecoration: "underline" }}
+								>
 									{category}
 								</Link>
 								{" > "}

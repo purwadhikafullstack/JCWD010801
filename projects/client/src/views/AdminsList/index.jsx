@@ -10,29 +10,30 @@ export const AdminListPage = () => {
 	const navigate = useNavigate();
 	const superAdmin = useSelector((state) => state.user.value);
 	const [data, setData] = useState();
-	// const [reload, setReload] = useState(0);
+	const [reload, setReload] = useState(0);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [countAdmins, setCountAdmins] = useState();
 	const [branch, setBranch] = useState();
+	const [branchId, setBranchId] = useState("");
 	const getEmployee = async (pageNum) => {
 		try {
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/admin/alladmins?search=${search}&page=${pageNum}&limit=8`
+				`${process.env.REACT_APP_API_BASE_URL}/admin/all?search=${search}&page=${pageNum}&limit=8&branchId=${branchId}`
 			);
 			setCountAdmins(response.data.countAdmins);
 			setData(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			console.log(response.data);
+			setReload(!reload);
 		} catch (error) {
 			console.log(error);
 		}
 	};
 	const getBranches = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/getbranches`);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
 			setBranch(response.data);
 		} catch (err) {
 			console.log(err);
@@ -41,6 +42,7 @@ export const AdminListPage = () => {
 	const prevPage = () => {
 		if (page > 1) getEmployee(page - 1);
 	};
+
 	const nextPage = () => {
 		if (page < totalPage) {
 			getEmployee(page + 1);
@@ -52,16 +54,16 @@ export const AdminListPage = () => {
 		getBranches();
 	}, [search]);
 	return (
-		<>
-			<Box w={"full"} bg={"white"}>
-				<Flex mx={"80px"} mt={"20px"} justifyContent={"space-between"}>
+		<Flex pl={"80px"} pt={"45px"}>
+			<Box margin={"auto"}>
+				<Flex mx={"80px"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
 							Admins ({countAdmins})
 						</Text>
 						<Text fontWeight={"light"}>Currently there are {countAdmins} admins from all branches</Text>
 					</Box>
-					<AddAdmin />
+					<AddAdmin reload={reload} setReload={setReload} />
 				</Flex>
 				<Flex mt={"20px"} justifyContent={"center"}>
 					<Select
@@ -70,8 +72,8 @@ export const AdminListPage = () => {
 						borderRadius={"20px"}
 						focusBorderColor="#373433"
 						placeholder="Sort by branch"
-						value={branch}
-						onChange={(e) => setBranch(e.target.value)}
+						value={branchId}
+						onChange={(e) => setBranchId(e.target.value)}
 					>
 						<option value="">All</option>
 						{branch?.map((item) => {
@@ -156,7 +158,7 @@ export const AdminListPage = () => {
 						);
 					})}
 				</Flex>
-				<Flex mb={"25px"} justifyContent={"center"}>
+				<Flex justifyContent={"center"}>
 					<Button
 						backgroundColor={"#000000"}
 						color={"white"}
@@ -217,6 +219,6 @@ export const AdminListPage = () => {
 					</Button>
 				</Flex>
 			</Box>
-		</>
+		</Flex>
 	);
 };

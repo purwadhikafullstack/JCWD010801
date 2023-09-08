@@ -76,6 +76,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		} else {
 			setProducts([]);
 		}
+		// eslint-disable-next-line
 	}, [reload, search]);
 
 	const logout = () => {
@@ -90,7 +91,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	};
 
 	const searchQuery = (query) => {
-		navigate(`/search/products/${query}`);
+		navigate(`/search?q=${query}&sort=productName&order=ASC&cat=&p=1`);
 		setProducts([]);
 	};
 
@@ -279,7 +280,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 												overflow="hidden"
 												onMouseDown={(e) => {
 													e.preventDefault();
-													searchQuery(search)
+													searchQuery(search);
 												}}
 											>
 												<Text textAlign={"center"}>

@@ -7,14 +7,14 @@ const categories = db.Categories;
 
 const seedProducts = async () => {
 	try {
-		const existingProductNames = await products.findAll({ attributes: ['productName'] });
+		const existingProductNames = await products.findAll({ attributes: ["productName"] });
 		const uniqueProductNames = new Set(existingProductNames.map((product) => product.productName));
 
 		const fetchedCategories = await categories.findAll();
 		const categoryIds = fetchedCategories.map((category) => category.id);
 
 		const numProductsToSeed = 100;
-		
+
 		for (let i = 0; i < numProductsToSeed; i++) {
 			const randomCategoryId = categoryIds[Math.floor(Math.random() * categoryIds.length)];
 
@@ -27,7 +27,6 @@ const seedProducts = async () => {
 
 			const price = faker.number.int({ min: 50000, max: 10000000 });
 			const description = faker.lorem.sentence();
-			const stock = faker.number.int({ min: 1, max: 100 });
 			const weight = faker.number.int({ min: 100, max: 100000 });
 
 			await products.create({
@@ -35,7 +34,7 @@ const seedProducts = async () => {
 				price,
 				imgURL: "P-IMG-1693692200758826652948.jpeg",
 				description,
-				stock,
+				aggregateStock: 0,
 				weight,
 				isDeleted: false,
 				CategoryId: randomCategoryId,

@@ -9,6 +9,5 @@ router.get('/all', productControllers.getAllProducts);
 router.get('/categories', productControllers.getCategories);
 router.get('/category/:id', productControllers.getCategoryById);
 router.get('/:id', productControllers.getProduct);
-router.get('/category/:id', productControllers.getProductsByCategory);
 
 module.exports = router;
