@@ -53,6 +53,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const [reload, setReload] = useState(false);
 	const [isSearchFocused, setSearchFocused] = useState(false);
 
+	console.log(reduxStore);
+
 	const fetchData = async () => {
 		try {
 			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/all?page=1&sortBy=productName&sortOrder=ASC&itemLimit=3&search=${search}`;

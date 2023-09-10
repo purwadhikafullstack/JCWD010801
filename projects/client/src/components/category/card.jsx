@@ -6,7 +6,8 @@ import { MenuCategory } from "./menu";
 
 export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => {
     const navigate = useNavigate();
-    const { RoleId } = useSelector((state) => state.user.value);
+    const reduxStore = useSelector((state) => state?.user);
+    const RoleId = reduxStore?.value?.RoleId || 1;
 
     return (
         <Box
