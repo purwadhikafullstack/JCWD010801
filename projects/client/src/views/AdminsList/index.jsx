@@ -9,7 +9,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 export const AdminListPage = () => {
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
-	const superAdmin = useSelector((state) => state.user.value);
+	const user = useSelector((state) => state.user.value);
 	const [data, setData] = useState();
 	const [reload, setReload] = useState(true);
 	const [search, setSearch] = useState("");
@@ -18,6 +18,7 @@ export const AdminListPage = () => {
 	const [countAdmins, setCountAdmins] = useState();
 	const [branch, setBranch] = useState();
 	const [branchId, setBranchId] = useState("");
+
 	const getEmployee = async (pageNum) => {
 		try {
 			const response = await Axios.get(
@@ -32,6 +33,7 @@ export const AdminListPage = () => {
 			console.log(error);
 		}
 	};
+
 	const getBranches = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
@@ -40,6 +42,7 @@ export const AdminListPage = () => {
 			console.log(err);
 		}
 	};
+
 	const prevPage = () => {
 		if (page > 1) getEmployee(page - 1);
 	};
@@ -49,12 +52,14 @@ export const AdminListPage = () => {
 			getEmployee(page + 1);
 		}
 	};
+
 	useEffect(() => {
-		if (superAdmin.RoleId === 1 || superAdmin.RoleId === 2) navigate("/");
+		if (user.RoleId === 1 || user.RoleId === 2) navigate("/");
 		if (!token) navigate("/");
 		getEmployee(page);
 		getBranches();
 	}, [search, branchId]);
+
 	return (
 		<Flex pl={"80px"} pt={"45px"}>
 			<Box w={"full"} margin={"auto"}>

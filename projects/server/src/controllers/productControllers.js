@@ -1,5 +1,9 @@
 const db = require("../models");
 const products = db.Products;
+const users = db.Users;
+const role = db.Roles;
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
 module.exports = {
@@ -24,7 +28,7 @@ module.exports = {
 			) {
 				res.status(400).send({
 					status: 400,
-					message: "Product name already exists.",
+					message: "Product name already exists. Did you mean to update product?",
 				});
 			}
 
@@ -45,7 +49,7 @@ module.exports = {
 			if (!CategoryId) {
 				return res.status(400).send({
 					status: 400,
-					message: "Please assign a category.",
+					message: "Please assign a product category.",
 				});
 			}
 
@@ -85,6 +89,79 @@ module.exports = {
 			});
 		}
 	},
+	updateProduct: async (req, res) => {
+		try {
+			const { id } = req.params;
+			const { price, productName, stock, description } = req.body;
+			const imgURL = req.file.filename;
+
+			const result = await products.update(
+				{ price, productName, stock, description, imgURL: imgURL },
+				{ where: { id: id } }
+			);
+			res.status(200).send({
+				status: 200,
+				message: "Product update successful.",
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	activateDeactivate: async (req, res) => {
+		try {
+			const product = await products.findOne({ where: { id: req.body.productId } });
+
+			if (product.isDeleted) {
+				await products.update({ isDeleted: 0 }, { where: { id: product.id } });
+				res.status(200).send({
+					status: 200,
+					message: `${product.productName} deactivated successfully.`,
+				});
+			} else {
+				await products.update({ isActive: 1 }, { where: { id: product.id } });
+				res.status(200).send({
+					status: 200,
+					message: `${product.productName} activated successfully.`,
+				});
+			}
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	// hardDelete: async (req, res) => {
+	// 	try {
+	// 		const product = await products.findOne({ where: { id: req.body.productId } });
+	// 		const user = await users.findOne({ where: { id: req.body.userId } });
+	// 		const password = req.body.password;
+	// 		const isValid = bcrypt
+
+	// 		if (product.isDeleted) {
+	// 			await products.update({ isDeleted: 0 }, { where: { id: product.id } });
+	// 			res.status(200).send({
+	// 				status: 200,
+	// 				message: `${product.productName} deactivated successfully.`,
+	// 			});
+	// 		} else {
+	// 			await products.update({ isActive: 1 }, { where: { id: product.id } });
+	// 			res.status(200).send({
+	// 				status: 200,
+	// 				message: `${product.productName} activated successfully.`,
+	// 			});
+	// 		}
+	// 	} catch (error) {
+	// 		return res.status(500).send({
+	// 			status: 500,
+	// 			message: "Internal server error.",
+	// 		});
+	// 	}
+	// },
 	getProduct: async (req, res) => {
 		try {
 			const { id } = req.params;
@@ -154,6 +231,7 @@ module.exports = {
 
 			const whereCondition = {
 				productName: { [Op.like]: `%${search}%` },
+				isActive: true,
 				isDeleted: false,
 			};
 
@@ -193,7 +271,110 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.error(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	getActiveProducts: async (req, res) => {
+		try {
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
+
+			const whereCondition = {
+				productName: { [Op.like]: `%${search}%` },
+				isActive: true,
+			};
+
+			if (CategoryId) {
+				whereCondition.CategoryId = CategoryId;
+			}
+
+			const queriedCount = await products.count({
+				where: whereCondition,
+			});
+
+			let orderCriteria = [];
+			if (sortBy === "productName") {
+				orderCriteria.push(["productName", sortOrder]);
+			} else if (sortBy === "price") {
+				orderCriteria.push(["price", sortOrder]);
+			} else if (sortBy === "createdAt") {
+				orderCriteria.push(["createdAt", sortOrder]);
+			} else {
+				orderCriteria.push(["productName", "ASC"]);
+			}
+
+			const result = await products.findAll({
+				where: whereCondition,
+				order: orderCriteria,
+				limit: itemLimit,
+				offset: itemLimit * (page - 1),
+			});
+
+			const totalPages = Math.ceil(queriedCount / itemLimit);
+
+			return res.status(200).send({
+				totalProducts: queriedCount,
+				productsPerPage: itemLimit,
+				totalPages,
+				currentPage: page,
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	getDeactivatedProducts: async (req, res) => {
+		try {
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
+
+			const whereCondition = {
+				productName: { [Op.like]: `%${search}%` },
+				isActive: false,
+			};
+
+			if (CategoryId) {
+				whereCondition.CategoryId = CategoryId;
+			}
+
+			const queriedCount = await products.count({
+				where: whereCondition,
+			});
+
+			let orderCriteria = [];
+			if (sortBy === "productName") {
+				orderCriteria.push(["productName", sortOrder]);
+			} else if (sortBy === "price") {
+				orderCriteria.push(["price", sortOrder]);
+			} else if (sortBy === "createdAt") {
+				orderCriteria.push(["createdAt", sortOrder]);
+			} else {
+				orderCriteria.push(["productName", "ASC"]);
+			}
+
+			const result = await products.findAll({
+				where: whereCondition,
+				order: orderCriteria,
+				limit: itemLimit,
+				offset: itemLimit * (page - 1),
+			});
+
+			const totalPages = Math.ceil(queriedCount / itemLimit);
+
+			return res.status(200).send({
+				totalProducts: queriedCount,
+				productsPerPage: itemLimit,
+				totalPages,
+				currentPage: page,
+				result,
+			});
+		} catch (error) {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",

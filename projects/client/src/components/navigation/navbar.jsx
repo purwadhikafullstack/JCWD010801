@@ -41,7 +41,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
 	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
-	const { username, email, avatar, firstName, lastName } = useSelector((state) => state.user.value);
+	const reduxStore = useSelector((state) => state?.user);
+	const username = reduxStore?.value?.username;
+	const email = reduxStore?.value?.email;
+	const avatar = reduxStore?.value?.avatar;
+	const firstName = reduxStore?.value?.firstName;
+	const lastName = reduxStore?.value?.lastName;
 	const [search, setSearch] = useState("");
 	const [products, setProducts] = useState([]);
 	const [totalProducts, setTotalProducts] = useState(0);

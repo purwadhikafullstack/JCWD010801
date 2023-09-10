@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: "productId",
 			});
 			Stocks.belongsTo(models.Branches, {
-				foreignKey: "branchId",
+				foreignKey: "BranchId",
 			});
 		}
 	}
 	Stocks.init(
 		{
-			branchStock: {
+			currentStock: {
 				type: DataTypes.INTEGER,
 				defaultValue: 0,
 			},
