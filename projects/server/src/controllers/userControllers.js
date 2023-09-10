@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const handlebars = require("handlebars");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const transporter = require("../middlewares/transporter");
 
 module.exports = {
@@ -223,7 +223,7 @@ module.exports = {
 				where: { id: req.user.id },
 			});
 			if (isAccountExist && isAccountExist.email !== currentEmail) throw { message: "Incorrect old e-mail." };
-			if (isEmailexist && isEmailexist.email === email) throw { message: "Email has been used" };
+			if (isEmailexist && isEmailexist.email === email) throw { message: "E-mail has been used" };
 			const result = await users.update({ email, isVerified: false }, { where: { id: isAccountExist.id } });
 			const payload = { id: req.user.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
@@ -281,11 +281,11 @@ module.exports = {
 				where: { id: req.user.id },
 			});
 			const isValid = await bcrypt.compare(currentPassword, isAccountExist.password);
-			if (!isValid) throw { message: "Wrong current password" };
+			if (!isValid) throw { message: "Incorrect current password" };
 			if (currentPassword === password) throw { message: "New pasword must be different." };
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(password, salt);
-			const result = await user.update({ password: hashPassword }, { where: { id: req.user.id } });
+			const result = await users.update({ password: hashPassword }, { where: { id: req.user.id } });
 			res.status(200).send({ result, message: "Password has been changed" });
 		} catch (error) {
 			return res.status(500).send({
@@ -300,8 +300,9 @@ module.exports = {
 			if (req.file == undefined) {
 				throw { message: "Image should not be empty." };
 			}
-			const result = await users.update({ avatar: req.file.filename }, { where: { id: req.user.id } });
-			res.status(200).send({ result, message: "Your image profile has been changed" });
+			const result = await users.update({ avatar: req.file.filename }, { where: { id: req.user.id }});
+			const data = await users.findOne({where:{id:req.user.id}})
+			res.status(200).send({ result, message: "Your image profile has been changed", data });
 		} catch (error) {
 			return res.status(500).send({
 				error,

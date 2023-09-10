@@ -30,7 +30,7 @@ export const VerificationPageView = () => {
         theme: "dark",
     });
     } catch (error) {
-        toast.error(error?.response?.data?.message, {
+        toast.error(error?.response.data.error.message, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
