@@ -81,7 +81,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const logout = () => {
 		localStorage.removeItem("token");
-		navigate("/");
+		navigate("/login");
 		setProducts([]);
 	};
 

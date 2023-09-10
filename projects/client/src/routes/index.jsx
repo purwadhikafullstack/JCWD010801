@@ -10,7 +10,9 @@ const RegisterPage = lazy(() => import("../pages/register"));
 const VerificationPage = lazy(() => import("../pages/verification"));
 const ProductDetail = lazy(() => import("../pages/productDetail"));
 const Search = lazy(() => import("../pages/search"));
-const AdminsList = lazy(() => import("../pages/adminsList"));
+const AdminsList  = lazy(() => import("../pages/adminsList"));
+const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
+const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -78,6 +80,22 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<RegisterPage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/forgot-password",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ForgotPasswordPage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/reset-password/:token",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ResetPasswordPage />
 			</Suspense>
 		),
 	},

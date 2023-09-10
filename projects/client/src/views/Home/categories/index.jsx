@@ -1,5 +1,7 @@
 import { CategoryCarousel } from "./carousel";
 import { Stack, Heading } from "@chakra-ui/react";
+import { HomeCategoryPrototype } from "./test";
+import { CreateCategory } from "../../../components/category/create";
 
 export const Categories = () => {
   return (
@@ -7,7 +9,9 @@ export const Categories = () => {
       <Heading fontSize={"3xl"} fontWeight={"semibold"}>
         Categories
       </Heading>
+      <CreateCategory/>
       <CategoryCarousel />
+      <HomeCategoryPrototype/>
     </Stack>
   );
 };
