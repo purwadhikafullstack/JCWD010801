@@ -63,13 +63,6 @@ const ProductDetail = () => {
 				bg: "transparent",
 			},
 		},
-		{
-			_selected: {
-				color: "gray.900", //DARK MODE.
-				borderColor: "gray.900",
-				bg: "transparent",
-			},
-		}
 	);
 
 	const isMobile = useMediaQuery({ query: "(max-width: 767px)" });

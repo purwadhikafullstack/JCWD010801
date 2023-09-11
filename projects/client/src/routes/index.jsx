@@ -69,6 +69,14 @@ export const AppRouter = createBrowserRouter([
 		],
 	},
 	{
+		path: "/admindashboard/product-management",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ProductManagement />
+			</Suspense>
+		),
+	},
+	{
 		path: "/login",
 		element: (
 			<Suspense fallback={<Spinner />}>
@@ -105,14 +113,6 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<VerificationPage />
-			</Suspense>
-		),
-	},
-	{
-		path: "product-management",
-		element: (
-			<Suspense fallback={<Spinner />}>
-				<ProductManagement />
 			</Suspense>
 		),
 	},

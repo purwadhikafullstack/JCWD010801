@@ -250,6 +250,8 @@ module.exports = {
 				orderCriteria.push(["price", sortOrder]);
 			} else if (sortBy === "createdAt") {
 				orderCriteria.push(["createdAt", sortOrder]);
+			}  else if (sortBy === "weight") {
+				orderCriteria.push(["weight", sortOrder]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
