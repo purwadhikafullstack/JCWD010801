@@ -134,7 +134,7 @@ module.exports = {
 				},
 			});
 			if (!checkLogin) throw { message: "User not Found." };
-			if (checkLogin.RoleId == 1) throw { message: "You have to Login on user Login." };
+			if (checkLogin.RoleId == 1) throw { message: "You have to login on user login tab." };
 
 			const isValid = await bcrypt.compare(password, checkLogin.password);
 			if (!isValid) throw { message: "Password Incorrect." };
@@ -143,7 +143,7 @@ module.exports = {
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
 			res.status(200).send({
-				message: "Login success.",
+				message: "Login successful.",
 				token,
 			});
 		} catch (error) {

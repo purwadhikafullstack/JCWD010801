@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
 				through: models.Stocks,
 				foreignKey: "branchId",
 			});
+			Branches.belongsToMany(models.Products, {
+				through: models.StockMovements,
+				foreignKey: "branchId",
+			});
 		}
 	}
 	Branches.init(

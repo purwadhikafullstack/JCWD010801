@@ -6,8 +6,6 @@ import {images} from './imageByIndex'
 const OPTIONS = { loop: true }
 // const SLIDES = Array.from(Array(images.length).keys())
 const SLIDES = Array.from(Array(images.length).keys())
-console.log(SLIDES)
-console.log(images)
 
 export const Banner = ({ slides, options }) => {
     return (

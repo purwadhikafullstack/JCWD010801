@@ -14,30 +14,24 @@ const theme = extendTheme({
 			},
 		},
 	},
-	// components: {
-	//     Radio: {
-	//         baseStyle: {
-	//             borderColor: "gray",
-	//             _checked: {
-	//                 boxShadow: '0 0 3px 2px #39393C',
-	//                 bg: 'transparent',
-	//                 color: 'gray.700',
-	//                 borderColor: 'gray.700',
-	//                 _before: {
-	//                     content: '""',
-	//                     display: 'block',
-	//                     width: '50%',
-	//                     height: '50%',
-	//                     borderRadius: '50%',
-	//                     bg: '#4A4A4A',
-	//                 },
-	//             },
-	//             _focus: {
-	//                 boxShadow: '0 0 3px 2px #39393C',
-	//             },
-	//         },
-	//     },
-	// },
+	components: {
+		Switch: {
+			baseStyle: {
+				thumb: {
+					bg: "black",
+					_checked: {
+						bg: "white",
+					},
+				},
+				track: {
+					bg: "#800808",
+					_checked: {
+						bg: "#006100",
+					},
+				},
+			},
+		},
+	},
 });
 
 export { theme, colorModeConfig };

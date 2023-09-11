@@ -35,9 +35,7 @@ export const SearchMobile = () => {
 			const response = await Axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product/all?page=1&sortBy=productName&sortOrder=ASC&itemLimit=10&search=${search}`
 			);
-
 			setSearchResults(response.data.result);
-			console.log(searchResults);
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -54,6 +52,7 @@ export const SearchMobile = () => {
 		if (search.trim() !== "") {
 			handleSearch();
 		}
+		// eslint-disable-next-line
 	}, [search]);
 
 	return (

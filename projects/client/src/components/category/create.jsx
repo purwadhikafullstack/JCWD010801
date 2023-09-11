@@ -11,7 +11,8 @@ import { refreshCategories } from "../../redux/categorySlice";
 export const CreateCategory = () => {
     const token = localStorage.getItem('token');
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { RoleId } = useSelector((state) => state.user.value);
+    const reduxStore = useSelector((state) => state?.user);
+    const RoleId = reduxStore?.value?.RoleId || 1;
     const dispatch = useDispatch();
 
     const categorySchema = Yup.object().shape({

@@ -9,14 +9,18 @@ import { AiOutlineBranches } from "react-icons/ai";
 import { BsGraphUpArrow, BsPersonGear } from "react-icons/bs";
 import { useSelector } from "react-redux";
 
-export const AdminSidebar = () => {
-	const [navSize, setNavsize] = useState("small");
-	const superAdmin = useSelector((state) => state.user.value);
+export const AdminSidebar = ({ height, navSizeProp }) => {
+	const user = useSelector((state) => state.user.value);
+	const [navSize, setNavsize] = useState(navSizeProp || "small");
+	const toggleNavSize = () => {
+		setNavsize(navSize === "small" ? "large" : "small");
+	};
+
 	return (
 		<Flex
 			position={"fixed"}
 			w={navSize === "small" ? "100px" : "170px"}
-			h={"100vh"}
+			h={height || "100vh"}
 			backgroundColor={"blackAlpha.900"}
 			borderTopRightRadius={"30px"}
 			boxShadow="0px 0px 8px black"
@@ -35,9 +39,7 @@ export const AdminSidebar = () => {
 			</Flex>
 			<Box>
 				<Flex
-					onClick={() => {
-						navSize === "small" ? setNavsize("large") : setNavsize("small");
-					}}
+					onClick={toggleNavSize}
 					_hover={{ transform: "scale(1.1)" }}
 					transition="transform 0.3s ease-in-out"
 					justifyContent={"center"}
@@ -90,7 +92,7 @@ export const AdminSidebar = () => {
 						</Text>
 					) : null}
 				</Flex>
-				{superAdmin.RoleId === 3 ? (
+				{user.RoleId === 3 ? (
 					<Flex
 						as={Link}
 						to={"/admindashboard/adminslist"}

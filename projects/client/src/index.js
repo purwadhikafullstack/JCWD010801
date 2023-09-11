@@ -9,26 +9,26 @@ import { store } from "./redux";
 import { theme, colorModeConfig } from "./chakraTheme";
 
 const LightModeWrapper = ({ children }) => {
-  React.useEffect(() => {
-    localStorage.setItem('chakra-ui-color-mode', 'light');
-    localStorage.removeItem('chakra-ui-color-mode');
-    localStorage.setItem('chakra-ui-color-mode', 'light');
-  });
-  return <>{children}</>;
+	React.useEffect(() => {
+		localStorage.setItem("chakra-ui-color-mode", "light");
+		localStorage.removeItem("chakra-ui-color-mode");
+		localStorage.setItem("chakra-ui-color-mode", "light");
+	});
+	return <>{children}</>;
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <LightModeWrapper>
-      <ColorModeProvider options={colorModeConfig}>
-        <Provider store={store}>
-          <ChakraProvider theme={theme}>
-            <App />
-          </ChakraProvider>
-          <ToastContainer />
-        </Provider>
-      </ColorModeProvider>
-    </LightModeWrapper>
-  </React.StrictMode>
+	<React.StrictMode>
+		<LightModeWrapper>
+			<ColorModeProvider options={colorModeConfig}>
+				<Provider store={store}>
+					<ChakraProvider theme={theme}>
+						<App />
+					</ChakraProvider>
+					<ToastContainer />
+				</Provider>
+			</ColorModeProvider>
+		</LightModeWrapper>
+	</React.StrictMode>
 );
