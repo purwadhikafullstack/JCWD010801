@@ -59,7 +59,6 @@ export const AdminListPage = () => {
 		getEmployee(page);
 		getBranches();
 	}, [search, branchId]);
-
 	return (
 		<Flex pl={"80px"} pt={"45px"}>
 			<Box w={"full"} margin={"auto"}>
