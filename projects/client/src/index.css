@@ -20,3 +20,30 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-4px::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 15px;
+}
+
+::-webkit-scrollbar-track:hover {
+  background-color: #aaa;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: #333;
+}
+/* END OF SCROLLBAR CSS */
