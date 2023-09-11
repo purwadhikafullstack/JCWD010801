@@ -13,6 +13,7 @@ const Search = lazy(() => import("../pages/search"));
 const AdminsList = lazy(() => import("../pages/adminsList"));
 const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
 const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
+const ProfilePage = lazy(() => import("../pages/profile"));
 const ProductManagement = lazy(() => import("../pages/productManagement"));
 
 export const AppRouter = createBrowserRouter([
@@ -113,6 +114,14 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<VerificationPage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/profile",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ProfilePage />
 			</Suspense>
 		),
 	},
