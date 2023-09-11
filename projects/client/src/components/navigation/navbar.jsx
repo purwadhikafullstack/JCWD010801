@@ -1,4 +1,5 @@
 import Axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
 	Flex,
 	Stack,
@@ -24,7 +25,8 @@ import {
 	Divider,
 	Spacer,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setValue } from "../../redux/userSlice";
 import { BsCart, BsPerson } from "react-icons/bs";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdLogout, MdLogin, MdAppRegistration } from "react-icons/md";
@@ -34,11 +36,12 @@ import { CiLocationOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
-import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
 	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
 	const reduxStore = useSelector((state) => state?.user);
@@ -86,6 +89,17 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const logout = () => {
 		localStorage.removeItem("token");
+		toast.error("You have successfully logged out.", {
+			position: "top-right",
+			autoClose: 4000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			progress: undefined,
+			theme: "dark",
+		});
+		dispatch(setValue({}));
 		navigate("/login");
 		setProducts([]);
 	};
@@ -306,7 +320,11 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								{token ? (
 									<MenuList>
 										<Stack alignItems={"center"} justifyContent={"center"} p="3" gap={0}>
-											<Avatar mb={2} src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? undefined : "default_not_set.png"}`} size={"lg"} />
+											<Avatar
+												mb={2}
+												src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? avatar : "default_not_set.png"}`}
+												size={"lg"}
+											/>
 											<Text fontSize={"sm"} fontWeight={"normal"}>
 												{firstName} {lastName}
 											</Text>
