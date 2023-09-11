@@ -53,7 +53,17 @@ module.exports = {
 
         res.status(403).send({
             status: 403,
-            message: "Forbidden! You are not an administrator."
+            message: "Forbidden! You are not a super administrator."
         });
     },
+    checkUser: (req, res, next) => {
+        if (req.user.RoleId === 1) {
+            return next()
+        };
+        
+        res.status(403).send({
+            status: 403,
+            message: "Forbidden! You are not a user."
+        });
+    }
 };
