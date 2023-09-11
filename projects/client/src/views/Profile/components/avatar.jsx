@@ -21,6 +21,9 @@ import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../../redux/userSlice";
 import { ButtonTemp } from "../../../components/button";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const EditAvatar = () => {
 	const data = useSelector((state) => state.user.value);
 
@@ -38,15 +41,32 @@ const EditAvatar = () => {
 		try {
 			const formData = new FormData();
 			formData.append("file", file);
-			const response = await Axios.post("http://localhost:8000/api/user/avatar", formData, { headers });
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/avatar`, formData, { headers });
 			const updatedUser = { ...data, avatar: response.data.data.avatar };
-
 			dispatch(setValue(updatedUser));
-			console.log(response);
-
+			setIsModalOpen(false);
+			toast.success(response.data.message, {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
 			setIsModalOpen(false);
 		} catch (error) {
-			console.log(error);
+			toast.error(error?.response.data.error.message, {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
 		}
 	};
 
