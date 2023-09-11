@@ -29,6 +29,7 @@ module.exports = {
 			res.status(200).send({
 				message: "Login successful.",
 				token,
+				checkLogin,
 			});
 		} catch (error) {
 			return res.status(500).send({
