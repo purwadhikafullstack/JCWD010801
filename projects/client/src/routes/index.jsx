@@ -10,9 +10,10 @@ const RegisterPage = lazy(() => import("../pages/register"));
 const VerificationPage = lazy(() => import("../pages/verification"));
 const ProductDetail = lazy(() => import("../pages/productDetail"));
 const Search = lazy(() => import("../pages/search"));
-const AdminsList  = lazy(() => import("../pages/adminsList"));
+const AdminsList = lazy(() => import("../pages/adminsList"));
 const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
 const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
+const ProductManagement = lazy(() => import("../pages/productManagement"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -66,6 +67,14 @@ export const AppRouter = createBrowserRouter([
 				),
 			},
 		],
+	},
+	{
+		path: "/admindashboard/product-management",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ProductManagement />
+			</Suspense>
+		),
 	},
 	{
 		path: "/login",

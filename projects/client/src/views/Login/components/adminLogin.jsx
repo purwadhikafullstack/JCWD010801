@@ -4,8 +4,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
-import { setValue } from "../../../redux/userSlice";
 import { Field, ErrorMessage, Formik, Form } from "formik";
 import { toast } from "react-toastify";
 import { FiEye, FiEyeOff } from "react-icons/fi";
@@ -13,7 +11,6 @@ import { BsFillPersonPlusFill, BsFillLockFill } from "react-icons/bs";
 import { Box, Button, Flex, Heading, Input, InputGroup, InputRightElement, Text, VStack } from "@chakra-ui/react";
 
 export const AdminLogin = () => {
-	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const handleClick = () => setShow(!show);
 	const [show, setShow] = useState(false);
@@ -24,7 +21,6 @@ export const AdminLogin = () => {
 	const handleSubmit = async (dataLogin) => {
 		try {
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/login`, dataLogin);
-			dispatch(setValue(response.data.user));
 			localStorage.setItem("token", response.data.token);
 			navigate("/");
 			toast.success("Welcome", {
@@ -50,6 +46,7 @@ export const AdminLogin = () => {
 			});
 		}
 	};
+
 	return (
 		<>
 			<Formik

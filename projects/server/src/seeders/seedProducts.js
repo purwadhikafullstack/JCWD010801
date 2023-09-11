@@ -36,6 +36,7 @@ const seedProducts = async () => {
 				description,
 				aggregateStock: 0,
 				weight,
+				isActive: true,
 				isDeleted: false,
 				CategoryId: randomCategoryId,
 			});

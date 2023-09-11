@@ -24,7 +24,7 @@ import {
 	Divider,
 	Spacer,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsCart, BsPerson } from "react-icons/bs";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdLogout, MdLogin, MdAppRegistration } from "react-icons/md";
@@ -41,7 +41,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
 	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
-	const { username, email, avatar, firstName, lastName } = useSelector((state) => state.user.value);
+	const reduxStore = useSelector((state) => state?.user);
+	const username = reduxStore?.value?.username;
+	const email = reduxStore?.value?.email;
+	const avatar = reduxStore?.value?.avatar;
+	const firstName = reduxStore?.value?.firstName;
+	const lastName = reduxStore?.value?.lastName;
 	const [search, setSearch] = useState("");
 	const [products, setProducts] = useState([]);
 	const [totalProducts, setTotalProducts] = useState(0);
@@ -176,7 +181,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									<PopoverBody>
 										{branches.map((item, index) => {
 											return (
-												<>
+												<React.Fragment key={index}>
 													<Text
 														textAlign={"center"}
 														as={Box}
@@ -195,7 +200,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 														{item}
 													</Text>
 													{index + 1 !== branches.length && <Divider size={"xl"} colorScheme="gray" />}
-												</>
+												</React.Fragment>
 											);
 										})}
 									</PopoverBody>
@@ -295,15 +300,13 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								<Icon as={BsCart} w="5" h="5" color={"black"} />
 							</Button>
 							<Menu alignSelf={"center"}>
-								<MenuButton>
-									<Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
-										<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
-									</Button>
+								<MenuButton cursor={"pointer"}>
+									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
 								</MenuButton>
 								{token ? (
 									<MenuList>
 										<Stack alignItems={"center"} justifyContent={"center"} p="3" gap={0}>
-											<Avatar mb={2} src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar}`} size={"lg"} />
+											<Avatar mb={2} src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? undefined : "default_not_set.png"}`} size={"lg"} />
 											<Text fontSize={"sm"} fontWeight={"normal"}>
 												{firstName} {lastName}
 											</Text>

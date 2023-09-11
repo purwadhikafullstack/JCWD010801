@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
 				through: models.Stocks,
 				foreignKey: "productId",
 			});
+			Products.belongsToMany(models.Branches, {
+				through: models.StockMovements,
+				foreignKey: "productId",
+			});
 			// Products.hasMany(models.CartItems);
 			// Products.hasMany(models.Sales, {
 			//   foreignKey: 'productId'
@@ -45,6 +49,10 @@ module.exports = (sequelize, DataTypes) => {
 			weight: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
+			},
+			isActive: {
+				type: DataTypes.BOOLEAN,
+				defaultValue: true,
 			},
 			isDeleted: {
 				type: DataTypes.BOOLEAN,
