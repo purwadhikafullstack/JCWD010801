@@ -306,7 +306,11 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								{token ? (
 									<MenuList>
 										<Stack alignItems={"center"} justifyContent={"center"} p="3" gap={0}>
-											<Avatar mb={2} src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? undefined : "default_not_set.png"}`} size={"lg"} />
+											<Avatar
+												mb={2}
+												src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? avatar : "default_not_set.png"}`}
+												size={"lg"}
+											/>
 											<Text fontSize={"sm"} fontWeight={"normal"}>
 												{firstName} {lastName}
 											</Text>
