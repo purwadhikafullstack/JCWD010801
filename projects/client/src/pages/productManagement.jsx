@@ -1,5 +1,5 @@
 import Axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
 	Box,
 	Checkbox,
@@ -15,30 +15,38 @@ import {
 	TabPanels,
 	Tabs,
 	Text,
-	useColorModeValue,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import { Navbar } from "../components/navigation/navbar";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { ButtonTemp } from "../components/button";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
-import { BiSort } from "react-icons/bi";
+import { BiSort, BiCategoryAlt } from "react-icons/bi";
 import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
 import { CiCalendarDate } from "react-icons/ci";
 import { FaSearch } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { IoCalendarNumberOutline } from "react-icons/io5";
-import { TbTrashX } from "react-icons/tb";
+import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
+import { RiScalesLine, RiScalesFill } from "react-icons/ri";
+import { TbTrashX, TbCategory2 } from "react-icons/tb";
 import { TiDelete } from "react-icons/ti";
 import { Pagination } from "../components/navigation/pagination";
+import { useSelector } from "react-redux";
+
+const initialCheckboxState = {};
 
 const ProductManagement = () => {
+	const { username, lastName, gender } = useSelector((state) => state?.user?.value);
 	const [products, setProducts] = useState([]);
-	// eslint-disable-next-line
+	const [totalProductsAll, setTotalProductsAll] = useState(0);
+	const [totalProductsActive, setTotalProductsActive] = useState(0);
+	const [totalProductsDeactivated, setTotalProductsDeactivated] = useState(0);
 	const [itemLimit, setItemLimit] = useState(10);
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
 	const [checked, setChecked] = useState(false);
+	const [activeTab, setActiveTab] = useState(0);
 	const [isSwitchChecked, setIsSwitchChecked] = useState(true);
 	const [reload, setReload] = useState(true);
 	const [page, setPage] = useState(1);
@@ -46,25 +54,51 @@ const ProductManagement = () => {
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
+	const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
+	const checkboxStateRef = useRef(initialCheckboxState);
 	const navigate = useNavigate();
-	
-	useEffect(() => {
-		fetchData(page);
-		// eslint-disable-next-line
-	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages]);
+	let user = "";
+	if (gender !== null) {
+		if (gender === "male") {
+			user = `Mr. ${lastName}`;
+		} else {
+			user = `Ms. ${lastName}`;
+		}
+	} else {
+		user = username;
+	}
 
-	const fetchData = async (pageNum) => {
+	useEffect(() => {
+		productCount();
+	}, []);
+
+	// useEffect(() => {
+	// 	setCheckboxState(checkboxStateRef.current);
+	//   }, []);
+
+	useEffect(() => {
+		fetchDataAll(page);
+		// eslint-disable-next-line
+	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages, activeTab]);
+
+	const fetchDataAll = async (pageNum) => {
 		try {
-			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/all?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+			let apiURL = "";
+
+			if (activeTab === 0) {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/alladmin?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+			} else if (activeTab === 1) {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/active?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+			} else {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deactivated?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+			}
 
 			if (selectedCategory) {
 				apiURL += `&CategoryId=${selectedCategory}`;
 			}
-
 			if (itemLimit) {
 				apiURL += `&itemLimit=${itemLimit}`;
 			}
-
 			const productsResponse = await Axios.get(apiURL);
 			setProducts(productsResponse.data.result);
 			setTotalPages(productsResponse.data.totalPages);
@@ -74,13 +108,41 @@ const ProductManagement = () => {
 				value: data.id,
 			}));
 			setCategories(categoryData);
+			if (activeTab === 0) {
+				setTotalProductsAll(productsResponse.data.totalProducts);
+			} else if (activeTab === 1) {
+				setTotalProductsActive(productsResponse.data.totalProducts);
+			} else {
+				setTotalProductsDeactivated(productsResponse.data.totalProducts);
+			}
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	const handleCheckboxClick = () => {
-		setChecked(!checked);
+	const productCount = async () => {
+		try {
+			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`);
+			setTotalProductsActive(all.data.totalProducts);
+			const active = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/active`);
+			setTotalProductsActive(active.data.totalProducts);
+			const deactivated = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/deactivated`);
+			setTotalProductsDeactivated(deactivated.data.totalProducts);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	//!
+	const handleCheckboxChange = (PID) => {
+		const updatedCheckboxState = { ...checkboxState };
+		updatedCheckboxState[PID] = !updatedCheckboxState[PID];
+		setCheckboxState(updatedCheckboxState);
+	};
+	//!
+	const toggleCheckbox = (PID) => {
+		checkboxStateRef.current[PID] = !checkboxStateRef.current[PID];
+		setReload(!reload);
 	};
 
 	const nextPage = () => {
@@ -106,14 +168,6 @@ const ProductManagement = () => {
 		const category = categories.find((category) => category.value === catId);
 		return category ? category.label : "Category Missing!";
 	};
-
-	const tabStyles = useColorModeValue({
-		_selected: {
-			color: "gray.900",
-			borderColor: "gray.900",
-			bg: "transparent",
-		},
-	});
 
 	const customInputStyle = {
 		borderColor: "gray",
@@ -201,7 +255,7 @@ const ProductManagement = () => {
 						alignSelf={"center"}
 						ml={"15px"}
 					>
-						Welcome #Administrator
+						Welcome {user}.
 					</Text>
 				</Flex>
 				<Flex h={"25px"}>
@@ -218,32 +272,61 @@ const ProductManagement = () => {
 					</Text>
 				</Flex>
 				<Box w={"1250px"} h={"160vh"} m={"5px"} py={"5px"} border={"1px solid #39393C"} borderRadius={"10px"}>
-					<Tabs w="1225px" align="left">
+					<Tabs value={activeTab} onChange={(index) => setActiveTab(index)} w="1225px" align="left">
 						<TabList>
-							<Tab width="16%" variant="unstyled" sx={tabStyles} fontWeight={"bold"}>
-								All Products
+							<Tab
+								width="18%"
+								variant="unstyled"
+								fontWeight={"bold"}
+								sx={{
+									fontWeight: "bold",
+									color: activeTab === 0 ? "#2E8B57" : "white",
+									bgColor: activeTab === 0 ? "#7CB69D" : "rgba(51, 50, 52, 0.6)",
+									borderRadius: "3px",
+								}}
+							>
+								All Products ({totalProductsAll})
 							</Tab>
-							<Tab width="16%" variant="unstyled" sx={tabStyles} fontWeight={"bold"}>
-								Active Products
+							<Tab
+								width="18%"
+								variant="unstyled"
+								fontWeight={"bold"}
+								sx={{
+									fontWeight: "bold",
+									color: activeTab === 1 ? "#2E8B57" : "white",
+									bgColor: activeTab === 1 ? "#7CB69D" : "rgba(51, 50, 52, 0.6)",
+									borderRadius: "3px",
+								}}
+							>
+								Active Products ({totalProductsActive})
 							</Tab>
-							<Tab width="16%" variant="unstyled" sx={tabStyles} fontWeight={"bold"}>
-								Deactivated Produts
+							<Tab
+								width="18%"
+								variant="unstyled"
+								fontWeight={"bold"}
+								sx={{
+									fontWeight: "bold",
+									color: activeTab === 2 ? "#2E8B57" : "white",
+									bgColor: activeTab === 2 ? "#7CB69D" : "rgba(51, 50, 52, 0.6)",
+									borderRadius: "3px",
+								}}
+							>
+								Deactivated Produts ({totalProductsDeactivated})
 							</Tab>
 						</TabList>
 						<Flex
 							w={"1225px"}
 							h={"45px"}
-							bgColor="yellow"
 							align="center"
 							fontWeight="bold"
 							mb={"2px"}
 							borderBottom={"1px solid #39393C"}
 						>
-							<Flex w={"240px"} h={"45px"} bgColor="red" align="center" fontWeight="bold" ml={"25px"}>
+							<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
 								<Input
 									type="search"
 									value={search}
-									mr={"10px"}
+									mr={"5px"}
 									w={"200px"}
 									h={"30px"}
 									border={"1px solid gray"}
@@ -264,7 +347,7 @@ const ProductManagement = () => {
 									style={{ cursor: "pointer" }}
 								/>
 							</Flex>
-							<Flex w={"210px"} h={"45px"} bgColor="red" justify="left" align={"center"} fontWeight="bold" ml={"15px"}>
+							<Flex w={"210px"} h={"45px"} justify="left" align={"center"} fontWeight="bold" ml={"10px"}>
 								<Select
 									placeholder="All Categories"
 									value={selectedCategory.toString()}
@@ -298,43 +381,101 @@ const ProductManagement = () => {
 								</Select>
 							</Flex>
 							<Flex
-								w={"350px"}
-								h={"30px"}
-								bgColor="red"
-								justify="center"
+								w={"625px"}
+								h={"31px"}
+								justify="space-evenly"
 								align="center"
 								fontWeight="bold"
-								ml={"45px"}
+								ml={"10px"}
 								border={"1px solid black"}
 								borderRadius={"10px"}
 							>
 								<Radio
+									size="sm"
 									isChecked={sortBy === "productName"}
 									borderColor={"gray"}
-									onChange={(e) => {
+									onChange={() => {
 										setSortBy("productName");
+										setPage(1);
 									}}
 									{...customRadioStyle}
 								>
 									Alphabetical
 								</Radio>
 								<Radio
-									ml={"20px"}
+									size="sm"
+									ml={"7px"}
 									isChecked={sortBy === "price"}
 									borderColor={"gray"}
-									onChange={(e) => {
+									onChange={() => {
 										setSortBy("price");
+										setPage(1);
 									}}
 									{...customRadioStyle}
 								>
 									Price
 								</Radio>
 								<Radio
-									ml={"20px"}
+									size="sm"
+									ml={"7px"}
+									isChecked={sortBy === "weight"}
+									borderColor={"gray"}
+									onChange={() => {
+										setSortBy("weight");
+										setPage(1);
+									}}
+									{...customRadioStyle}
+								>
+									Weight
+								</Radio>
+								<Radio
+									size="sm"
+									ml={"7px"}
+									isChecked={sortBy === "CategoryId"}
+									borderColor={"gray"}
+									onChange={() => {
+										setSortBy("CategoryId");
+										setPage(1);
+									}}
+									{...customRadioStyle}
+								>
+									Categories
+								</Radio>
+								<Radio
+									size="sm"
+									ml={"7px"}
+									isChecked={sortBy === "aggregateStock"}
+									borderColor={"gray"}
+									onChange={() => {
+										setSortBy("aggregateStock");
+										setPage(1);
+									}}
+									{...customRadioStyle}
+								>
+									N.Stock
+								</Radio>
+								<Radio
+									size="sm"
+									ml={"7px"}
+									isChecked={sortBy === "branchStock"} //! REMINDER TO UPDATE CONTROLLER.
+									borderColor={"gray"}
+									onChange={() => {
+										setSortBy("branchStock");
+										setPage(1);
+									}}
+									{...customRadioStyle}
+								>
+									B.Stock
+								</Radio>
+								<Radio
+									size="sm"
+									labelProps={{ fontSize: "5px" }}
+									ml={"7px"}
 									isChecked={sortBy === "createdAt"}
 									borderColor={"gray"}
-									onChange={(e) => {
+									onChange={() => {
 										setSortBy("createdAt");
+										setPage(1);
 									}}
 									{...customRadioStyle}
 								>
@@ -343,10 +484,9 @@ const ProductManagement = () => {
 							</Flex>
 							<Flex
 								justifyContent={"space-around"}
-								w={"150px"}
-								h={"30px"}
-								ml={"40px"}
-								bgColor="red"
+								w={"122px"}
+								h={"31px"}
+								ml={"8px"}
 								justify="center"
 								align="center"
 								fontWeight="bold"
@@ -358,7 +498,7 @@ const ProductManagement = () => {
 										<Radio
 											borderColor={"gray"}
 											isChecked={sortOrder === "ASC"}
-											onChange={(e) => {
+											onChange={() => {
 												setSortOrder("ASC");
 											}}
 											{...customRadioStyle}
@@ -368,7 +508,7 @@ const ProductManagement = () => {
 										<Radio
 											borderColor={"gray"}
 											isChecked={sortOrder === "DESC"}
-											onChange={(e) => {
+											onChange={() => {
 												setSortOrder("DESC");
 											}}
 											{...customRadioStyle}
@@ -382,7 +522,7 @@ const ProductManagement = () => {
 										<Radio
 											borderColor={"gray"}
 											isChecked={sortOrder === "ASC"}
-											onChange={(e) => {
+											onChange={() => {
 												setSortOrder("ASC");
 											}}
 											{...customRadioStyle}
@@ -392,7 +532,7 @@ const ProductManagement = () => {
 										<Radio
 											borderColor={"gray"}
 											isChecked={sortOrder === "DESC"}
-											onChange={(e) => {
+											onChange={() => {
 												setSortOrder("DESC");
 											}}
 											{...customRadioStyle}
@@ -401,12 +541,108 @@ const ProductManagement = () => {
 										</Radio>
 									</>
 								)}
+								{sortBy === "weight" && (
+									<>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "ASC"}
+											onChange={() => {
+												setSortOrder("ASC");
+											}}
+											{...customRadioStyle}
+										>
+											<RiScalesLine size={25} />
+										</Radio>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "DESC"}
+											onChange={() => {
+												setSortOrder("DESC");
+											}}
+											{...customRadioStyle}
+										>
+											<RiScalesFill size={25} />
+										</Radio>
+									</>
+								)}
+								{sortBy === "CategoryId" && (
+									<>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "ASC"}
+											onChange={() => {
+												setSortOrder("ASC");
+											}}
+											{...customRadioStyle}
+										>
+											<BiCategoryAlt size={25} />
+										</Radio>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "DESC"}
+											onChange={() => {
+												setSortOrder("DESC");
+											}}
+											{...customRadioStyle}
+										>
+											<TbCategory2 size={25} />
+										</Radio>
+									</>
+								)}
+								{sortBy === "aggregateStock" && (
+									<>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "ASC"}
+											onChange={() => {
+												setSortOrder("ASC");
+											}}
+											{...customRadioStyle}
+										>
+											<PiChartLineDown size={25} />
+										</Radio>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "DESC"}
+											onChange={() => {
+												setSortOrder("DESC");
+											}}
+											{...customRadioStyle}
+										>
+											<PiChartLineUp size={25} />
+										</Radio>
+									</>
+								)}
+								{sortBy === "branchStock" && (
+									<>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "ASC"}
+											onChange={() => {
+												setSortOrder("ASC");
+											}}
+											{...customRadioStyle}
+										>
+											<PiChartLineDown size={25} />
+										</Radio>
+										<Radio
+											borderColor={"gray"}
+											isChecked={sortOrder === "DESC"}
+											onChange={() => {
+												setSortOrder("DESC");
+											}}
+											{...customRadioStyle}
+										>
+											<PiChartLineUp size={25} />
+										</Radio>
+									</>
+								)}
 								{sortBy === "createdAt" && (
 									<>
 										<Radio
 											borderColor={"gray"}
 											isChecked={sortOrder === "ASC"}
-											onChange={(e) => {
+											onChange={() => {
 												setSortOrder("ASC");
 											}}
 											{...customRadioStyle}
@@ -416,7 +652,7 @@ const ProductManagement = () => {
 										<Radio
 											borderColor={"gray"}
 											isChecked={sortOrder === "DESC"}
-											onChange={(e) => {
+											onChange={() => {
 												setSortOrder("DESC");
 											}}
 											{...customRadioStyle}
@@ -429,59 +665,132 @@ const ProductManagement = () => {
 						</Flex>
 						<Flex w={"1230px"} h={"50px"} align="top" fontWeight="bold" p={1}>
 							<Flex w={"16px"} h={"40px"} justify={"center"} align={"center"}>
-								<Checkbox onChange={handleCheckboxClick} colorScheme="green" iconColor="white" size={"lg"} />
+								<Checkbox onChange={handleCheckboxChange} colorScheme="green" iconColor="white" size={"lg"} />
 							</Flex>
 							{!checked ? (
 								<>
-									<Flex bgColor={"yellow"} w={"250px"} h={"40px"} ml={"5px"} justify={"left"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"250px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"left"}
+										align={"center"}
+									>
 										<Text mr={"3px"}>PRODUCT INFO</Text>
 										<BiSort
 											size={20}
 											color="#3E3D40"
 											cursor="pointer"
-											onClick={(e) => {
+											onClick={() => {
 												setSortBy("productName");
 												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
 											}}
 										/>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"250px"} h={"40px"} ml={"5px"} justify={"left"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"250px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"left"}
+										align={"center"}
+									>
 										<Text>DESCRIPTION</Text>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"100px"} h={"40px"} ml={"5px"} justify={"center"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"100px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"center"}
+										align={"center"}
+									>
 										<Text mr={"3px"}>PRICE</Text>
 										<BiSort
 											size={20}
 											color="#3E3D40"
 											cursor="pointer"
-											onClick={(e) => {
+											onClick={() => {
 												setSortBy("price");
 												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
 											}}
 										/>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"85px"} h={"40px"} ml={"5px"} justify={"center"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"85px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"center"}
+										align={"center"}
+									>
 										<Text mr={"1px"}>WEIGHT</Text>
 										<BiSort
 											size={20}
 											color="#3E3D40"
 											cursor="pointer"
-											onClick={(e) => {
+											onClick={() => {
 												setSortBy("weight");
 												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
 											}}
 										/>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"120px"} h={"40px"} ml={"5px"} justify={"center"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"120px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"center"}
+										align={"center"}
+									>
 										<Text>CATEGORY</Text>
+										<BiSort
+											size={20}
+											color="#3E3D40"
+											cursor="pointer"
+											onClick={() => {
+												setSortBy("CategoryId");
+												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+											}}
+										/>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"225px"} h={"40px"} ml={"5px"} justify={"center"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"225px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"center"}
+										align={"center"}
+									>
 										<Text>STOCK</Text>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"65px"} h={"40px"} ml={"5px"} justify={"center"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"65px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"center"}
+										align={"center"}
+									>
 										<Text>STATUS</Text>
 									</Flex>
-									<Flex bgColor={"yellow"} w={"70px"} h={"40px"} ml={"5px"} justify={"center"} align={"center"}>
+									<Flex
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"5px"}
+										w={"70px"}
+										h={"40px"}
+										ml={"5px"}
+										justify={"center"}
+										align={"center"}
+									>
 										<Text>MANAGE</Text>
 									</Flex>
 								</>
@@ -497,23 +806,34 @@ const ProductManagement = () => {
 								</Flex>
 							)}
 						</Flex>
-						<Flex
-							w={"1225px"}
-							h={"25px"}
-							bgColor="green"
-							align="center"
-							fontWeight="bold"
-							borderBottom="2px ridge #39393C"
-						>
+						<Flex w={"1225px"} h={"25px"} align="center" fontWeight="bold" borderBottom="2px ridge #39393C">
 							{!checked ? (
 								<>
-									<Flex bgColor={"yellow"} w={"109px"} h={"20px"} ml={"855px"} justify={"center"}>
+									<Flex
+										w={"109px"}
+										h={"20px"}
+										ml={"855px"}
+										justify={"center"}
+										borderLeft={"1px solid #3E3D40"}
+										borderRight={"1px solid #3E3D40"}
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"3px"}
+									>
 										<Text fontSize={"12px"} mr={"3px"}>
 											NATIONWIDE
 										</Text>
 										<BiSort size={18} color="#3E3D40" />
 									</Flex>
-									<Flex bgColor={"white"} w={"109px"} h={"20px"} ml={"8px"} justify={"center"}>
+									<Flex
+										w={"109px"}
+										h={"20px"}
+										ml={"8px"}
+										justify={"center"}
+										borderLeft={"1px solid #3E3D40"}
+										borderRight={"1px solid #3E3D40"}
+										bgColor={"rgba(57, 57, 60, 0.1)"}
+										borderRadius={"3px"}
+									>
 										<Text fontSize={"12px"} mr={"3px"}>
 											BRANCH
 										</Text>
@@ -523,14 +843,27 @@ const ProductManagement = () => {
 							) : null}
 						</Flex>
 						<TabPanels ml={"-15px"}>
-							<TabPanel>
-								{products?.map((data) => {
+							<TabPanel key={"all"}>
+								{products?.map((data, index, array) => {
+									const isLastItemOnPage = index === array.length - 1;
 									return (
-										<Flex key={data.id} bgColor={"red"} w={"1225px"} h={"100px"} align={"center"} borderBottom={'1px solid black'}>
-											<Flex w={"22px"} h={"75px"} justify={"center"} align={"center"} bgColor={"yellow"}>
-												<Checkbox onChange={handleCheckboxClick} colorScheme="green" iconColor="white" size={"lg"} />
+										<Flex
+											key={data.id}
+											w={"1225px"}
+											h={"100px"}
+											align={"center"}
+											borderBottom={isLastItemOnPage ? "none" : "1px solid black"}
+										>
+											<Flex w={"22px"} h={"75px"} justify={"center"} align={"center"}>
+												<Checkbox
+													checked={checkboxState[data.id] || false}
+													onChange={() => toggleCheckbox(data.id)}
+													colorScheme="green"
+													iconColor="white"
+													size={"lg"}
+												/>
 											</Flex>
-											<Flex bgColor={"yellow"} w={"75px"} h={"75px"} justify={"center"} align={"center"} ml={"3px"}>
+											<Flex w={"75px"} h={"75px"} justify={"center"} align={"center"} ml={"3px"}>
 												<Image
 													src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
 													alt={data.productName}
@@ -542,7 +875,6 @@ const ProductManagement = () => {
 											</Flex>
 											<Flex
 												className="scrollbar-4px"
-												bgColor={"yellow"}
 												w={"173px"}
 												h={"75px"}
 												justify={"left"}
@@ -551,6 +883,8 @@ const ProductManagement = () => {
 												overflow={"auto"}
 												overflowX={"hidden"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.2)"}
+												borderRadius={"5px"}
 											>
 												<Text p={"3px"} onClick={() => navigate(`/product/${data.id}`)} cursor={"pointer"}>
 													{data.productName}
@@ -558,7 +892,6 @@ const ProductManagement = () => {
 											</Flex>
 											<Flex
 												className="scrollbar-4px"
-												bgColor={"yellow"}
 												w={"249px"}
 												h={"75px"}
 												justify={"left"}
@@ -567,11 +900,12 @@ const ProductManagement = () => {
 												overflow={"auto"}
 												overflowX={"hidden"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.1)"}
+												borderRadius={"5px"}
 											>
 												<Text p={"3px"}>{data.description}</Text>
 											</Flex>
 											<Flex
-												bgColor={"yellow"}
 												w={"100px"}
 												h={"75px"}
 												justify={"center"}
@@ -580,11 +914,12 @@ const ProductManagement = () => {
 												ml={"5px"}
 												overflow={"auto"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.2)"}
+												borderRadius={"5px"}
 											>
 												<Text>Rp. {data.price.toLocaleString("id-ID")}</Text>
 											</Flex>
 											<Flex
-												bgColor={"yellow"}
 												w={"85px"}
 												h={"75px"}
 												justify={"center"}
@@ -593,11 +928,12 @@ const ProductManagement = () => {
 												ml={"5px"}
 												overflow={"auto"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.1)"}
+												borderRadius={"5px"}
 											>
 												<Text>{(data.weight / 1000).toFixed(2)} Kg</Text>
 											</Flex>
 											<Flex
-												bgColor={"yellow"}
 												w={"120px"}
 												h={"75px"}
 												justify={"center"}
@@ -606,11 +942,12 @@ const ProductManagement = () => {
 												ml={"5px"}
 												overflow={"auto"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.2)"}
+												borderRadius={"5px"}
 											>
 												<Text>{getCategoryLabel(data.CategoryId)}</Text>
 											</Flex>
 											<Flex
-												bgColor={"yellow"}
 												w={"109px"}
 												h={"75px"}
 												justify={"center"}
@@ -619,11 +956,12 @@ const ProductManagement = () => {
 												ml={"5px"}
 												overflow={"auto"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.1)"}
+												borderRadius={"5px"}
 											>
 												<Text>{data.aggregateStock} Units</Text>
 											</Flex>
 											<Flex
-												bgColor={"yellow"}
 												w={"109px"}
 												h={"75px"}
 												justify={"center"}
@@ -632,10 +970,12 @@ const ProductManagement = () => {
 												ml={"8px"}
 												overflow={"auto"}
 												overflowWrap={"break-word"}
+												bgColor={"rgba(51, 50, 52, 0.2)"}
+												borderRadius={"5px"}
 											>
 												<Text>{data.aggregateStock} Units</Text>
 											</Flex>
-											<Flex bgColor={"yellow"} w={"64px"} h={"75px"} justify={"center"} align={"center"} ml={"5px"}>
+											<Flex w={"64px"} h={"75px"} justify={"center"} align={"center"} ml={"5px"}>
 												<Switch
 													size="lg"
 													isChecked={isSwitchChecked}
@@ -644,14 +984,7 @@ const ProductManagement = () => {
 													}}
 												/>
 											</Flex>
-											<Flex
-												bgColor={"yellow"}
-												w={"71px"}
-												h={"75px"}
-												justify={"space-around"}
-												align={"center"}
-												ml={"5px"}
-											>
+											<Flex w={"71px"} h={"75px"} justify={"space-around"} align={"center"} ml={"5px"}>
 												<FiEdit size={28} />
 												<TiDelete size={40} color="#800808" />
 											</Flex>
@@ -659,8 +992,6 @@ const ProductManagement = () => {
 									);
 								})}
 							</TabPanel>
-							<TabPanel>CONTENT B</TabPanel>
-							<TabPanel>CONTENT C</TabPanel>
 						</TabPanels>
 					</Tabs>
 					<Flex justifyContent={"center"} gap={"50px"} my={"35px"}>

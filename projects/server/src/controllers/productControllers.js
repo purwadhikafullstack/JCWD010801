@@ -250,8 +250,69 @@ module.exports = {
 				orderCriteria.push(["price", sortOrder]);
 			} else if (sortBy === "createdAt") {
 				orderCriteria.push(["createdAt", sortOrder]);
-			}  else if (sortBy === "weight") {
+			} else if (sortBy === "weight") {
 				orderCriteria.push(["weight", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["CategoryId", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else {
+				orderCriteria.push(["productName", "ASC"]);
+			}
+
+			const result = await products.findAll({
+				where: whereCondition,
+				order: orderCriteria,
+				limit: itemLimit,
+				offset: itemLimit * (page - 1),
+			});
+
+			const totalPages = Math.ceil(queriedCount / itemLimit);
+
+			return res.status(200).send({
+				totalProducts: queriedCount,
+				productsPerPage: itemLimit,
+				totalPages,
+				currentPage: page,
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	getAllProductsAdmin: async (req, res) => {
+		try {
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
+
+			const whereCondition = {
+				productName: { [Op.like]: `%${search}%` },
+			};
+
+			if (CategoryId) {
+				whereCondition.CategoryId = CategoryId;
+			}
+
+			const queriedCount = await products.count({
+				where: whereCondition,
+			});
+
+			let orderCriteria = [];
+			if (sortBy === "productName") {
+				orderCriteria.push(["productName", sortOrder]);
+			} else if (sortBy === "price") {
+				orderCriteria.push(["price", sortOrder]);
+			} else if (sortBy === "createdAt") {
+				orderCriteria.push(["createdAt", sortOrder]);
+			} else if (sortBy === "weight") {
+				orderCriteria.push(["weight", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["CategoryId", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
@@ -287,6 +348,7 @@ module.exports = {
 			const whereCondition = {
 				productName: { [Op.like]: `%${search}%` },
 				isActive: true,
+				isDeleted: false,
 			};
 
 			if (CategoryId) {
@@ -304,6 +366,12 @@ module.exports = {
 				orderCriteria.push(["price", sortOrder]);
 			} else if (sortBy === "createdAt") {
 				orderCriteria.push(["createdAt", sortOrder]);
+			} else if (sortBy === "weight") {
+				orderCriteria.push(["weight", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["CategoryId", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
@@ -339,6 +407,7 @@ module.exports = {
 			const whereCondition = {
 				productName: { [Op.like]: `%${search}%` },
 				isActive: false,
+				isDeleted: false,
 			};
 
 			if (CategoryId) {
@@ -356,6 +425,12 @@ module.exports = {
 				orderCriteria.push(["price", sortOrder]);
 			} else if (sortBy === "createdAt") {
 				orderCriteria.push(["createdAt", sortOrder]);
+			} else if (sortBy === "weight") {
+				orderCriteria.push(["weight", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["CategoryId", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}

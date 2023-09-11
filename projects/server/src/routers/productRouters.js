@@ -5,6 +5,7 @@ const { multerUpload } = require("../middlewares/multer");
 
 router.post('/', multerUpload(`./src/public/products`, 'P-IMG').single('image'), productControllers.addProduct);
 router.get('/all', productControllers.getAllProducts);
+router.get('/alladmin', productControllers.getAllProductsAdmin);
 router.get('/active', productControllers.getActiveProducts);
 router.get('/deactivated', productControllers.getDeactivatedProducts);
 router.get('/:id', productControllers.getProduct);
