@@ -58,6 +58,7 @@ export const AdminListPage = () => {
 		if (!token) navigate("/");
 		getEmployee(page);
 		getBranches();
+		// eslint-disable-next-line
 	}, [search, branchId]);
 	return (
 		<Flex pl={"80px"} pt={"45px"}>

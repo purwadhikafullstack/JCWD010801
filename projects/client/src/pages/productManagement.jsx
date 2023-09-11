@@ -526,11 +526,11 @@ const ProductManagement = () => {
 							<TabPanel>
 								{products?.map((data) => {
 									return (
-										<Flex key={data.id} bgColor={"red"} w={"1225px"} h={"100px"} align={"center"}>
-											<Flex w={"22px"} h={"100px"} justify={"center"} align={"center"} bgColor={"yellow"}>
+										<Flex key={data.id} bgColor={"red"} w={"1225px"} h={"100px"} align={"center"} borderBottom={'1px solid black'}>
+											<Flex w={"22px"} h={"75px"} justify={"center"} align={"center"} bgColor={"yellow"}>
 												<Checkbox onChange={handleCheckboxClick} colorScheme="green" iconColor="white" size={"lg"} />
 											</Flex>
-											<Flex bgColor={"yellow"} w={"75px"} h={"100px"} justify={"center"} align={"center"} ml={"3px"}>
+											<Flex bgColor={"yellow"} w={"75px"} h={"75px"} justify={"center"} align={"center"} ml={"3px"}>
 												<Image
 													src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
 													alt={data.productName}
