@@ -22,7 +22,7 @@ export const UserLogin = () => {
 		try {
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/login`, dataLogin);
 			localStorage.setItem("token", response.data.token);
-			navigate("/");
+			navigate("/");		
 			toast.success("Welcome", {
 				position: "top-right",
 				autoClose: 4000,
