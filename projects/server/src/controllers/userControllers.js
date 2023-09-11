@@ -300,8 +300,8 @@ module.exports = {
 			if (req.file == undefined) {
 				throw { message: "Image should not be empty." };
 			}
-			const result = await users.update({ avatar: req.file.filename }, { where: { id: req.user.id }});
-			const data = await users.findOne({where:{id:req.user.id}})
+			const result = await users.update({ avatar: req.file.filename }, { where: { id: req.user.id } });
+			const data = await users.findOne({ where: { id: req.user.id } });
 			res.status(200).send({ result, message: "Your image profile has been changed", data });
 		} catch (error) {
 			return res.status(500).send({
