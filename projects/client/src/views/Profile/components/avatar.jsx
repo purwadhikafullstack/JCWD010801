@@ -84,14 +84,12 @@ const EditAvatar = () => {
 			{(props) => {
 				return (
 					<Flex flexDirection="column" alignItems="center" textAlign="center">
-						<Avatar size="2xl" src={`${process.env.REACT_APP_BASE_URL}/avatars/${data?.avatar}`} />
+						<Avatar
+							size="2xl"
+							src={`${process.env.REACT_APP_BASE_URL}/avatars/${data?.avatar ? data?.avatar : "default_not_set.png"}`}
+						/>
 						<Center mt={4}>
-							<Button
-							border={"1px"}
-								bgColor={"white"}
-								leftIcon={<EditIcon />}
-								onClick={() => setIsModalOpen(true)}
-							>
+							<Button border={"1px"} bgColor={"white"} leftIcon={<EditIcon />} onClick={() => setIsModalOpen(true)}>
 								Edit Profile Image
 							</Button>
 						</Center>
