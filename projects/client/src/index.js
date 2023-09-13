@@ -20,15 +20,15 @@ const LightModeWrapper = ({ children }) => {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
 	<React.StrictMode>
-		<LightModeWrapper>
-			<ColorModeProvider options={colorModeConfig}>
-				<Provider store={store}>
-					<ChakraProvider theme={theme}>
+		<ChakraProvider theme={theme}>
+			<Provider store={store}>
+				<LightModeWrapper>
+					<ColorModeProvider options={colorModeConfig}>
 						<App />
-					</ChakraProvider>
-					<ToastContainer />
-				</Provider>
-			</ColorModeProvider>
-		</LightModeWrapper>
+						<ToastContainer />
+					</ColorModeProvider>
+				</LightModeWrapper>
+			</Provider>
+		</ChakraProvider>
 	</React.StrictMode>
 );
