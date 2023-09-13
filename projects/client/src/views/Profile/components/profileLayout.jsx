@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
+import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import ProfileTab from "./profileTab";
 import AddressesTab from "./addressesTab";
 import { Navigate } from "react-router-dom";
+import { OrdersList } from "../../OrdersList/components/ordersList";
 
 
 export const ProfileLayout = () => {
@@ -14,15 +15,6 @@ export const ProfileLayout = () => {
 			city: "Cityville",
 			state: "Stateville",
 			zipCode: "12345",
-		},
-		
-	]);
-
-	const [orders] = useState([
-		{
-			id: "1",
-			date: "01/05/2023",
-			amount: 100.0,
 		},
 		
 	]);
@@ -43,7 +35,7 @@ export const ProfileLayout = () => {
 					<AddressesTab addresses={addresses} />
 				</TabPanel>
 				<TabPanel>
-					<Text>maybe remove</Text>
+					<OrdersList/>
 				</TabPanel>
 			</TabPanels>
 		</Tabs>

@@ -56,7 +56,7 @@ export const AppRouter = createBrowserRouter([
 		],
 	},
 	{
-		path: "/admindashboard",
+		path: "/dashboard",
 		element: <LayoutSideBar />,
 		children: [
 			{

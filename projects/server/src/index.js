@@ -5,7 +5,7 @@ const { join } = require("path");
 const PORT = process.env.PORT || 8000;
 const server = express();
 const db = require('./models');
-const { userRouters, adminRouters, productRouters, categoryRouters } = require("./routers");
+const { userRouters, adminRouters, productRouters, categoryRouters, orderRouters } = require("./routers");
 
 // server.use(
 //   cors({
@@ -27,6 +27,7 @@ server.use('/api/user', userRouters);
 server.use('/api/admin', adminRouters);
 server.use('/api/product', productRouters);
 server.use('/api/category', categoryRouters)
+server.use('/api/order', orderRouters);
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);

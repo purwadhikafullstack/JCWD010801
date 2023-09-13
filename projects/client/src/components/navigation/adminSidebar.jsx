@@ -1,25 +1,45 @@
 import source from "../../assets/public/AM_logo_white.png";
 import sourceLogo from "../../assets/public/AM_logo_only_white_trans.png";
+import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Box, Flex, IconButton, Image, Text } from "@chakra-ui/react";
 import { SlLogout } from "react-icons/sl";
 import { FaBars } from "react-icons/fa";
 import { AiOutlineBranches } from "react-icons/ai";
 import { BsGraphUpArrow, BsPersonGear } from "react-icons/bs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setValue } from "../../redux/userSlice";
+import { toast } from "react-toastify";
 
 export const AdminSidebar = ({ height, navSizeProp }) => {
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
 	const user = useSelector((state) => state.user.value);
 	const [navSize, setNavsize] = useState(navSizeProp || "small");
+	const logout = () => {
+		localStorage.removeItem("token");
+		toast.error("You have successfully logged out.", {
+			position: "top-right",
+			autoClose: 4000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			progress: undefined,
+			theme: "dark",
+		});
+		dispatch(setValue({}));
+		navigate("/login");
+	};
 	const toggleNavSize = () => {
 		setNavsize(navSize === "small" ? "large" : "small");
 	};
-
 	return (
 		<Flex
 			position={"fixed"}
 			w={navSize === "small" ? "100px" : "170px"}
+			transition="width 0.3s"
 			h={height || "100vh"}
 			backgroundColor={"blackAlpha.900"}
 			borderTopRightRadius={"30px"}
@@ -115,7 +135,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 					</Flex>
 				) : null}
 			</Box>
-			<Flex mb={"20px"} justifyContent={"center"} color={"white"}>
+			<Flex onClick={logout} mb={"20px"} justifyContent={"center"} color={"white"}>
 				<SlLogout size={25} />
 				{navSize === "large" ? (
 					<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
