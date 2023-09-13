@@ -17,13 +17,13 @@ module.exports = {
 					[Op.or]: [{ email: data }, { username: data }],
 				},
 			});
-			if (!checkLogin) throw { message: "User is not Found." };
+			if (!checkLogin) throw { message: "User is not found." };
 			if (checkLogin.RoleId != 1) throw { message: "Please login on the admin login tab." };
 
 			const isValid = await bcrypt.compare(password, checkLogin.password);
 			if (!isValid) throw { message: "Password is incorrect." };
 
-			const payload = { id: checkLogin.id };
+			const payload = { id: checkLogin.id, RoleId: checkLogin.RoleId };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
 			res.status(200).send({

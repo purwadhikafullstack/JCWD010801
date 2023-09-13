@@ -3,8 +3,9 @@ import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setValue } from "./redux/userSlice";
-import { toast } from "react-toastify";
 import { AppRouter } from "./routes/index";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 	const token = localStorage.getItem("token");
@@ -19,7 +20,7 @@ function App() {
 				dispatch(setValue(response.data));
 			} catch (error) {
 				localStorage.removeItem("token");
-				toast.error("Please login into your AlphaMart account for a better shopping experience.", {
+				toast.warn("Please login into your AlphaMart account for a better shopping experience.", {
 					position: "top-right",
 					autoClose: 4000,
 					hideProgressBar: false,
