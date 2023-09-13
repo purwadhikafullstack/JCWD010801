@@ -27,7 +27,6 @@ server.use('/api/user', userRouters);
 server.use('/api/admin', adminRouters);
 server.use('/api/product', productRouters);
 server.use('/api/category', categoryRouters)
-server.use('/api/order', orderRouters);
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);
