@@ -16,7 +16,7 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
         borderRadius={'lg'}
         minW={'240px'}
         minH={'240px'}
-        bgImage={`url(${categoryImage})`}
+        bgImage={categoryImage}
         bgSize={'cover'}
         bgPosition={'center'}
         bgRepeat={'no-repeat'}

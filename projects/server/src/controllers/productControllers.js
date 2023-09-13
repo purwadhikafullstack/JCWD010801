@@ -91,20 +91,20 @@ module.exports = {
 	},
 	updateProduct: async (req, res) => {
 		try {
-			const { id } = req.params;
-			const { price, productName, stock, description } = req.body;
+			const { PID } = req.params;
+			const { productName, price, description, weight, CategoryId } = req.body;
 			const imgURL = req.file.filename;
 
-			const result = await products.update(
-				{ price, productName, stock, description, imgURL: imgURL },
-				{ where: { id: id } }
+			await products.update(
+				{ productName, price, description, weight, CategoryId, imgURL: imgURL },
+				{ where: { id: PID } }
 			);
 			res.status(200).send({
 				status: 200,
-				message: "Product update successful.",
-				result,
+				message: `Product ${PID} updated successfully.`,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -113,19 +113,34 @@ module.exports = {
 	},
 	activateDeactivate: async (req, res) => {
 		try {
-			const product = await products.findOne({ where: { id: req.body.productId } });
+			const { PID } = req.params;
+			const product = await products.findOne({ where: { id: PID } });
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product is not found.",
+				});
+			}
 
 			if (product.isDeleted) {
-				await products.update({ isDeleted: 0 }, { where: { id: product.id } });
+				return res.status(400).send({
+					status: 400,
+					message: `Activation unsuccessful, ${product.productName} has already been deleted. Please contact a sysadmin.`,
+				});
+			}
+
+			if (product.isActive) {
+				await products.update({ isActive: 0 }, { where: { id: PID } });
 				res.status(200).send({
 					status: 200,
-					message: `${product.productName} deactivated successfully.`,
+					message: `Success: ${product.productName} has been deactivated successfully.`,
 				});
 			} else {
-				await products.update({ isActive: 1 }, { where: { id: product.id } });
+				await products.update({ isActive: 1 }, { where: { id: PID } });
 				res.status(200).send({
 					status: 200,
-					message: `${product.productName} activated successfully.`,
+					message: `Success: ${product.productName} has been activated successfully.`,
 				});
 			}
 		} catch (error) {
@@ -135,33 +150,37 @@ module.exports = {
 			});
 		}
 	},
-	// hardDelete: async (req, res) => {
-	// 	try {
-	// 		const product = await products.findOne({ where: { id: req.body.productId } });
-	// 		const user = await users.findOne({ where: { id: req.body.userId } });
-	// 		const password = req.body.password;
-	// 		const isValid = bcrypt
+	hardDelete: async (req, res) => {
+		try {
+			const { PID } = req.params;
+			const product = await products.findOne({ where: { id: PID } });
 
-	// 		if (product.isDeleted) {
-	// 			await products.update({ isDeleted: 0 }, { where: { id: product.id } });
-	// 			res.status(200).send({
-	// 				status: 200,
-	// 				message: `${product.productName} deactivated successfully.`,
-	// 			});
-	// 		} else {
-	// 			await products.update({ isActive: 1 }, { where: { id: product.id } });
-	// 			res.status(200).send({
-	// 				status: 200,
-	// 				message: `${product.productName} activated successfully.`,
-	// 			});
-	// 		}
-	// 	} catch (error) {
-	// 		return res.status(500).send({
-	// 			status: 500,
-	// 			message: "Internal server error.",
-	// 		});
-	// 	}
-	// },
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product is not found.",
+				});
+			}
+
+			if (product.isDeleted) {
+				return res.status(400).send({
+					status: 400,
+					message: `Deletion unsuccessful, ${product.productName} has already been deleted. Please contact a sysadmin.`,
+				});
+			} else {
+				await products.update({ isActive: 0, isDeleted: 1 }, { where: { id: PID } });
+				res.status(200).send({
+					status: 200,
+					message: `Success: ${product.productName} has been permanently deleted.`,
+				});
+			}
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
 	getProduct: async (req, res) => {
 		try {
 			const { id } = req.params;

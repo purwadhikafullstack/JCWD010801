@@ -32,7 +32,7 @@ const ProductDetail = () => {
 			const productResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/${id}`);
 			setProduct(productResponse.data.result);
 			const categoryResponse = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/product/category/${productResponse.data.result.CategoryId}`
+				`${process.env.REACT_APP_API_BASE_URL}/category/${productResponse.data.result.CategoryId}`
 			);
 			setCategory(categoryResponse.data.result.category);
 		} catch (error) {

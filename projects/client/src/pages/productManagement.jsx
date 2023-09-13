@@ -1,14 +1,14 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
 	Box,
 	Checkbox,
 	Flex,
-	Image,
 	Input,
 	Radio,
 	Select,
-	Switch,
 	Tab,
 	TabList,
 	TabPanel,
@@ -16,7 +16,7 @@ import {
 	Tabs,
 	Text,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 import { Navbar } from "../components/navigation/navbar";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { ButtonTemp } from "../components/button";
@@ -25,19 +25,18 @@ import { BiSort, BiCategoryAlt } from "react-icons/bi";
 import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
 import { CiCalendarDate } from "react-icons/ci";
 import { FaSearch } from "react-icons/fa";
-import { FiEdit } from "react-icons/fi";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { RiScalesLine, RiScalesFill } from "react-icons/ri";
 import { TbTrashX, TbCategory2 } from "react-icons/tb";
-import { TiDelete } from "react-icons/ti";
 import { Pagination } from "../components/navigation/pagination";
-import { useSelector } from "react-redux";
+import { CreateCategory } from "../components/category/create";
+import { ProductTabPanel } from "../views/ProductManagement/ProductTabPanel";
 
 const initialCheckboxState = {};
 
 const ProductManagement = () => {
-	const { username, lastName, gender } = useSelector((state) => state?.user?.value);
+	const { id, username, lastName, gender, BranchId } = useSelector((state) => state?.user?.value);
 	const [products, setProducts] = useState([]);
 	const [totalProductsAll, setTotalProductsAll] = useState(0);
 	const [totalProductsActive, setTotalProductsActive] = useState(0);
@@ -45,9 +44,7 @@ const ProductManagement = () => {
 	const [itemLimit, setItemLimit] = useState(10);
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
-	const [checked, setChecked] = useState(false);
 	const [activeTab, setActiveTab] = useState(0);
-	const [isSwitchChecked, setIsSwitchChecked] = useState(true);
 	const [reload, setReload] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
@@ -55,11 +52,10 @@ const ProductManagement = () => {
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
 	const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
-	const checkboxStateRef = useRef(initialCheckboxState);
-	const navigate = useNavigate();
+	const [branches, setBranches] = useState([]);
 	let user = "";
 	if (gender !== null) {
-		if (gender === "male") {
+		if (gender === "Male") {
 			user = `Mr. ${lastName}`;
 		} else {
 			user = `Ms. ${lastName}`;
@@ -69,12 +65,12 @@ const ProductManagement = () => {
 	}
 
 	useEffect(() => {
-		productCount();
-	}, []);
+		fetchBranchData();
+	}, [reload]);
 
-	// useEffect(() => {
-	// 	setCheckboxState(checkboxStateRef.current);
-	//   }, []);
+	useEffect(() => {
+		productCount();
+	}, [reload]);
 
 	useEffect(() => {
 		fetchDataAll(page);
@@ -120,6 +116,16 @@ const ProductManagement = () => {
 		}
 	};
 
+	const fetchBranchData = async () => {
+		try {
+			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(branchResponse.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	const currentBranchInfo = branches.find((branch) => branch.id === BranchId);
+
 	const productCount = async () => {
 		try {
 			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`);
@@ -133,21 +139,68 @@ const ProductManagement = () => {
 		}
 	};
 
-	//!
-	const handleCheckboxChange = (PID) => {
-		const updatedCheckboxState = { ...checkboxState };
-		updatedCheckboxState[PID] = !updatedCheckboxState[PID];
-		setCheckboxState(updatedCheckboxState);
+	const handleActivation = async (PID) => {
+		try {
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/activation/${PID}`);
+			toast.success(`${response.data.message}`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			setReload(!reload);
+		} catch (error) {
+			toast.error(`${error.response.data.message}`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			setReload(!reload);
+		}
 	};
-	//!
-	const toggleCheckbox = (PID) => {
-		checkboxStateRef.current[PID] = !checkboxStateRef.current[PID];
-		setReload(!reload);
+
+	const handleDelete = async (PID) => {
+		try {
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/delete/${PID}`);
+			toast.warn(`${response.data.message}`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			setReload(!reload);
+		} catch (error) {
+			toast.error(`${error.response.data.message}`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			setReload(!reload);
+		}
 	};
 
 	const nextPage = () => {
 		if (page < totalPages) {
 			setPage((prevPage) => +prevPage + 1);
+			setCheckboxState(initialCheckboxState);
 			setReload(!reload);
 		}
 	};
@@ -155,18 +208,57 @@ const ProductManagement = () => {
 	const prevPage = () => {
 		if (page > 1) {
 			setPage((prevPage) => +prevPage - 1);
+			setCheckboxState(initialCheckboxState);
 			setReload(!reload);
 		}
 	};
 
 	const goToPage = (page) => {
 		setPage(page);
+		setCheckboxState(initialCheckboxState);
 		setReload(!reload);
 	};
 
 	const getCategoryLabel = (catId) => {
 		const category = categories.find((category) => category.value === catId);
 		return category ? category.label : "Category Missing!";
+	};
+
+	const toggleCheckbox = (PID) => {
+		const updatedCheckboxState = { ...checkboxState };
+		updatedCheckboxState[PID] = !updatedCheckboxState[PID];
+		setCheckboxState(updatedCheckboxState);
+	};
+
+	const isChecked = (PID) => {
+		if (checkboxState[PID]) {
+			return true;
+		} else {
+			return false;
+		}
+	};
+
+	const countTrueValues = (obj) => {
+		const valuesArray = Object.values(obj);
+		const trueValues = valuesArray.filter((value) => value === true);
+		return trueValues.length;
+	};
+
+	const checkedCount = countTrueValues(checkboxState);
+
+	const toggleAll = () => {
+		const updatedCheckboxState = { ...checkboxState };
+		const productIds = products.filter((product) => !product.isDeleted).map((product) => product.id);
+
+		if (productIds.length === 0) {
+			return;
+		}
+
+		const areAllChecked = productIds.every((productId) => updatedCheckboxState[productId]);
+		productIds.forEach((productId) => {
+			updatedCheckboxState[productId] = !areAllChecked;
+		});
+		setCheckboxState(updatedCheckboxState);
 	};
 
 	const customInputStyle = {
@@ -231,17 +323,18 @@ const ProductManagement = () => {
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text
 						textAlign={"left"}
+						fontFamily={"monospace"}
 						h={"50px"}
-						w={"350px"}
-						fontSize={"30px"}
+						w={"500px"}
+						fontSize={"40px"}
 						fontWeight={"bold"}
 						alignSelf={"center"}
-						ml={"15px"}
+						ml={"13px"}
 					>
 						Product Management
 					</Text>
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
-						<ButtonTemp content={"Add Category"} />
+						<CreateCategory isText={true}></CreateCategory>
 						<ButtonTemp content={"Add Product"} />
 					</Flex>
 				</Flex>
@@ -268,11 +361,19 @@ const ProductManagement = () => {
 						alignSelf={"center"}
 						ml={"15px"}
 					>
-						You are currently managing AlphaMart products for the #Branch branch
+						You are currently managing AlphaMart products for the {currentBranchInfo?.name} branch
 					</Text>
 				</Flex>
 				<Box w={"1250px"} h={"160vh"} m={"5px"} py={"5px"} border={"1px solid #39393C"} borderRadius={"10px"}>
-					<Tabs value={activeTab} onChange={(index) => setActiveTab(index)} w="1225px" align="left">
+					<Tabs
+						value={activeTab}
+						onChange={(index) => {
+							setActiveTab(index);
+							setCheckboxState(initialCheckboxState);
+						}}
+						w="1225px"
+						align="left"
+					>
 						<TabList>
 							<Tab
 								width="18%"
@@ -336,12 +437,14 @@ const ProductManagement = () => {
 									onChange={(e) => {
 										setPage(1);
 										setSearch(e.target.value);
+										setCheckboxState(initialCheckboxState);
 									}}
 								/>
 								<FaSearch
 									size={20}
 									onClick={() => {
 										setPage(1);
+										setCheckboxState(initialCheckboxState);
 										setReload(!reload);
 									}}
 									style={{ cursor: "pointer" }}
@@ -355,6 +458,7 @@ const ProductManagement = () => {
 										const selectedValue = parseInt(e.target.value, 10);
 										setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
 										setPage(1);
+										setCheckboxState(initialCheckboxState);
 										setReload(!reload);
 									}}
 									w={"200px"}
@@ -396,6 +500,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("productName");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -409,6 +514,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("price");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -422,6 +528,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("weight");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -435,6 +542,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("CategoryId");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -448,6 +556,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("aggregateStock");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -461,6 +570,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("branchStock");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -475,6 +585,7 @@ const ProductManagement = () => {
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("createdAt");
+										setCheckboxState(initialCheckboxState);
 										setPage(1);
 									}}
 									{...customRadioStyle}
@@ -500,6 +611,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -510,6 +622,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -524,6 +637,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -534,6 +648,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -548,6 +663,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -558,6 +674,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -572,6 +689,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -582,6 +700,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -596,6 +715,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -606,6 +726,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -620,6 +741,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -630,6 +752,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -644,6 +767,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "ASC"}
 											onChange={() => {
 												setSortOrder("ASC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -654,6 +778,7 @@ const ProductManagement = () => {
 											isChecked={sortOrder === "DESC"}
 											onChange={() => {
 												setSortOrder("DESC");
+												setCheckboxState(initialCheckboxState);
 											}}
 											{...customRadioStyle}
 										>
@@ -665,9 +790,15 @@ const ProductManagement = () => {
 						</Flex>
 						<Flex w={"1230px"} h={"50px"} align="top" fontWeight="bold" p={1}>
 							<Flex w={"16px"} h={"40px"} justify={"center"} align={"center"}>
-								<Checkbox onChange={handleCheckboxChange} colorScheme="green" iconColor="white" size={"lg"} />
+								<Checkbox
+									onChange={() => toggleAll()}
+									isChecked={checkedCount > 0}
+									colorScheme="green"
+									iconColor="white"
+									size={"lg"}
+								/>
 							</Flex>
-							{!checked ? (
+							{checkedCount === 0 ? (
 								<>
 									<Flex
 										bgColor={"rgba(57, 57, 60, 0.1)"}
@@ -678,7 +809,9 @@ const ProductManagement = () => {
 										justify={"left"}
 										align={"center"}
 									>
-										<Text mr={"3px"}>PRODUCT INFO</Text>
+										<Text ml={"8px"} mr={"3px"}>
+											PRODUCT INFO
+										</Text>
 										<BiSort
 											size={20}
 											color="#3E3D40"
@@ -698,7 +831,7 @@ const ProductManagement = () => {
 										justify={"left"}
 										align={"center"}
 									>
-										<Text>DESCRIPTION</Text>
+										<Text ml={"8px"}>DESCRIPTION</Text>
 									</Flex>
 									<Flex
 										bgColor={"rgba(57, 57, 60, 0.1)"}
@@ -797,17 +930,17 @@ const ProductManagement = () => {
 							) : (
 								<Flex align={"center"}>
 									<Flex w={"225px"} h={"40px"} ml={"15px"} justify={"left"} align={"center"}>
-										<Text>#/# Products Selected</Text>
+										<Text>{checkedCount}/10 Products Selected</Text>
 									</Flex>
 									<ButtonTemp content={"Move Categories"} ml="15px" />
 									<ButtonTemp content={"Deactivate"} ml="15px" />
 									<Box justify="center" w="2px" h="40px" bgColor="#C3C1C1" ml="25px" mr="15px" />
-									<TbTrashX size={40} />
+									<TbTrashX size={40} color="#B90E0A" />
 								</Flex>
 							)}
 						</Flex>
 						<Flex w={"1225px"} h={"25px"} align="center" fontWeight="bold" borderBottom="2px ridge #39393C">
-							{!checked ? (
+							{checkedCount === 0 ? (
 								<>
 									<Flex
 										w={"109px"}
@@ -822,7 +955,15 @@ const ProductManagement = () => {
 										<Text fontSize={"12px"} mr={"3px"}>
 											NATIONWIDE
 										</Text>
-										<BiSort size={18} color="#3E3D40" />
+										<BiSort
+											size={18}
+											color="#3E3D40"
+											cursor="pointer"
+											onClick={() => {
+												setSortBy("aggregateStock");
+												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+											}}
+										/>
 									</Flex>
 									<Flex
 										w={"109px"}
@@ -837,158 +978,75 @@ const ProductManagement = () => {
 										<Text fontSize={"12px"} mr={"3px"}>
 											BRANCH
 										</Text>
-										<BiSort size={18} color="#3E3D40" />
+										{/* //! NEEDS UPDATE */}
+										<BiSort
+											size={18}
+											color="#3E3D40"
+											cursor="pointer"
+											onClick={() => {
+												setSortBy("aggregateStock");
+												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+											}}
+										/>
 									</Flex>
 								</>
 							) : null}
 						</Flex>
 						<TabPanels ml={"-15px"}>
-							<TabPanel key={"all"}>
+							<TabPanel key="all">
 								{products?.map((data, index, array) => {
-									const isLastItemOnPage = index === array.length - 1;
+									const isLastItem = index === array.length - 1;
 									return (
-										<Flex
+										<ProductTabPanel
+											id={id}
 											key={data.id}
-											w={"1225px"}
-											h={"100px"}
-											align={"center"}
-											borderBottom={isLastItemOnPage ? "none" : "1px solid black"}
-										>
-											<Flex w={"22px"} h={"75px"} justify={"center"} align={"center"}>
-												<Checkbox
-													checked={checkboxState[data.id] || false}
-													onChange={() => toggleCheckbox(data.id)}
-													colorScheme="green"
-													iconColor="white"
-													size={"lg"}
-												/>
-											</Flex>
-											<Flex w={"75px"} h={"75px"} justify={"center"} align={"center"} ml={"3px"}>
-												<Image
-													src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
-													alt={data.productName}
-													cursor={"pointer"}
-													onClick={() => navigate(`/product/${data.id}`)}
-													boxSize="75px"
-													objectFit="cover"
-												/>
-											</Flex>
-											<Flex
-												className="scrollbar-4px"
-												w={"173px"}
-												h={"75px"}
-												justify={"left"}
-												align={"center"}
-												ml={"1px"}
-												overflow={"auto"}
-												overflowX={"hidden"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.2)"}
-												borderRadius={"5px"}
-											>
-												<Text p={"3px"} onClick={() => navigate(`/product/${data.id}`)} cursor={"pointer"}>
-													{data.productName}
-												</Text>
-											</Flex>
-											<Flex
-												className="scrollbar-4px"
-												w={"249px"}
-												h={"75px"}
-												justify={"left"}
-												align={"center"}
-												ml={"6px"}
-												overflow={"auto"}
-												overflowX={"hidden"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.1)"}
-												borderRadius={"5px"}
-											>
-												<Text p={"3px"}>{data.description}</Text>
-											</Flex>
-											<Flex
-												w={"100px"}
-												h={"75px"}
-												justify={"center"}
-												align={"center"}
-												textAlign={"center"}
-												ml={"5px"}
-												overflow={"auto"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.2)"}
-												borderRadius={"5px"}
-											>
-												<Text>Rp. {data.price.toLocaleString("id-ID")}</Text>
-											</Flex>
-											<Flex
-												w={"85px"}
-												h={"75px"}
-												justify={"center"}
-												align={"center"}
-												textAlign={"center"}
-												ml={"5px"}
-												overflow={"auto"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.1)"}
-												borderRadius={"5px"}
-											>
-												<Text>{(data.weight / 1000).toFixed(2)} Kg</Text>
-											</Flex>
-											<Flex
-												w={"120px"}
-												h={"75px"}
-												justify={"center"}
-												align={"center"}
-												textAlign={"center"}
-												ml={"5px"}
-												overflow={"auto"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.2)"}
-												borderRadius={"5px"}
-											>
-												<Text>{getCategoryLabel(data.CategoryId)}</Text>
-											</Flex>
-											<Flex
-												w={"109px"}
-												h={"75px"}
-												justify={"center"}
-												align={"center"}
-												textAlign={"center"}
-												ml={"5px"}
-												overflow={"auto"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.1)"}
-												borderRadius={"5px"}
-											>
-												<Text>{data.aggregateStock} Units</Text>
-											</Flex>
-											<Flex
-												w={"109px"}
-												h={"75px"}
-												justify={"center"}
-												align={"center"}
-												textAlign={"center"}
-												ml={"8px"}
-												overflow={"auto"}
-												overflowWrap={"break-word"}
-												bgColor={"rgba(51, 50, 52, 0.2)"}
-												borderRadius={"5px"}
-											>
-												<Text>{data.aggregateStock} Units</Text>
-											</Flex>
-											<Flex w={"64px"} h={"75px"} justify={"center"} align={"center"} ml={"5px"}>
-												<Switch
-													size="lg"
-													isChecked={isSwitchChecked}
-													onChange={() => {
-														setIsSwitchChecked(!isSwitchChecked);
-													}}
-												/>
-											</Flex>
-											<Flex w={"71px"} h={"75px"} justify={"space-around"} align={"center"} ml={"5px"}>
-												<FiEdit size={28} />
-												<TiDelete size={40} color="#800808" />
-											</Flex>
-										</Flex>
+											data={data}
+											isLastItem={isLastItem}
+											isChecked={isChecked}
+											toggleCheckbox={toggleCheckbox}
+											categories={categories}
+											getCategoryLabel={getCategoryLabel}
+											handleActivation={handleActivation}
+											handleDelete={handleDelete}
+										/>
+									);
+								})}
+							</TabPanel>
+							<TabPanel key="active">
+								{products?.map((data, index, array) => {
+									const isLastItem = index === array.length - 1;
+									return (
+										<ProductTabPanel
+											id={id}
+											key={data.id}
+											data={data}
+											isLastItem={isLastItem}
+											isChecked={isChecked}
+											toggleCheckbox={toggleCheckbox}
+											categories={categories}
+											getCategoryLabel={getCategoryLabel}
+											handleActivation={handleActivation}
+											handleDelete={handleDelete}
+										/>
+									);
+								})}
+							</TabPanel>
+							<TabPanel key="deactivated">
+								{products?.map((data, index, array) => {
+									const isLastItem = index === array.length - 1;
+									return (
+										<ProductTabPanel
+											id={id}
+											key={data.id}
+											data={data}
+											isLastItem={isLastItem}
+											isChecked={isChecked}
+											toggleCheckbox={toggleCheckbox}
+											categories={categories}
+											getCategoryLabel={getCategoryLabel}
+											handleActivation={handleActivation}
+											handleDelete={handleDelete}
+										/>
 									);
 								})}
 							</TabPanel>
