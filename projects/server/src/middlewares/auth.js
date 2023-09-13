@@ -37,7 +37,6 @@ module.exports = {
         }
     },
     checkAdmin: (req, res, next) => {
-        console.log(req.user)
         if (req.user.RoleId >= 2) {
             return next();
         };
