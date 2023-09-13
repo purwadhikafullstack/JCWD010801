@@ -1,9 +1,11 @@
 import Axios from "axios";
-import { AppRouter } from "./routes/index";
-import { RouterProvider } from "react-router-dom";
 import { useEffect } from "react";
+import { RouterProvider } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setValue } from "./redux/userSlice";
+import { AppRouter } from "./routes/index";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 	const token = localStorage.getItem("token");
@@ -18,7 +20,16 @@ function App() {
 				dispatch(setValue(response.data));
 			} catch (error) {
 				localStorage.removeItem("token");
-				console.log("Please login into your AlphaMart account.");
+				toast.warn("Please login into your AlphaMart account for a better shopping experience.", {
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
 			}
 		};
 		keepLogin();

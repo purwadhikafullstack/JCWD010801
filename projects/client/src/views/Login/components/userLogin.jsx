@@ -9,9 +9,12 @@ import { toast } from "react-toastify";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { BsFillPersonFill, BsFillLockFill } from "react-icons/bs";
 import { Box, Button, Flex, Heading, Input, InputGroup, InputRightElement, Text, VStack } from "@chakra-ui/react";
+import { useDispatch } from "react-redux";
+import { setValue } from "../../../redux/userSlice";
 
 export const UserLogin = () => {
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 	const handleClick = () => setShow(!show);
 	const [show, setShow] = useState(false);
 	const loginSchema = Yup.object().shape({
@@ -22,8 +25,9 @@ export const UserLogin = () => {
 		try {
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/login`, dataLogin);
 			localStorage.setItem("token", response.data.token);
+			dispatch(setValue(response.data.checkLogin));
 			navigate("/");
-			toast.success("Welcome", {
+			toast.success(`Welcome ${response.data.checkLogin.username}`, {
 				position: "top-right",
 				autoClose: 4000,
 				hideProgressBar: false,

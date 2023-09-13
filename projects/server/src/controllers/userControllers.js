@@ -17,7 +17,7 @@ module.exports = {
 					[Op.or]: [{ email: data }, { username: data }],
 				},
 			});
-			if (!checkLogin) throw { message: "User is not Found." };
+			if (!checkLogin) throw { message: "User is not found." };
 			if (checkLogin.RoleId != 1) throw { message: "Please login on the admin login tab." };
 
 			const isValid = await bcrypt.compare(password, checkLogin.password);
@@ -29,6 +29,7 @@ module.exports = {
 			res.status(200).send({
 				message: "Login successful.",
 				token,
+				checkLogin,
 			});
 		} catch (error) {
 			return res.status(500).send({
