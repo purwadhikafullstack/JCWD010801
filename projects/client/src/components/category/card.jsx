@@ -14,13 +14,12 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
         display={'flex'}
         flexWrap={'wrap'}
         borderRadius={'lg'}
-        minW={'240px'}
-        minH={'240px'}
+        minW={{ base: '120px', sm: '180px', md: '240px' }}
+        minH={{ base: '120px', sm: '180px', md: '240px' }}
         bgImage={`url(${categoryImage})`}
         bgSize={'cover'}
         bgPosition={'center'}
         bgRepeat={'no-repeat'}
-        // filter={isDeleted ? 'grayscale(40%)' : 'none'}
         filter={isDeleted ? 'auto' : 'none'}
         brightness={isDeleted ? '40%' : '100%'}
         >
@@ -29,8 +28,8 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
             h={'100%'}
             bgColor={isDeleted ? null : 'blackAlpha.500'}
             borderRadius={'lg'}
-            justifyContent={'space-between'}
-            p={5}
+            justifyContent={RoleId > 1 ? 'space-between' : 'flex-end'}
+            p={{ base: 3, sm: 4, md: 5 }}
             alignItems={'start'}
             >
                 {RoleId > 1 && (<MenuCategory id={id} categoryName={category} categoryImage={categoryImage} isDeleted={isDeleted} />)}
@@ -40,7 +39,7 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
                 w={'100%'}
                 justifyContent={'space-between'}
                 alignItems={'center'}
-                p={'14px'}
+                p={{ base: '6px', sm: '10px', md: '14px' }}
                 cursor={isDeleted ? null : 'pointer'}
                 onClick={isDeleted ? null : () => navigate(to)}
                 color={'blackAlpha.700'}
@@ -48,7 +47,7 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
                 >
                     <Text
                     fontWeight={'semibold'}
-                    fontSize={'17px'}
+                    fontSize={{ base: '14px', md: '17px' }}
                     >
                         {category}
                     </Text>

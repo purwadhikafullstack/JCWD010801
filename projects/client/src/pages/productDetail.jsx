@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { MinusIcon, AddIcon } from "@chakra-ui/icons";
+import { AddToCartButton } from "../components/cart/add";
 
 const ProductDetail = () => {
 	const { id } = useParams();
@@ -187,22 +188,7 @@ const ProductDetail = () => {
 												bg="transparent"
 											/>
 										</Flex>
-										<Button
-											backgroundColor={"#000000"}
-											color={"white"}
-											_hover={{
-												textColor: "#0A0A0B",
-												bg: "#F0F0F0",
-												_before: {
-													bg: "inherit",
-												},
-												_after: {
-													bg: "inherit",
-												},
-											}}
-										>
-											Add to Cart
-										</Button>
+										<AddToCartButton ProductId={product.id} quantity={quantity} name={product.productName} isText={true} /> 
 									</Flex>
 								</Box>
 							</Box>
@@ -365,23 +351,7 @@ const ProductDetail = () => {
 												bg="transparent"
 											/>
 										</Flex>
-										<Button
-											backgroundColor={"#000000"}
-											color={"white"}
-											ml={"25px"}
-											_hover={{
-												textColor: "#0A0A0B",
-												bg: "#F0F0F0",
-												_before: {
-													bg: "inherit",
-												},
-												_after: {
-													bg: "inherit",
-												},
-											}}
-										>
-											Add to Cart
-										</Button>
+										<AddToCartButton ml={'25px'} ProductId={product.id} quantity={quantity} name={product.productName} isText={true} /> 
 									</Flex>
 								</Box>
 							</Box>

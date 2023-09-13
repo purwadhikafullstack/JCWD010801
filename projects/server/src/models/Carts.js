@@ -12,9 +12,12 @@ module.exports = (sequelize, DataTypes) => {
 	Carts.init(
 		{
 			status: {
-				type: DataTypes.ENUM('CART', 'ABANDONED', 'PAID', 'COMPLETE'),
-				defaultValue: 'CART',
+				type: DataTypes.ENUM('ACTIVE', 'ABANDONED', 'PAID', 'COMPLETE'),
+				defaultValue: 'ACTIVE',
                 allowNull: false
+			},
+			description: {
+				type: DataTypes.STRING
 			}
 		},
 		{

@@ -31,8 +31,8 @@ export const BranchModal = () => {
 			<Button onClick={onOpen}>branch 1</Button>
 			<Modal size={"sm"} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay>
-					<ModalContent>
-						<ModalHeader justifyContent={"center"} w="100%">
+					<ModalContent borderRadius={'10px'}>
+						<ModalHeader borderTopRadius={'10px'} bgColor={'black'} color={'white'} justifyContent={"center"} w="100%">
 							<Text textAlign={"center"} fontWeight={"medium"} fontSize={"lg"}>
 								Select Branch Location
 							</Text>

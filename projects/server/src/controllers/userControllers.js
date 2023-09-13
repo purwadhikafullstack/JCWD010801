@@ -23,7 +23,7 @@ module.exports = {
 			const isValid = await bcrypt.compare(password, checkLogin.password);
 			if (!isValid) throw { message: "Password is incorrect." };
 
-			const payload = { id: checkLogin.id };
+			const payload = { id: checkLogin.id, RoleId: checkLogin.RoleId };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "3h" });
 
 			res.status(200).send({
