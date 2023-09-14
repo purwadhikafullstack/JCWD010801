@@ -25,7 +25,7 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 	const handleSubmit = async (id) => {
 		try {
 			const response = await Axios.patch(
-				`${process.env.REACT_APP_API_BASE_URL}address/main/${id}`,
+				`${process.env.REACT_APP_API_BASE_URL}/address/main/${id}`,
 				{},
 				{
 					headers: {
@@ -46,7 +46,7 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 				theme: "dark",
 			});
 		} catch (error) {
-			toast.error(error?.response.data.error.message, {
+			toast.error(error?.response?.data?.error.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
