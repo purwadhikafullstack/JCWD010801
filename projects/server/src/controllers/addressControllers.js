@@ -1,5 +1,4 @@
 const db = require("../models");
-const users = db.Users;
 const addresses = db.Addresses;
 const { Op } = require("sequelize");
 const Axios = require("axios");
