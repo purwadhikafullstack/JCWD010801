@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
 	Box,
 	Input,
@@ -34,10 +33,10 @@ const UpdateAddress = ({
 	province_name,
 	postal_code,
 	subdistrict,
+	province,
+	city,
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [city, setCity] = useState([]);
-	const [province, setProvince] = useState([]);
 	const token = localStorage.getItem("token");
 	const validationSchema = Yup.object().shape({
 		label: Yup.string().required("Label is required"),
@@ -49,43 +48,6 @@ const UpdateAddress = ({
 			.required("Postal code is required")
 			.matches(/^\d{5}$/, "Postal code must be exactly 5 digits"),
 	});
-
-	const getCity = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/city`);
-			setCity(response.data.data.rajaongkir.results);
-		} catch (error) {
-			
-			toast.error("Key Raja Ongkir is expired", {
-				position: "top-right",
-				autoClose: 5000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-		}
-	};
-
-	const getProvince = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/province`);
-			setProvince(response.data.data.rajaongkir.results);
-		} catch (error) {
-			toast.error("Key Raja Ongkir is expired", {
-				position: "top-right",
-				autoClose: 5000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-		}
-	};
 
 	const handleSubmit = async (data) => {
 		try {
@@ -119,12 +81,10 @@ const UpdateAddress = ({
 			});
 		}
 	};
-	useEffect(() => {
-		getCity();
-		getProvince();
-	}, []);
+
 	return (
 		<Formik
+			enableReinitialize={true}
 			initialValues={{
 				label: label,
 				address: address,

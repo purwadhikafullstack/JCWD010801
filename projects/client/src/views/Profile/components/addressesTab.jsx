@@ -5,6 +5,8 @@ import AddAddress from "./address/addAddress";
 import DeleteAddressButton from "./address/deleteAddress";
 import UpdateAddress from "./address/updateAddress";
 import MainAddressButton from "./address/setMainAddress";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddressesTab = () => {
 	const [data, setData] = useState([]);
@@ -13,6 +15,8 @@ const AddressesTab = () => {
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [reload, setReload] = useState(0);
+	const [province, setProvince] = useState([]);
+	const [city, setCity] = useState([]);
 	const getAddress = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/`, {
@@ -29,8 +33,44 @@ const AddressesTab = () => {
 			setTotalPage(response.data.totalPage);
 		} catch (error) {}
 	};
+	const getProvince = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/province`);
+			setProvince(response.data.data.rajaongkir.results);
+		} catch (error) {
+			toast.error("Key Raja Ongkir is expired", {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		}
+	};
+	const getCity = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/city`);
+			setCity(response.data.data.rajaongkir.results);
+		} catch (error) {
+			toast.error("Key Raja Ongkir is expired", {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		}
+	};
 	useEffect(() => {
 		getAddress();
+		getProvince();
+		getCity();
 	}, [reload, search, page]);
 
 	const handleSearchChange = (event) => {
@@ -44,7 +84,7 @@ const AddressesTab = () => {
 	return (
 		<Box maxW="600px" mx="auto" p={4} w={{ md: "80%", base: "100%" }}>
 			<Flex>
-				<AddAddress reload={reload} setReload={setReload} />
+				<AddAddress reload={reload} setReload={setReload} province={province} city={city} />
 				<Input placeholder="Search" value={search} onChange={handleSearchChange} size="md" ml={"4"} border={"1px"} />
 			</Flex>
 			{data?.map((value, index) => (
@@ -71,6 +111,8 @@ const AddressesTab = () => {
 								province_id={value?.province_id}
 								subdistrict={value?.subdistrict}
 								postal_code={value?.postal_code}
+								province={province}
+								city={city}
 							/>
 							{!value?.isMain && <DeleteAddressButton id={value?.id} reload={reload} setReload={setReload} />}
 						</Flex>

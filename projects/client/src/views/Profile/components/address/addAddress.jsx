@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
 	Box,
 	Button,
@@ -21,10 +20,8 @@ import { ButtonTemp } from "../../../../components/button";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const AddAddress = ({ reload, setReload }) => {
+const AddAddress = ({ reload, setReload, province, city }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [city, setCity] = useState([]);
-	const [province, setProvince] = useState([]);
 	const token = localStorage.getItem("token");
 	const validationSchema = Yup.object().shape({
 		label: Yup.string().required("Label is required"),
@@ -36,42 +33,6 @@ const AddAddress = ({ reload, setReload }) => {
 			.required("Postal code is required")
 			.matches(/^\d{5}$/, "Postal code must be exactly 5 digits"),
 	});
-
-	const getCity = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/city`);
-			setCity(response.data.data.rajaongkir.results);
-		} catch (error) {
-			toast.error("Key Raja Ongkir is expired", {
-				position: "top-right",
-				autoClose: 5000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-		}
-	};
-
-	const getProvince = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/province`);
-			setProvince(response.data.data.rajaongkir.results);
-		} catch (error) {
-			toast.error("Key Raja Ongkir is expired", {
-				position: "top-right",
-				autoClose: 5000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-		}
-	};
 
 	const handleSubmit = async (data) => {
 		try {
@@ -105,10 +66,7 @@ const AddAddress = ({ reload, setReload }) => {
 			});
 		}
 	};
-	useEffect(() => {
-		getCity();
-		getProvince();
-	}, []);
+
 	return (
 		<Formik
 			initialValues={{ label: "", address: "", city_id: "", city: "", province_id: "", province: "" }}
