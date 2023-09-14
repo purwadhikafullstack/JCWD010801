@@ -126,8 +126,8 @@ module.exports = {
 	updateAddress: async (req, res) => {
 		try {
 			const id = req.params.id;
-			const { address, city, province, city_id, province_id, postal_code, subdistrict } = req.body;
-			const queryAddress = `${address}, ${city}, ${province}, Indonesia`;
+			const { address, city, province, city_id, province_id, postal_code, subdistrict, type } = req.body;
+			const queryAddress = `${address}, ${type} ${city}, ${province}, Indonesia`;
 			const response = await Axios.get(
 				`https://api.opencagedata.com/geocode/v1/json?q=${queryAddress}&key=${process.env.KEY_OPENCAGE}`
 			);
