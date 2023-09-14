@@ -69,10 +69,10 @@ export const EditCategory = ({ id, categoryName, categoryImage }) => {
             <Icon as={MdOutlineModeEdit} w='5' h='5' />
             <Text>Edit</Text>
         </Flex>
-        <Modal size={{ base: 'xs', sm: 'sm', md: 'md' }} isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay/>
             <ModalContent borderRadius={'10px'}>
-                <ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
+                <ModalHeader borderTopRadius={"10px"} color={"white"} bg={"black"}>
                     Edit Category
                 </ModalHeader>
                 <ModalCloseButton color={'white'} />
@@ -122,6 +122,7 @@ export const EditCategory = ({ id, categoryName, categoryImage }) => {
                                                 placeholder="Insert the category image here"
                                                 focusBorderColor="#373433"
                                                 value={undefined}
+                                                accept="image/jpg, image/jpeg, image/png"
                                                 onChange={(e) => {
                                                     setFieldValue("image", e.target.files[0]);
                                                 }}

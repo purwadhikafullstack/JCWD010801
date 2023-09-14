@@ -8,7 +8,7 @@ export const MenuCategory = ({ id, categoryName, categoryImage, isDeleted }) => 
     return (
         <Menu matchWidth={true} alignSelf={"center"}>
             <MenuButton brightness={'100%'} alignItems={'center'} position={'relative'} right={'10px'} rounded={"full"} cursor={"pointer"}>
-                <Icon as={BiDotsVerticalRounded} w="10" h="10" color="white" cursor={"pointer"} />
+                <Icon as={BiDotsVerticalRounded} w={{ base: 6, sm: 8, md: 10 }} h={{ base: 6, sm: 8, md: 10 }} color="white" cursor={"pointer"} />
             </MenuButton>
             <MenuList brightness={'100%'}>
                 <MenuItem>
