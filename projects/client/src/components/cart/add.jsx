@@ -39,12 +39,30 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
             }
             
         } catch (err) {
-            toast.error(`Failed to add ${name} to cart. Please try again later.`, {
+            if ( !token ) toast.error(`You need to sign in first.`, {
                 position: "top-center",
-                autoClose: 4000,
+                autoClose: 3000,
                 hideProgressBar: false,
                 closeOnClick: true,
-                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            })
+            else if ( err.response.data.status == 403 ) {
+                toast.error(err.response.data.message, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
+            } else toast.error(`Failed to add ${name} to cart. Please try again later.`, {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
                 draggable: true,
                 progress: undefined,
                 theme: "dark",
