@@ -44,7 +44,9 @@ module.exports = {
 			const { address, city, province, city_id, province_id, label, postal_code, subdistrict, type } = req.body;
 			const queryAddress = `${address}, ${type} ${city}, ${province}, Indonesia`;
 			const response = await Axios.get(
-				`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(queryAddress)}&key=${process.env.KEY_OPENCAGE}`
+				`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(queryAddress)}&key=${
+					process.env.KEY_OPENCAGE
+				}`
 			);
 			if (response.status === 200 && response.data.results.length > 0) {
 				const isMainExist = await addresses.findOne({ where: { UserId: req.user.id, isMain: true } });

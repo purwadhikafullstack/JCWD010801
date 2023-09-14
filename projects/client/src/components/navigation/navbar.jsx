@@ -44,7 +44,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
 	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
-
 	const reduxStore = useSelector((state) => state?.user);
 	const username = reduxStore?.value?.username;
 	const email = reduxStore?.value?.email;
@@ -54,12 +53,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const { refresh } = useSelector((state) => state.cart.value);
 
-	const [ search, setSearch ] = useState("");
-	const [ products, setProducts ] = useState([]);
-	const [ totalProducts, setTotalProducts ] = useState(0);
-	const [ reload, setReload ] = useState(false);
-	const [ isSearchFocused, setSearchFocused ] = useState(false);
-	const [ totalCartItems, setTotalCartItems ] = useState(0);
+	const [search, setSearch] = useState("");
+	const [products, setProducts] = useState([]);
+	const [totalProducts, setTotalProducts] = useState(0);
+	const [reload, setReload] = useState(false);
+	const [isSearchFocused, setSearchFocused] = useState(false);
+	const [totalCartItems, setTotalCartItems] = useState(0);
 
 	const fetchData = async () => {
 		try {
@@ -72,18 +71,18 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		}
 	};
 
-	const fetchCart = async() => {
+	const fetchCart = async () => {
 		try {
 			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
-			setTotalCartItems( data.total );
+				headers: {
+					authorization: `Bearer ${token}`,
+				},
+			});
+			setTotalCartItems(data.total);
 		} catch (err) {
 			console.log(err);
 		}
-	}
+	};
 
 	const handleSearchFocus = () => {
 		setSearchFocused(true);
@@ -106,8 +105,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	}, [reload, search]);
 
 	useEffect(() => {
-		fetchCart()
-	}, [ refresh ])
+		fetchCart();
+	}, [refresh]);
 
 	const logout = () => {
 		localStorage.removeItem("token");
@@ -333,27 +332,27 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								)}
 							</div>
 							<Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
-								<Icon 
-								as={BsCart} 
-								w="5" 
-								h="5" 
-								color={"black"} 
-								pos='relative'
-								_after={{
-									content: '"',
-									w: 4,
-									h: 4,
-									bg: 'red',
-									border: '2px solid white',
-									rounded: 'full',
-									pos: 'absolute',
-									top: 0,
-									right: 3
-								}}
+								<Icon
+									as={BsCart}
+									w="5"
+									h="5"
+									color={"black"}
+									pos="relative"
+									_after={{
+										content: '"',
+										w: 4,
+										h: 4,
+										bg: "red",
+										border: "2px solid white",
+										rounded: "full",
+										pos: "absolute",
+										top: 0,
+										right: 3,
+									}}
 								/>
 							</Button>
 							<Menu alignSelf={"center"}>
-								<Button as={MenuButton} bgColor={'white'} pt={1} borderRadius={'full'} cursor={"pointer"}>
+								<Button as={MenuButton} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>
 									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
 								</Button>
 								{token ? (

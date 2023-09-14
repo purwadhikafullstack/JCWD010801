@@ -317,8 +317,8 @@ const ProductManagement = () => {
 
 	return (
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
-			<Navbar />
-			<AdminSidebar height="90vh" navSizeProp="large" />
+			{/* <Navbar /> */}
+			<AdminSidebar navSizeProp="large" />
 			<Box ml={"168px"} h={"200vh"}>
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text

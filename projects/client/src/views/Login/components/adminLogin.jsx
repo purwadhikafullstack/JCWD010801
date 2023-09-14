@@ -27,7 +27,7 @@ export const AdminLogin = () => {
 			localStorage.setItem("token", response.data.token);
 			dispatch(setValue(response.data.checkLogin))
 			navigate("/dashboard");
-			toast.success("Welcome", {
+			toast.success(`Welcome ${response.data.checkLogin.username}.`, {
 				position: "top-right",
 				autoClose: 4000,
 				hideProgressBar: false,
