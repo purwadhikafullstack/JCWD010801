@@ -17,7 +17,7 @@ import {
 	Text,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
-import { Navbar } from "../components/navigation/navbar";
+import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { ButtonTemp } from "../components/button";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
@@ -32,6 +32,7 @@ import { TbTrashX, TbCategory2 } from "react-icons/tb";
 import { Pagination } from "../components/navigation/pagination";
 import { CreateCategory } from "../components/category/create";
 import { ProductTabPanel } from "../views/ProductManagement/ProductTabPanel";
+import { AddProduct } from "../components/modal/addProduct";
 
 const initialCheckboxState = {};
 
@@ -41,6 +42,7 @@ const ProductManagement = () => {
 	const [totalProductsAll, setTotalProductsAll] = useState(0);
 	const [totalProductsActive, setTotalProductsActive] = useState(0);
 	const [totalProductsDeactivated, setTotalProductsDeactivated] = useState(0);
+	const [totalProductsDeleted, setTotalProductsDeleted] = useState(0);
 	const [itemLimit, setItemLimit] = useState(10);
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
@@ -85,9 +87,11 @@ const ProductManagement = () => {
 				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/alladmin?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
 			} else if (activeTab === 1) {
 				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/active?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
-			} else {
+			} else if (activeTab === 2) {
 				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deactivated?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
-			} //! needs update for deleted
+			} else {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deleted?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+			}
 
 			if (selectedCategory) {
 				apiURL += `&CategoryId=${selectedCategory}`;
@@ -108,8 +112,10 @@ const ProductManagement = () => {
 				setTotalProductsAll(productsResponse.data.totalProducts);
 			} else if (activeTab === 1) {
 				setTotalProductsActive(productsResponse.data.totalProducts);
-			} else {
+			} else if (activeTab === 2) {
 				setTotalProductsDeactivated(productsResponse.data.totalProducts);
+			} else {
+				setTotalProductsDeleted(productsResponse.data.totalProducts);
 			}
 		} catch (error) {
 			console.log(error);
@@ -134,6 +140,8 @@ const ProductManagement = () => {
 			setTotalProductsActive(active.data.totalProducts);
 			const deactivated = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/deactivated`);
 			setTotalProductsDeactivated(deactivated.data.totalProducts);
+			const deleted = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/deleted`);
+			setTotalProductsDeleted(deleted.data.totalProducts);
 		} catch (error) {
 			console.log(error);
 		}
@@ -248,7 +256,9 @@ const ProductManagement = () => {
 
 	const toggleAll = () => {
 		const updatedCheckboxState = { ...checkboxState };
-		const productIds = products.filter((product) => !product.isDeleted).map((product) => product.id);
+		const productIds = products
+			.filter((product) => !product.isDeleted && product.isActive)
+			.map((product) => product.id);
 
 		if (productIds.length === 0) {
 			return;
@@ -315,10 +325,13 @@ const ProductManagement = () => {
 		},
 	};
 
+	console.log(checkboxState);
+	console.log(categories);
+
 	return (
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
-			{/* <Navbar /> */}
 			<AdminSidebar navSizeProp="large" />
+			<NavbarAdmin />
 			<Box ml={"168px"} h={"200vh"}>
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text
@@ -335,7 +348,10 @@ const ProductManagement = () => {
 					</Text>
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
 						<CreateCategory isText={true}></CreateCategory>
-						<ButtonTemp content={"Add Product"} />
+						<AddProduct
+						categories={categories}
+						reload={reload}
+						setReload={setReload} />
 					</Flex>
 				</Flex>
 				<Flex h={"25px"}>
@@ -412,7 +428,7 @@ const ProductManagement = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Deactivated Produts ({totalProductsDeactivated})
+								Deactivated Products ({totalProductsDeactivated})
 							</Tab>
 							<Tab
 								width="18%"
@@ -420,12 +436,12 @@ const ProductManagement = () => {
 								fontWeight={"bold"}
 								sx={{
 									fontWeight: "bold",
-									color: activeTab === 2 ? "#2E8B57" : "white",
-									bgColor: activeTab === 2 ? "#7CB69D" : "rgba(51, 50, 52, 0.6)",
+									color: activeTab === 3 ? "#2E8B57" : "white",
+									bgColor: activeTab === 3 ? "#7CB69D" : "rgba(51, 50, 52, 0.6)",
 									borderRadius: "3px",
 								}}
 							>
-								Deleted Products (#)
+								Deleted Products ({totalProductsDeleted})
 							</Tab>
 						</TabList>
 						<Flex
@@ -1021,6 +1037,8 @@ const ProductManagement = () => {
 											getCategoryLabel={getCategoryLabel}
 											handleActivation={handleActivation}
 											handleDelete={handleDelete}
+											reload={reload}
+											setReload={setReload}
 										/>
 									);
 								})}
@@ -1040,6 +1058,8 @@ const ProductManagement = () => {
 											getCategoryLabel={getCategoryLabel}
 											handleActivation={handleActivation}
 											handleDelete={handleDelete}
+											reload={reload}
+											setReload={setReload}
 										/>
 									);
 								})}
@@ -1059,6 +1079,29 @@ const ProductManagement = () => {
 											getCategoryLabel={getCategoryLabel}
 											handleActivation={handleActivation}
 											handleDelete={handleDelete}
+											reload={reload}
+											setReload={setReload}
+										/>
+									);
+								})}
+							</TabPanel>
+							<TabPanel key="deleted">
+								{products?.map((data, index, array) => {
+									const isLastItem = index === array.length - 1;
+									return (
+										<ProductTabPanel
+											id={id}
+											key={data.id}
+											data={data}
+											isLastItem={isLastItem}
+											isChecked={isChecked}
+											toggleCheckbox={toggleCheckbox}
+											categories={categories}
+											getCategoryLabel={getCategoryLabel}
+											handleActivation={handleActivation}
+											handleDelete={handleDelete}
+											reload={reload}
+											setReload={setReload}
 										/>
 									);
 								})}

@@ -12,10 +12,12 @@ export const ProductTabPanel = ({
 	isLastItem,
 	isChecked,
 	toggleCheckbox,
-    categories,
+	categories,
 	getCategoryLabel,
 	handleActivation,
 	handleDelete,
+	reload,
+	setReload
 }) => {
 	const navigate = useNavigate();
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -45,14 +47,19 @@ export const ProductTabPanel = ({
 		}
 	};
 
+	const gradientBackground = {
+		background: `linear-gradient(to right, rgba(128, 8, 8, 0.5), white)`,
+	};
+
 	return (
 		<Flex
 			key={data.id}
 			w={"1225px"}
 			h={"100px"}
 			align={"center"}
-			bgColor={data.isDeleted ? "rgba(128, 8, 8, 0.5)" : null}
-			color={data.isDeleted ? "white" : "black"}
+			bgColor={data.isDeleted && !data.isActive ? "rgba(128, 8, 8, 0.5)" : null}
+			style={!data.isDeleted && !data.isActive ? gradientBackground : {}}
+			color={data.isDeleted && !data.isActive ? "white" : "black"}
 			borderBottom={isLastItem ? "none" : "1px solid black"}
 			borderRadius={"5px"}
 		>
@@ -60,7 +67,7 @@ export const ProductTabPanel = ({
 				<Checkbox
 					isChecked={isChecked(data.id)}
 					onChange={() => toggleCheckbox(data.id)}
-					isDisabled={data.isDeleted === true}
+					isDisabled={data.isDeleted === true || data.isActive === false}
 					colorScheme="green"
 					iconColor="white"
 					size={"lg"}
@@ -189,17 +196,20 @@ export const ProductTabPanel = ({
 				/>
 			</Flex>
 			<Flex w={"71px"} h={"75px"} justify={"space-around"} align={"center"} ml={"5px"}>
-				{/* <FiEdit size={28} /> */}
 				<EditProduct
 					PID={data.id}
 					productName={data.productName}
 					price={data.price}
 					description={data.description}
-                    categories={categories}
+					categories={categories}
 					CategoryId={data.CategoryId}
-                    getCategoryLabel={getCategoryLabel}
+					getCategoryLabel={getCategoryLabel}
 					weight={data.weight}
 					image={data.imgURL}
+					isActive={data.isActive}
+					isDeleted={data.isDeleted}
+					reload={reload}
+					setReload={setReload}
 				/>
 				<TiDelete
 					size={40}

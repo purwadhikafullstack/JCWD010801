@@ -3,7 +3,6 @@ import Layout from "../pages/layout";
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { Error404page } from "../pages/error404";
-// import { AdminDashboard } from "../pages/adminDashboard";
 const AdminDashboard = lazy(() => import("../pages/adminDashboard"));
 const LayoutSideBar = lazy(() => import("../pages/layoutSidebar"));
 const Homepage = lazy(() => import("../pages/home"));
@@ -59,7 +58,11 @@ export const AppRouter = createBrowserRouter([
 	},
 	{
 		path: "/dashboard",
-		element: <LayoutSideBar />,
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<LayoutSideBar />
+			</Suspense>
+		),
 		children: [
 			{
 				path: "/dashboard",
