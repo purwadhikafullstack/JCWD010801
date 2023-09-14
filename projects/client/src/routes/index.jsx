@@ -80,7 +80,7 @@ export const AppRouter = createBrowserRouter([
 		],
 	},
 	{
-		path: "/admindashboard/product-management",
+		path: "/dashboard/product-management",
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ProductManagement />

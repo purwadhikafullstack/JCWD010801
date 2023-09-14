@@ -87,7 +87,7 @@ const ProductManagement = () => {
 				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/active?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
 			} else {
 				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deactivated?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
-			}
+			} //! needs update for deleted
 
 			if (selectedCategory) {
 				apiURL += `&CategoryId=${selectedCategory}`;
@@ -317,8 +317,8 @@ const ProductManagement = () => {
 
 	return (
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
-			<Navbar />
-			<AdminSidebar height="90vh" navSizeProp="large" />
+			{/* <Navbar /> */}
+			<AdminSidebar navSizeProp="large" />
 			<Box ml={"168px"} h={"200vh"}>
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text
@@ -413,6 +413,19 @@ const ProductManagement = () => {
 								}}
 							>
 								Deactivated Produts ({totalProductsDeactivated})
+							</Tab>
+							<Tab
+								width="18%"
+								variant="unstyled"
+								fontWeight={"bold"}
+								sx={{
+									fontWeight: "bold",
+									color: activeTab === 2 ? "#2E8B57" : "white",
+									bgColor: activeTab === 2 ? "#7CB69D" : "rgba(51, 50, 52, 0.6)",
+									borderRadius: "3px",
+								}}
+							>
+								Deleted Products (#)
 							</Tab>
 						</TabList>
 						<Flex

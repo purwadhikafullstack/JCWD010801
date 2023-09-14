@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import ProfileTab from "./profileTab";
 import AddressesTab from "./addressesTab";
+import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { Navigate } from "react-router-dom";
 import { OrdersList } from "../../OrdersList/components/ordersList";
 
@@ -23,7 +22,7 @@ export const ProfileLayout = () => {
 						<AddressesTab />
 					</TabPanel>
 					<TabPanel>
-						<OrdersList/>
+						<OrdersList />
 					</TabPanel>
 				</TabPanels>
 			</Tabs>

@@ -9,7 +9,7 @@ import { FaBars } from "react-icons/fa";
 import { SlLogout } from "react-icons/sl";
 import { LiaBoxSolid } from "react-icons/lia";
 import { VscGraphLine } from "react-icons/vsc";
-import { RiFileList3Line } from "react-icons/ri";
+import { RiDashboardLine, RiFileList3Line } from "react-icons/ri";
 import { BsPersonGear } from "react-icons/bs";
 import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,7 +51,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 			direction={"column"}
 		>
 			<Flex mt={"10px"} direction={"column"}>
-				<Flex justifyContent={"center"} as={Link} to={"/"}>
+				<Flex justifyContent={"center"} cursor={"pointer"} onClick={toggleNavSize}>
 					<Image
 						w={navSize === "small" ? "60px" : "120px"}
 						mr={navSize === "small" ? "0px" : "15px"}
@@ -76,6 +76,23 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 					/>
 					{navSize === "large" ? (
 						<Text cursor={"pointer"} color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
+							View Less
+						</Text>
+					) : null}
+				</Flex>
+				<Flex
+					as={Link}
+					to={"/dashboard"}
+					mb={"20px"}
+					color={"white"}
+					transition="transform 0.3s ease-in-out"
+					_hover={{ transform: "scale(1.2)" }}
+					ml={navSize === "large" ? "20px" : "0px"}
+					justifyContent={navSize === "large" ? "start" : "center"}
+				>
+					<RiDashboardLine size={30} />
+					{navSize === "large" ? (
+						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
 							Dashboard
 						</Text>
 					) : null}

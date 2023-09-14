@@ -56,7 +56,7 @@ export const BranchAdminDashboardButton = () => {
 				</Box>
 				<Box
 					as={Link}
-					to={"/dashboard"}
+					to={"/dashboard/product-management"}
 					ml={"15px"}
 					w={"28%"}
 					h={"200px"}
@@ -71,7 +71,7 @@ export const BranchAdminDashboardButton = () => {
 							Product
 						</Text>
 						<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-							Alphamart branch' products
+							AlphaMart Product Management
 						</Text>
 					</Flex>
 					<Flex mr={"10px"} mt={"45px"} justifyContent={"end"}>
@@ -95,7 +95,7 @@ export const BranchAdminDashboardButton = () => {
 							Branch Info
 						</Text>
 						<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-							Alphamart branch' info
+							AlphaMart Branch Information
 						</Text>
 					</Flex>
 					<Flex mr={"10px"} mt={"50px"} justifyContent={"end"}>
@@ -120,7 +120,7 @@ export const BranchAdminDashboardButton = () => {
 							Order List
 						</Text>
 						<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-							This branch orders
+							Orders for "#branch" Branch -- use redux, get admin's branch. Fetch branch list, put in state. Match admin's branch with correct branch
 						</Text>
 					</Flex>
 					<Flex mt={"60px"} mr={"15px"} justifyContent={"end"}>
@@ -144,7 +144,7 @@ export const BranchAdminDashboardButton = () => {
 							Report
 						</Text>
 						<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-							Branch' report
+							Report for "#branch" Branch
 						</Text>
 					</Flex>
 					<Flex mt={"65px"} mr={"10px"} justifyContent={"end"}>
