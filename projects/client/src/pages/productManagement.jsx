@@ -33,6 +33,8 @@ import { Pagination } from "../components/navigation/pagination";
 import { CreateCategory } from "../components/category/create";
 import { ProductTabPanel } from "../views/ProductManagement/ProductTabPanel";
 import { AddProduct } from "../components/modal/addProduct";
+import { MoveCategories } from "../components/modal/moveCategories";
+import { BulkDeactivate } from "../components/modal/bulkDeactivate";
 
 const initialCheckboxState = {};
 
@@ -256,20 +258,40 @@ const ProductManagement = () => {
 
 	const toggleAll = () => {
 		const updatedCheckboxState = { ...checkboxState };
-		const productIds = products
-			.filter((product) => !product.isDeleted && product.isActive)
-			.map((product) => product.id);
+		const PIDs = products.filter((product) => !product.isDeleted && product.isActive).map((product) => product.id);
 
-		if (productIds.length === 0) {
+		if (PIDs.length === 0) {
 			return;
 		}
 
-		const areAllChecked = productIds.every((productId) => updatedCheckboxState[productId]);
-		productIds.forEach((productId) => {
-			updatedCheckboxState[productId] = !areAllChecked;
+		const areAllChecked = PIDs.every((PID) => updatedCheckboxState[PID]);
+		PIDs.forEach((PID) => {
+			updatedCheckboxState[PID] = !areAllChecked;
 		});
 		setCheckboxState(updatedCheckboxState);
 	};
+
+	const selectedPIDs = Object.keys(checkboxState)
+		.filter((PID) => checkboxState[PID])
+		.map((PID) => parseInt(PID))
+		.sort((a, b) => {
+			const indexA = products.findIndex((product) => product.id === a);
+			const indexB = products.findIndex((product) => product.id === b);
+			return indexA - indexB;
+		});
+
+	const selectedProductNames = Object.keys(checkboxState)
+		.filter((PID) => checkboxState[PID])
+		.map((PID) => {
+			const product = products.find((product) => product.id === Number(PID));
+			return product ? product.productName : null;
+		})
+		.filter((productName) => productName !== null)
+		.sort((a, b) => {
+			const indexA = selectedPIDs.indexOf(products.find((product) => product.productName === a).id);
+			const indexB = selectedPIDs.indexOf(products.find((product) => product.productName === b).id);
+			return indexA - indexB;
+		});
 
 	const customInputStyle = {
 		borderColor: "gray",
@@ -325,9 +347,6 @@ const ProductManagement = () => {
 		},
 	};
 
-	console.log(checkboxState);
-	console.log(categories);
-
 	return (
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
 			<AdminSidebar navSizeProp="large" />
@@ -348,10 +367,7 @@ const ProductManagement = () => {
 					</Text>
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
 						<CreateCategory isText={true}></CreateCategory>
-						<AddProduct
-						categories={categories}
-						reload={reload}
-						setReload={setReload} />
+						<AddProduct categories={categories} reload={reload} setReload={setReload} />
 					</Flex>
 				</Flex>
 				<Flex h={"25px"}>
@@ -392,7 +408,7 @@ const ProductManagement = () => {
 					>
 						<TabList>
 							<Tab
-								width="18%"
+								width="19%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -405,7 +421,7 @@ const ProductManagement = () => {
 								All Products ({totalProductsAll})
 							</Tab>
 							<Tab
-								width="18%"
+								width="19%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -418,7 +434,7 @@ const ProductManagement = () => {
 								Active Products ({totalProductsActive})
 							</Tab>
 							<Tab
-								width="18%"
+								width="19%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -431,7 +447,7 @@ const ProductManagement = () => {
 								Deactivated Products ({totalProductsDeactivated})
 							</Tab>
 							<Tab
-								width="18%"
+								width="19%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -961,8 +977,21 @@ const ProductManagement = () => {
 									<Flex w={"225px"} h={"40px"} ml={"15px"} justify={"left"} align={"center"}>
 										<Text>{checkedCount}/10 Products Selected</Text>
 									</Flex>
-									<ButtonTemp content={"Move Categories"} ml="15px" />
-									<ButtonTemp content={"Deactivate"} ml="15px" />
+									<MoveCategories
+										categories={categories}
+										selectedPIDs={selectedPIDs}
+										selectedProductNames={selectedProductNames}
+										reload={reload}
+										setReload={setReload}
+									/>
+									<BulkDeactivate
+										selectedPIDs={selectedPIDs}
+										selectedProductNames={selectedProductNames}
+										reload={reload}
+										setReload={setReload}
+										setCheckboxState={setCheckboxState}
+										initialCheckboxState={initialCheckboxState}
+									/>
 									<Box justify="center" w="2px" h="40px" bgColor="#C3C1C1" ml="25px" mr="15px" />
 									<TbTrashX size={40} color="#B90E0A" />
 								</Flex>
@@ -1007,7 +1036,7 @@ const ProductManagement = () => {
 										<Text fontSize={"12px"} mr={"3px"}>
 											BRANCH
 										</Text>
-										{/* //! NEEDS UPDATE */}
+										{/* //! NEEDS UPDATE FOR BRANCH STOCK */}
 										<BiSort
 											size={18}
 											color="#3E3D40"
@@ -1039,6 +1068,8 @@ const ProductManagement = () => {
 											handleDelete={handleDelete}
 											reload={reload}
 											setReload={setReload}
+											setCheckboxState={setCheckboxState}
+											initialCheckboxState={initialCheckboxState}
 										/>
 									);
 								})}
@@ -1060,6 +1091,8 @@ const ProductManagement = () => {
 											handleDelete={handleDelete}
 											reload={reload}
 											setReload={setReload}
+											setCheckboxState={setCheckboxState}
+											initialCheckboxState={initialCheckboxState}
 										/>
 									);
 								})}
@@ -1081,6 +1114,8 @@ const ProductManagement = () => {
 											handleDelete={handleDelete}
 											reload={reload}
 											setReload={setReload}
+											setCheckboxState={setCheckboxState}
+											initialCheckboxState={initialCheckboxState}
 										/>
 									);
 								})}
@@ -1102,6 +1137,8 @@ const ProductManagement = () => {
 											handleDelete={handleDelete}
 											reload={reload}
 											setReload={setReload}
+											setCheckboxState={setCheckboxState}
+											initialCheckboxState={initialCheckboxState}
 										/>
 									);
 								})}

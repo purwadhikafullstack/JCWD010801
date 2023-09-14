@@ -47,7 +47,7 @@ export const EditProduct = ({
 		productName: Yup.string().required("Product name cannot be empty."),
 		price: Yup.string().required("Price cannot be empty."),
 		description: Yup.string().required("Description cannot be empty."),
-		CategoryId: Yup.string().required("Category name cannot be empty."),
+		CategoryId: Yup.string().required("You must select a category."),
 		weight: Yup.string().required("Weight cannot be empty."),
 		image: Yup.mixed()
 			.nullable()

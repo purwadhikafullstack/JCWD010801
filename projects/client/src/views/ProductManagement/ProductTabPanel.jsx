@@ -16,8 +16,10 @@ export const ProductTabPanel = ({
 	getCategoryLabel,
 	handleActivation,
 	handleDelete,
+	setCheckboxState,
+	initialCheckboxState,
 	reload,
-	setReload
+	setReload,
 }) => {
 	const navigate = useNavigate();
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -191,6 +193,7 @@ export const ProductTabPanel = ({
 					isChecked={data.isActive && !data.isDeleted}
 					onChange={() => {
 						handleActivation(data.id);
+						setCheckboxState(initialCheckboxState);
 					}}
 					isDisabled={data.isDeleted === true}
 				/>

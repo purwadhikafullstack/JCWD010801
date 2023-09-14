@@ -604,11 +604,67 @@ module.exports = {
 				message: "Products' category updated successfully.",
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
-				error,
 				status: 500,
 				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	bulkDeactivate: async (req, res) => {
+		try {
+			const { PIDs } = req.body;
+
+			if (!Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const findDeactivated = await products.findOne({
+				where: {
+					id: {
+						[Op.in]: PIDs,
+					},
+					isActive: false,
+				},
+			});
+
+			if (findDeactivated) {
+				return res.status(400).send({
+					status: 400,
+					message: "Some of the selected products are already inactive.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{ isActive: false },
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products deactivated successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
 			});
 		}
 	},

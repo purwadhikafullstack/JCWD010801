@@ -6,6 +6,7 @@ router.post("/", multerUpload(`./src/public/products`, "P-IMG").single("image"),
 router.post("/activation/:PID", productControllers.activateDeactivate);
 router.post("/delete/:PID", productControllers.hardDelete);
 router.patch("/bulkcategory", productControllers.bulkUpdateCategory);
+router.patch("/bulkdeactivate", productControllers.bulkDeactivate);
 router.patch("/:PID", multerUpload(`./src/public/products`, "P-IMG").single("image"), productControllers.updateProduct);
 router.get("/all", productControllers.getAllProducts);
 router.get("/alladmin", productControllers.getAllProductsAdmin);
