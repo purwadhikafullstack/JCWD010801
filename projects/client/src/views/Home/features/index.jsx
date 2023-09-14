@@ -16,9 +16,10 @@ export const Features = () => {
           Why Alphamart?
         </Heading>
         <Flex
-          h="20"
+          pt={{ base: '2', md: '5' }}
+          pb={{ base: '8', md: '5' }}
           alignItems={"center"}
-          borderLeft={{ base: "none", md: "3px solid black" }}
+          borderLeft={{ base: "none", md: "2px solid black" }}
         >
           <Text
             ml={{ base: 0, md: "10" }}
