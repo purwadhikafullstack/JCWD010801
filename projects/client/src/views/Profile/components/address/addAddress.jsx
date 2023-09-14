@@ -193,6 +193,7 @@ const AddAddress = ({ reload, setReload }) => {
 													onChange={(e) => {
 														const selectedCity = city.find((item) => item.city_id === e.target.value);
 														props.setFieldValue("city_id", e.target.value);
+														props.setFieldValue("type", selectedCity.type);
 														props.setFieldValue("city", selectedCity.city_name);
 													}}
 												>
