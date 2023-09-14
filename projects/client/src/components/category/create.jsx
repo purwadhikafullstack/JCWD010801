@@ -130,6 +130,7 @@ export const CreateCategory = ({ isText }) => {
 														placeholder="Insert the category image here"
 														focusBorderColor="#373433"
 														value={undefined}
+                                                        accept="image/jpg, image/jpeg, image/png"
 														onChange={(e) => {
 															setFieldValue("image", e.target.files[0]);
 														}}
