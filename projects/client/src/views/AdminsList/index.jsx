@@ -74,11 +74,11 @@ export const AdminListPage = () => {
 				</Flex>
 				<Flex mt={"20px"} justifyContent={"center"}>
 					<Select
-						w={"155px"}
+						w={"165px"}
 						border="1px solid #373433"
 						borderRadius={"20px"}
 						focusBorderColor="#373433"
-						placeholder="Sort by branch"
+						placeholder="Filter by branch"
 						value={branchId}
 						onChange={(e) => setBranchId(e.target.value)}
 					>

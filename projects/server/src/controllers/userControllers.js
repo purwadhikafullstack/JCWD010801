@@ -1,5 +1,8 @@
 const db = require("../models");
 const users = db.Users;
+const orders = db.Orders;
+const order_details = db.Order_details;
+const products = db.Products;
 const tokenVerification = db.Tokens;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -304,6 +307,39 @@ module.exports = {
 			const result = await users.update({ avatar: req.file.filename }, { where: { id: req.user.id } });
 			const data = await users.findOne({ where: { id: req.user.id } });
 			res.status(200).send({ result, message: "Your image profile has been changed", data });
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	ordersList: async (req, res) => {
+		try {
+			const page = +req.query.page || 1;
+			const limit = +req.query.limit || 4;
+			const search = req.query.search;
+			const offset = (page - 1) * limit;
+			const condition = {};
+			if (search) {
+				condition[Op.or] = [
+					{
+						productName: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+				];
+			}
+			const result = await order_details.findAll({
+				include: [{ model: orders }, { model: products, where: condition }],
+				limit,
+				offset,
+			});
+			res.status(200).send({
+				result,
+				currentPage: page,
+			});
 		} catch (error) {
 			return res.status(500).send({
 				error,
