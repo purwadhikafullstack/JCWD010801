@@ -4,13 +4,16 @@ import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Flex, IconButton, Image, Text } from "@chakra-ui/react";
-import { SlLogout } from "react-icons/sl";
+import { toast } from "react-toastify";
 import { FaBars } from "react-icons/fa";
-import { AiOutlineBranches } from "react-icons/ai";
-import { BsGraphUpArrow, BsPersonGear } from "react-icons/bs";
+import { SlLogout } from "react-icons/sl";
+import { LiaBoxSolid } from "react-icons/lia";
+import { VscGraphLine } from "react-icons/vsc";
+import { RiFileList3Line } from "react-icons/ri";
+import { BsPersonGear } from "react-icons/bs";
+import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
-import { toast } from "react-toastify";
 
 export const AdminSidebar = ({ height, navSizeProp }) => {
 	const navigate = useNavigate();
@@ -41,7 +44,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 			w={navSize === "small" ? "100px" : "170px"}
 			transition="width 0.3s"
 			h={height || "100vh"}
-			backgroundColor={"blackAlpha.900"}
+			backgroundColor={"black"}
 			borderTopRightRadius={"30px"}
 			boxShadow="0px 0px 8px black"
 			justifyContent={"space-between"}
@@ -51,13 +54,12 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 				<Flex justifyContent={"center"} as={Link} to={"/"}>
 					<Image
 						w={navSize === "small" ? "60px" : "120px"}
+						mr={navSize === "small" ? "0px" : "15px"}
 						src={navSize === "small" ? sourceLogo : source}
 						transition="transform 0.3s ease-in-out"
 						_hover={{ transform: "scale(1.1)" }}
 					/>
 				</Flex>
-			</Flex>
-			<Box>
 				<Flex
 					onClick={toggleNavSize}
 					_hover={{ transform: "scale(1.1)" }}
@@ -78,9 +80,62 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 						</Text>
 					) : null}
 				</Flex>
+			</Flex>
+			<Box>
 				<Flex
 					as={Link}
-					to={"/admindashboard"}
+					to={"/"}
+					mb={"20px"}
+					color={"white"}
+					transition="transform 0.3s ease-in-out"
+					_hover={{ transform: "scale(1.2)" }}
+					ml={navSize === "large" ? "20px" : "0px"}
+					justifyContent={navSize === "large" ? "start" : "center"}
+				>
+					<AiOutlineHome size={30} />
+					{navSize === "large" ? (
+						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							Home
+						</Text>
+					) : null}
+				</Flex>
+				<Flex
+					as={Link}
+					to={"/dashboard"}
+					mb={"20px"}
+					color={"white"}
+					transition="transform 0.3s ease-in-out"
+					_hover={{ transform: "scale(1.2)" }}
+					ml={navSize === "large" ? "20px" : "0px"}
+					justifyContent={navSize === "large" ? "start" : "center"}
+				>
+					<LiaBoxSolid size={30} />
+					{navSize === "large" ? (
+						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							Products
+						</Text>
+					) : null}
+				</Flex>
+				<Flex
+					as={Link}
+					to={"/dashboard"}
+					mb={"20px"}
+					color={"white"}
+					transition="transform 0.3s ease-in-out"
+					_hover={{ transform: "scale(1.2)" }}
+					ml={navSize === "large" ? "20px" : "0px"}
+					justifyContent={navSize === "large" ? "start" : "center"}
+				>
+					<RiFileList3Line size={30} />
+					{navSize === "large" ? (
+						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							Orders
+						</Text>
+					) : null}
+				</Flex>
+				<Flex
+					as={Link}
+					to={"/dashboard"}
 					mb={"20px"}
 					color={"white"}
 					transition="transform 0.3s ease-in-out"
@@ -97,7 +152,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 				</Flex>
 				<Flex
 					as={Link}
-					to={"/admindashboard"}
+					to={"/dashboard"}
 					mb={"20px"}
 					color={"white"}
 					transition="transform 0.3s ease-in-out"
@@ -105,7 +160,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 					ml={navSize === "large" ? "24px" : "0px"}
 					justifyContent={navSize === "large" ? "start" : "center"}
 				>
-					<BsGraphUpArrow size={27} />
+					<VscGraphLine size={27} />
 					{navSize === "large" ? (
 						<Text cursor={"pointer"} color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
 							Report
@@ -115,7 +170,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 				{user.RoleId === 3 ? (
 					<Flex
 						as={Link}
-						to={"/admindashboard/adminslist"}
+						to={"/dashboard/adminslist"}
 						mb={"20px"}
 						color={"white"}
 						transition="transform 0.3s ease-in-out"
