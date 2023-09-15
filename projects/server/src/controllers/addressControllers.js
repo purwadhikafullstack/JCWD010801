@@ -128,7 +128,7 @@ module.exports = {
 	updateAddress: async (req, res) => {
 		try {
 			const id = req.params.id;
-			const { address, city, province, city_id, province_id, postal_code, subdistrict, type } = req.body;
+			const { address, city, province, city_id, province_id, postal_code, subdistrict, type, label } = req.body;
 			const queryAddress = `${address}, ${type} ${city}, ${province}, Indonesia`;
 			const response = await Axios.get(
 				`https://api.opencagedata.com/geocode/v1/json?q=${queryAddress}&key=${process.env.KEY_OPENCAGE}`
@@ -146,6 +146,7 @@ module.exports = {
 						lng,
 						city_id,
 						province_id,
+						label,
 					},
 					{ where: { id, UserId: req.user.id } }
 				);
@@ -213,7 +214,6 @@ module.exports = {
 			const page = +req.query.page || 1;
 			const limit = +req.query.limit || 4;
 			const search = req.query.search;
-			const sort = req.query.sort || "DESC";
 			const condition = { isDeleted: false, UserId: req.user.id };
 			const offset = (page - 1) * limit;
 			if (search) {
@@ -233,12 +233,24 @@ module.exports = {
 							[Op.like]: `%${search}%`,
 						},
 					},
+					{
+						label: {
+							[Op.like]: `%${search}%`,
+						},
+					},
 				];
+			}
+			const sort = req.query.sort || "asc";
+			let order = [["isMain", "DESC"]]; 
+			if (sort === "asc") {
+				order.push(["createdAt", "ASC"]); 
+			} else {
+				order.push(["createdAt", "DESC"]); 
 			}
 			const total = await addresses.count({ where: condition });
 			result = await addresses.findAll({
 				where: condition,
-				order: [["createdAt", sort]],
+				order: order,
 				limit,
 				offset: offset,
 			});
