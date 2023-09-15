@@ -69,7 +69,7 @@ const AddAddress = ({ reload, setReload, province, city }) => {
 
 	return (
 		<Formik
-			initialValues={{ label: "", address: "", city_id: "", city: "", province_id: "", province: "" }}
+			initialValues={{ label: "", address: "", city_id: "", city: "", province_id: "", province: "", subdistrict:"", postal_code:"" }}
 			validationSchema={validationSchema}
 			onSubmit={(values, actions) => {
 				handleSubmit(values);

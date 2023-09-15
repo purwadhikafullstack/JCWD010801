@@ -1,16 +1,13 @@
 import {
-	
 	Modal,
 	ModalOverlay,
 	ModalContent,
 	ModalHeader,
-	
 	ModalBody,
 	ModalCloseButton,
 	useDisclosure,
 	IconButton,
 } from "@chakra-ui/react";
-
 import { MdAddLocationAlt } from "react-icons/md";
 import Axios from "axios";
 import { toast } from "react-toastify";

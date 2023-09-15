@@ -68,10 +68,21 @@ const AddressesTab = () => {
 		}
 	};
 	useEffect(() => {
-		getAddress();
 		getProvince();
 		getCity();
-	}, [reload, search, page]);
+	},[])
+	useEffect(() => {
+		getAddress();
+		console.log("page: ", page);
+		console.log("totalPage: " , totalPage);
+
+		if (page > totalPage) {
+			setPage(totalPage)
+			console.log("totalPage: " , totalPage);
+
+		}
+
+	}, [reload, search, page, totalPage]);
 
 	const handleSearchChange = (event) => {
 		setSearch(event.target.value);
@@ -114,7 +125,6 @@ const AddressesTab = () => {
 								province={province}
 								city={city}
 							/>
-							{!value?.isMain && <DeleteAddressButton id={value?.id} reload={reload} setReload={setReload} />}
 						</Flex>
 						{!value?.isMain && <MainAddressButton id={value?.id} reload={reload} setReload={setReload} />}
 					</Flex>
@@ -128,7 +138,11 @@ const AddressesTab = () => {
 						<Text fontWeight="bold">Province</Text>
 						<Text>{value?.province}</Text>
 						<Text fontWeight="bold">Postal Code</Text>
-						<Text>{value?.postal_code}</Text>
+					<Flex justify={"space-between"}>
+					<Text>{value?.postal_code}</Text>
+					{!value?.isMain && <DeleteAddressButton id={value?.id} reload={reload} setReload={setReload} />}
+					</Flex>
+					
 					</Grid>
 					<Flex mt={"1"}></Flex>
 				</Box>
