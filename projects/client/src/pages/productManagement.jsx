@@ -9,6 +9,7 @@ import {
 	Input,
 	Radio,
 	Select,
+	Stack,
 	Tab,
 	TabList,
 	TabPanel,
@@ -27,13 +28,15 @@ import { FaSearch } from "react-icons/fa";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { RiScalesLine, RiScalesFill } from "react-icons/ri";
-import { TbTrashX, TbCategory2 } from "react-icons/tb";
+import { TbCategory2 } from "react-icons/tb";
 import { Pagination } from "../components/navigation/pagination";
 import { CreateCategory } from "../components/category/create";
 import { ProductTabPanel } from "../views/ProductManagement/ProductTabPanel";
 import { AddProduct } from "../components/modal/addProduct";
 import { MoveCategories } from "../components/modal/moveCategories";
 import { BulkDeactivate } from "../components/modal/bulkDeactivate";
+import { BulkActivate } from "../components/modal/bulkActivate";
+import { BulkDelete } from "../components/modal/bulkDelete";
 
 const initialCheckboxState = {};
 
@@ -44,6 +47,7 @@ const ProductManagement = () => {
 	const [totalProductsActive, setTotalProductsActive] = useState(0);
 	const [totalProductsDeactivated, setTotalProductsDeactivated] = useState(0);
 	const [totalProductsDeleted, setTotalProductsDeleted] = useState(0);
+	// eslint-disable-next-line
 	const [itemLimit, setItemLimit] = useState(10);
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
@@ -292,6 +296,21 @@ const ProductManagement = () => {
 			return indexA - indexB;
 		});
 
+	const selectedHasActive = selectedPIDs.some((PID) => {
+		const product = products.find((product) => product.id === PID);
+		return product ? product.isActive === true : false;
+	});
+
+	const currentPagePIDs = products.filter((product) => !product.isDeleted).map((product) => product.id);
+
+	const currentPageProductNames = products
+		.filter((product) => !product.isDeleted)
+		.map((product) => product.productName);
+
+	const isAllActivated = products.every((product) => product.isActive);
+	const isAllDeactivated = products.every((product) => !product.isActive);
+	const isAllDeleted = products.every((product) => product.isDeleted);
+
 	const customInputStyle = {
 		borderColor: "gray",
 		_focus: {
@@ -365,6 +384,7 @@ const ProductManagement = () => {
 						Product Management
 					</Text>
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
+						{/* //! Sysadmin Re-Activation Button Goes Here */}
 						<CreateCategory isText={true}></CreateCategory>
 						<AddProduct categories={categories} reload={reload} setReload={setReload} />
 					</Flex>
@@ -401,6 +421,7 @@ const ProductManagement = () => {
 						onChange={(index) => {
 							setActiveTab(index);
 							setCheckboxState(initialCheckboxState);
+							setPage(1);
 						}}
 						w="1225px"
 						align="left"
@@ -842,7 +863,7 @@ const ProductManagement = () => {
 									size={"lg"}
 								/>
 							</Flex>
-							{checkedCount === 0 ? (
+							{checkedCount === 0 && !isAllDeactivated ? (
 								<>
 									<Flex
 										bgColor={"rgba(57, 57, 60, 0.1)"}
@@ -974,7 +995,16 @@ const ProductManagement = () => {
 							) : (
 								<Flex align={"center"}>
 									<Flex w={"225px"} h={"40px"} ml={"15px"} justify={"left"} align={"center"}>
-										<Text>{checkedCount}/10 Products Selected</Text>
+										{!isAllDeactivated ? (
+											<Text>{checkedCount}/10 Products Selected</Text>
+										) : (
+											<>
+												<Stack>
+													<Text>Process All Items</Text>
+													<Text mt={"-15px"}>On Current Page</Text>
+												</Stack>
+											</>
+										)}
 									</Flex>
 									<MoveCategories
 										categories={categories}
@@ -982,6 +1012,18 @@ const ProductManagement = () => {
 										selectedProductNames={selectedProductNames}
 										reload={reload}
 										setReload={setReload}
+										isAllDeactivated={isAllDeactivated}
+									/>
+									<BulkActivate
+										currentPagePIDs={currentPagePIDs}
+										currentPageProductNames={currentPageProductNames}
+										reload={reload}
+										setReload={setReload}
+										setCheckboxState={setCheckboxState}
+										initialCheckboxState={initialCheckboxState}
+										isAllActivated={isAllActivated}
+										isAllDeleted={isAllDeleted}
+										selectedHasActive={selectedHasActive}
 									/>
 									<BulkDeactivate
 										selectedPIDs={selectedPIDs}
@@ -990,14 +1032,24 @@ const ProductManagement = () => {
 										setReload={setReload}
 										setCheckboxState={setCheckboxState}
 										initialCheckboxState={initialCheckboxState}
+										isAllDeactivated={isAllDeactivated}
 									/>
 									<Box justify="center" w="2px" h="40px" bgColor="#C3C1C1" ml="25px" mr="15px" />
-									<TbTrashX size={40} color="#B90E0A" />
+									<BulkDelete
+										selectedPIDs={selectedPIDs}
+										selectedProductNames={selectedProductNames}
+										reload={reload}
+										setReload={setReload}
+										setCheckboxState={setCheckboxState}
+										initialCheckboxState={initialCheckboxState}
+										isAllDeactivated={isAllDeactivated}
+										isAllDeleted={isAllDeleted}
+									/>
 								</Flex>
 							)}
 						</Flex>
 						<Flex w={"1225px"} h={"25px"} align="center" fontWeight="bold" borderBottom="2px ridge #39393C">
-							{checkedCount === 0 ? (
+							{checkedCount === 0 && !isAllDeactivated ? (
 								<>
 									<Flex
 										w={"109px"}

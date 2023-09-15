@@ -135,7 +135,8 @@ export const EditProduct = ({
 		cursor: ${(props) => (props.isDisabled ? "not-allowed" : "pointer")};
 		color: ${(props) => (props.isDisabled ? "#800808" : "black")};
 		&:hover {
-			color: ${(props) => (props.isDisabled ? "red" : "#006100")};
+			color: ${(props) => (props.isDisabled ? "#B90E0A" : "#006100")};
+			filter: ${(props) => (props.isDisabled ? "blur(1px)" : "none")};
 		}
 	`;
 

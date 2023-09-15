@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { ImEye, ImEyeBlocked } from "react-icons/im";
 import { ButtonTemp } from "../button";
 
-export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
+export const ConfirmPasswordBulkDelete = ({ handleBulkDelete }) => {
 	const { id } = useSelector((state) => state?.user?.value);
 	const [inputPassword, setInputPassword] = useState();
 	const [validationError, setValidationError] = useState();
@@ -37,7 +37,7 @@ export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
 			});
 
 			if (response.status === 200) {
-				handleBulkDeactivate();
+				handleBulkDelete();
 			}
 		} catch (error) {
 			setValidationError(error.response.data.message);
@@ -64,7 +64,7 @@ export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />
 					<ModalBody>
-						<Text>You need to enter your password to confirm this action.</Text>
+						<Text>You will need a sysadmin to re-activate deleted products.</Text>
 						<Stack gap={4} p={3}>
 							<Stack gap={1}>
 								<Text fontWeight={"semibold"}>Password</Text>

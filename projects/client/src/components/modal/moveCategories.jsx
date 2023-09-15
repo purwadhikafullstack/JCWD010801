@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 import { ButtonTemp } from "../button";
 
-export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories, reload, setReload }) => {
+export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories, reload, setReload, isAllDeactivated }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [newCategory, setNewCategory] = useState("");
 	const [newCategoryLabel, setNewCategoryLabel] = useState("New Category");
@@ -98,7 +98,7 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 
 	return (
 		<>
-			<ButtonTemp content={"Move Categories"} onClick={handleClick} />
+			<ButtonTemp content={"Move Categories"} onClick={handleClick} isDisabled={isAllDeactivated} />
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
@@ -134,7 +134,7 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 							</Stack>
 						</Stack>
 					</ModalBody>
-					<ModalFooter gap={3}>
+					<ModalFooter gap={4}>
 						<Button onClick={onClose}>Cancel</Button>
 						<ButtonTemp content={"Confirm"} onClick={handleMoveCategories} />
 					</ModalFooter>
