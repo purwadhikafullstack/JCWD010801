@@ -73,15 +73,9 @@ const AddressesTab = () => {
 	},[])
 	useEffect(() => {
 		getAddress();
-		console.log("page: ", page);
-		console.log("totalPage: " , totalPage);
-
 		if (page > totalPage) {
 			setPage(totalPage)
-			console.log("totalPage: " , totalPage);
-
 		}
-
 	}, [reload, search, page, totalPage]);
 
 	const handleSearchChange = (event) => {
