@@ -9,14 +9,16 @@ import {
 	ModalOverlay,
 	Stack,
 	Button,
-	Select,
 	useDisclosure,
 	ModalFooter,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import { ButtonTemp } from "../button";
+import { ConfirmPasswordBulkDeactivate } from "../modal/confirmPasswordBulkDeactivate";
 
 export const BulkDeactivate = ({ selectedPIDs, selectedProductNames, reload, setReload, setCheckboxState, initialCheckboxState }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+    const [isConfirmPasswordModalOpen, setIsConfirmPasswordModalOpen] = useState(false);
 
 	const handleBulkDeactivate = () => {
 		if (selectedPIDs.length === 0) {
@@ -68,7 +70,8 @@ export const BulkDeactivate = ({ selectedPIDs, selectedProductNames, reload, set
 					</ModalBody>
 					<ModalFooter gap={3}>
 						<Button onClick={onClose}>Cancel</Button>
-						<ButtonTemp content={"Confirm"} onClick={handleBulkDeactivate} />
+						{/* <ButtonTemp content={"Confirm"} onClick={handleBulkDeactivate} /> */}
+                        <ConfirmPasswordBulkDeactivate />
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
