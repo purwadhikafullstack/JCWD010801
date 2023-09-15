@@ -21,37 +21,19 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { ButtonTemp } from "../button";
 import { FiEdit } from "react-icons/fi";
+import { ButtonTemp } from "../button";
 
-export const EditProduct = ({
-	PID,
-	productName,
-	price,
-	description,
-	weight,
-	image,
-	CategoryId,
-	categories,
-	isActive,
-	isDeleted,
-	reload,
-	setReload,
-}) => {
+export const AddProduct = ({ categories, reload, setReload }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [imageChanged, setImageChanged] = useState(false);
-	const currentCategory = categories.find((category) => category.value === CategoryId);
-	const currentCategoryId = currentCategory?.value;
 
 	const productSchema = Yup.object().shape({
 		productName: Yup.string().required("Product name cannot be empty."),
 		price: Yup.string().required("Price cannot be empty."),
 		description: Yup.string().required("Description cannot be empty."),
-		CategoryId: Yup.string().required("You must select a category."),
+		CategoryId: Yup.string().required("Category name cannot be empty."),
 		weight: Yup.string().required("Weight cannot be empty."),
 		image: Yup.mixed()
-			.nullable()
-			.notRequired()
 			.test("fileSize", "Image size is too large (max 1MB)", (value) => {
 				if (!value) return true;
 				return value.size <= 1024 * 1024;
@@ -67,55 +49,29 @@ export const EditProduct = ({
 		try {
 			const { productName, price, description, CategoryId, weight, image: newImage } = values;
 
-			if (newImage !== image) {
-				const userInput = new FormData();
-				userInput.append("productName", productName);
-				userInput.append("price", price);
-				userInput.append("description", description);
-				userInput.append("CategoryId", CategoryId);
-				userInput.append("weight", weight);
-				userInput.append("image", newImage);
+			const userInput = new FormData();
+			userInput.append("productName", productName);
+			userInput.append("price", price);
+			userInput.append("description", description);
+			userInput.append("CategoryId", CategoryId);
+			userInput.append("weight", weight);
+			userInput.append("image", newImage);
 
-				const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/${PID}`, userInput, {
-					"Content-type": "multipart/form-data",
-				});
+			const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/`, userInput, {
+				"Content-type": "multipart/form-data",
+			});
 
-				setImageChanged(false);
-				setReload(!reload);
-				toast.success(`${response.data.message}`, {
-					position: "top-right",
-					autoClose: 4000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: true,
-					draggable: true,
-					progress: undefined,
-					theme: "dark",
-				});
-			} else {
-				const userInput = new FormData();
-				userInput.append("productName", productName);
-				userInput.append("price", price);
-				userInput.append("description", description);
-				userInput.append("CategoryId", CategoryId);
-				userInput.append("weight", weight);
-
-				const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/${PID}`, userInput, {
-					"Content-type": "multipart/form-data",
-				});
-
-				setReload(!reload);
-				toast.success(`${response.data.message}`, {
-					position: "top-right",
-					autoClose: 4000,
-					hideProgressBar: false,
-					closeOnClick: true,
-					pauseOnHover: true,
-					draggable: true,
-					progress: undefined,
-					theme: "dark",
-				});
-			}
+			setReload(!reload);
+			toast.success(`${response.data.message}`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
 		} catch (error) {
 			toast.error(`${error.response.data.message}`, {
 				position: "top-right",
@@ -140,55 +96,21 @@ export const EditProduct = ({
 	`;
 
 	const handleClick = () => {
-		setImageChanged(false);
-		if (!isActive && !isDeleted) {
-			toast.warn(`You need to activate the product before you can edit ${productName}.`, {
-				position: "top-right",
-				autoClose: 4000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-		} else if (isDeleted) {
-			toast.error(`${productName} has already been permanently deleted. Please contact a sysadmin.`, {
-				position: "top-right",
-				autoClose: 4000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-		} else {
-			onOpen();
-		}
+		onOpen();
 	};
 
 	return (
 		<>
-			<EditButton
-				size={28}
-				onClick={handleClick}
-				cursor={"pointer"}
-				isDisabled={isDeleted === true || isActive === false}
-			/>
-			<Modal
-				size={{ base: "xs", sm: "sm", md: "md" }}
-				isOpen={isOpen && isActive === true && isDeleted === false}
-				onClose={onClose}
-			>
+			<ButtonTemp content={"Add Product"} onClick={handleClick} />
+			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
 					<ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
-						Edit Product
+						Add New Product
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />
 					<Formik
-						initialValues={{ productName, price, description, CategoryId, weight }}
+						initialValues={{}}
 						validationSchema={productSchema}
 						onSubmit={(value) => {
 							handleSubmit(value);
@@ -208,7 +130,7 @@ export const EditProduct = ({
 														type={"text"}
 														variant={"filled"}
 														name="productName"
-														placeholder="Enter the updated product name here."
+														placeholder="Enter a product name here."
 														focusBorderColor="gray.300"
 													/>
 													<ErrorMessage
@@ -226,7 +148,7 @@ export const EditProduct = ({
 														type={"text"}
 														variant={"filled"}
 														name="price"
-														placeholder="Enter the updated price here."
+														placeholder="Specify the product's price."
 														focusBorderColor="gray.300"
 													/>
 													<ErrorMessage
@@ -244,7 +166,7 @@ export const EditProduct = ({
 														type={"text"}
 														variant={"filled"}
 														name="description"
-														placeholder="Enter the updated description here."
+														placeholder="Give a brief overview of the product."
 														focusBorderColor="gray.300"
 													/>
 													<ErrorMessage
@@ -261,7 +183,6 @@ export const EditProduct = ({
 													name="CategoryId"
 													placeholder="Select a Category"
 													focusBorderColor="gray.300"
-													defaultValue={currentCategoryId}
 													value={values.CategoryId}
 													onChange={handleChange}
 													onBlur={handleBlur}
@@ -286,7 +207,7 @@ export const EditProduct = ({
 														type={"text"}
 														variant={"filled"}
 														name="weight"
-														placeholder="Enter the updated weight here."
+														placeholder="Specify the product's weight."
 														focusBorderColor="gray.300"
 													/>
 													<ErrorMessage
@@ -299,30 +220,18 @@ export const EditProduct = ({
 											<Stack gap={1}>
 												<Text fontWeight={"semibold"}>Product Image</Text>
 												<Stack align={"center"}>
-													<input type="hidden" name="originalImage" value={image} />
-													{!imageChanged && (
-														<Image
-															src={`${process.env.REACT_APP_BASE_URL}/products/${image}`}
-															alt="Original"
-															boxSize={"250px"}
-															maxW={"250px"}
-															maxH={"250px"}
-														/>
-													)}
-													{imageChanged && (
-														<img
-															id="previewImage"
-															src={values.image ? URL.createObjectURL(values.image) : ""}
-															alt="Loading Preview.."
-															style={{
-																display: values.image ? "block" : "none",
-																width: "250px",
-																height: "250px",
-																maxWidth: "250px",
-																maxHeight: "250px",
-															}}
-														/>
-													)}
+													<img
+														id="previewImage"
+														src={values.image ? URL.createObjectURL(values.image) : ""}
+														alt="Loading Preview.."
+														style={{
+															display: values.image ? "block" : "none",
+															width: "250px",
+															height: "250px",
+															maxWidth: "250px",
+															maxHeight: "250px",
+														}}
+													/>
 													<input
 														type="file"
 														id="image"
@@ -331,7 +240,6 @@ export const EditProduct = ({
 														onChange={(e) => {
 															const file = e.target.files[0];
 															setFieldValue("image", file);
-															setImageChanged(true);
 															const previewImage = document.getElementById("previewImage");
 															if (previewImage && file) {
 																previewImage.style.display = "block";
@@ -348,7 +256,7 @@ export const EditProduct = ({
 															document.getElementById("image").click();
 														}}
 													>
-														Change Image
+														Add Image
 													</Button>
 													<ErrorMessage
 														component="box"

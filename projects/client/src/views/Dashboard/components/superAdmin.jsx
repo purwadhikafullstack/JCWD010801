@@ -8,7 +8,7 @@ import { BsFillPersonFill } from "react-icons/bs";
 import { FaUsersGear, FaShop } from "react-icons/fa6";
 
 export const SuperAdminDashboardButton = () => {
-	const user = useSelector((state) => state.user.value);
+	const user = useSelector((state) => state?.user?.value);
 	return (
 		<Box pt={"30px"} direction={"column"} ml={"100px"}>
 			<Flex ml={"80px"} justifyContent={"space-between"}>

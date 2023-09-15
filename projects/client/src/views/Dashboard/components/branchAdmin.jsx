@@ -8,7 +8,7 @@ import { RiFileList3Fill } from "react-icons/ri";
 import { BsFillPersonFill } from "react-icons/bs";
 
 export const BranchAdminDashboardButton = () => {
-	const user = useSelector((state) => state.user.value);
+	const user = useSelector((state) => state?.user?.value);
 	return (
 		<Box pt={"30px"} direction={"column"} ml={"100px"}>
 			<Flex ml={"80px"} justifyContent={"space-between"}>
@@ -120,7 +120,8 @@ export const BranchAdminDashboardButton = () => {
 							Order List
 						</Text>
 						<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-							Orders for "#branch" Branch -- use redux, get admin's branch. Fetch branch list, put in state. Match admin's branch with correct branch
+							Orders for "#branch" Branch -- use redux, get admin's branch. Fetch branch list, put in state. Match
+							admin's branch with correct branch
 						</Text>
 					</Flex>
 					<Flex mt={"60px"} mr={"15px"} justifyContent={"end"}>

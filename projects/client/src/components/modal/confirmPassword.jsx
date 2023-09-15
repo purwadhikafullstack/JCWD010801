@@ -25,6 +25,7 @@ export const ConfirmPassword = ({
 	setValidationError,
 }) => {
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+	
 
 	const togglePasswordVisibility = () => {
 		setIsPasswordVisible((prev) => !prev);

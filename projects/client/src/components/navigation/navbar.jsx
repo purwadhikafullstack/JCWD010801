@@ -43,7 +43,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
-	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
+	const branches = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya"];
 	const reduxStore = useSelector((state) => state?.user);
 	const username = reduxStore?.value?.username;
 	const email = reduxStore?.value?.email;
@@ -202,7 +202,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								<PopoverTrigger>
 									<Flex gap={3} alignItems={"center"}>
 										<Text fontSize={{ base: "sm", lg: "md" }} cursor={"pointer"} fontWeight={"medium"}>
-											Branch 1 (useLocation)
+											Select Branch
 										</Text>
 										<Icon as={BsChevronDown} w={4} h={4} color={"black"} />
 									</Flex>
@@ -230,6 +230,9 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															bgColor: "blackAlpha.100",
 															color: "black",
 															fontWeight: 500,
+														}}
+														onClick={() => {
+															localStorage.setItem("BranchId", index + 1)
 														}}
 													>
 														{item}
