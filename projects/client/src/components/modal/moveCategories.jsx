@@ -1,3 +1,4 @@
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import {
 	Text,
@@ -13,6 +14,7 @@ import {
 	useDisclosure,
 	ModalFooter,
 } from "@chakra-ui/react";
+import { toast } from "react-toastify";
 import { useState } from "react";
 import { ButtonTemp } from "../button";
 
@@ -30,11 +32,29 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 
 	const handleMoveCategories = () => {
 		if (!newCategory) {
-			alert("Please select a category before moving.");
+			toast.warn("You must select a new category.", {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
 			return;
 		}
 		if (selectedPIDs.length === 0) {
-			alert("There are no products to move.");
+			toast.warn("There are no products to move!", {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
 			return;
 		}
 
@@ -44,13 +64,31 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 				newCategoryId: newCategory,
 			})
 			.then((response) => {
-				alert("Success.");
+				toast.success(`${response.data.message}`, {
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
 				setReload(!reload);
 				onClose();
 			})
 			.catch((error) => {
-				alert("Failed.");
-				console.error("Error updating products:", error);
+				toast.error(`${error.response.data.message}`, {
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+				console.error("Error moving categories:", error);
 			});
 	};
 

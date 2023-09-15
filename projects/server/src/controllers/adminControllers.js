@@ -164,35 +164,10 @@ module.exports = {
 				});
 			}
 
-			const isValid = await bcrypt.compare(password, user.password);
-			if (!isValid) {
-				return res.status(401).send({
-					status: 401,
-					message: "Unauthorized! The password you entered is incorrect.",
-				});
-			}
-
-			res.status(200).send({
-				status: 200,
-				message: "Action authorized.",
-			});
-		} catch (error) {
-			return res.status(500).send({
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
-	confirmPassword: async (req, res) => {
-		try {
-			const { UID } = req.params;
-			const { password } = req.body;
-			const user = await users.findOne({ where: { id: UID } });
-
-			if (!user) {
-				return res.status(404).send({
-					status: 404,
-					message: "User is not found.",
+			if (!password) {
+				return res.status(400).send({
+					status: 400,
+					message: "Password is required.",
 				});
 			}
 

@@ -1,3 +1,4 @@
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import {
 	Text,
@@ -12,13 +13,19 @@ import {
 	useDisclosure,
 	ModalFooter,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
 import { ConfirmPasswordBulkDeactivate } from "../modal/confirmPasswordBulkDeactivate";
 
-export const BulkDeactivate = ({ selectedPIDs, selectedProductNames, reload, setReload, setCheckboxState, initialCheckboxState }) => {
+export const BulkDeactivate = ({
+	selectedPIDs,
+	selectedProductNames,
+	reload,
+	setReload,
+	setCheckboxState,
+	initialCheckboxState,
+}) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
-    const [isConfirmPasswordModalOpen, setIsConfirmPasswordModalOpen] = useState(false);
 
 	const handleBulkDeactivate = () => {
 		if (selectedPIDs.length === 0) {
@@ -31,24 +38,38 @@ export const BulkDeactivate = ({ selectedPIDs, selectedProductNames, reload, set
 				PIDs: selectedPIDs,
 			})
 			.then((response) => {
-				alert("Success.");
+				toast.success(`${response.data.message}`, {
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
 				setReload(!reload);
-                setCheckboxState(initialCheckboxState)
+				setCheckboxState(initialCheckboxState);
 				onClose();
 			})
 			.catch((error) => {
-				alert("Failed.");
-				console.error("Error updating products:", error);
+				toast.error(`${error.response.data.message}`, {
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+				console.error("Error deactivating products:", error);
 			});
-	};
-
-	const handleClick = () => {
-		onOpen();
 	};
 
 	return (
 		<>
-			<ButtonTemp content={"Deactivate"} onClick={handleClick} ml={'20px'} />
+			<ButtonTemp content={"Deactivate"} onClick={onOpen} ml={"20px"} />
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
@@ -70,8 +91,11 @@ export const BulkDeactivate = ({ selectedPIDs, selectedProductNames, reload, set
 					</ModalBody>
 					<ModalFooter gap={3}>
 						<Button onClick={onClose}>Cancel</Button>
-						{/* <ButtonTemp content={"Confirm"} onClick={handleBulkDeactivate} /> */}
-                        <ConfirmPasswordBulkDeactivate />
+						<ConfirmPasswordBulkDeactivate
+							isOpen={isOpen}
+							onClose={onClose}
+							handleBulkDeactivate={handleBulkDeactivate}
+						/>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>

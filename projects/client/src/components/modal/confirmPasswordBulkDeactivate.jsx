@@ -17,8 +17,9 @@ import {
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { ImEye, ImEyeBlocked } from "react-icons/im";
+import { ButtonTemp } from "../button";
 
-export const ConfirmPasswordBulkDeactivate = () => {
+export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
 	const { id } = useSelector((state) => state?.user?.value);
 	const [inputPassword, setInputPassword] = useState();
 	const [validationError, setValidationError] = useState();
@@ -36,7 +37,7 @@ export const ConfirmPasswordBulkDeactivate = () => {
 			});
 
 			if (response.status === 200) {
-				// closePasswordModal();
+				handleBulkDeactivate();
 			}
 		} catch (error) {
 			setValidationError(error.response.data.message);
@@ -53,58 +54,63 @@ export const ConfirmPasswordBulkDeactivate = () => {
 	};
 
 	return (
-		<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
-			<ModalOverlay />
-			<ModalContent borderRadius={"10px"}>
-				<ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
-					Confirm Action
-				</ModalHeader>
-				<ModalCloseButton color={"white"} />
-				<ModalBody>
-					<Text>You need to enter your password to confirm this action.</Text>
-					<Stack gap={4} p={3}>
-						<Stack gap={1}>
-							<Text fontWeight={"semibold"}>Password</Text>
+		<>
+			<ButtonTemp content={"Confirm"} onClick={onOpen} ml={"20px"} />
+			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
+				<ModalOverlay />
+				<ModalContent borderRadius={"10px"}>
+					<ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
+						Confirm Action
+					</ModalHeader>
+					<ModalCloseButton color={"white"} />
+					<ModalBody>
+						<Text>You need to enter your password to confirm this action.</Text>
+						<Stack gap={4} p={3}>
+							<Stack gap={1}>
+								<Text fontWeight={"semibold"}>Password</Text>
 
-							<Flex align="center">
-								<Input
-									type={isPasswordVisible ? "text" : "password"}
-									variant="filled"
-									placeholder="Enter your password"
-									focusBorderColor="gray.300"
-									borderTopRightRadius={"0px"}
-									borderBottomRightRadius={"0px"}
-									value={inputPassword}
-									onChange={(e) => {
-										setInputPassword(e.target.value);
-										setValidationError("");
-									}}
-								/>
-								<Button
-									onClick={togglePasswordVisibility}
-									border="none"
-									focusBorderColor="gray.300"
-									borderTopLeftRadius={"0px"}
-									borderBottomLeftRadius={"0px"}
-								>
-									{isPasswordVisible ? <ImEyeBlocked size={30} color="#DA9100" /> : <ImEye size={30} color="#DA9100" />}
-								</Button>
-							</Flex>
-							{validationError && (
-								<Text color="red" fontSize="sm">
-									{validationError}
-								</Text>
-							)}
+								<Flex align="center">
+									<Input
+										type={isPasswordVisible ? "text" : "password"}
+										variant="filled"
+										placeholder="Enter your password"
+										focusBorderColor="gray.300"
+										borderTopRightRadius={"0px"}
+										borderBottomRightRadius={"0px"}
+										value={inputPassword}
+										onChange={(e) => {
+											setInputPassword(e.target.value);
+											setValidationError("");
+										}}
+									/>
+									<Button
+										onClick={togglePasswordVisibility}
+										border="none"
+										focusBorderColor="gray.300"
+										borderTopLeftRadius={"0px"}
+										borderBottomLeftRadius={"0px"}
+									>
+										{isPasswordVisible ? (
+											<ImEyeBlocked size={30} color="#DA9100" />
+										) : (
+											<ImEye size={30} color="#DA9100" />
+										)}
+									</Button>
+								</Flex>
+								{validationError && (
+									<Text color="red" fontSize="sm">
+										{validationError}
+									</Text>
+								)}
+							</Stack>
 						</Stack>
-					</Stack>
-				</ModalBody>
-				<ModalFooter gap={3}>
-					<Button onClick={onClose}>Cancel</Button>
-					<Button onClick={handleSubmit} colorScheme="red" isDisabled={!!validationError}>
-						Confirm
-					</Button>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
+					</ModalBody>
+					<ModalFooter gap={3}>
+						<Button onClick={onClose}>Cancel</Button>
+						<Button onClick={handleSubmit}>Confirm</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</>
 	);
 };
