@@ -6,38 +6,7 @@ import { useSelector } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 
-export const CartList = () => {
-    const token = localStorage.getItem("token");
-    const [ list, setList ] = useState([]);
-    const { refresh } = useSelector((state) => state.cart.value);
-
-    const fetchData = async() => {
-        try {
-            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
-            setList(data.cart_items);
-        } catch (err) {
-            if ( err.response.data.message !== "Cart not found" ) {
-                toast.error("Failed to fetch your cart data, please try again later.", {
-                    position: "top-center",
-                    autoClose: 2500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-            };
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [ refresh ]);
+export const CartList = ({ list }) => {
 
     return (
         <Stack 

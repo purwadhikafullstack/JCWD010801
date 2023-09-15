@@ -1,7 +1,4 @@
 import { Flex, Stack, Text } from "@chakra-ui/react";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { ButtonTemp } from "../../../components/button";
 import { PromoCode } from "./voucher";
 import { useNavigate } from "react-router-dom";

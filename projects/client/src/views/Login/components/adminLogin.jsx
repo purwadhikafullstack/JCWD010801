@@ -26,7 +26,7 @@ export const AdminLogin = () => {
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/login`, dataLogin);
 			localStorage.setItem("token", response.data.token);
 			dispatch(setValue(response.data.checkLogin))
-			navigate("/");
+			navigate("/dashboard");
 			toast.success(`Welcome ${response.data.checkLogin.username}.`, {
 				position: "top-right",
 				autoClose: 4000,

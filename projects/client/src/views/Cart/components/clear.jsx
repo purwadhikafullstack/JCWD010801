@@ -3,21 +3,18 @@ import { ButtonTemp } from "../../../components/button";
 import { BsCartX } from "react-icons/bs"
 import { RiFeedbackLine } from "react-icons/ri"
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshCart } from "../../../redux/cartSlice";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 
-export const ClearCart = () => {
+export const ClearCart = ({ isEmpty }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const token = localStorage.getItem("token");
     const [ step, setStep ] = useState(1);
     const dispatch = useDispatch();
     const feedbackRef = useRef();
-
-    const [ list, setList ] = useState([]);
-    const { refresh } = useSelector((state) => state.cart.value);
 
     const handleClear = async() => {
         try {
@@ -43,6 +40,7 @@ export const ClearCart = () => {
                 progress: undefined,
                 theme: "dark",
             });
+            window.location.reload();
             
         } catch (err) {
             closeModal();
@@ -59,22 +57,6 @@ export const ClearCart = () => {
         }
     }
 
-    const checkCart = async() => {
-        try {
-            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
-            setList(data.cart_items);
-        } catch (err) {
-            
-        }
-    };
-    useEffect(() => {
-        checkCart();
-    }, [ refresh ]);
-
     const closeModal = () => {
         setStep(1);
         onClose();
@@ -82,7 +64,7 @@ export const ClearCart = () => {
 
     return (
         <>
-        <Button bgColor={'white'} isDisabled={list.length === 0 ? true : false} onClick={onOpen} cursor={'pointer'} color={'red.300'} _hover={{ color: 'red' }}>
+        <Button bgColor={'white'} isDisabled={isEmpty ? true : false} onClick={onOpen} cursor={'pointer'} color={'red.300'} _hover={{ color: 'red' }}>
             <Text fontSize={'light'}>
                 Clear Cart
             </Text>

@@ -72,7 +72,7 @@ module.exports = {
                     status: 'ACTIVE'
                 }
             });
-            if ( !result ) throw { status: false, message: 'Cart not found' };
+            if ( !result ) throw { state: false, message: 'Cart not found' };
 
             const filter = {
                 where: { CartId: result.id },

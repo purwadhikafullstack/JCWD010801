@@ -6,16 +6,19 @@ import { Receipt } from "./components/receipt"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { ReceiptMobile } from "./components/receiptMobile"
-import "react-toastify/dist/ReactToastify.css";
-import { toast } from "react-toastify";
 import { EmptyCart } from "./components/empty"
+import { ErrorPageLayout } from "../../components/errorLayout"
 
 export const CartPageView = () => {
     const token = localStorage.getItem("token");
     const [ subtotal, setSubtotal ] = useState(0);
-    const { refresh } = useSelector((state) => state.cart.value);
+    const [ total, setTotal ] = useState(0);
+    const [ list, setList ] = useState([]);
 
-    const fetchSubtotal = async() => {
+    const { refresh } = useSelector((state) => state.cart.value);
+    const { RoleId } = useSelector((state) => state.user.value);
+
+    const fetchCart = async() => {
         try {
             const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
                 headers: {
@@ -23,48 +26,45 @@ export const CartPageView = () => {
                 }
             });
             setSubtotal(parseInt(data.subtotal[0].subtotal));
+            setTotal(data.total);
+            setList(data.cart_items);
         } catch (err) {
-            if ( err.response.data.message !== "Cart not found" ) {
-                toast.error("Failed to fetch your cart data, please try again later.", {
-                    position: "top-center",
-                    autoClose: 2500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-            };
+            
         }
     };
     
     useEffect(() => {
-        fetchSubtotal();
+        fetchCart();
     }, [ refresh ]);
     
     return (
         <>
-        <Stack overflowX={'hidden'} mx={{ base: "20px", md: "50px" }} my={{ base: "30px" }} gap={5}>
-            <CartHeader />
-            <Grid gap={5} templateColumns={{ base: '1fr', lg: '6fr 3fr'}}>
-                {subtotal ? (
-                    <>
-                    <GridItem colSpan={1}>
-                        <CartList/>
-                    </GridItem>
-                    <GridItem display={{ base: 'none', lg: 'block' }} colSpan={1}>
-                        <Receipt subtotal={subtotal}/>
-                    </GridItem>
-                    </>
-                ) : (
-                    <GridItem colSpan={{ base: 1, lg: 2 }}>
-                        <EmptyCart/>
-                    </GridItem>
-                )}
-            </Grid>
-        </Stack>
-        <ReceiptMobile subtotal={subtotal} />
+        {RoleId === 1 ? (
+            <>
+            <Stack overflowX={'hidden'} mx={{ base: "20px", md: "50px" }} my={{ base: "30px" }} gap={5}>
+                <CartHeader total={total} />
+                <Grid gap={5} templateColumns={{ base: '1fr', lg: '6fr 3fr'}}>
+                    {subtotal ? (
+                        <>
+                        <GridItem colSpan={1}>
+                            <CartList list={list}/>
+                        </GridItem>
+                        <GridItem display={{ base: 'none', lg: 'block' }} colSpan={1}>
+                            <Receipt subtotal={subtotal}/>
+                        </GridItem>
+                        </>
+                    ) : (
+                        <GridItem colSpan={{ base: 1, lg: 2 }}>
+                            <EmptyCart/>
+                        </GridItem>
+                    )}
+                </Grid>
+            </Stack>
+            <ReceiptMobile subtotal={subtotal} />
+            </>
+        ) : (
+            <ErrorPageLayout title={"404 - Page not found"} timer={5000}/>
+        )}
         </>
     )
 }

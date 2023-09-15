@@ -39,28 +39,29 @@ import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
-	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
-
+	const branches = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya"];
 	const reduxStore = useSelector((state) => state?.user);
 	const username = reduxStore?.value?.username;
 	const email = reduxStore?.value?.email;
 	const avatar = reduxStore?.value?.avatar;
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
+	const roleId = reduxStore?.value?.RoleId;
 
 	const { refresh } = useSelector((state) => state.cart.value);
 
-	const [ search, setSearch ] = useState("");
-	const [ products, setProducts ] = useState([]);
-	const [ totalProducts, setTotalProducts ] = useState(0);
-	const [ reload, setReload ] = useState(false);
-	const [ isSearchFocused, setSearchFocused ] = useState(false);
-	const [ totalCartItems, setTotalCartItems ] = useState(0);
+	const [search, setSearch] = useState("");
+	const [products, setProducts] = useState([]);
+	const [totalProducts, setTotalProducts] = useState(0);
+	const [reload, setReload] = useState(false);
+	const [isSearchFocused, setSearchFocused] = useState(false);
+	const [totalCartItems, setTotalCartItems] = useState(0);
 
 	const fetchData = async () => {
 		try {
@@ -82,7 +83,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
             });
 			setTotalCartItems( data.total );
 		} catch (err) {
-			console.log(err);
+			
 		}
 	}
 
@@ -204,7 +205,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								<PopoverTrigger>
 									<Flex gap={3} alignItems={"center"}>
 										<Text fontSize={{ base: "sm", lg: "md" }} cursor={"pointer"} fontWeight={"medium"}>
-											Branch 1 (useLocation)
+											Select Branch
 										</Text>
 										<Icon as={BsChevronDown} w={4} h={4} color={"black"} />
 									</Flex>
@@ -232,6 +233,9 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															bgColor: "blackAlpha.100",
 															color: "black",
 															fontWeight: 500,
+														}}
+														onClick={() => {
+															localStorage.setItem("BranchId", index + 1)
 														}}
 													>
 														{item}
@@ -333,7 +337,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									</Stack>
 								)}
 							</div>
-							<Button bgColor={"white"} rounded={"full"} cursor={"pointer"} onClick={() => navigate("/cart")}>
+							<Button isDisabled={+roleId === 1 ? false : true} bgColor={"white"} rounded={"full"} cursor={"pointer"} onClick={() => navigate("/cart")}>
 								<Icon 
 								as={BsCart} 
 								w="5" 
@@ -381,7 +385,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 											</Text>
 										</Stack>
 										<MenuDivider />
-										<MenuItem onClick={() => navigate("/")} gap="3">
+										<MenuItem onClick={() => navigate("/dashboard")} gap="3">
 											<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
 											<Text>Dashboard</Text>
 										</MenuItem>
