@@ -38,6 +38,7 @@ import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
+import axios from "axios";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -74,7 +75,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const fetchCart = async() => {
 		try {
-			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
+			const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
                 headers: {
                     authorization: `Bearer ${token}`
                 }
@@ -111,7 +112,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const logout = () => {
 		localStorage.removeItem("token");
-		toast.error("You have successfully logged out.", {
+		toast.success("You have successfully logged out.", {
 			position: "top-right",
 			autoClose: 4000,
 			hideProgressBar: false,
@@ -332,28 +333,33 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									</Stack>
 								)}
 							</div>
-							<Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
+							<Button bgColor={"white"} rounded={"full"} cursor={"pointer"} onClick={() => navigate("/cart")}>
 								<Icon 
 								as={BsCart} 
 								w="5" 
 								h="5" 
 								color={"black"} 
 								pos='relative'
-								_after={{
-									content: '"',
-									w: 4,
-									h: 4,
-									bg: 'red',
-									border: '2px solid white',
-									rounded: 'full',
-									pos: 'absolute',
-									top: 0,
-									right: 3
-								}}
 								/>
+								{totalCartItems > 0 && (
+								<Flex
+								w={5}
+								h={5}
+								bg={'blackAlpha.700'}
+								border={'2px solid white'}
+								rounded={'full'}
+								justifyContent={'center'}
+								alignItems={'center'}
+								pos={'absolute'}
+								top={1}
+								right={1}>
+									<Text fontSize={'10px'} color={'white'} textAlign={'center'}>
+										{totalCartItems}
+									</Text>
+								</Flex>)}
 							</Button>
 							<Menu alignSelf={"center"}>
-								<Button as={MenuButton} bgColor={'white'} pt={1} borderRadius={'full'} cursor={"pointer"}>
+								<Button as={MenuButton} p={0}  bgColor={'white'} pt={1} borderRadius={'full'} cursor={"pointer"}>
 									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
 								</Button>
 								{token ? (
@@ -379,7 +385,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 											<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
 											<Text>Dashboard</Text>
 										</MenuItem>
-										<MenuItem onClick={() => navigate("/")} gap="3">
+										<MenuItem onClick={() => navigate("/profile")} gap="3">
 											<Icon as={BsPerson} w="5" h="5" color="black" />
 											<Text>Profile</Text>
 										</MenuItem>

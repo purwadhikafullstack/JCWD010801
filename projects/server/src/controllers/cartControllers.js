@@ -1,9 +1,11 @@
+const { Sequelize } = require('sequelize');
 const db = require('../models');
 const { sequelize } = require('../models')
 const carts = db.Carts;
 const cartItems = db.Cart_items;
 const products = db.Products;
 const categories = db.Categories;
+const stocks = db.Stocks;
 
 module.exports = {
     addToCart: async(req, res) => {
@@ -18,7 +20,6 @@ module.exports = {
                 }
             });
 
-            // if ( checkBranch?.BranchId !== +BranchId && checkBranch )  throw { status: 'Switched' };
             if ( checkBranch?.BranchId !== +BranchId && checkBranch ) return res.status(200).send({ status: 'Switched' })
 
             const [ result ] = await carts.findOrCreate({
@@ -30,18 +31,12 @@ module.exports = {
                 transaction
             });
 
-            // // Stock available ?
-            // const product_item = await products.findOne({ where: { id: ProductId } });
-            // if (product_item.aggregateStock < 1) throw { status: false, message: 'Product out of stock' }
-
             const cart_item = await cartItems.findOne({
                 where: {
                     CartId: result.id,
                     ProductId
                 }
             });
-            
-            // await products.update({ aggregateStock: aggregateStock - quantity }, transaction);
 
             // Update product quantity in cart
             if ( cart_item ) await cartItems.update({ quantity: cart_item.quantity + quantity }, {
@@ -71,31 +66,65 @@ module.exports = {
     },
     getCartItems: async(req, res) => {
         try {
-            const condition = {
-                UserId: req.user.id,
-                status: 'ACTIVE'
-            }
-            const result = await carts.findOne({ where: condition });
-
+            const result = await carts.findOne({
+                where:  {
+                    UserId: req.user.id,
+                    status: 'ACTIVE'
+                }
+            });
             if ( !result ) throw { status: false, message: 'Cart not found' };
 
-            const cart_items = await cartItems.findAll({
-                where: {
-                    CartId: result.id
-                },
+            const filter = {
+                where: { CartId: result.id },
                 include: {
                     model: products,
                     attributes: { exclude: [ 'isDeleted', 'createdAt', 'updatedAt' ] },
-                    include: { model: categories, attributes: { exclude: [ 'isDeleted' ] } }
+                    include: [
+                        { 
+                            model: categories, 
+                            attributes: { exclude: [ 'isDeleted' ] }
+                        },
+                        {
+                            model: stocks,
+                            where: { BranchId: result.BranchId }
+                        }
+                    ]
                 },
-                attributes: { exclude: [ 'isDeleted' ] }
-            });
+                attributes: { exclude: [ 'isDeleted' ] },
+                order: [ [ Sequelize.col('createdAt'), `DESC` ] ]
+            };
 
-            const total = await cartItems.count({ where: { CartId: result.id } })
+            // const stockResult = await stocks.findAll({
+            //     where: {
+            //         productId,
+            //         BranchId: result.BRanchId
+            //     }
+            // })
+
+            const cart_items = await cartItems.findAll(filter);
+            const total = await cartItems.count(filter);
+            const subtotal = await cartItems.findAll({ 
+                where: { CartId: result.id },
+                include: [
+                    {
+                        model: products,
+                        attributes: []
+                    }
+                ],
+                attributes: [
+                    [
+                        Sequelize.literal(`(
+                            SELECT sum((Cart_items.quantity * Product.price))
+                        )`), 
+                        `subtotal`
+                    ]
+                ]
+            })
 
             res.status(200).send({
                 status: true,
                 total,
+                subtotal,
                 cart: result,
                 cart_items
             });
@@ -107,7 +136,6 @@ module.exports = {
     switchBranch: async(req, res) => {
         const transaction = await sequelize.transaction();
         try {
-            console.log(req.body.BranchId)
             await carts.update({
                 status: 'ABANDONED',
                 description: 'Switched branch'
@@ -135,5 +163,90 @@ module.exports = {
             await transaction.rollback();
             res.status(400).send(err);
         }
-    }
+    },
+    updateQuantity: async(req, res) => {
+        try {
+            const { ProductId, quantity } = req.body;
+
+            const result = await carts.findOne({
+                where: {
+                    UserId: req.user.id,
+                    status: 'ACTIVE'
+                }
+            });
+
+            const productStock = await stocks.findOne({
+                where: {
+                    productId: ProductId,
+                    BranchId: result.BranchId
+                }
+            });
+            if ( productStock.currentStock - quantity < 0 ) throw { message: 'Product out of stock' };
+            if ( quantity < 1 ) throw { message: 'Minimum item 1' };
+
+            await cartItems.update({ quantity }, {
+                where: {
+                    CartId: result.id,
+                    ProductId
+                }
+            });
+
+            res.status(200).send({
+                status: true,
+                message: 'Item quantity updated'
+            });
+
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+    removeItem: async(req, res) => {
+        try {
+            const { id } = req.params;
+            const result = await carts.findOne({
+                where: {
+                    UserId: req.user.id,
+                    status: 'ACTIVE'
+                }
+            });
+            
+            await cartItems.destroy({
+                where: {
+                    CartId: result.id,
+                    ProductId: id
+                }
+            });
+
+            res.status(200).send({
+                status: true,
+                message: 'Item removed from cart'
+            });
+
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+    clearCart: async(req, res) => {
+        try {
+            const { description } = req.body;
+
+            await carts.update({
+                status: 'ABANDONED',
+                description
+            },{
+                where: {
+                    UserId: req.user.id,
+                    status: 'ACTIVE'
+                }
+            });
+
+            res.status(200).send({
+                status: true,
+                message: 'Item removed from cart'
+            });
+
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
 }
