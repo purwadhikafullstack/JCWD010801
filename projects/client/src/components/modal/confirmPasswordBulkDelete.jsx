@@ -21,8 +21,8 @@ import { ButtonTemp } from "../button";
 
 export const ConfirmPasswordBulkDelete = ({ handleBulkDelete }) => {
 	const { id } = useSelector((state) => state?.user?.value);
-	const [inputPassword, setInputPassword] = useState();
-	const [validationError, setValidationError] = useState();
+	const [inputPassword, setInputPassword] = useState("");
+	const [validationError, setValidationError] = useState("");
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 

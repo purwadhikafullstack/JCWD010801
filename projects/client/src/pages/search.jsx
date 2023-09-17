@@ -1,4 +1,5 @@
 import Axios from "axios";
+import NoProduct from "../assets/public/404.png";
 import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
@@ -17,6 +18,7 @@ const Search = () => {
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
+	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -78,6 +80,11 @@ const Search = () => {
 
 			const productsResponse = await Axios.get(apiURL);
 			setProducts(productsResponse.data.result);
+			if (products.length === 0) { //! asc33nzio 17SEPT23
+				setIsSearchEmpty(true);  //! commit signature: bimo cupaw
+			} else {
+				setIsSearchEmpty(false); //! check for rollbacks
+			}
 			setTotalPages(productsResponse.data.totalPages);
 			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
@@ -378,64 +385,77 @@ const Search = () => {
 						</Box>
 					</Box>
 					<Box mt={4} flex="1" overflowY="auto" width="90%">
-						{products?.map((data) => (
+						{isSearchEmpty ? (
 							<Box
-								key={data.id}
-								display="flex"
-								flexDirection="column"
-								cursor={"pointer"}
-								boxShadow={"0px 0px 5px gray"}
+								w={"100%"}
+								h={"80px"}
+								align={"center"}
+								borderTop={"1px ridge grey"}
+								borderBottom={"1px ridge grey"}
 								borderRadius={"10px"}
-								mb={2}
-								onClick={() => productDetail(data.id)}
 							>
-								<Box h={"165px"}>
-									<Image
-										borderTopRadius={"9px"}
-										w={"100%"}
-										h={"100%"}
-										src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
-									/>
-								</Box>
+								<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+							</Box>
+						) : (
+							products?.map((data) => (
 								<Box
-									flex="1"
+									key={data.id}
 									display="flex"
 									flexDirection="column"
-									borderBottomRadius={"10px"}
-									textShadow={"0px 0px 1px gray"}
-									justifyContent={"center"}
-									fontFamily={"revert"}
-									bgColor={"#F0F0F0"}
-									color={"gray.700"}
-									pt={"10px"}
-									pb={"25px"}
-									whiteSpace="nowrap"
-									overflow="hidden"
-									textOverflow="ellipsis"
+									cursor={"pointer"}
+									boxShadow={"0px 0px 5px gray"}
+									borderRadius={"10px"}
+									mb={2}
+									onClick={() => productDetail(data.id)}
 								>
-									<Box
-										color={"gray.700"}
-										mb={1}
-										textAlign={"center"}
-										fontWeight={"bold"}
-										fontSize={"16px"}
-										overflow="hidden"
-										textOverflow="ellipsis"
-									>
-										{data.productName}
+									<Box h={"165px"}>
+										<Image
+											borderTopRadius={"9px"}
+											w={"100%"}
+											h={"100%"}
+											src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
+										/>
 									</Box>
 									<Box
+										flex="1"
+										display="flex"
+										flexDirection="column"
+										borderBottomRadius={"10px"}
+										textShadow={"0px 0px 1px gray"}
+										justifyContent={"center"}
+										fontFamily={"revert"}
+										bgColor={"#F0F0F0"}
 										color={"gray.700"}
-										textAlign={"center"}
-										fontSize={"15px"}
+										pt={"10px"}
+										pb={"25px"}
+										whiteSpace="nowrap"
 										overflow="hidden"
 										textOverflow="ellipsis"
 									>
-										Rp. {data.price.toLocaleString("id-ID")}
+										<Box
+											color={"gray.700"}
+											mb={1}
+											textAlign={"center"}
+											fontWeight={"bold"}
+											fontSize={"16px"}
+											overflow="hidden"
+											textOverflow="ellipsis"
+										>
+											{data.productName}
+										</Box>
+										<Box
+											color={"gray.700"}
+											textAlign={"center"}
+											fontSize={"15px"}
+											overflow="hidden"
+											textOverflow="ellipsis"
+										>
+											Rp. {data.price.toLocaleString("id-ID")}
+										</Box>
 									</Box>
 								</Box>
-							</Box>
-						))}
+							))
+						)}
 					</Box>
 					<Center justifyContent={"center"} mt={4} mb={4}>
 						<Pagination
@@ -481,6 +501,11 @@ const Search = () => {
 										onChange={(e) => {
 											setPage(1);
 											setSearch(e.target.value);
+											if (products.length === 0) {
+												setIsSearchEmpty(true);
+											} else {
+												setIsSearchEmpty(false);
+											}
 										}}
 										onKeyDown={(e) => {
 											if (e.key === "Enter") {
@@ -664,69 +689,82 @@ const Search = () => {
 						<Flex justifyContent={"center"} pt={"50px"} w={"full"}>
 							<Box>
 								<Flex justifyContent={"center"} wrap={"wrap"} px={"30px"} w={"1100px"} h={"780px"} gap={"15px"}>
-									{products?.map((data) => {
-										return (
-											<Box
-												key={data.id}
-												display="flex"
-												flexDirection="column"
-												cursor={"pointer"}
-												boxShadow={"0px 0px 5px gray"}
-												borderRadius={"10px"}
-												w={"190px"}
-												h={"250px"}
-												onClick={() => productDetail(data.id)}
-											>
-												<Box h={"165px"}>
-													<Image
-														borderTopRadius={"9px"}
-														w={"full"}
-														h={"full"}
-														src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
-													/>
-												</Box>
+									{isSearchEmpty ? (
+										<Flex
+											w={"1225px"}
+											h={"300px"}
+											align={"center"}
+											borderTop={"1px ridge grey"}
+											borderBottom={"1px ridge grey"}
+											borderRadius={"10px"}
+										>
+											<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+										</Flex>
+									) : (
+										products?.map((data) => {
+											return (
 												<Box
-													flex="1"
+													key={data.id}
 													display="flex"
 													flexDirection="column"
-													borderBottomRadius={"10px"}
-													textShadow={"0px 0px 1px gray"}
-													justifyContent={"center"}
-													fontFamily={"revert"}
-													bgColor={"#F0F0F0"}
-													color={"gray.700"}
-													pt={"10px"}
-													pb={"25px"}
-													px={"25px"}
-													width="100%"
-													whiteSpace="nowrap"
-													overflow="hidden"
-													textOverflow="ellipsis"
+													cursor={"pointer"}
+													boxShadow={"0px 0px 5px gray"}
+													borderRadius={"10px"}
+													w={"190px"}
+													h={"250px"}
+													onClick={() => productDetail(data.id)}
 												>
-													<Box
-														color={"gray.700"}
-														mb={1}
-														textAlign={"center"}
-														fontWeight={"bold"}
-														fontSize={"16px"}
-														overflow="hidden"
-														textOverflow="ellipsis"
-													>
-														{data.productName}
+													<Box h={"165px"}>
+														<Image
+															borderTopRadius={"9px"}
+															w={"full"}
+															h={"full"}
+															src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
+														/>
 													</Box>
 													<Box
+														flex="1"
+														display="flex"
+														flexDirection="column"
+														borderBottomRadius={"10px"}
+														textShadow={"0px 0px 1px gray"}
+														justifyContent={"center"}
+														fontFamily={"revert"}
+														bgColor={"#F0F0F0"}
 														color={"gray.700"}
-														textAlign={"center"}
-														fontSize={"15px"}
+														pt={"10px"}
+														pb={"25px"}
+														px={"25px"}
+														width="100%"
+														whiteSpace="nowrap"
 														overflow="hidden"
 														textOverflow="ellipsis"
 													>
-														Rp. {data.price.toLocaleString("id-ID")}
+														<Box
+															color={"gray.700"}
+															mb={1}
+															textAlign={"center"}
+															fontWeight={"bold"}
+															fontSize={"16px"}
+															overflow="hidden"
+															textOverflow="ellipsis"
+														>
+															{data.productName}
+														</Box>
+														<Box
+															color={"gray.700"}
+															textAlign={"center"}
+															fontSize={"15px"}
+															overflow="hidden"
+															textOverflow="ellipsis"
+														>
+															Rp. {data.price.toLocaleString("id-ID")}
+														</Box>
 													</Box>
 												</Box>
-											</Box>
-										);
-									})}
+											);
+										})
+									)}
 								</Flex>
 								<Flex justifyContent={"center"} gap={"50px"} my={"35px"}>
 									<Pagination

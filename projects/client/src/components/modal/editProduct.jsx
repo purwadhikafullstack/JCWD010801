@@ -130,16 +130,6 @@ export const EditProduct = ({
 		}
 	};
 
-	const EditButton = styled(FiEdit)`
-		font-size: 28px;
-		cursor: ${(props) => (props.isDisabled ? "not-allowed" : "pointer")};
-		color: ${(props) => (props.isDisabled ? "#800808" : "black")};
-		&:hover {
-			color: ${(props) => (props.isDisabled ? "#B90E0A" : "#006100")};
-			filter: ${(props) => (props.isDisabled ? "blur(1px)" : "none")};
-		}
-	`;
-
 	const handleClick = () => {
 		setImageChanged(false);
 		if (!isActive && !isDeleted) {
@@ -169,13 +159,23 @@ export const EditProduct = ({
 		}
 	};
 
+	const EditButton = styled(FiEdit)`
+		font-size: 28px;
+		cursor: ${(props) => (props.isdisabled === "true" ? "not-allowed" : "pointer")};
+		color: ${(props) => (props.isdisabled === "true" ? "#800808" : "black")};
+		&:hover {
+			color: ${(props) => (props.isdisabled === "true" ? "#B90E0A" : "#006100")};
+			filter: ${(props) => (props.isdisabled === "true" ? "blur(1px)" : "none")};
+		}
+	`;
+
 	return (
 		<>
 			<EditButton
 				size={28}
 				onClick={handleClick}
 				cursor={"pointer"}
-				isDisabled={isDeleted === true || isActive === false}
+				isdisabled={(isDeleted === true || isActive === false).toString()}
 			/>
 			<Modal
 				size={{ base: "xs", sm: "sm", md: "md" }}

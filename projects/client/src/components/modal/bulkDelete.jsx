@@ -113,17 +113,17 @@ export const BulkDelete = ({
 
 	const DeleteButton = styled(TbTrashX)`
 		font-size: 28px;
-		cursor: ${(props) => (props.isDisabled ? "not-allowed" : "pointer")};
-		color: ${(props) => (props.isDisabled ? "#B90E0A" : "#B90E0A")};
+		cursor: ${(props) => (props.isdisabled === "true" ? "not-allowed" : "pointer")};
+		color: ${(props) => (props.isdisabled === "true" ? "#B90E0A" : "#B90E0A")};
 		&:hover {
-			color: ${(props) => (props.isDisabled ? "#B90E0A" : "red")};
-			filter: ${(props) => (props.isDisabled ? "blur(1px)" : "none")};
+			color: ${(props) => (props.isdisabled === "true" ? "#B90E0A" : "red")};
+			filter: ${(props) => (props.isdisabled === "true" ? "blur(1px)" : "none")};
 		}
 	`;
 
 	return (
 		<>
-			<DeleteButton size={40} onClick={handleClick} isDisabled={isAllDeactivated || isAllDeleted} />
+			<DeleteButton size={40} onClick={handleClick} isdisabled={(isAllDeactivated || isAllDeleted).toString()} />
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>

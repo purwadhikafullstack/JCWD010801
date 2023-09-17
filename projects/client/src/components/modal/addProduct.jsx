@@ -1,6 +1,5 @@
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import styled from "@emotion/styled";
 import * as Yup from "yup";
 import {
 	Text,
@@ -16,12 +15,9 @@ import {
 	useDisclosure,
 	Button,
 	Select,
-	Image,
 } from "@chakra-ui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { useState } from "react";
 import { toast } from "react-toastify";
-import { FiEdit } from "react-icons/fi";
 import { ButtonTemp } from "../button";
 
 export const AddProduct = ({ categories, reload, setReload }) => {
@@ -85,15 +81,6 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 			});
 		}
 	};
-
-	const EditButton = styled(FiEdit)`
-		font-size: 28px;
-		cursor: ${(props) => (props.isDisabled ? "not-allowed" : "pointer")};
-		color: ${(props) => (props.isDisabled ? "#800808" : "black")};
-		&:hover {
-			color: ${(props) => (props.isDisabled ? "red" : "#006100")};
-		}
-	`;
 
 	const handleClick = () => {
 		onOpen();

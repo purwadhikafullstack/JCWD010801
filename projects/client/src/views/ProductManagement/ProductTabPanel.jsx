@@ -113,6 +113,7 @@ export const ProductTabPanel = ({
 					onClick={() => navigate(`/product/${data.id}`)}
 					boxSize="75px"
 					objectFit="cover"
+					borderRadius={"5px"}
 				/>
 			</Flex>
 			<Flex
@@ -244,7 +245,7 @@ export const ProductTabPanel = ({
 					reload={reload}
 					setReload={setReload}
 				/>
-				<DeleteButton size={40} onClick={handleClick} isDisabled={data.isDeleted} />
+				<DeleteButton size={40} onClick={handleClick} />
 				<ConfirmPassword
 					isOpen={isPasswordModalOpen}
 					onClose={closePasswordModal}

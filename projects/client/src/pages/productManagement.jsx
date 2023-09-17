@@ -1,11 +1,13 @@
 import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
+import NoProduct from "../assets/public/404.png";
 import { toast } from "react-toastify";
 import {
 	Box,
 	Checkbox,
 	Flex,
+	Image,
 	Input,
 	Radio,
 	Select,
@@ -60,6 +62,7 @@ const ProductManagement = () => {
 	const [sortOrder, setSortOrder] = useState("ASC");
 	const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
 	const [branches, setBranches] = useState([]);
+	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
 	let user = "";
 	if (gender !== null) {
 		if (gender === "Male") {
@@ -77,7 +80,7 @@ const ProductManagement = () => {
 
 	useEffect(() => {
 		productCount();
-	}, [reload]);
+	}, [reload, activeTab]);
 
 	useEffect(() => {
 		fetchDataAll(page);
@@ -106,6 +109,11 @@ const ProductManagement = () => {
 			}
 			const productsResponse = await Axios.get(apiURL);
 			setProducts(productsResponse.data.result);
+			if (products.length === 0) {
+				setIsSearchEmpty(true);
+			} else {
+				setIsSearchEmpty(false);
+			}
 			setTotalPages(productsResponse.data.totalPages);
 			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
@@ -139,9 +147,9 @@ const ProductManagement = () => {
 
 	const productCount = async () => {
 		try {
-			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`);
-			setTotalProductsActive(all.data.totalProducts);
-			const active = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/active`);
+			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`); 	//! asc33nzio 17SEPT23
+			setTotalProductsAll(all.data.totalProducts); 											//! commit signature: bimo cupaw
+			const active = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/active`); //! check for rollbacks
 			setTotalProductsActive(active.data.totalProducts);
 			const deactivated = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/deactivated`);
 			setTotalProductsDeactivated(deactivated.data.totalProducts);
@@ -415,13 +423,27 @@ const ProductManagement = () => {
 						You are currently managing AlphaMart products for the {currentBranchInfo?.name} branch
 					</Text>
 				</Flex>
-				<Box w={"1250px"} h={"160vh"} m={"5px"} py={"5px"} border={"1px solid #39393C"} borderRadius={"10px"}>
+				<Box
+					w={"1250px"}
+					h={"160vh"}
+					m={"5px"}
+					py={"5px"}
+					border={"1px solid #39393C"}
+					borderRadius={"10px"}
+					flexDirection="column"
+					position={"relative"}
+				>
 					<Tabs
 						value={activeTab}
 						onChange={(index) => {
 							setActiveTab(index);
-							setCheckboxState(initialCheckboxState);
 							setPage(1);
+							setSortBy("productName");
+							setSortOrder("ASC");
+							setSelectedCategory("");
+							setCheckboxState(initialCheckboxState);
+							setSearch("");
+							setIsSearchEmpty(false);
 						}}
 						w="1225px"
 						align="left"
@@ -503,6 +525,11 @@ const ProductManagement = () => {
 										setPage(1);
 										setSearch(e.target.value);
 										setCheckboxState(initialCheckboxState);
+										if (products.length === 0) {
+											setIsSearchEmpty(true);
+										} else {
+											setIsSearchEmpty(false);
+										}
 									}}
 								/>
 								<FaSearch
@@ -644,7 +671,6 @@ const ProductManagement = () => {
 								</Radio>
 								<Radio
 									size="sm"
-									labelProps={{ fontSize: "5px" }}
 									ml={"7px"}
 									isChecked={sortBy === "createdAt"}
 									borderColor={"gray"}
@@ -1103,100 +1129,124 @@ const ProductManagement = () => {
 						</Flex>
 						<TabPanels ml={"-15px"}>
 							<TabPanel key="all">
-								{products?.map((data, index, array) => {
-									const isLastItem = index === array.length - 1;
-									return (
-										<ProductTabPanel
-											id={id}
-											key={data.id}
-											data={data}
-											isLastItem={isLastItem}
-											isChecked={isChecked}
-											toggleCheckbox={toggleCheckbox}
-											categories={categories}
-											getCategoryLabel={getCategoryLabel}
-											handleActivation={handleActivation}
-											handleDelete={handleDelete}
-											reload={reload}
-											setReload={setReload}
-											setCheckboxState={setCheckboxState}
-											initialCheckboxState={initialCheckboxState}
-										/>
-									);
-								})}
+								{isSearchEmpty ? (
+									<Flex w={"1225px"} h={"300px"} align={"center"} borderBottom={"1px solid black"} borderRadius={"5px"}>
+										<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+									</Flex>
+								) : (
+									products?.map((data, index, array) => {
+										const isLastItem = index === array.length - 1;
+										return (
+											<ProductTabPanel
+												id={id}
+												key={data.id}
+												data={data}
+												isLastItem={isLastItem}
+												isChecked={isChecked}
+												toggleCheckbox={toggleCheckbox}
+												categories={categories}
+												getCategoryLabel={getCategoryLabel}
+												handleActivation={handleActivation}
+												handleDelete={handleDelete}
+												reload={reload}
+												setReload={setReload}
+												setCheckboxState={setCheckboxState}
+												initialCheckboxState={initialCheckboxState}
+											/>
+										);
+									})
+								)}
 							</TabPanel>
 							<TabPanel key="active">
-								{products?.map((data, index, array) => {
-									const isLastItem = index === array.length - 1;
-									return (
-										<ProductTabPanel
-											id={id}
-											key={data.id}
-											data={data}
-											isLastItem={isLastItem}
-											isChecked={isChecked}
-											toggleCheckbox={toggleCheckbox}
-											categories={categories}
-											getCategoryLabel={getCategoryLabel}
-											handleActivation={handleActivation}
-											handleDelete={handleDelete}
-											reload={reload}
-											setReload={setReload}
-											setCheckboxState={setCheckboxState}
-											initialCheckboxState={initialCheckboxState}
-										/>
-									);
-								})}
+								{isSearchEmpty ? (
+									<Flex w={"1225px"} h={"300px"} align={"center"} borderBottom={"1px solid black"} borderRadius={"5px"}>
+										<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+									</Flex>
+								) : (
+									products?.map((data, index, array) => {
+										const isLastItem = index === array.length - 1;
+										return (
+											<ProductTabPanel
+												id={id}
+												key={data.id}
+												data={data}
+												isLastItem={isLastItem}
+												isChecked={isChecked}
+												toggleCheckbox={toggleCheckbox}
+												categories={categories}
+												getCategoryLabel={getCategoryLabel}
+												handleActivation={handleActivation}
+												handleDelete={handleDelete}
+												reload={reload}
+												setReload={setReload}
+												setCheckboxState={setCheckboxState}
+												initialCheckboxState={initialCheckboxState}
+											/>
+										);
+									})
+								)}
 							</TabPanel>
 							<TabPanel key="deactivated">
-								{products?.map((data, index, array) => {
-									const isLastItem = index === array.length - 1;
-									return (
-										<ProductTabPanel
-											id={id}
-											key={data.id}
-											data={data}
-											isLastItem={isLastItem}
-											isChecked={isChecked}
-											toggleCheckbox={toggleCheckbox}
-											categories={categories}
-											getCategoryLabel={getCategoryLabel}
-											handleActivation={handleActivation}
-											handleDelete={handleDelete}
-											reload={reload}
-											setReload={setReload}
-											setCheckboxState={setCheckboxState}
-											initialCheckboxState={initialCheckboxState}
-										/>
-									);
-								})}
+								{isSearchEmpty ? (
+									<Flex w={"1225px"} h={"300px"} align={"center"} borderBottom={"1px solid black"} borderRadius={"5px"}>
+										<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+									</Flex>
+								) : (
+									products?.map((data, index, array) => {
+										const isLastItem = index === array.length - 1;
+										return (
+											<ProductTabPanel
+												id={id}
+												key={data.id}
+												data={data}
+												isLastItem={isLastItem}
+												isChecked={isChecked}
+												toggleCheckbox={toggleCheckbox}
+												categories={categories}
+												getCategoryLabel={getCategoryLabel}
+												handleActivation={handleActivation}
+												handleDelete={handleDelete}
+												reload={reload}
+												setReload={setReload}
+												setCheckboxState={setCheckboxState}
+												initialCheckboxState={initialCheckboxState}
+											/>
+										);
+									})
+								)}
 							</TabPanel>
 							<TabPanel key="deleted">
-								{products?.map((data, index, array) => {
-									const isLastItem = index === array.length - 1;
-									return (
-										<ProductTabPanel
-											id={id}
-											key={data.id}
-											data={data}
-											isLastItem={isLastItem}
-											isChecked={isChecked}
-											toggleCheckbox={toggleCheckbox}
-											categories={categories}
-											getCategoryLabel={getCategoryLabel}
-											handleActivation={handleActivation}
-											handleDelete={handleDelete}
-											reload={reload}
-											setReload={setReload}
-											setCheckboxState={setCheckboxState}
-											initialCheckboxState={initialCheckboxState}
-										/>
-									);
-								})}
+								{isSearchEmpty ? (
+									<Flex w={"1225px"} h={"300px"} align={"center"} borderBottom={"1px solid black"} borderRadius={"5px"}>
+										<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+									</Flex>
+								) : (
+									products?.map((data, index, array) => {
+										const isLastItem = index === array.length - 1;
+										return (
+											<ProductTabPanel
+												id={id}
+												key={data.id}
+												data={data}
+												isLastItem={isLastItem}
+												isChecked={isChecked}
+												toggleCheckbox={toggleCheckbox}
+												categories={categories}
+												getCategoryLabel={getCategoryLabel}
+												handleActivation={handleActivation}
+												handleDelete={handleDelete}
+												reload={reload}
+												setReload={setReload}
+												setCheckboxState={setCheckboxState}
+												initialCheckboxState={initialCheckboxState}
+											/>
+										);
+									})
+								)}
 							</TabPanel>
 						</TabPanels>
 					</Tabs>
-					<Flex justifyContent={"center"} gap={"50px"} my={"35px"}>
+					<Box position="absolute" bottom="-20" left="50%" transform="translateX(-50%)">
 						<Pagination
 							page={page}
 							totalPages={totalPages}
@@ -1205,7 +1255,7 @@ const ProductManagement = () => {
 							goToPage={goToPage}
 							lastPage={totalPages}
 						/>
-					</Flex>
+					</Box>
 				</Box>
 			</Box>
 		</Box>
