@@ -169,7 +169,7 @@ module.exports = {
 					status: 400,
 					message: "Password is required.",
 				});
-			}
+			} //!CHECK ROLLBACK(ALVIAN BIMO)
 
 			const isValid = await bcrypt.compare(password, user.password);
 			if (!isValid) {
@@ -190,4 +190,8 @@ module.exports = {
 			});
 		}
 	},
+	//! 17SEPT23
+	//! commit message: BIMO BEBAN
+	//! ALVIAN BIMO ROLLBACK PROTECTION
+	//!	check for rollbacks after merging from BIMO related branch!!
 };
