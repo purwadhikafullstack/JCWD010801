@@ -15,22 +15,24 @@ import {
 } from "@chakra-ui/react";
 import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
-import { ConfirmPasswordBulkDeactivate } from "../modal/confirmPasswordBulkDeactivate";
+import { ConfirmPasswordBulkActivate } from "../modal/confirmPasswordBulkActivate";
 
-export const BulkDeactivate = ({
-	selectedPIDs,
-	selectedProductNames,
+export const BulkActivate = ({
+	currentPagePIDs,
+	currentPageProductNames,
 	reload,
 	setReload,
 	setCheckboxState,
 	initialCheckboxState,
-	isAllDeactivated,
+    isAllActivated,
+    isAllDeleted,
+    selectedHasActive
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
-	const handleBulkDeactivate = () => {
-		if (selectedPIDs.length === 0) {
-			toast.error("There are no products to deactivate.", {
+	const handleBulkActivate = () => {
+		if (currentPagePIDs.length === 0) {
+			toast.error("There are no products to activate.", {
 				position: "top-right",
 				autoClose: 4000,
 				hideProgressBar: false,
@@ -44,8 +46,8 @@ export const BulkDeactivate = ({
 		}
 
 		axios
-			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkdeactivate`, {
-				PIDs: selectedPIDs,
+			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkactivate`, {
+				PIDs: currentPagePIDs,
 			})
 			.then((response) => {
 				toast.success(`${response.data.message}`, {
@@ -73,26 +75,26 @@ export const BulkDeactivate = ({
 					progress: undefined,
 					theme: "dark",
 				});
-				console.error("Error deactivating products:", error);
+				console.error("Error activating products:", error);
 			});
 	};
 
 	return (
 		<>
-			<ButtonTemp content={"Deactivate"} onClick={onOpen} ml={"15px"} isDisabled={isAllDeactivated} />
+			<ButtonTemp content={"Activate"} onClick={onOpen} ml={"15px"} isDisabled={isAllDeleted || isAllActivated || selectedHasActive} />
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
 					<ModalHeader borderTopRadius={"10px"} color={"white"} bg={"#373433"}>
-						Deactivate Selected Products
+						Activate All Products On This Page
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />
 					<ModalBody>
 						<Stack gap={4} p={3}>
 							<Stack gap={1}>
-								<Text mb={"10px"}>Confirm Deactivation Of :</Text>
+								<Text mb={"10px"}>Confirm Activation Of :</Text>
 								<ol>
-									{selectedProductNames.map((productName) => (
+									{currentPageProductNames.map((productName) => (
 										<li key={productName}>{productName}</li>
 									))}
 								</ol>
@@ -101,10 +103,10 @@ export const BulkDeactivate = ({
 					</ModalBody>
 					<ModalFooter gap={1}>
 						<Button onClick={onClose}>Cancel</Button>
-						<ConfirmPasswordBulkDeactivate
+						<ConfirmPasswordBulkActivate
 							isOpen={isOpen}
 							onClose={onClose}
-							handleBulkDeactivate={handleBulkDeactivate}
+							handleBulkActivate={handleBulkActivate}
 						/>
 					</ModalFooter>
 				</ModalContent>
