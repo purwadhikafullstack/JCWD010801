@@ -83,7 +83,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
             });
 			setTotalCartItems( data.total );
 		} catch (err) {
-			
+			console.log(err);
 		}
 	}
 
