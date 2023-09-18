@@ -101,13 +101,6 @@ module.exports = {
 				order: [[Sequelize.col("createdAt"), `DESC`]],
 			};
 
-			// const stockResult = await stocks.findAll({
-			//     where: {
-			//         productId,
-			//         BranchId: result.BRanchId
-			//     }
-			// })
-
 			const cart_items = await cartItems.findAll(filter);
 			const total = await cartItems.count(filter);
 			const subtotal = await cartItems.findAll({
