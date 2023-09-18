@@ -1,8 +1,11 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
+import styled from "@emotion/styled";
 import React, { useState } from "react";
 import { Flex, Checkbox, Image, Text, Switch } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { TiDelete } from "react-icons/ti";
+import { toast } from "react-toastify";
 import { ConfirmPassword } from "../../components/modal/confirmPassword";
 import { EditProduct } from "../../components/modal/editProduct";
 
@@ -12,10 +15,14 @@ export const ProductTabPanel = ({
 	isLastItem,
 	isChecked,
 	toggleCheckbox,
-    categories,
+	categories,
 	getCategoryLabel,
 	handleActivation,
 	handleDelete,
+	setCheckboxState,
+	initialCheckboxState,
+	reload,
+	setReload,
 }) => {
 	const navigate = useNavigate();
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -45,14 +52,46 @@ export const ProductTabPanel = ({
 		}
 	};
 
+	const handleClick = () => {
+		if (data.isDeleted) {
+			toast.error("This product has already been permanently deleted.", {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		} else {
+			openPasswordModal();
+		}
+	};
+
+	const gradientBackground = {
+		background: `linear-gradient(to right, rgba(128, 8, 8, 0.5), white)`,
+	};
+
+	const DeleteButton = styled(TiDelete)`
+		font-size: 28px;
+		cursor: ${() => (data.isDeleted ? "not-allowed" : "pointer")};
+		color: ${() => (data.isDeleted ? "#B90E0A" : "#B90E0A")};
+		&:hover {
+			color: ${() => (data.isDeleted ? "#B90E0A" : "red")};
+			filter: ${() => (data.isDeleted ? "blur(1px)" : "none")};
+		}
+	`;
+
 	return (
 		<Flex
 			key={data.id}
 			w={"1225px"}
 			h={"100px"}
 			align={"center"}
-			bgColor={data.isDeleted ? "rgba(128, 8, 8, 0.5)" : null}
-			color={data.isDeleted ? "white" : "black"}
+			bgColor={data.isDeleted && !data.isActive ? "rgba(128, 8, 8, 0.5)" : null}
+			style={!data.isDeleted && !data.isActive ? gradientBackground : {}}
+			color={data.isDeleted && !data.isActive ? "white" : "black"}
 			borderBottom={isLastItem ? "none" : "1px solid black"}
 			borderRadius={"5px"}
 		>
@@ -60,7 +99,7 @@ export const ProductTabPanel = ({
 				<Checkbox
 					isChecked={isChecked(data.id)}
 					onChange={() => toggleCheckbox(data.id)}
-					isDisabled={data.isDeleted === true}
+					isDisabled={data.isDeleted === true || data.isActive === false}
 					colorScheme="green"
 					iconColor="white"
 					size={"lg"}
@@ -74,6 +113,7 @@ export const ProductTabPanel = ({
 					onClick={() => navigate(`/product/${data.id}`)}
 					boxSize="75px"
 					objectFit="cover"
+					borderRadius={"5px"}
 				/>
 			</Flex>
 			<Flex
@@ -184,33 +224,28 @@ export const ProductTabPanel = ({
 					isChecked={data.isActive && !data.isDeleted}
 					onChange={() => {
 						handleActivation(data.id);
+						setCheckboxState(initialCheckboxState);
 					}}
 					isDisabled={data.isDeleted === true}
 				/>
 			</Flex>
 			<Flex w={"71px"} h={"75px"} justify={"space-around"} align={"center"} ml={"5px"}>
-				{/* <FiEdit size={28} /> */}
 				<EditProduct
 					PID={data.id}
 					productName={data.productName}
 					price={data.price}
 					description={data.description}
-                    categories={categories}
+					categories={categories}
 					CategoryId={data.CategoryId}
-                    getCategoryLabel={getCategoryLabel}
+					getCategoryLabel={getCategoryLabel}
 					weight={data.weight}
 					image={data.imgURL}
+					isActive={data.isActive}
+					isDeleted={data.isDeleted}
+					reload={reload}
+					setReload={setReload}
 				/>
-				<TiDelete
-					size={40}
-					cursor={data.isDeleted ? "not-allowed" : "pointer"}
-					color={data.isDeleted ? "rgba(3, 3, 3, 0.8)" : "#B90E0A"}
-					onClick={() => {
-						if (!data.isDeleted) {
-							openPasswordModal();
-						}
-					}}
-				/>
+				<DeleteButton size={40} onClick={handleClick} />
 				<ConfirmPassword
 					isOpen={isPasswordModalOpen}
 					onClose={closePasswordModal}

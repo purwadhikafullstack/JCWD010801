@@ -28,6 +28,7 @@ module.exports = {
 				throw error;
 			}
 			req.user = verifiedUser;
+			req.token = token;
 			next();
 		} catch (error) {
 			res.status(400).send({

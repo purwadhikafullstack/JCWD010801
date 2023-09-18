@@ -13,8 +13,14 @@ module.exports = (sequelize, DataTypes) => {
 				through: models.Stocks,
 				foreignKey: "productId",
 			});
+			Products.hasMany(models.Stocks, {
+				foreignKey: "productId"
+			});
 			Products.belongsToMany(models.Branches, {
 				through: models.StockMovements,
+				foreignKey: "productId",
+			});
+			Products.hasMany(models.Stocks, {
 				foreignKey: "productId",
 			});
 			// Products.hasMany(models.CartItems);

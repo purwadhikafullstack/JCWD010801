@@ -9,7 +9,7 @@ import { RiFileList3Fill } from "react-icons/ri";
 import { BsFillPersonFill } from "react-icons/bs";
 
 export const BranchAdminDashboardButton = () => {
-	const user = useSelector((state) => state.user.value);
+	const user = useSelector((state) => state?.user?.value);
 	return (
 		<Flex>
 			<LayoutSidebar />

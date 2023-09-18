@@ -1,5 +1,6 @@
 const db = require("../models");
 const products = db.Products;
+const categories = db.Categories;
 const users = db.Users;
 const role = db.Roles;
 const bcrypt = require("bcrypt");
@@ -10,7 +11,7 @@ module.exports = {
 	addProduct: async (req, res) => {
 		try {
 			const { productName, price, description, CategoryId, weight } = req.body;
-			const imgURL = req.file.filename;
+			const imgURL = req?.file?.filename;
 
 			if (!productName) {
 				return res.status(400).send({
@@ -26,7 +27,7 @@ module.exports = {
 					},
 				})
 			) {
-				res.status(400).send({
+				return res.status(400).send({
 					status: 400,
 					message: "Product name already exists. Did you mean to update product?",
 				});
@@ -67,6 +68,27 @@ module.exports = {
 				});
 			}
 
+			if (isNaN(price)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Price must be a numeric value.",
+				});
+			}
+
+			if (isNaN(weight)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Weight must be a numeric value.",
+				});
+			}
+
+			if (isNaN(CategoryId)) {
+				return res.status(400).send({
+					status: 400,
+					message: "You must select a category.",
+				});
+			}
+
 			const newProduct = await products.create({
 				productName,
 				price,
@@ -82,6 +104,7 @@ module.exports = {
 				product: newProduct,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -93,18 +116,74 @@ module.exports = {
 		try {
 			const { PID } = req.params;
 			const { productName, price, description, weight, CategoryId } = req.body;
-			const imgURL = req.file.filename;
 
-			await products.update(
-				{ productName, price, description, weight, CategoryId, imgURL: imgURL },
-				{ where: { id: PID } }
-			);
-			res.status(200).send({
-				status: 200,
-				message: `Product ${PID} updated successfully.`,
+			const product = await products.findOne({
+				where: { id: PID },
 			});
+
+			if (isNaN(price)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Price must be a numeric value.",
+				});
+			}
+
+			if (isNaN(weight)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Weight must be a numeric value.",
+				});
+			}
+
+			if (isNaN(CategoryId)) {
+				return res.status(400).send({
+					status: 400,
+					message: "You must select a category.",
+				});
+			}
+
+			const oldImgURL = product.imgURL;
+			const imgURL = req?.file?.filename || oldImgURL;
+			const oldProductName = product.productName;
+			const oldPrice = product.price;
+			const oldDescription = product.description;
+			const oldWeight = product.weight;
+			const oldCategoryId = product.CategoryId;
+
+			if (
+				productName == oldProductName &&
+				price == oldPrice &&
+				description == oldDescription &&
+				weight == oldWeight &&
+				CategoryId == oldCategoryId &&
+				imgURL == oldImgURL
+			) {
+				return res.status(400).send({
+					status: 400,
+					message: "You havent made any changes!",
+				});
+			}
+
+			if (oldImgURL !== imgURL) {
+				await products.update(
+					{ productName, price, description, weight, CategoryId, imgURL: imgURL },
+					{ where: { id: PID } }
+				);
+				res.status(200).send({
+					status: 200,
+					message: `${oldProductName}'s picture updated successfully.`,
+				});
+			} else {
+				await products.update(
+					{ productName, price, description, weight, CategoryId, imgURL: oldImgURL },
+					{ where: { id: PID } }
+				);
+				res.status(200).send({
+					status: 200,
+					message: `${oldProductName} updated successfully.`,
+				});
+			}
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -187,7 +266,6 @@ module.exports = {
 			const result = await products.findOne({
 				where: {
 					id: id,
-					isDeleted: false,
 				},
 			});
 
@@ -474,6 +552,248 @@ module.exports = {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
+			});
+		}
+	},
+	getDeletedProducts: async (req, res) => {
+		try {
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
+
+			const whereCondition = {
+				productName: { [Op.like]: `%${search}%` },
+				isActive: false,
+				isDeleted: true,
+			};
+
+			if (CategoryId) {
+				whereCondition.CategoryId = CategoryId;
+			}
+
+			const queriedCount = await products.count({
+				where: whereCondition,
+			});
+
+			let orderCriteria = [];
+			if (sortBy === "productName") {
+				orderCriteria.push(["productName", sortOrder]);
+			} else if (sortBy === "price") {
+				orderCriteria.push(["price", sortOrder]);
+			} else if (sortBy === "createdAt") {
+				orderCriteria.push(["createdAt", sortOrder]);
+			} else if (sortBy === "weight") {
+				orderCriteria.push(["weight", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["CategoryId", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else {
+				orderCriteria.push(["productName", "ASC"]);
+			}
+
+			const result = await products.findAll({
+				where: whereCondition,
+				order: orderCriteria,
+				limit: itemLimit,
+				offset: itemLimit * (page - 1),
+			});
+
+			const totalPages = Math.ceil(queriedCount / itemLimit);
+
+			return res.status(200).send({
+				totalProducts: queriedCount,
+				productsPerPage: itemLimit,
+				totalPages,
+				currentPage: page,
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	bulkUpdateCategory: async (req, res) => {
+		try {
+			const { newCategoryId, PIDs } = req.body;
+
+			if (!newCategoryId || !Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{ CategoryId: newCategoryId },
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products' category updated successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	bulkActivate: async (req, res) => {
+		try {
+			const { PIDs } = req.body;
+
+			if (!Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{ isActive: true },
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products activated successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	bulkDeactivate: async (req, res) => {
+		try {
+			const { PIDs } = req.body;
+
+			if (!Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const findDeactivated = await products.findOne({
+				where: {
+					id: {
+						[Op.in]: PIDs,
+					},
+					isActive: false,
+				},
+			});
+
+			if (findDeactivated) {
+				return res.status(400).send({
+					status: 400,
+					message: "Some of the selected products are already inactive.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{ isActive: false },
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products deactivated successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	bulkDelete: async (req, res) => {
+		try {
+			const { PIDs } = req.body;
+
+			if (!Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{
+					isActive: false,
+					isDeleted: true,
+				},
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products permanently deleted successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
 			});
 		}
 	},

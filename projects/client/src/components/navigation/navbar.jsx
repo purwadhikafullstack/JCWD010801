@@ -38,18 +38,21 @@ import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
-	const branches = ["branch 1", "branch 2", "branch 3", "branch 4"];
+	const branches = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya"];
 	const reduxStore = useSelector((state) => state?.user);
 	const username = reduxStore?.value?.username;
 	const email = reduxStore?.value?.email;
 	const avatar = reduxStore?.value?.avatar;
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
+	const roleId = reduxStore?.value?.RoleId;
 
 	const { refresh } = useSelector((state) => state.cart.value);
 
@@ -71,18 +74,18 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		}
 	};
 
-	const fetchCart = async () => {
+	const fetchCart = async() => {
 		try {
-			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
-				headers: {
-					authorization: `Bearer ${token}`,
-				},
-			});
-			setTotalCartItems(data.total);
+			const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
+			setTotalCartItems( data.total );
 		} catch (err) {
 			console.log(err);
 		}
-	};
+	}
 
 	const handleSearchFocus = () => {
 		setSearchFocused(true);
@@ -105,12 +108,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	}, [reload, search]);
 
 	useEffect(() => {
-		fetchCart();
-	}, [refresh]);
+		fetchCart()
+	}, [ refresh ])
 
 	const logout = () => {
 		localStorage.removeItem("token");
-		toast.error("You have successfully logged out.", {
+		toast.success("You have successfully logged out.", {
 			position: "top-right",
 			autoClose: 4000,
 			hideProgressBar: false,
@@ -202,7 +205,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								<PopoverTrigger>
 									<Flex gap={3} alignItems={"center"}>
 										<Text fontSize={{ base: "sm", lg: "md" }} cursor={"pointer"} fontWeight={"medium"}>
-											Branch 1 (useLocation)
+											Select Branch
 										</Text>
 										<Icon as={BsChevronDown} w={4} h={4} color={"black"} />
 									</Flex>
@@ -230,6 +233,9 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															bgColor: "blackAlpha.100",
 															color: "black",
 															fontWeight: 500,
+														}}
+														onClick={() => {
+															localStorage.setItem("BranchId", index + 1)
 														}}
 													>
 														{item}
@@ -331,28 +337,33 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									</Stack>
 								)}
 							</div>
-							<Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
-								<Icon
-									as={BsCart}
-									w="5"
-									h="5"
-									color={"black"}
-									pos="relative"
-									_after={{
-										content: '"',
-										w: 4,
-										h: 4,
-										bg: "red",
-										border: "2px solid white",
-										rounded: "full",
-										pos: "absolute",
-										top: 0,
-										right: 3,
-									}}
+							<Button isDisabled={+roleId === 1 ? false : true} bgColor={"white"} rounded={"full"} cursor={"pointer"} onClick={() => navigate("/cart")}>
+								<Icon 
+								as={BsCart} 
+								w="5" 
+								h="5" 
+								color={"black"} 
+								pos='relative'
 								/>
+								{totalCartItems > 0 && (
+								<Flex
+								w={5}
+								h={5}
+								bg={'blackAlpha.700'}
+								border={'2px solid white'}
+								rounded={'full'}
+								justifyContent={'center'}
+								alignItems={'center'}
+								pos={'absolute'}
+								top={1}
+								right={1}>
+									<Text fontSize={'10px'} color={'white'} textAlign={'center'}>
+										{totalCartItems}
+									</Text>
+								</Flex>)}
 							</Button>
 							<Menu alignSelf={"center"}>
-								<Button as={MenuButton} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>
+								<Button as={MenuButton} p={0}  bgColor={'white'} pt={1} borderRadius={'full'} cursor={"pointer"}>
 									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
 								</Button>
 								{token ? (
@@ -374,11 +385,11 @@ export const Navbar = ({ isNotDisabled = true }) => {
 											</Text>
 										</Stack>
 										<MenuDivider />
-										<MenuItem onClick={() => navigate("/")} gap="3">
+										<MenuItem onClick={() => navigate("/dashboard")} gap="3">
 											<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
 											<Text>Dashboard</Text>
 										</MenuItem>
-										<MenuItem onClick={() => navigate("/")} gap="3">
+										<MenuItem onClick={() => navigate("/profile")} gap="3">
 											<Icon as={BsPerson} w="5" h="5" color="black" />
 											<Text>Profile</Text>
 										</MenuItem>
