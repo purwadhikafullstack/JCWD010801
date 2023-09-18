@@ -17,8 +17,7 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			modelName: "Cart_items",
-			timestamps: false,
+			modelName: "Cart_items"
 		}
 	);
 	return Cart_items;

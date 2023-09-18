@@ -16,6 +16,7 @@ const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
 const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
 const ProfilePage = lazy(() => import("../pages/profile"));
 const ProductManagement = lazy(() => import("../pages/productManagement"));
+const CartPage = lazy(() => import("../pages/cart"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -45,6 +46,14 @@ export const AppRouter = createBrowserRouter([
 						<Search />
 					</Suspense>
 				),
+			},
+			{
+				path: "/cart",
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<CartPage />
+					</Suspense>
+				)
 			},
 			{
 				path: "/product/:id",
