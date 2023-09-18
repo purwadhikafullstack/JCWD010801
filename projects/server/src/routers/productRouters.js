@@ -15,6 +15,7 @@ router.get("/alladmin", productControllers.getAllProductsAdmin);
 router.get("/active", productControllers.getActiveProducts);
 router.get("/deactivated", productControllers.getDeactivatedProducts);
 router.get("/deleted", productControllers.getDeletedProducts);
+router.get("/stock/:id", productControllers.getBranchStock);
 router.get("/:id", productControllers.getProduct);
 
 module.exports = router;

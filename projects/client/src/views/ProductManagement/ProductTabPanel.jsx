@@ -8,6 +8,7 @@ import { TiDelete } from "react-icons/ti";
 import { toast } from "react-toastify";
 import { ConfirmPassword } from "../../components/modal/confirmPassword";
 import { EditProduct } from "../../components/modal/editProduct";
+import { useEffect } from "react";
 
 export const ProductTabPanel = ({
 	id,
@@ -23,11 +24,18 @@ export const ProductTabPanel = ({
 	initialCheckboxState,
 	reload,
 	setReload,
+	BranchId,
+	currentBranchName
 }) => {
 	const navigate = useNavigate();
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 	const [inputPassword, setInputPassword] = useState("");
 	const [validationError, setValidationError] = useState("");
+	const [branchStock, setBranchStock] = useState(0); //! BIMO PROTECT
+
+	useEffect(() => {
+		getBranchStock();
+	}, [reload]);
 
 	const openPasswordModal = () => {
 		setIsPasswordModalOpen(true);
@@ -51,6 +59,15 @@ export const ProductTabPanel = ({
 			setValidationError(error.response.data.message);
 		}
 	};
+
+	const getBranchStock = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/stock/${data.id}?BranchId=${BranchId}`);
+			setBranchStock(response.data.currentStock);
+		} catch (error) {
+			// console.log(`There is no stock data for ${data.productName} in the ${currentBranchName} branch`);
+		}
+	}; //! BIMO PROTECT
 
 	const handleClick = () => {
 		if (data.isDeleted) {
@@ -216,7 +233,7 @@ export const ProductTabPanel = ({
 				bgColor={data.isDeleted ? "rgba(3, 3, 3, 0.8)" : "rgba(51, 50, 52, 0.2)"}
 				borderRadius={"5px"}
 			>
-				<Text>{data.aggregateStock} Units</Text>
+				<Text>{branchStock} Units</Text>
 			</Flex>
 			<Flex w={"64px"} h={"75px"} justify={"center"} align={"center"} ml={"5px"}>
 				<Switch
@@ -244,6 +261,9 @@ export const ProductTabPanel = ({
 					isDeleted={data.isDeleted}
 					reload={reload}
 					setReload={setReload}
+					BranchId={BranchId}
+					currentBranchName={currentBranchName}
+					branchStock={branchStock}
 				/>
 				<DeleteButton size={40} onClick={handleClick} />
 				<ConfirmPassword

@@ -23,6 +23,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
 import { FiEdit } from "react-icons/fi";
+import { useSelector } from "react-redux";
 
 export const EditProduct = ({
 	PID,
@@ -37,18 +38,28 @@ export const EditProduct = ({
 	isDeleted,
 	reload,
 	setReload,
+	BranchId,
+	currentBranchName,
+	branchStock,
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [imageChanged, setImageChanged] = useState(false);
 	const currentCategory = categories.find((category) => category.value === CategoryId);
 	const currentCategoryId = currentCategory?.value;
+	const id = useSelector((state) => state?.user?.value?.id);
 
 	const productSchema = Yup.object().shape({
 		productName: Yup.string().required("Product name cannot be empty."),
-		price: Yup.string().required("Price cannot be empty."),
+		price: Yup.number()
+			.required("Price cannot be empty.")
+			.typeError("Price must be a number")
+			.positive("Price must be a positive number"),
 		description: Yup.string().required("Description cannot be empty."),
 		CategoryId: Yup.string().required("You must select a category."),
-		weight: Yup.string().required("Weight cannot be empty."),
+		weight: Yup.number()
+			.required("Weight cannot be empty.")
+			.typeError("Weight must be a number")
+			.positive("Weight must be a positive number"),
 		image: Yup.mixed()
 			.nullable()
 			.notRequired()
@@ -61,11 +72,15 @@ export const EditProduct = ({
 				const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 				return acceptedTypes.includes(value.type);
 			}),
+		stock: Yup.number()
+			.required("Stock cannot be empty.")
+			.typeError("Stock must be a number")
+			.positive("Stock must be a positive number"),
 	});
 
 	const handleSubmit = async (values) => {
 		try {
-			const { productName, price, description, CategoryId, weight, image: newImage } = values;
+			const { productName, price, description, CategoryId, weight, image: newImage, stock } = values;
 
 			if (newImage !== image) {
 				const userInput = new FormData();
@@ -75,6 +90,9 @@ export const EditProduct = ({
 				userInput.append("CategoryId", CategoryId);
 				userInput.append("weight", weight);
 				userInput.append("image", newImage);
+				userInput.append("UserId", id);
+				userInput.append("stock", stock);
+				userInput.append("BranchId", BranchId);
 
 				const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/${PID}`, userInput, {
 					"Content-type": "multipart/form-data",
@@ -99,6 +117,9 @@ export const EditProduct = ({
 				userInput.append("description", description);
 				userInput.append("CategoryId", CategoryId);
 				userInput.append("weight", weight);
+				userInput.append("UserId", id);
+				userInput.append("stock", stock);
+				userInput.append("BranchId", BranchId);
 
 				const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/${PID}`, userInput, {
 					"Content-type": "multipart/form-data",
@@ -189,7 +210,7 @@ export const EditProduct = ({
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />
 					<Formik
-						initialValues={{ productName, price, description, CategoryId, weight }}
+						initialValues={{ productName, price, description, CategoryId, weight, stock: branchStock }}
 						validationSchema={productSchema}
 						onSubmit={(value) => {
 							handleSubmit(value);
@@ -224,7 +245,7 @@ export const EditProduct = ({
 												<Stack>
 													<Input
 														as={Field}
-														type={"text"}
+														type={"number"}
 														variant={"filled"}
 														name="price"
 														placeholder="Enter the updated price here."
@@ -263,7 +284,6 @@ export const EditProduct = ({
 													placeholder="Select a Category"
 													focusBorderColor="gray.300"
 													defaultValue={currentCategoryId}
-													value={values.CategoryId}
 													onChange={handleChange}
 													onBlur={handleBlur}
 												>
@@ -284,7 +304,7 @@ export const EditProduct = ({
 												<Stack>
 													<Input
 														as={Field}
-														type={"text"}
+														type={"number"}
 														variant={"filled"}
 														name="weight"
 														placeholder="Enter the updated weight here."
@@ -293,6 +313,24 @@ export const EditProduct = ({
 													<ErrorMessage
 														component="box"
 														name="weight"
+														style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
+													/>
+												</Stack>
+											</Stack>
+											<Stack gap={1}>
+												<Text fontWeight={"semibold"}>{currentBranchName}'s Stock</Text>
+												<Stack>
+													<Input
+														as={Field}
+														type={"number"}
+														variant={"filled"}
+														name="stock"
+														placeholder="Enter the updated stock here."
+														focusBorderColor="gray.300"
+													/>
+													<ErrorMessage
+														component="box"
+														name="stock"
 														style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
 													/>
 												</Stack>

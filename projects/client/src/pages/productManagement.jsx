@@ -20,6 +20,7 @@ import {
 	Text,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom"; //!BIMO PROTECT
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
@@ -43,7 +44,7 @@ import { BulkDelete } from "../components/modal/bulkDelete";
 const initialCheckboxState = {};
 
 const ProductManagement = () => {
-	const { id, username, lastName, gender, BranchId } = useSelector((state) => state?.user?.value);
+	const { id, username, lastName, gender, BranchId, RoleId } = useSelector((state) => state?.user?.value);
 	const [products, setProducts] = useState([]);
 	const [totalProductsAll, setTotalProductsAll] = useState(0);
 	const [totalProductsActive, setTotalProductsActive] = useState(0);
@@ -63,6 +64,7 @@ const ProductManagement = () => {
 	const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
 	const [branches, setBranches] = useState([]);
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
+	const navigate = useNavigate();
 	let user = "";
 	if (gender !== null) {
 		if (gender === "Male") {
@@ -73,6 +75,19 @@ const ProductManagement = () => {
 	} else {
 		user = username;
 	}
+
+	const interval = 15000;
+	useEffect(() => {
+		const checkAuth = () => {
+			if (!RoleId || RoleId === 1) {
+				navigate("/404");
+			}
+		};
+		checkAuth();
+		const intervalId = setInterval(checkAuth, interval);
+		return () => clearInterval(intervalId);
+		// eslint-disable-next-line
+	}, [RoleId]);
 
 	useEffect(() => {
 		fetchBranchData();
@@ -92,13 +107,13 @@ const ProductManagement = () => {
 			let apiURL = "";
 
 			if (activeTab === 0) {
-				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/alladmin?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/alladmin?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
 			} else if (activeTab === 1) {
-				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/active?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/active?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
 			} else if (activeTab === 2) {
-				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deactivated?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deactivated?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
 			} else {
-				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deleted?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deleted?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
 			}
 
 			if (selectedCategory) {
@@ -144,11 +159,12 @@ const ProductManagement = () => {
 		}
 	};
 	const currentBranchInfo = branches.find((branch) => branch.id === BranchId);
+	const currentBranchName = currentBranchInfo?.name;
 
 	const productCount = async () => {
 		try {
-			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`); 	//! asc33nzio 17SEPT23
-			setTotalProductsAll(all.data.totalProducts); 											//! commit signature: bimo cupaw
+			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`); //! asc33nzio 17SEPT23
+			setTotalProductsAll(all.data.totalProducts); //! commit signature: bimo cupaw
 			const active = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/active`); //! check for rollbacks
 			setTotalProductsActive(active.data.totalProducts);
 			const deactivated = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/deactivated`);
@@ -162,7 +178,7 @@ const ProductManagement = () => {
 
 	const handleActivation = async (PID) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/activation/${PID}`);
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/activation/${PID}`, { id: id }); //!CHECK ROLLBACK
 			toast.success(`${response.data.message}`, {
 				position: "top-right",
 				autoClose: 4000,
@@ -191,7 +207,7 @@ const ProductManagement = () => {
 
 	const handleDelete = async (PID) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/delete/${PID}`);
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/delete/${PID}`, { id: id }); //! CHECK ROLLBACK
 			toast.warn(`${response.data.message}`, {
 				position: "top-right",
 				autoClose: 4000,
@@ -394,7 +410,13 @@ const ProductManagement = () => {
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
 						{/* //! Sysadmin Re-Activation Button Goes Here */}
 						<CreateCategory isText={true}></CreateCategory>
-						<AddProduct categories={categories} reload={reload} setReload={setReload} />
+						<AddProduct
+							categories={categories}
+							reload={reload}
+							setReload={setReload}
+							BranchId={BranchId}
+							currentBranchName={currentBranchName}
+						/>
 					</Flex>
 				</Flex>
 				<Flex h={"25px"}>
@@ -420,7 +442,7 @@ const ProductManagement = () => {
 						alignSelf={"center"}
 						ml={"15px"}
 					>
-						You are currently managing AlphaMart products for the {currentBranchInfo?.name} branch
+						You are currently managing AlphaMart products for the {currentBranchName} branch
 					</Text>
 				</Flex>
 				<Box
@@ -658,7 +680,7 @@ const ProductManagement = () => {
 								<Radio
 									size="sm"
 									ml={"7px"}
-									isChecked={sortBy === "branchStock"} //! REMINDER TO UPDATE CONTROLLER.
+									isChecked={sortBy === "branchStock"} //! BIMO PROTECT
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("branchStock");
@@ -1113,13 +1135,13 @@ const ProductManagement = () => {
 										<Text fontSize={"12px"} mr={"3px"}>
 											BRANCH
 										</Text>
-										{/* //! NEEDS UPDATE FOR BRANCH STOCK */}
+										{/* //! BIMO PROTECT */}
 										<BiSort
 											size={18}
 											color="#3E3D40"
 											cursor="pointer"
 											onClick={() => {
-												setSortBy("aggregateStock");
+												setSortBy("branchStock");
 												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
 											}}
 										/>
@@ -1152,6 +1174,8 @@ const ProductManagement = () => {
 												setReload={setReload}
 												setCheckboxState={setCheckboxState}
 												initialCheckboxState={initialCheckboxState}
+												BranchId={BranchId}
+												currentBranchName={currentBranchName}
 											/>
 										);
 									})
@@ -1181,6 +1205,8 @@ const ProductManagement = () => {
 												setReload={setReload}
 												setCheckboxState={setCheckboxState}
 												initialCheckboxState={initialCheckboxState}
+												BranchId={BranchId}
+												currentBranchName={currentBranchName}
 											/>
 										);
 									})
@@ -1210,6 +1236,8 @@ const ProductManagement = () => {
 												setReload={setReload}
 												setCheckboxState={setCheckboxState}
 												initialCheckboxState={initialCheckboxState}
+												BranchId={BranchId}
+												currentBranchName={currentBranchName}
 											/>
 										);
 									})
@@ -1239,6 +1267,8 @@ const ProductManagement = () => {
 												setReload={setReload}
 												setCheckboxState={setCheckboxState}
 												initialCheckboxState={initialCheckboxState}
+												BranchId={BranchId}
+												currentBranchName={currentBranchName}
 											/>
 										);
 									})
@@ -1262,4 +1292,4 @@ const ProductManagement = () => {
 	);
 };
 
-export default ProductManagement;
+export default ProductManagement; //! BIMO PROTECTION COUNT: 9

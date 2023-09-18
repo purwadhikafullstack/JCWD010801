@@ -1,16 +1,19 @@
 const db = require("../models");
 const products = db.Products;
+const changelogs = db.Changelogs;
+const stocks = db.Stocks;
+const stockMovements = db.StockMovements;
 const categories = db.Categories;
 const users = db.Users;
 const role = db.Roles;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { Op } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
 module.exports = {
 	addProduct: async (req, res) => {
 		try {
-			const { productName, price, description, CategoryId, weight } = req.body;
+			const { productName, price, description, CategoryId, weight, stock, BranchId } = req.body;
 			const imgURL = req?.file?.filename;
 
 			if (!productName) {
@@ -68,6 +71,13 @@ module.exports = {
 				});
 			}
 
+			if (!stock) {
+				return res.status(400).send({
+					status: 400,
+					message: "Stock cannot be empty. Please input a minimum of 1 unit.",
+				});
+			}
+
 			if (isNaN(price)) {
 				return res.status(400).send({
 					status: 400,
@@ -89,6 +99,13 @@ module.exports = {
 				});
 			}
 
+			if (isNaN(stock)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Stock must be a numeric value.",
+				});
+			}
+
 			const newProduct = await products.create({
 				productName,
 				price,
@@ -96,7 +113,56 @@ module.exports = {
 				description,
 				CategoryId,
 				weight,
+				aggregateStock: stock,
 			});
+
+			const branchStock = await stocks.findOne({
+				where: {
+					productId: newProduct.id,
+					BranchId: BranchId,
+				},
+			});
+
+			const updatedCurrentStock = branchStock ? branchStock.currentStock + stock : stock;
+
+			if (branchStock) {
+				await stocks.update(
+					{
+						currentStock: updatedCurrentStock,
+					},
+					{
+						where: {
+							productId: newProduct.id,
+							BranchId: BranchId,
+						},
+					}
+				);
+
+				await stockMovements.create({
+					//!BIMO PROTECT
+					change: updatedCurrentStock,
+					isAddition: true,
+					isAdjustment: false,
+					isInitialization: true,
+					branchId: BranchId,
+					productId: newProduct.id,
+				});
+			} else {
+				await stocks.create({
+					currentStock: updatedCurrentStock,
+					productId: newProduct.id,
+					BranchId: BranchId,
+				});
+
+				await stockMovements.create({
+					change: updatedCurrentStock,
+					isAddition: true,
+					isAdjustment: false,
+					isInitialization: true,
+					branchId: BranchId,
+					productId: newProduct.id,
+				});
+			}
 
 			return res.status(201).send({
 				status: 201,
@@ -115,11 +181,25 @@ module.exports = {
 	updateProduct: async (req, res) => {
 		try {
 			const { PID } = req.params;
-			const { productName, price, description, weight, CategoryId } = req.body;
+			const { UserId, productName, price, description, weight, CategoryId, stock, BranchId } = req.body;
+
+			const joinCondition = {
+				model: stocks,
+				where: { BranchId: parseInt(BranchId) || 1 },
+				required: false,
+			};
 
 			const product = await products.findOne({
 				where: { id: PID },
+				include: [joinCondition],
 			});
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product not found.",
+				});
+			}
 
 			if (isNaN(price)) {
 				return res.status(400).send({
@@ -142,6 +222,13 @@ module.exports = {
 				});
 			}
 
+			if (isNaN(stock)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Stock must be a numeric value.",
+				});
+			}
+
 			const oldImgURL = product.imgURL;
 			const imgURL = req?.file?.filename || oldImgURL;
 			const oldProductName = product.productName;
@@ -149,6 +236,7 @@ module.exports = {
 			const oldDescription = product.description;
 			const oldWeight = product.weight;
 			const oldCategoryId = product.CategoryId;
+			const oldStock = product.Stocks[0].dataValues.currentStock; //! BIMO PROTECT
 
 			if (
 				productName == oldProductName &&
@@ -156,7 +244,8 @@ module.exports = {
 				description == oldDescription &&
 				weight == oldWeight &&
 				CategoryId == oldCategoryId &&
-				imgURL == oldImgURL
+				imgURL == oldImgURL &&
+				stock == oldStock
 			) {
 				return res.status(400).send({
 					status: 400,
@@ -164,11 +253,80 @@ module.exports = {
 				});
 			}
 
+			const changes = {};
+
+			if (productName !== oldProductName) {
+				changes.productName = {
+					oldValue: oldProductName,
+					newValue: productName,
+				};
+			}
+
+			if (parseInt(price) !== parseInt(oldPrice)) {
+				changes.price = {
+					oldValue: oldPrice,
+					newValue: price,
+				};
+			}
+
+			if (description !== oldDescription) {
+				changes.description = {
+					oldValue: oldDescription,
+					newValue: description,
+				};
+			}
+
+			if (parseInt(weight) !== parseInt(oldWeight)) {
+				changes.weight = {
+					oldValue: oldWeight,
+					newValue: weight,
+				};
+			}
+
+			if (parseInt(CategoryId) !== parseInt(oldCategoryId)) {
+				changes.CategoryId = {
+					oldValue: oldCategoryId,
+					newValue: CategoryId,
+				};
+			}
+
+			if (imgURL !== oldImgURL) {
+				changes.imgURL = {
+					oldValue: oldImgURL,
+					newValue: imgURL,
+				};
+			}
+
+			//! ADD ENTRY IN STOCK TABLE
+			if (stock !== oldStock) {
+				const stockDelta = oldStock - stock;
+				if ('deltapositive conditional') {
+					
+				} else {
+					
+				}
+			} else {
+
+			}
+
 			if (oldImgURL !== imgURL) {
 				await products.update(
 					{ productName, price, description, weight, CategoryId, imgURL: imgURL },
 					{ where: { id: PID } }
 				);
+
+				for (const field in changes) {
+					await changelogs.create({
+						field,
+						oldValue: changes[field].oldValue,
+						newValue: changes[field].newValue,
+						UserId: UserId,
+						ProductId: PID,
+					});
+				}
+
+				//! ADD ENTRY IN STOCKMOVEMENTS
+
 				res.status(200).send({
 					status: 200,
 					message: `${oldProductName}'s picture updated successfully.`,
@@ -178,12 +336,24 @@ module.exports = {
 					{ productName, price, description, weight, CategoryId, imgURL: oldImgURL },
 					{ where: { id: PID } }
 				);
+
+				for (const field in changes) {
+					await changelogs.create({
+						field,
+						oldValue: changes[field].oldValue,
+						newValue: changes[field].newValue,
+						UserId: UserId,
+						ProductId: PID,
+					});
+				}
+
 				res.status(200).send({
 					status: 200,
 					message: `${oldProductName} updated successfully.`,
 				});
 			}
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -193,6 +363,7 @@ module.exports = {
 	activateDeactivate: async (req, res) => {
 		try {
 			const { PID } = req.params;
+			const { id } = req.body;
 			const product = await products.findOne({ where: { id: PID } });
 
 			if (!product) {
@@ -211,12 +382,30 @@ module.exports = {
 
 			if (product.isActive) {
 				await products.update({ isActive: 0 }, { where: { id: PID } });
+
+				await changelogs.create({
+					field: "deactivation",
+					oldValue: "active",
+					newValue: "deactivated",
+					UserId: id,
+					ProductId: PID,
+				});
+
 				res.status(200).send({
 					status: 200,
 					message: `Success: ${product.productName} has been deactivated successfully.`,
 				});
 			} else {
 				await products.update({ isActive: 1 }, { where: { id: PID } });
+
+				await changelogs.create({
+					field: "activation",
+					oldValue: "deactivated",
+					newValue: "active",
+					UserId: id,
+					ProductId: PID,
+				});
+
 				res.status(200).send({
 					status: 200,
 					message: `Success: ${product.productName} has been activated successfully.`,
@@ -232,6 +421,7 @@ module.exports = {
 	hardDelete: async (req, res) => {
 		try {
 			const { PID } = req.params;
+			const { id } = req.body;
 			const product = await products.findOne({ where: { id: PID } });
 
 			if (!product) {
@@ -248,6 +438,15 @@ module.exports = {
 				});
 			} else {
 				await products.update({ isActive: 0, isDeleted: 1 }, { where: { id: PID } });
+
+				await changelogs.create({
+					field: "deletion",
+					oldValue: "not_deleted",
+					newValue: "deleted",
+					UserId: id,
+					ProductId: PID,
+				});
+
 				res.status(200).send({
 					status: 200,
 					message: `Success: ${product.productName} has been permanently deleted.`,
@@ -263,10 +462,19 @@ module.exports = {
 	getProduct: async (req, res) => {
 		try {
 			const { id } = req.params;
+			const { BranchId } = req.query;
+
+			const joinCondition = {
+				model: stocks,
+				where: { BranchId: parseInt(BranchId) || 1 },
+				required: false,
+			};
+
 			const result = await products.findOne({
 				where: {
 					id: id,
 				},
+				include: [joinCondition],
 			});
 
 			if (!id) {
@@ -382,7 +590,7 @@ module.exports = {
 	},
 	getAllProductsAdmin: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -398,6 +606,13 @@ module.exports = {
 			});
 
 			let orderCriteria = [];
+
+			const joinCondition = {
+				model: stocks,
+				where: { BranchId: BranchId },
+				required: false,
+			};
+
 			if (sortBy === "productName") {
 				orderCriteria.push(["productName", sortOrder]);
 			} else if (sortBy === "price") {
@@ -410,6 +625,11 @@ module.exports = {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "aggregateStock") {
 				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else if (sortBy === "branchStock") {
+				orderCriteria.push([
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					sortOrder,
+				]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
@@ -419,6 +639,7 @@ module.exports = {
 				order: orderCriteria,
 				limit: itemLimit,
 				offset: itemLimit * (page - 1),
+				include: [joinCondition],
 			});
 
 			const totalPages = Math.ceil(queriedCount / itemLimit);
@@ -431,6 +652,7 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -439,7 +661,7 @@ module.exports = {
 	},
 	getActiveProducts: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -457,6 +679,13 @@ module.exports = {
 			});
 
 			let orderCriteria = [];
+
+			const joinCondition = {
+				model: stocks,
+				where: { BranchId: BranchId },
+				required: false,
+			};
+
 			if (sortBy === "productName") {
 				orderCriteria.push(["productName", sortOrder]);
 			} else if (sortBy === "price") {
@@ -469,6 +698,11 @@ module.exports = {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "aggregateStock") {
 				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else if (sortBy === "branchStock") {
+				orderCriteria.push([
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					sortOrder,
+				]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
@@ -478,6 +712,7 @@ module.exports = {
 				order: orderCriteria,
 				limit: itemLimit,
 				offset: itemLimit * (page - 1),
+				include: [joinCondition],
 			});
 
 			const totalPages = Math.ceil(queriedCount / itemLimit);
@@ -498,7 +733,7 @@ module.exports = {
 	},
 	getDeactivatedProducts: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -516,6 +751,13 @@ module.exports = {
 			});
 
 			let orderCriteria = [];
+
+			const joinCondition = {
+				model: stocks,
+				where: { BranchId: BranchId },
+				required: false,
+			};
+
 			if (sortBy === "productName") {
 				orderCriteria.push(["productName", sortOrder]);
 			} else if (sortBy === "price") {
@@ -528,6 +770,11 @@ module.exports = {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "aggregateStock") {
 				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else if (sortBy === "branchStock") {
+				orderCriteria.push([
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					sortOrder,
+				]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
@@ -537,6 +784,7 @@ module.exports = {
 				order: orderCriteria,
 				limit: itemLimit,
 				offset: itemLimit * (page - 1),
+				include: [joinCondition],
 			});
 
 			const totalPages = Math.ceil(queriedCount / itemLimit);
@@ -557,7 +805,7 @@ module.exports = {
 	},
 	getDeletedProducts: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -575,6 +823,13 @@ module.exports = {
 			});
 
 			let orderCriteria = [];
+
+			const joinCondition = {
+				model: stocks,
+				where: { BranchId: BranchId },
+				required: false,
+			};
+
 			if (sortBy === "productName") {
 				orderCriteria.push(["productName", sortOrder]);
 			} else if (sortBy === "price") {
@@ -587,6 +842,11 @@ module.exports = {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "aggregateStock") {
 				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else if (sortBy === "branchStock") {
+				orderCriteria.push([
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					sortOrder,
+				]);
 			} else {
 				orderCriteria.push(["productName", "ASC"]);
 			}
@@ -596,6 +856,7 @@ module.exports = {
 				order: orderCriteria,
 				limit: itemLimit,
 				offset: itemLimit * (page - 1),
+				include: [joinCondition],
 			});
 
 			const totalPages = Math.ceil(queriedCount / itemLimit);
@@ -658,6 +919,7 @@ module.exports = {
 	bulkActivate: async (req, res) => {
 		try {
 			const { PIDs } = req.body;
+			const { id } = req.body;
 
 			if (!Array.isArray(PIDs) || PIDs.length === 0) {
 				return res.status(400).send({
@@ -684,6 +946,16 @@ module.exports = {
 				});
 			}
 
+			for (const PID of PIDs) {
+				await changelogs.create({
+					field: "bulk_activation",
+					oldValue: "deactivated",
+					newValue: "active",
+					UserId: id,
+					ProductId: PID,
+				});
+			}
+
 			return res.status(200).send({
 				status: 200,
 				message: "Products activated successfully.",
@@ -699,6 +971,7 @@ module.exports = {
 	bulkDeactivate: async (req, res) => {
 		try {
 			const { PIDs } = req.body;
+			const { id } = req.body;
 
 			if (!Array.isArray(PIDs) || PIDs.length === 0) {
 				return res.status(400).send({
@@ -741,6 +1014,16 @@ module.exports = {
 				});
 			}
 
+			for (const PID of PIDs) {
+				await changelogs.create({
+					field: "bulk_deactivation",
+					oldValue: "active",
+					newValue: "deactivated",
+					UserId: id,
+					ProductId: PID,
+				});
+			}
+
 			return res.status(200).send({
 				status: 200,
 				message: "Products deactivated successfully.",
@@ -756,6 +1039,7 @@ module.exports = {
 	bulkDelete: async (req, res) => {
 		try {
 			const { PIDs } = req.body;
+			const { id } = req.body;
 
 			if (!Array.isArray(PIDs) || PIDs.length === 0) {
 				return res.status(400).send({
@@ -785,6 +1069,16 @@ module.exports = {
 				});
 			}
 
+			for (const PID of PIDs) {
+				await changelogs.create({
+					field: "bulk_deletion",
+					oldValue: "not_deleted",
+					newValue: "deleted",
+					UserId: id,
+					ProductId: PID,
+				});
+			}
+
 			return res.status(200).send({
 				status: 200,
 				message: "Products permanently deleted successfully.",
@@ -797,4 +1091,56 @@ module.exports = {
 			});
 		}
 	},
+	getBranchStock: async (req, res) => {
+		try {
+			const { id } = req.params;
+			const { BranchId } = req.query;
+			const result = await stocks.findOne({
+				where: {
+					productId: id,
+					BranchId: BranchId,
+				},
+			});
+
+			const product = await stocks.findOne({
+				where: {
+					productId: id,
+				},
+			});
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "This product doesn't exist.",
+				});
+			}
+
+			if (!id) {
+				return res.status(400).send({
+					status: 400,
+					message: "Please input a valid product ID.",
+				});
+			}
+
+			if (!BranchId) {
+				return res.status(404).send({
+					status: 404,
+					message: "Please input a valid Branch ID.",
+				});
+			}
+
+			res.status(200).send({
+				status: 200,
+				PID: result?.productId || product.productId,
+				BranchId: result?.BranchId || parseInt(BranchId),
+				currentStock: result?.currentStock || 0,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	}, //!BIMO PROTECT
 };

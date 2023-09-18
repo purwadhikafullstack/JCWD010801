@@ -13,9 +13,6 @@ module.exports = (sequelize, DataTypes) => {
 				through: models.Stocks,
 				foreignKey: "productId",
 			});
-			Products.hasMany(models.Stocks, {
-				foreignKey: "productId"
-			});
 			Products.belongsToMany(models.Branches, {
 				through: models.StockMovements,
 				foreignKey: "productId",
@@ -23,10 +20,6 @@ module.exports = (sequelize, DataTypes) => {
 			Products.hasMany(models.Stocks, {
 				foreignKey: "productId",
 			});
-			// Products.hasMany(models.CartItems);
-			// Products.hasMany(models.Sales, {
-			//   foreignKey: 'productId'
-			// });
 		}
 	}
 	Products.init(

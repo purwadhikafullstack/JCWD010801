@@ -4,20 +4,20 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
 	class Changelogs extends Model {
 		static associate(models) {
-            //admin id
-            //products.
+			Changelogs.belongsTo(models.Users);
+			Changelogs.belongsTo(models.Products);
 		}
 	}
 	Changelogs.init(
 		{
 			field: {
-				type: DataTypes.STRING
+				type: DataTypes.STRING,
 			},
 			oldValue: {
-				type: DataTypes.STRING
+				type: DataTypes.STRING,
 			},
 			newValue: {
-				type: DataTypes.STRING
+				type: DataTypes.STRING,
 			},
 		},
 		{
