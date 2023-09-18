@@ -103,7 +103,7 @@ module.exports = {
 
             const cart_items = await cartItems.findAll(filter);
             const total = await cartItems.count(filter);
-            const subtotal = await cartItems.findAll({ 
+            await cartItems.findAll({ 
                 where: { CartId: result.id },
                 include: [
                     {

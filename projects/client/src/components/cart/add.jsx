@@ -23,7 +23,7 @@ import { refreshCart } from "../../redux/cartSlice";
 
 export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml = 0 }) => {
 	const token = localStorage.getItem("token");
-	const BranchId = localStorage.getItem("branchId");
+	const BranchId = localStorage.getItem("BranchId");
 	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
