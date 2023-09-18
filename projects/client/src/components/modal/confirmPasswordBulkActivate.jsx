@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { ImEye, ImEyeBlocked } from "react-icons/im";
 import { ButtonTemp } from "../button";
 
-export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
+export const ConfirmPasswordBulkActivate = ({ handleBulkActivate }) => {
 	const { id } = useSelector((state) => state?.user?.value);
 	const [inputPassword, setInputPassword] = useState("");
 	const [validationError, setValidationError] = useState("");
@@ -37,7 +37,7 @@ export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
 			});
 
 			if (response.status === 200) {
-				handleBulkDeactivate();
+				handleBulkActivate();
 			}
 		} catch (error) {
 			setValidationError(error.response.data.message);
@@ -107,7 +107,7 @@ export const ConfirmPasswordBulkDeactivate = ({ handleBulkDeactivate }) => {
 					</ModalBody>
 					<ModalFooter gap={1}>
 						<Button onClick={onClose}>Cancel</Button>
-						<Button onClick={handleSubmit} colorScheme="red" isDisabled={!!validationError} ml={"5px"}>
+						<Button onClick={handleSubmit} colorScheme="green" isDisabled={!!validationError} ml={"5px"}>
 							Confirm
 						</Button>
 					</ModalFooter>

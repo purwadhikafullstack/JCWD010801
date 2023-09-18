@@ -1,8 +1,11 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
+import styled from "@emotion/styled";
 import React, { useState } from "react";
 import { Flex, Checkbox, Image, Text, Switch } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { TiDelete } from "react-icons/ti";
+import { toast } from "react-toastify";
 import { ConfirmPassword } from "../../components/modal/confirmPassword";
 import { EditProduct } from "../../components/modal/editProduct";
 
@@ -49,9 +52,36 @@ export const ProductTabPanel = ({
 		}
 	};
 
+	const handleClick = () => {
+		if (data.isDeleted) {
+			toast.error("This product has already been permanently deleted.", {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		} else {
+			openPasswordModal();
+		}
+	};
+
 	const gradientBackground = {
 		background: `linear-gradient(to right, rgba(128, 8, 8, 0.5), white)`,
 	};
+
+	const DeleteButton = styled(TiDelete)`
+		font-size: 28px;
+		cursor: ${() => (data.isDeleted ? "not-allowed" : "pointer")};
+		color: ${() => (data.isDeleted ? "#B90E0A" : "#B90E0A")};
+		&:hover {
+			color: ${() => (data.isDeleted ? "#B90E0A" : "red")};
+			filter: ${() => (data.isDeleted ? "blur(1px)" : "none")};
+		}
+	`;
 
 	return (
 		<Flex
@@ -83,6 +113,7 @@ export const ProductTabPanel = ({
 					onClick={() => navigate(`/product/${data.id}`)}
 					boxSize="75px"
 					objectFit="cover"
+					borderRadius={"5px"}
 				/>
 			</Flex>
 			<Flex
@@ -214,16 +245,7 @@ export const ProductTabPanel = ({
 					reload={reload}
 					setReload={setReload}
 				/>
-				<TiDelete
-					size={40}
-					cursor={data.isDeleted ? "not-allowed" : "pointer"}
-					color={data.isDeleted ? "rgba(3, 3, 3, 0.8)" : "#B90E0A"}
-					onClick={() => {
-						if (!data.isDeleted) {
-							openPasswordModal();
-						}
-					}}
-				/>
+				<DeleteButton size={40} onClick={handleClick} />
 				<ConfirmPassword
 					isOpen={isPasswordModalOpen}
 					onClose={closePasswordModal}

@@ -11,7 +11,7 @@ module.exports = {
 	addProduct: async (req, res) => {
 		try {
 			const { productName, price, description, CategoryId, weight } = req.body;
-			const imgURL = req.file.filename;
+			const imgURL = req?.file?.filename;
 
 			if (!productName) {
 				return res.status(400).send({
@@ -27,7 +27,7 @@ module.exports = {
 					},
 				})
 			) {
-				res.status(400).send({
+				return res.status(400).send({
 					status: 400,
 					message: "Product name already exists. Did you mean to update product?",
 				});
@@ -68,6 +68,27 @@ module.exports = {
 				});
 			}
 
+			if (isNaN(price)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Price must be a numeric value.",
+				});
+			}
+
+			if (isNaN(weight)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Weight must be a numeric value.",
+				});
+			}
+
+			if (isNaN(CategoryId)) {
+				return res.status(400).send({
+					status: 400,
+					message: "You must select a category.",
+				});
+			}
+
 			const newProduct = await products.create({
 				productName,
 				price,
@@ -83,6 +104,7 @@ module.exports = {
 				product: newProduct,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -98,6 +120,28 @@ module.exports = {
 			const product = await products.findOne({
 				where: { id: PID },
 			});
+
+			if (isNaN(price)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Price must be a numeric value.",
+				});
+			}
+
+			if (isNaN(weight)) {
+				return res.status(400).send({
+					status: 400,
+					message: "Weight must be a numeric value.",
+				});
+			}
+
+			if (isNaN(CategoryId)) {
+				return res.status(400).send({
+					status: 400,
+					message: "You must select a category.",
+				});
+			}
+
 			const oldImgURL = product.imgURL;
 			const imgURL = req?.file?.filename || oldImgURL;
 			const oldProductName = product.productName;
@@ -611,6 +655,47 @@ module.exports = {
 			});
 		}
 	},
+	bulkActivate: async (req, res) => {
+		try {
+			const { PIDs } = req.body;
+
+			if (!Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{ isActive: true },
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products activated successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
 	bulkDeactivate: async (req, res) => {
 		try {
 			const { PIDs } = req.body;
@@ -659,6 +744,50 @@ module.exports = {
 			return res.status(200).send({
 				status: 200,
 				message: "Products deactivated successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	bulkDelete: async (req, res) => {
+		try {
+			const { PIDs } = req.body;
+
+			if (!Array.isArray(PIDs) || PIDs.length === 0) {
+				return res.status(400).send({
+					status: 400,
+					message: "Invalid request body.",
+				});
+			}
+
+			const updatedProducts = await products.update(
+				{
+					isActive: false,
+					isDeleted: true,
+				},
+				{
+					where: {
+						id: {
+							[Op.in]: PIDs,
+						},
+					},
+				}
+			);
+
+			if (updatedProducts[0] === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "No products found with the provided PIDs.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Products permanently deleted successfully.",
 			});
 		} catch (error) {
 			return res.status(500).send({
