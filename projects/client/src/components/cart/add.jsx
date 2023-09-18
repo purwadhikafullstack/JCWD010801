@@ -64,7 +64,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 					progress: undefined,
 					theme: "dark",
 				});
-			else if (err.response.data.status == 403) {
+			else if (+err.response.data.status === 403) {
 				toast.error(err.response.data.message, {
 					position: "top-center",
 					autoClose: 3000,

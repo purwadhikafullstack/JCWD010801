@@ -38,6 +38,8 @@ import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -50,6 +52,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const avatar = reduxStore?.value?.avatar;
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
+	const roleId = reduxStore?.value?.RoleId;
 
 	const { refresh } = useSelector((state) => state.cart.value);
 
@@ -71,18 +74,18 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		}
 	};
 
-	const fetchCart = async () => {
+	const fetchCart = async() => {
 		try {
-			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
-				headers: {
-					authorization: `Bearer ${token}`,
-				},
-			});
-			setTotalCartItems(data.total);
+			const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
+			setTotalCartItems( data.total );
 		} catch (err) {
-			console.log(err);
+			
 		}
-	};
+	}
 
 	const handleSearchFocus = () => {
 		setSearchFocused(true);
@@ -105,12 +108,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	}, [reload, search]);
 
 	useEffect(() => {
-		fetchCart();
-	}, [refresh]);
+		fetchCart()
+	}, [ refresh ])
 
 	const logout = () => {
 		localStorage.removeItem("token");
-		toast.error("You have successfully logged out.", {
+		toast.success("You have successfully logged out.", {
 			position: "top-right",
 			autoClose: 4000,
 			hideProgressBar: false,
@@ -334,28 +337,33 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									</Stack>
 								)}
 							</div>
-							<Button bgColor={"white"} rounded={"full"} cursor={"pointer"}>
-								<Icon
-									as={BsCart}
-									w="5"
-									h="5"
-									color={"black"}
-									pos="relative"
-									_after={{
-										content: '"',
-										w: 4,
-										h: 4,
-										bg: "red",
-										border: "2px solid white",
-										rounded: "full",
-										pos: "absolute",
-										top: 0,
-										right: 3,
-									}}
+							<Button isDisabled={+roleId === 1 ? false : true} bgColor={"white"} rounded={"full"} cursor={"pointer"} onClick={() => navigate("/cart")}>
+								<Icon 
+								as={BsCart} 
+								w="5" 
+								h="5" 
+								color={"black"} 
+								pos='relative'
 								/>
+								{totalCartItems > 0 && (
+								<Flex
+								w={5}
+								h={5}
+								bg={'blackAlpha.700'}
+								border={'2px solid white'}
+								rounded={'full'}
+								justifyContent={'center'}
+								alignItems={'center'}
+								pos={'absolute'}
+								top={1}
+								right={1}>
+									<Text fontSize={'10px'} color={'white'} textAlign={'center'}>
+										{totalCartItems}
+									</Text>
+								</Flex>)}
 							</Button>
 							<Menu alignSelf={"center"}>
-								<Button as={MenuButton} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>
+								<Button as={MenuButton} p={0}  bgColor={'white'} pt={1} borderRadius={'full'} cursor={"pointer"}>
 									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
 								</Button>
 								{token ? (
