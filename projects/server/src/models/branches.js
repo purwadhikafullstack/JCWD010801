@@ -28,14 +28,18 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
 				allowNull: true,
 			},
-			longitude: {
-				type: DataTypes.STRING,
+			lng: {
+				type: DataTypes.FLOAT,
 				allowNull: true,
 			},
-			latitude: {
-				type: DataTypes.STRING,
+			lat: {
+				type: DataTypes.FLOAT,
 				allowNull: true,
 			},
+			city_id: DataTypes.STRING,
+			city: DataTypes.STRING,
+			province_id: DataTypes.STRING,
+			province: DataTypes.STRING,
 		},
 		{
 			sequelize,

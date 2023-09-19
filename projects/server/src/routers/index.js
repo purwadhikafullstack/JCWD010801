@@ -13,5 +13,5 @@ module.exports = {
 	categoryRouters,
 	addressRouters,
 	cartRouters,
-	orderRouters
+	orderRouters,
 };

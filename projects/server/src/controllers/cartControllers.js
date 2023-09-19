@@ -38,7 +38,6 @@ module.exports = {
 				},
 			});
 
-			// Update product quantity in cart
 			if (cart_item)
 				await cartItems.update(
 					{ quantity: cart_item.quantity + quantity },
@@ -119,6 +118,7 @@ module.exports = {
 						`subtotal`,
 					],
 				],
+                group: ['Cart_items.id'],
 			});
 
 			res.status(200).send({
