@@ -21,15 +21,52 @@ import {
 	useMediaQuery,
 } from "@chakra-ui/react";
 import Axios from "axios";
+import { useSelector } from "react-redux";
 
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+	const [address, setAddress] = useState([]);
+	const [branch, setBranch] = useState([]);
+	const [totalPage, setTotalPage] = useState(1);
+	const [search, setSearch] = useState("");
+	const [page, setPage] = useState(1);
 	const [selectedShippingMethod, setSelectedShippingMethod] = useState("");
 	const [selectedShippingCourier, setSelectedShippingCourier] = useState("");
 	const [dataOngkir, setDataOngkir] = useState({});
-    const [cost, setCost] = useState({})
-    const [costOngkir, setCostOngkir] = useState("")
-    const [order , setOrder] = useState({shippingMethod:"", })
+	const [cost, setCost] = useState({});
+	const reduxStore = useSelector((state) => state?.user);
+	const firstName = reduxStore?.value?.firstName;
+	const lastName = reduxStore?.value?.lastName;
+	const phone = reduxStore?.value?.phone;
+	const token = localStorage.getItem("token");
+	const getAddress = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				params: {
+					search,
+					page,
+					sort: "asc",
+				},
+			});
+			setAddress(response.data.result);
+			setTotalPage(response.data.totalPage);
+		} catch (error) {}
+	};
+	const getBranch = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches/`);
+			console.log(response);
+			setBranch(response.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	console.log(address);
+	console.log(branch);
+	console.log("method", selectedShippingMethod);
 	const [items, setItems] = useState([
 		{
 			id: 1,
@@ -79,11 +116,12 @@ function Order() {
 	const getOngkir = async (courier) => {
 		try {
 			const data = {
-				courier: courier, // Include the selected shipping method
-				// Other data you want to send
+				courier: courier,
+				destination: address[0]?.city_id,
+				weight: 1000,
+				origin: branch[0]?.city_id,
 			};
-
-			const response = await Axios.post("http://localhost:8000/user/ongkir", data);
+			const response = await Axios.post("http://localhost:8000/api/order/shipment", data);
 			console.log(response);
 			setDataOngkir(response.data.data);
 		} catch (error) {
@@ -101,12 +139,18 @@ function Order() {
 		return formatter.format(value);
 	};
 
-    console.log("cost: " , cost);
+	console.log("cost: ", cost);
 
 	const calculateTotal = () => {
 		return items.reduce((total, item) => total + item.price * item.quantity, 0);
 	};
-
+	useEffect(() => {
+		getAddress();
+		getBranch();
+		if (page > totalPage) {
+			setPage(totalPage);
+		}
+	}, [search, page, totalPage]);
 	const [isSmallerThan768] = useMediaQuery("(max-width: 768px)");
 	return (
 		<Container maxW="container.lg" py={8}>
@@ -117,15 +161,17 @@ function Order() {
 				<Box flex={"60%"}>
 					<VStack spacing={4} align="start">
 						<Text fontSize="xl">Shipping Information</Text>
-						<Input placeholder="Name" />
-						<Input placeholder="Address" />
-						<Select placeholder="City">
-							<option>Jakarta</option>
-							<option>Surabaya</option>
-							<option>Bandung</option>
-						</Select>
+						<Box  w={"full"} borderRadius={8} pl={"4"}>
+							<Text fontWeight={"bold"} >
+								{firstName} {lastName}
+							</Text>
+							<Text>{phone}</Text>
+							<Text lineHeight={4} color={"gray"}>{address[0]?.address}</Text>
+							<Text lineHeight={4} color={"gray"}>{address[0]?.city}, {address[0]?.province}, {address[0]?.postal_code}</Text>
+							
+						</Box>
 					</VStack>
-					<Box mt={isSmallerThan768 ? 8 : 0}>
+					<Box mt={isSmallerThan768 ? 8 : 4}>
 						<Text fontSize="xl" mb={4}>
 							Payment Information
 						</Text>
@@ -135,12 +181,14 @@ function Order() {
 								value={selectedPaymentMethod}
 								onChange={(e) => setSelectedPaymentMethod(e.target.value)}
 							>
-								<option value="credit-card">Credit Card</option>
 								<option value="bank-transfer">Bank Transfer</option>
-								<option value="e-wallet">E-Wallet</option>
+								<option value="credit-card" disabled={true}>
+									Credit Card
+								</option>
+								<option value="e-wallet" disabled={true}>
+									E-Wallet
+								</option>
 							</Select>
-							{selectedPaymentMethod === "credit-card" && <Input placeholder="Card Number" />}
-							{selectedPaymentMethod === "credit-card" && <Input type="date" />}
 						</VStack>
 					</Box>
 					<Box mt={8}>
@@ -172,7 +220,7 @@ function Order() {
 						))}
 					</Box>
 				</Box>
-				<Box boxShadow={"lg"} p={4} borderRadius={8} h={"max-content"} flex={"40%"} position={"sticky"} top={4}>
+				<Box boxShadow={"lg"} p={4} borderRadius={8} h={"max-content"} flex={"40%"} position={"sticky"} top={24}>
 					<Text fontSize="xl" mb={4}>
 						Shipping Method
 					</Text>
@@ -182,6 +230,7 @@ function Order() {
 						onChange={(e) => {
 							setSelectedShippingCourier(e.target.value);
 							getOngkir(e.target.value);
+							setSelectedShippingMethod("")
 						}}
 					>
 						<option value="jne">JNE</option>
@@ -195,8 +244,8 @@ function Order() {
 							value={selectedShippingMethod}
 							onChange={(e) => {
 								setSelectedShippingMethod(e.target.value);
-                                const objGetCost = dataOngkir?.costs?.find(item => item.service === e.target.value);
-                                setCost(objGetCost)
+								const objGetCost = dataOngkir?.costs?.find((item) => item.service === e.target.value);
+								setCost(objGetCost);
 							}}
 						>
 							{dataOngkir?.costs?.map((item, index) => (
@@ -206,13 +255,19 @@ function Order() {
 							))}
 						</Select>
 					) : null}
-                    {selectedShippingMethod ? (
-                        <Box>
-                            <Text>{cost.cost[0].value}</Text>
-                            <Text>{cost.cost[0].etd}</Text>
-                        </Box>
-                    )
-                        : null}
+					{selectedShippingMethod && selectedShippingCourier ? (
+						<Box mt={6}>
+							<Flex justify={"space-between"}>
+							<Text fontWeight={"bold"}>Shipment fee</Text>
+							<Text>{formatToRupiah(cost.cost[0].value)}</Text>
+							</Flex>
+							<Flex justify={"space-between"}>
+							<Text fontWeight={"bold"}>Estimated shipping</Text>
+							<Text>{cost.cost[0].etd}</Text>
+							</Flex>
+							
+						</Box>
+					) : null}
 					<Box mt={8}>
 						<Text fontSize="2xl" flexGrow={1}>
 							Total: {formatToRupiah(calculateTotal())}
