@@ -109,7 +109,7 @@ export const SuperAdminDashboardButton = () => {
 				<Flex mt={"15px"} justifyContent={"center"}>
 					<Box
 						as={Link}
-						to={"/dashboard/adminslist"}
+						to={"/dashboard/admins-list"}
 						w={"28%"}
 						h={"250px"}
 						borderRadius={"10px"}
