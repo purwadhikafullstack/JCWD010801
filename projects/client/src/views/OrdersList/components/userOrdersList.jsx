@@ -1,9 +1,8 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
 import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
-import { AiOutlineShopping } from "react-icons/ai";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight  } from "react-icons/ai";
+import { MenuOrder } from "./menu";
 
 export const UserOrdersList = () => {
 	const [list, setList] = useState();

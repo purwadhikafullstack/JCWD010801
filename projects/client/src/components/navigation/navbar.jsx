@@ -73,7 +73,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const fetchCart = async() => {
 		try {
-			const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
+			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
                 headers: {
                     authorization: `Bearer ${token}`
                 }
