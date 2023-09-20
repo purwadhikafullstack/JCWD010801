@@ -52,8 +52,11 @@ module.exports = {
 			const limit = +req.query.limit || 8;
 			const search = req.query.search;
 			const branchId = req.query.branchId;
+			const sortField = req.query.sortField || "firstName"; // Default sorting field
+			const sortOrder = req.query.sortOrder || "ASC"; // Default sorting order
 			const offset = (page - 1) * limit;
 			const condition = { isDeleted: false, RoleId: 2 };
+			const order = [[sortField, sortOrder]];
 			if (search) {
 				condition[Op.or] = [
 					{
@@ -73,16 +76,21 @@ module.exports = {
 					},
 				];
 			}
+
 			if (branchId) condition["BranchId"] = branchId;
+
 			const result = await users.findAll({
 				where: condition,
 				include: [{ model: branches }, { model: role }],
 				limit,
 				offset,
+				order,
 			});
+
 			const countAdmins = await users.count({
 				where: condition,
 			});
+
 			res.status(200).send({
 				totalPage: Math.ceil(countAdmins / limit),
 				currentPage: page,
@@ -96,6 +104,7 @@ module.exports = {
 			});
 		}
 	},
+
 	getAdmin: async (req, res) => {
 		try {
 			const result = await branches.findAll({

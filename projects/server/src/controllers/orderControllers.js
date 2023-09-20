@@ -60,9 +60,11 @@ module.exports = {
 			const limit = +req.query.limit || 4;
 			const search = req.query.search;
 			const date = req.query.date;
-			const offset = (page - 1) * limit;
+			const status = req.query.status;
 			const sort = req.query.sort || "DESC";
+			const offset = (page - 1) * limit;
 			const condition = {};
+			const whereCondition = {};
 			if (search) {
 				condition[Op.or] = [
 					{
@@ -72,7 +74,9 @@ module.exports = {
 					},
 				];
 			}
-			const whereCondition = {};
+			if (status) {
+				whereCondition.status = status;
+			}
 			if (date) {
 				const startDate = new Date(date);
 				startDate.setUTCHours(0, 0, 0, 0);
@@ -110,6 +114,7 @@ module.exports = {
 				currentPage: page,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -123,9 +128,13 @@ module.exports = {
 			const limit = +req.query.limit || 4;
 			const search = req.query.search;
 			const date = req.query.date;
-			const offset = (page - 1) * limit;
+			const branchId = req.query.branchId;
+			const status = req.query.status;
 			const sort = req.query.sort || "DESC";
+			const offset = (page - 1) * limit;
 			const condition = {};
+			const whereCondition = {};
+			const branchCondition = {};
 			if (search) {
 				condition[Op.or] = [
 					{
@@ -135,7 +144,9 @@ module.exports = {
 					},
 				];
 			}
-			const whereCondition = {};
+			if (status) {
+				whereCondition.status = status;
+			}
 			if (date) {
 				const startDate = new Date(date);
 				startDate.setUTCHours(0, 0, 0, 0);
@@ -145,6 +156,7 @@ module.exports = {
 					[Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }],
 				};
 			}
+			if (branchId) branchCondition["BranchId"] = branchId;
 			const result = await order_details.findAll({
 				include: [
 					{
@@ -157,6 +169,7 @@ module.exports = {
 										model: branches,
 									},
 								],
+								where: branchCondition
 							},
 						],
 						where: whereCondition,
