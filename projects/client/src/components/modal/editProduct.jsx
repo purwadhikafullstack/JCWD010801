@@ -325,13 +325,6 @@ export const EditProduct = ({
 														placeholder="Enter the updated stock here."
 														focusBorderColor="gray.300"
 													/>
-													<Button
-														onClick={() => {
-															document.getElementById("image").click();
-														}}
-													>
-														Change Image
-													</Button>
 													<ErrorMessage
 														component="box"
 														name="stock"
