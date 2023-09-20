@@ -1,5 +1,5 @@
 import "react-toastify/dist/ReactToastify.css";
-import Axios from "axios"; //!ROLLBACK PROTECTION
+import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 import {
@@ -106,7 +106,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	useEffect(() => {
 		fetchCart();
-		// Ini dibenerin raf useEffectnya, nge fetch seperlunya aja nih trigger nya diperbaiki
+		//! Ini dibenerin raf useEffectnya, nge fetch seperlunya aja nih trigger nya diperbaiki
 		// eslint-disable-next-line
 	}, [refresh]);
 
@@ -135,7 +135,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const searchQuery = (query) => {
 		navigate(`/search?q=${query}&sort=productName&order=ASC&cat=&p=1`);
 		setProducts([]);
-		setSearch(""); //!ROLLBACK PROTECTION 20SEPT23
+		setSearch("");
 	};
 
 	return (
@@ -174,7 +174,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
 								<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
 								<Stack gap={0}>
-									<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver to</Text>
+									<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
 									<Text
 										onClick={() => navigate("/")}
 										cursor={"pointer"}
@@ -235,7 +235,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															fontWeight: 500,
 														}}
 														onClick={() => {
-															localStorage.setItem("BranchId", 1);
+															localStorage.setItem("BranchId", index + 1);
 														}}
 													>
 														{item}

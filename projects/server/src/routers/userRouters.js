@@ -8,7 +8,6 @@ router.post("/", checkRegister, userControllers.register);
 router.post("/login", userControllers.login);
 router.post("/avatar", verifyToken, multerUpload(`./src/public/avatars`, 'AV-IMG').single("file"), userControllers.updateAvatar);
 router.get("/keeplogin", verifyToken, userControllers.keepLogin);
-router.get("/orders", verifyToken, userControllers.ordersList);
 router.put("/", checkEmail, userControllers.forgotPassword);
 router.patch("/verification", verifyToken, userControllers.verificationAccount);
 router.patch("/reset", verifyToken, checkResetPassword, userControllers.resetPassword);
