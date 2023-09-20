@@ -36,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			discount: {
 				type: DataTypes.INTEGER,
-                allowNull: false
 			},
 			total: {
 				type: DataTypes.INTEGER,
@@ -48,7 +47,6 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			paymentProof: {
 				type: DataTypes.STRING,
-                allowNull: false
 			},
 		},
 		{

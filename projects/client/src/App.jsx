@@ -10,7 +10,20 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
 	const token = localStorage.getItem("token");
 	const dispatch = useDispatch();
-
+	if ("geolocation" in navigator) {
+		navigator.geolocation.getCurrentPosition(async function (position) {
+			try {
+				const latitude = position.coords.latitude;
+				const longitude = position.coords.longitude;
+				localStorage.setItem("lat", latitude);
+				localStorage.setItem("lng", longitude);
+			} catch (error) {
+				console.error("Error:", error);
+			}
+		});
+	} else {
+		console.log("Geolokasi tidak didukung di peramban ini.");
+	}
 	useEffect(() => {
 		const keepLogin = async () => {
 			try {

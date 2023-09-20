@@ -37,7 +37,6 @@ module.exports = {
 					data: response.data.rajaongkir.results[0],
 				});
 			} catch (error) {
-				console.log(error);
 				return res.status(500).send({
 					error,
 					status: 500,
@@ -45,7 +44,6 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -88,9 +86,9 @@ module.exports = {
 	},
 	order: async (req, res) => {
 		try {
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount } = req.body;
 			const cartCheckedOut = await carts.findOne({
 				where: {
-					id: req.params.id,
 					UserId: req.user.id,
 					status: "ACTIVE",
 				},
@@ -101,21 +99,39 @@ module.exports = {
 				},
 			});
 			const result = await orders.create({
-				courier,
+				shipment,
 				shipmentMethod,
 				etd,
 				shippingFee,
 				subtotal,
 				tax,
 				total,
+				discount,
 				status: "Waiting payment",
 				CartId: cartCheckedOut.id,
 			});
-			await order_details.create({
-				OrderId: result.id,
-				ProductId: orderedItems.ProductId,
-				quantity: orderedItems.quantity,
+			const orderDetailPromises = orderedItems.map(async (item) => {
+				await order_details.create({
+					OrderId: result.id,
+					ProductId: item.ProductId,
+					quantity: item.quantity,
+				});
 			});
+			await Promise.all(orderDetailPromises);
+			const stocksPromises = orderedItems.map(async (item) => {
+				await stocks.decrement(
+					{
+						currentStock: item.quantity,
+					},
+					{
+						where: {
+							ProductId: item.ProductId,
+							BranchId: cartCheckedOut.BranchId,
+						},
+					}
+				);
+			});
+			await Promise.all(stocksPromises);
 			await carts.update(
 				{
 					status: "CHECKEDOUT",

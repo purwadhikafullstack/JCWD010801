@@ -22,11 +22,12 @@ import {
 } from "@chakra-ui/react";
 import Axios from "axios";
 import { useSelector } from "react-redux";
+import { ButtonTemp } from "../../../components/button";
 
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
 	const [address, setAddress] = useState([]);
-	const [branch, setBranch] = useState([]);
+	const [branch, setBranch] = useState({});
 	const [totalPage, setTotalPage] = useState(1);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
@@ -34,11 +35,29 @@ function Order() {
 	const [selectedShippingCourier, setSelectedShippingCourier] = useState("");
 	const [dataOngkir, setDataOngkir] = useState({});
 	const [cost, setCost] = useState({});
+	const [item, setItem] = useState([]);
+	const [subTotalItem, setSubTotalItem] = useState([]);
+	const [shipmentFee, setShipmentFee] = useState();
+	const [etd, setEtd] = useState("");
 	const reduxStore = useSelector((state) => state?.user);
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
 	const phone = reduxStore?.value?.phone;
 	const token = localStorage.getItem("token");
+	const getCartItems = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart/`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			console.log(response);
+			setBranch(response.data.cart.Branch);
+			setItem(response.data.cart_items);
+			setSubTotalItem(response.data.subtotal);
+		} catch (error) {}
+	};
+
 	const getAddress = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/`, {
@@ -55,80 +74,27 @@ function Order() {
 			setTotalPage(response.data.totalPage);
 		} catch (error) {}
 	};
-	const getBranch = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches/`);
-			console.log(response);
-			setBranch(response.data);
-		} catch (error) {
-			console.log(error);
-		}
-	};
-	console.log(address);
-	console.log(branch);
-	console.log("method", selectedShippingMethod);
-	const [items, setItems] = useState([
-		{
-			id: 1,
-			name: "Product A",
-			price: 100000,
-			quantity: 2,
-			imageUrl: "https://s3.bukalapak.com/img/362652081/w-1000/nutribaby-1-400g-800x800.jpg",
-			desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Earum, nesciunt? Sunt, dolore ipsum suscipit corporis voluptatem praesentium fugit necessitatibus rem, ab odit saepe! Totam, commodi quod minus dolore natus sapiente!",
-			weight: 10,
-		},
-		{
-			id: 2,
-			name: "Product B",
-			price: 75000,
-			quantity: 1,
-			imageUrl: "https://s3.bukalapak.com/img/3743886257/w-1000/Vidoran_6_12_bulan___Susu_Bayi_.jpg",
-			desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Earum, nesciunt? Sunt, dolore ipsum suscipit corporis voluptatem praesentium fugit necessitatibus rem, ab odit saepe! Totam, commodi quod minus dolore natus sapiente!",
-			weight: 10,
-		},
-		{
-			id: 3,
-			name: "Product B",
-			price: 75000,
-			quantity: 1,
-			imageUrl: "https://s3.bukalapak.com/img/3743886257/w-1000/Vidoran_6_12_bulan___Susu_Bayi_.jpg",
-			desc: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Earum, nesciunt? Sunt, dolore ipsum suscipit corporis voluptatem praesentium fugit necessitatibus rem, ab odit saepe! Totam, commodi quod minus dolore natus sapiente!",
-			weight: 10,
-		},
-		{
-			id: 4,
-			name: "Product B",
-			price: 75000,
-			quantity: 1,
-			imageUrl: "https://s3.bukalapak.com/img/3743886257/w-1000/Vidoran_6_12_bulan___Susu_Bayi_.jpg",
-			weight: 10,
-		},
-		{
-			id: 5,
-			name: "Product B",
-			price: 75000,
-			quantity: 1,
-			imageUrl: "https://s3.bukalapak.com/img/3743886257/w-1000/Vidoran_6_12_bulan___Susu_Bayi_.jpg",
-			weight: 10,
-		},
-	]);
+
+	const totalWeight = item.reduce((total, item) => {
+		return total + item.Product.weight * item.quantity;
+	}, 0);
 
 	const getOngkir = async (courier) => {
 		try {
 			const data = {
 				courier: courier,
 				destination: address[0]?.city_id,
-				weight: 1000,
-				origin: branch[0]?.city_id,
+				weight: totalWeight,
+				origin: branch?.city_id,
 			};
 			const response = await Axios.post("http://localhost:8000/api/order/shipment", data);
-			console.log(response);
+
 			setDataOngkir(response.data.data);
 		} catch (error) {
 			console.log(error);
 		}
 	};
-	console.log("dataOngkir: ", dataOngkir);
+
 	const formatToRupiah = (value) => {
 		const formatter = new Intl.NumberFormat("id-ID", {
 			style: "currency",
@@ -139,14 +105,41 @@ function Order() {
 		return formatter.format(value);
 	};
 
-	console.log("cost: ", cost);
+	console.log("subtotal: ", subTotalItem);
+	const totalSubtotalItem = subTotalItem.reduce((total, item) => {
+		const subtotalValue = parseInt(item.subtotal, 10); // Mengonversi subtotal menjadi angka
+		return total + subtotalValue;
+	}, 0);
 
-	const calculateTotal = () => {
-		return items.reduce((total, item) => total + item.price * item.quantity, 0);
+	const tax = (totalSubtotalItem + shipmentFee) / 10;
+	const total = tax + (totalSubtotalItem + shipmentFee);
+	const subtotal = totalSubtotalItem + shipmentFee;
+	console.log(total);
+	const handleSubmit = async (data) => {
+		try {
+			data = {
+				shipment: selectedShippingCourier,
+				shipmentMethod: selectedShippingMethod,
+				etd: etd,
+				shippingFee: shipmentFee,
+				tax: tax,
+				total: total,
+				subtotal: subtotal,
+				discount: 0,
+			};
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/order/`, data, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			console.log(response);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 	useEffect(() => {
+		getCartItems();
 		getAddress();
-		getBranch();
 		if (page > totalPage) {
 			setPage(totalPage);
 		}
@@ -161,14 +154,17 @@ function Order() {
 				<Box flex={"60%"}>
 					<VStack spacing={4} align="start">
 						<Text fontSize="xl">Shipping Information</Text>
-						<Box  w={"full"} borderRadius={8} pl={"4"}>
-							<Text fontWeight={"bold"} >
+						<Box w={"full"} borderRadius={8} pl={"4"}>
+							<Text fontWeight={"bold"}>
 								{firstName} {lastName}
 							</Text>
 							<Text>{phone}</Text>
-							<Text lineHeight={4} color={"gray"}>{address[0]?.address}</Text>
-							<Text lineHeight={4} color={"gray"}>{address[0]?.city}, {address[0]?.province}, {address[0]?.postal_code}</Text>
-							
+							<Text lineHeight={4} color={"gray"}>
+								{address[0]?.address}
+							</Text>
+							<Text lineHeight={4} color={"gray"}>
+								{address[0]?.city}, {address[0]?.province}, {address[0]?.postal_code}
+							</Text>
 						</Box>
 					</VStack>
 					<Box mt={isSmallerThan768 ? 8 : 4}>
@@ -195,25 +191,29 @@ function Order() {
 						<Text fontSize="xl" mb={4}>
 							Shopping Cart
 						</Text>
-						{items.map((item, index) => (
+						{item.map((item, index) => (
 							<Box mb={"4"} boxShadow={"md"} p={4} borderRadius={8} key={index}>
 								<Flex gap={4} flexDirection={isSmallerThan768 ? "column" : ""}>
 									<Flex gap={4} flex={isSmallerThan768 ? "" : "0 0 100%"} maxWidth={250}>
-										<Image src={item.imageUrl} alt={item.name} boxSize={20} />
+										<Image
+											src={`${process.env.REACT_APP_BASE_URL}/products/${item.Product.imgURL}`}
+											alt={item.name}
+											boxSize={20}
+										/>
 										<Box>
-											<Text fontWeight={"bold"}>{item.name}</Text>
+											<Text fontWeight={"bold"}>{item.Product.productName}</Text>
 
 											<Text>
-												{item.quantity} x {formatToRupiah(item.price)}
+												{item.quantity} x {formatToRupiah(item.Product.price)}
 											</Text>
-											<Text>{item.weight * item.quantity} gram(s)</Text>
+											<Text>{item.Product.weight * item.quantity} gram(s)</Text>
 											<Text fontWeight={"bold"} fontSize={"lg"}>
-												{formatToRupiah(item.price * item.quantity)}
+												{formatToRupiah(item.Product.price * item.quantity)}
 											</Text>
 										</Box>
 									</Flex>
 									<Box>
-										<Text fontSize={"sm"}>{item.desc}</Text>
+										<Text fontSize={"sm"}>{item.Product.description}</Text>
 									</Box>
 								</Flex>
 							</Box>
@@ -230,7 +230,7 @@ function Order() {
 						onChange={(e) => {
 							setSelectedShippingCourier(e.target.value);
 							getOngkir(e.target.value);
-							setSelectedShippingMethod("")
+							setSelectedShippingMethod("");
 						}}
 					>
 						<option value="jne">JNE</option>
@@ -245,7 +245,10 @@ function Order() {
 							onChange={(e) => {
 								setSelectedShippingMethod(e.target.value);
 								const objGetCost = dataOngkir?.costs?.find((item) => item.service === e.target.value);
+								console.log(objGetCost);
 								setCost(objGetCost);
+								setShipmentFee(objGetCost.cost[0].value);
+								setEtd(objGetCost.cost[0].etd);
 							}}
 						>
 							{dataOngkir?.costs?.map((item, index) => (
@@ -258,24 +261,31 @@ function Order() {
 					{selectedShippingMethod && selectedShippingCourier ? (
 						<Box mt={6}>
 							<Flex justify={"space-between"}>
-							<Text fontWeight={"bold"}>Shipment fee</Text>
-							<Text>{formatToRupiah(cost.cost[0].value)}</Text>
+								<Text fontWeight={"bold"}>Shipment fee</Text>
+								<Text>{formatToRupiah(shipmentFee)}</Text>
 							</Flex>
 							<Flex justify={"space-between"}>
-							<Text fontWeight={"bold"}>Estimated shipping</Text>
-							<Text>{cost.cost[0].etd}</Text>
+								<Text fontWeight={"bold"}>Estimated shipping day(s)</Text>
+								<Text>{etd}</Text>
 							</Flex>
-							
+							<Flex justify={"space-between"}>
+								<Text fontWeight={"bold"}>Subtotal</Text>
+								<Text>{formatToRupiah(subtotal)}</Text>
+							</Flex>
+							<Flex justify={"space-between"}>
+								<Text fontWeight={"bold"}>Tax</Text>
+								<Text>{formatToRupiah(tax)}</Text>
+							</Flex>
 						</Box>
 					) : null}
 					<Box mt={8}>
-						<Text fontSize="2xl" flexGrow={1}>
-							Total: {formatToRupiah(calculateTotal())}
-						</Text>
+						{!isNaN(total) ? (
+							<Text fontSize="2xl" flexGrow={1}>
+								Total: {formatToRupiah(total)}
+							</Text>
+						) : null}
 						<Spacer />
-						<Button colorScheme="blue" size="lg" mt={8} w={"full"}>
-							Place Order
-						</Button>
+						<ButtonTemp size="lg" mt={8} w={"full"} onClick={handleSubmit} content={"Place Order"} />
 					</Box>
 				</Box>
 			</Flex>
