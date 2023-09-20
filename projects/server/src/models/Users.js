@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
 			Users.belongsTo(models.Branches);
 			Users.hasMany(models.Addresses);
 			Users.hasMany(models.Carts);
+			Users.hasMany(models.Changelogs);
 		}
 	}
 	Users.init(

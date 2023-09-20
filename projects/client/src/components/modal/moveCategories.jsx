@@ -18,7 +18,15 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 import { ButtonTemp } from "../button";
 
-export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories, reload, setReload, isAllDeactivated }) => {
+export const MoveCategories = ({
+	selectedPIDs,
+	selectedProductNames,
+	categories,
+	reload,
+	setReload,
+	isAllDeactivated,
+	UID,
+}) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [newCategory, setNewCategory] = useState("");
 	const [newCategoryLabel, setNewCategoryLabel] = useState("New Category");
@@ -60,6 +68,7 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 
 		axios
 			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkcategory`, {
+				UID: UID, //! BIMO PROTECT
 				PIDs: selectedPIDs,
 				newCategoryId: newCategory,
 			})
@@ -115,7 +124,9 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 										<li key={productName}>{productName}</li>
 									))}
 								</ol>
-								<Text mt={'10px'} mb={"35px"}>Into : {newCategoryLabel}</Text>
+								<Text mt={"10px"} mb={"35px"}>
+									Into : {newCategoryLabel}
+								</Text>
 								<Text fontWeight={"semibold"}>Select New Category</Text>
 								<Select
 									variant="filled"
@@ -142,4 +153,4 @@ export const MoveCategories = ({ selectedPIDs, selectedProductNames, categories,
 			</Modal>
 		</>
 	);
-};
+}; //! SIG COUNT 1
