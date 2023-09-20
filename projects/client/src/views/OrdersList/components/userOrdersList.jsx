@@ -1,41 +1,52 @@
 import Axios from "axios";
-import {
-	Badge,
-	Box,
-	Button,
-	Flex,
-	Heading,
-	Image,
-	Input,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuList,
-	Select,
-	Text,
-} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
 import { AiOutlineShopping } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { useEffect, useState } from "react";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 
-export const OrdersList = () => {
+export const UserOrdersList = () => {
 	const [list, setList] = useState();
+	const [search, setSearch] = useState("");
+	const [page, setPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(1);
+	const [selectedDate, setSelectedDate] = useState("");
+	const [sort, setSort] = useState("DESC");
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
-	const ordersList = async () => {
+	const ordersList = async (pageNum) => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/user/orders`, { headers });
+			const queryParams = {};
+			if (selectedDate) {
+				queryParams.date = selectedDate;
+			}
+			const response = await Axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}`,
+				{
+					headers,
+					params: queryParams,
+				}
+			);
 			setList(response.data.result);
-			console.log(response.data);
+			setPage(response.data.currentPage);
+			setTotalPage(response.data.totalPage);
 		} catch (error) {
 			console.log(error);
 		}
 	};
+	const prevPage = () => {
+		if (page > 1) ordersList(page - 1);
+	};
+	const nextPage = () => {
+		if (page < totalPage) {
+			ordersList(page + 1);
+		}
+	};
 	useEffect(() => {
-		ordersList();
-	}, []);
+		ordersList(page);
+	}, [selectedDate, search, sort]);
 	return (
 		<Box>
 			<Heading>Your orders list</Heading>
@@ -47,6 +58,8 @@ export const OrdersList = () => {
 					w={"250px"}
 					placeholder="Search"
 					type="search"
+					value={search}
+					onChange={(e) => setSearch(e.target.value)}
 				/>
 				<Select
 					w={"105px"}
@@ -54,30 +67,24 @@ export const OrdersList = () => {
 					border="1px solid #373433"
 					borderRadius={"20px"}
 					focusBorderColor="#373433"
-					placeholder="Sort"
+					value={sort}
+					onChange={(e) => setSort(e.target.value)}
 				>
-					<option>All</option>
+					<option value="DESC">Newest</option>
+					<option value="ASC">Oldest</option>
 				</Select>
-				<Menu isLazy>
-					<MenuButton
-						textAlign={"start"}
-						ml={"10px"}
-						pl={"20px"}
-						w={"100px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						placeholder="Status"
-					>
-						Status
-						<MenuList>
-							<MenuItem>Waiting for payment</MenuItem>
-							<MenuItem>Success</MenuItem>
-							<MenuItem>Unsuccess</MenuItem>
-							<MenuItem>Canceled</MenuItem>
-						</MenuList>
-					</MenuButton>
-				</Menu>
+				<Select
+					textAlign={"start"}
+					pl={"10px"}
+					w={"140px"}
+					border="1px solid #373433"
+					borderRadius={"20px"}
+					focusBorderColor="#373433"
+					placeholder="Status"
+				>
+					Status
+					<option>Waiting for payment</option>
+				</Select>
 				<Input
 					borderRadius={"20px"}
 					border="1px solid #373433"
@@ -86,6 +93,8 @@ export const OrdersList = () => {
 					w={"150px"}
 					placeholder="Date"
 					type="date"
+					value={selectedDate}
+					onChange={(e) => setSelectedDate(e.target.value)}
 				/>
 			</Flex>
 			{list?.map((item) => {
@@ -120,7 +129,7 @@ export const OrdersList = () => {
 						<Flex mt={"3px"}>
 							<AiOutlineShopping color="blue" size={25} />
 							<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-								Alphamart Bandung
+								Alphamart {item.Order.Cart.Branch.name}
 							</Text>
 						</Flex>
 						<Flex justifyContent={"space-between"}>
@@ -177,6 +186,66 @@ export const OrdersList = () => {
 					</Box>
 				);
 			})}
+			<Flex mt={"20px"} justifyContent={"center"}>
+				<Button
+					backgroundColor={"#000000"}
+					color={"white"}
+					mr={"5px"}
+					_hover={{
+						textColor: "#0A0A0B",
+						bg: "#F0F0F0",
+						_before: {
+							bg: "inherit",
+						},
+						_after: {
+							bg: "inherit",
+						},
+					}}
+					transition="transform 0.3s ease-in-out"
+					onClick={prevPage}
+					disabled={page === 1}
+				>
+					<AiOutlineArrowLeft />
+				</Button>
+				<Button
+					backgroundColor={"#000000"}
+					color={"white"}
+					_hover={{
+						textColor: "#0A0A0B",
+						bg: "#F0F0F0",
+						_before: {
+							bg: "inherit",
+						},
+						_after: {
+							bg: "inherit",
+						},
+					}}
+					transition="transform 0.3s ease-in-out"
+					disabled
+				>
+					{page}
+				</Button>
+				<Button
+					backgroundColor={"#000000"}
+					color={"white"}
+					ml={"5px"}
+					_hover={{
+						textColor: "#0A0A0B",
+						bg: "#F0F0F0",
+						_before: {
+							bg: "inherit",
+						},
+						_after: {
+							bg: "inherit",
+						},
+					}}
+					transition="transform 0.3s ease-in-out"
+					onClick={nextPage}
+					disabled={page === totalPage}
+				>
+					<AiOutlineArrowRight />
+				</Button>
+			</Flex>
 		</Box>
 	);
 };

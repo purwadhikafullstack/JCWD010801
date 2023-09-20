@@ -1,11 +1,11 @@
 import Axios from "axios";
 import AddAdmin from "./components/addAdmin";
+import LayoutSidebar from "../../pages/layoutSidebar";
 import { Avatar, Box, Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
-import LayoutSidebar from "../../pages/layoutSidebar";
 
 export const AdminListPage = () => {
 	const navigate = useNavigate();

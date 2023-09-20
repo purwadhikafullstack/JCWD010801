@@ -109,7 +109,7 @@ export const BranchAdminDashboardButton = () => {
 				<Flex mt={"15px"} justifyContent={"center"}>
 					<Box
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/orders-list"}
 						w={"43%"}
 						h={"250px"}
 						borderRadius={"10px"}

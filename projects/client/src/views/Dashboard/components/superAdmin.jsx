@@ -132,7 +132,7 @@ export const SuperAdminDashboardButton = () => {
 					</Box>
 					<Box
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/orders-list"}
 						ml={"15px"}
 						w={"28%"}
 						h={"250px"}

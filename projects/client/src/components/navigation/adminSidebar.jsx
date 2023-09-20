@@ -136,7 +136,7 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 					</Flex>
 					<Flex
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/orders-list"}
 						mb={"20px"}
 						color={"white"}
 						transition="transform 0.3s ease-in-out"
