@@ -30,14 +30,6 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
                 allowNull: false
 			},
-			shipmentMethod: {
-				type: DataTypes.STRING,
-                allowNull: false
-			},
-			etd: {
-				type: DataTypes.STRING,
-                allowNull: false
-			},
 			shippingFee: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
