@@ -235,7 +235,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															fontWeight: 500,
 														}}
 														onClick={() => {
-															localStorage.setItem("BranchId", index + 1)
+															localStorage.setItem("BranchId", 1)
 														}}
 													>
 														{item}

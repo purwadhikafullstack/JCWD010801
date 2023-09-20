@@ -17,6 +17,7 @@ import {
 import { AiOutlineShopping } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useEffect, useState } from "react";
+import { MenuOrder } from "./menu";
 
 export const OrdersList = () => {
 	const [list, setList] = useState();
@@ -151,7 +152,7 @@ export const OrdersList = () => {
 								</Text>
 							</Flex>
 						</Flex>
-						<Flex mt={"10px"} justifyContent={"end"}>
+						<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}>
 							<Button
 								my={"auto"}
 								backgroundColor={"#000000"}
@@ -170,9 +171,7 @@ export const OrdersList = () => {
 							>
 								Review
 							</Button>
-							<Flex mr={"10px"} alignItems={"center"}>
-								<BsThreeDotsVertical size={25} />
-							</Flex>
+							<MenuOrder orderId={item?.id} imgURL={item?.paymentProof} date={item?.createdAt} branch={"Bandung"} amount={item.total} />
 						</Flex>
 					</Box>
 				);
