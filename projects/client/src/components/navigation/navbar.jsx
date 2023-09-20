@@ -1,5 +1,7 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
+import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 import {
 	Flex,
 	Stack,
@@ -37,9 +39,6 @@ import { useNavigate } from "react-router-dom";
 import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
-import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
-import axios from "axios";
-import "react-toastify/dist/ReactToastify.css";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -53,9 +52,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
 	const roleId = reduxStore?.value?.RoleId;
-
 	const { refresh } = useSelector((state) => state.cart.value);
-
 	const [search, setSearch] = useState("");
 	const [products, setProducts] = useState([]);
 	const [totalProducts, setTotalProducts] = useState(0);
@@ -108,8 +105,10 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	}, [reload, search]);
 
 	useEffect(() => {
-		fetchCart()
-	}, [ refresh ])
+		fetchCart();
+		//! Ini dibenerin raf useEffectnya, nge fetch seperlunya aja nih trigger nya diperbaiki
+		// eslint-disable-next-line
+	}, [refresh]);
 
 	const logout = () => {
 		localStorage.removeItem("token");
@@ -136,6 +135,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const searchQuery = (query) => {
 		navigate(`/search?q=${query}&sort=productName&order=ASC&cat=&p=1`);
 		setProducts([]);
+		setSearch("");
 	};
 
 	return (
@@ -174,7 +174,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
 								<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
 								<Stack gap={0}>
-									<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver to</Text>
+									<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
 									<Text
 										onClick={() => navigate("/")}
 										cursor={"pointer"}
@@ -235,7 +235,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															fontWeight: 500,
 														}}
 														onClick={() => {
-															localStorage.setItem("BranchId", 1)
+															localStorage.setItem("BranchId", index + 1);
 														}}
 													>
 														{item}
@@ -337,33 +337,35 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									</Stack>
 								)}
 							</div>
-							<Button isDisabled={+roleId === 1 ? false : true} bgColor={"white"} rounded={"full"} cursor={"pointer"} onClick={() => navigate("/cart")}>
-								<Icon 
-								as={BsCart} 
-								w="5" 
-								h="5" 
-								color={"black"} 
-								pos='relative'
-								/>
+							<Button
+								isDisabled={+roleId === 1 ? false : true}
+								bgColor={"white"}
+								rounded={"full"}
+								cursor={"pointer"}
+								onClick={() => navigate("/cart")}
+							>
+								<Icon as={BsCart} w="5" h="5" color={"black"} pos="relative" />
 								{totalCartItems > 0 && (
-								<Flex
-								w={5}
-								h={5}
-								bg={'blackAlpha.700'}
-								border={'2px solid white'}
-								rounded={'full'}
-								justifyContent={'center'}
-								alignItems={'center'}
-								pos={'absolute'}
-								top={1}
-								right={1}>
-									<Text fontSize={'10px'} color={'white'} textAlign={'center'}>
-										{totalCartItems}
-									</Text>
-								</Flex>)}
+									<Flex
+										w={5}
+										h={5}
+										bg={"blackAlpha.700"}
+										border={"2px solid white"}
+										rounded={"full"}
+										justifyContent={"center"}
+										alignItems={"center"}
+										pos={"absolute"}
+										top={1}
+										right={1}
+									>
+										<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+											{totalCartItems}
+										</Text>
+									</Flex>
+								)}
 							</Button>
 							<Menu alignSelf={"center"}>
-								<Button as={MenuButton} p={0}  bgColor={'white'} pt={1} borderRadius={'full'} cursor={"pointer"}>
+								<Button as={MenuButton} p={0} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>
 									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
 								</Button>
 								{token ? (

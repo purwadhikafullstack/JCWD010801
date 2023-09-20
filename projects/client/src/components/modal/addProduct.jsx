@@ -20,16 +20,23 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
 
-export const AddProduct = ({ categories, reload, setReload }) => {
+export const AddProduct = ({ categories, reload, setReload, BranchId, currentBranchName, UID }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const productSchema = Yup.object().shape({
 		productName: Yup.string().required("Product name cannot be empty."),
-		price: Yup.string().required("Price cannot be empty."),
+		price: Yup.number()
+			.required("Price cannot be empty.")
+			.typeError("Price must be a number")
+			.positive("Price must be a positive number"),
 		description: Yup.string().required("Description cannot be empty."),
 		CategoryId: Yup.string().required("Category name cannot be empty."),
-		weight: Yup.string().required("Weight cannot be empty."),
+		weight: Yup.number()
+			.required("Weight cannot be empty.")
+			.typeError("Weight must be a number")
+			.positive("Weight must be a positive number"),
 		image: Yup.mixed()
+			.required("Please assign a product image.")
 			.test("fileSize", "Image size is too large (max 1MB)", (value) => {
 				if (!value) return true;
 				return value.size <= 1024 * 1024;
@@ -39,11 +46,15 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 				const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 				return acceptedTypes.includes(value.type);
 			}),
-	});
+		stock: Yup.number()
+			.required("Stock cannot be empty.")
+			.typeError("Stock must be a number.")
+			.positive("You cannot initialize this product with 0 stock!"),
+	}); //! BIMO PROTECT 20SEPT
 
 	const handleSubmit = async (values) => {
 		try {
-			const { productName, price, description, CategoryId, weight, image: newImage } = values;
+			const { productName, price, description, CategoryId, weight, image: newImage, stock } = values;
 
 			const userInput = new FormData();
 			userInput.append("productName", productName);
@@ -52,6 +63,9 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 			userInput.append("CategoryId", CategoryId);
 			userInput.append("weight", weight);
 			userInput.append("image", newImage);
+			userInput.append("stock", stock);
+			userInput.append("BranchId", BranchId); //! BIMO PROTECT
+			userInput.append("UID", UID);
 
 			const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/`, userInput, {
 				"Content-type": "multipart/form-data",
@@ -97,7 +111,15 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />
 					<Formik
-						initialValues={{}}
+						initialValues={{
+							productName: "",
+							price: "",
+							description: "",
+							CategoryId: "",
+							weight: "",
+							image: null,
+							stock: "",
+						}}
 						validationSchema={productSchema}
 						onSubmit={(value) => {
 							handleSubmit(value);
@@ -132,7 +154,7 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 												<Stack>
 													<Input
 														as={Field}
-														type={"text"}
+														type={"number"}
 														variant={"filled"}
 														name="price"
 														placeholder="Specify the product's price."
@@ -191,7 +213,7 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 												<Stack>
 													<Input
 														as={Field}
-														type={"text"}
+														type={"number"}
 														variant={"filled"}
 														name="weight"
 														placeholder="Specify the product's weight."
@@ -200,6 +222,24 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 													<ErrorMessage
 														component="box"
 														name="weight"
+														style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
+													/>
+												</Stack>
+											</Stack>
+											<Stack gap={1}>
+												<Text fontWeight={"semibold"}>{currentBranchName}'s Stock</Text>
+												<Stack>
+													<Input
+														as={Field}
+														type={"number"}
+														variant={"filled"}
+														name="stock"
+														placeholder="Specify this branch's stock."
+														focusBorderColor="gray.300"
+													/>
+													<ErrorMessage
+														component="box"
+														name="stock"
 														style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
 													/>
 												</Stack>
@@ -267,3 +307,4 @@ export const AddProduct = ({ categories, reload, setReload }) => {
 		</>
 	);
 };
+//! SIG COUNT 2

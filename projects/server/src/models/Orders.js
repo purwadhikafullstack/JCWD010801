@@ -5,12 +5,28 @@ module.exports = (sequelize, DataTypes) => {
 	class Orders extends Model {
 		static associate(models) {
 			Orders.belongsTo(models.Carts);
-            Orders.hasMany(models.Order_details);
+			Orders.hasMany(models.Order_details);
 		}
 	}
 	Orders.init(
 		{
 			shipment: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			shipmentMethod: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			etd: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			shipmentMethod: {
+				type: DataTypes.STRING,
+                allowNull: false
+			},
+			etd: {
 				type: DataTypes.STRING,
                 allowNull: false
 			},
@@ -24,31 +40,36 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			shippingFee: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			subtotal: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			tax: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			discount: {
 				type: DataTypes.INTEGER,
-                allowNull: false
 			},
 			total: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			status: {
-				type: DataTypes.ENUM('Waiting payment', 'Pending payment confirmation', 'Processing', 'Sent', 'Received', 'Cancelled'),
-                allowNull: false
+				type: DataTypes.ENUM(
+					"Waiting payment",
+					"Pending payment confirmation",
+					"Processing",
+					"Sent",
+					"Received",
+					"Cancelled"
+				),
+				allowNull: false,
 			},
 			paymentProof: {
 				type: DataTypes.STRING,
-                allowNull: false
 			},
 		},
 		{

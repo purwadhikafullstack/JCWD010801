@@ -16,6 +16,7 @@ import {
 import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
 import { ConfirmPasswordBulkDeactivate } from "../modal/confirmPasswordBulkDeactivate";
+import { useSelector } from "react-redux";
 
 export const BulkDeactivate = ({
 	selectedPIDs,
@@ -27,6 +28,7 @@ export const BulkDeactivate = ({
 	isAllDeactivated,
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { id } = useSelector((state) => state?.user?.value);
 
 	const handleBulkDeactivate = () => {
 		if (selectedPIDs.length === 0) {
@@ -45,6 +47,7 @@ export const BulkDeactivate = ({
 
 		axios
 			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkdeactivate`, {
+				id: id,
 				PIDs: selectedPIDs,
 			})
 			.then((response) => {

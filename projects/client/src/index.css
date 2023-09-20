@@ -24,6 +24,11 @@ code {
 /* SCROLLBAR */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 2px;
+}
+
+.scrollbar-3px::-webkit-scrollbar {
+  width: 3px;
 }
 
 .scrollbar-4px::-webkit-scrollbar {

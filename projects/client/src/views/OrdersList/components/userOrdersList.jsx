@@ -160,7 +160,7 @@ export const UserOrdersList = () => {
 								</Text>
 							</Flex>
 						</Flex>
-						<Flex mt={"10px"} justifyContent={"end"}>
+						<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}>
 							<Button
 								my={"auto"}
 								backgroundColor={"#000000"}
@@ -179,9 +179,7 @@ export const UserOrdersList = () => {
 							>
 								Review
 							</Button>
-							<Flex mr={"10px"} alignItems={"center"}>
-								<BsThreeDotsVertical size={25} />
-							</Flex>
+							<MenuOrder orderId={item?.id} imgURL={item?.paymentProof} date={item?.createdAt} branch={"Bandung"} amount={item.total} />
 						</Flex>
 					</Box>
 				);
