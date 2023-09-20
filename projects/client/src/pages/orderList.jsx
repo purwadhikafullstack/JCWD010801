@@ -4,7 +4,7 @@ import { BranchAdminOrdersList } from "../views/OrdersList/components/branchAdmi
 import { Error404PageView } from "../views/Error404";
 
 const OrdersList = () => {
-	const data = useSelector((state) => state.user.value);
+	const data = useSelector((state) => state?.user?.value);
 	return (
 		<>
 			{data.RoleId === 3 ? (

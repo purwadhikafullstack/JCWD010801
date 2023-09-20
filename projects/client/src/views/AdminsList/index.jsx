@@ -10,7 +10,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 export const AdminListPage = () => {
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
-	const user = useSelector((state) => state.user.value);
+	const user = useSelector((state) => state?.user?.value);
 	const [data, setData] = useState();
 	const [reload, setReload] = useState(true);
 	const [search, setSearch] = useState("");

@@ -18,7 +18,7 @@ import { setValue } from "../../redux/userSlice";
 export const AdminSidebar = ({ height, navSizeProp }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const user = useSelector((state) => state.user.value);
+	const user = useSelector((state) => state?.user?.value);
 	const [navSize, setNavsize] = useState(navSizeProp || "large");
 	const logout = () => {
 		localStorage.removeItem("token");

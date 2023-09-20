@@ -5,7 +5,7 @@ import { AdminSidebar } from "../components/navigation/adminSidebar";
 
 const LayoutSidebar = () => {
 	const token = localStorage.getItem("token");
-	const data = useSelector((state) => state.user.value);
+	const data = useSelector((state) => state?.user?.value);
 	return (
 		<>
 			{data.RoleId === 1 || !token ? (

@@ -4,7 +4,7 @@ import { Error404PageView } from "../views/Error404";
 
 const AdminDashboard = () => {
 	const token = localStorage.getItem("token");
-	const data = useSelector((state) => state.user.value);
+	const data = useSelector((state) => state?.user?.value);
 	return (
 		<>
 			{data.RoleId === 1 || !token ? (
