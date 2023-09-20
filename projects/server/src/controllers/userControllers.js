@@ -21,8 +21,8 @@ module.exports = {
 				},
 			});
 			if (!checkLogin) throw { message: "User is not found." };
-			if (checkLogin.RoleId != 1) throw { message: "Please login on the admin login tab." };
-			if (checkLogin.isVerified == 0) throw { message: "You are not verified. Please verify your E-mail" };
+			if (checkLogin.RoleId !== 1) throw { message: "Please login on the admin login tab." };
+			if (checkLogin.isVerified === 0) throw { message: "You are not verified. Please verify your E-mail" };
 
 			const isValid = await bcrypt.compare(password, checkLogin.password);
 			if (!isValid) throw { message: "Password is incorrect." };
