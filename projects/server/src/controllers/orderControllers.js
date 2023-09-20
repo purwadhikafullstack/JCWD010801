@@ -8,8 +8,10 @@ const carts = db.Carts;
 const cartItems = db.Cart_items;
 const products = db.Products;
 const categories = db.Categories;
+const branches = db.Branches;
 const stocks = db.Stocks;
 const { Sequelize } = require("sequelize");
+const schedule = require("node-schedule");
 
 module.exports = {
 	shipment: async (req, res) => {
@@ -152,6 +154,37 @@ module.exports = {
             });
 
         } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+    userCancelOrder: async(req, res) => {
+        const transaction = await db.sequelize.transaction();
+        try {
+            await orders.update({ status: "cancelled" }, { where: { id: req.params.id }, transaction });
+            const ord = await orders.findOne({
+                where: { id: req.params.id },
+                include: { model: carts }
+            });
+
+            const result = await order_details.findAll({ where: { OrderId: req.params.id } });
+
+            for (const {ProductId, quantity} of result) {
+                let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
+                await stocks.update({ currentStock: currentStock + quantity }, {
+                    where: { ProductId, BranchId: ord.Cart.BranchId },
+                    transaction
+                })
+            }
+
+            await transaction.commit();
+
+            res.status(200).send({
+                status: true,
+                message: "Order cancelled"
+            });
+
+        } catch (err) {
+            await transaction.rollback();
             res.status(400).send(err);
         }
     }

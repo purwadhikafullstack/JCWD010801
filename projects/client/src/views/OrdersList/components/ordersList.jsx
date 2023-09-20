@@ -27,7 +27,7 @@ export const OrdersList = () => {
 	};
 	const ordersList = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/user/orders`, { headers });
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order`, { headers });
 			setList(response.data.result);
 			console.log(response.data);
 		} catch (error) {
