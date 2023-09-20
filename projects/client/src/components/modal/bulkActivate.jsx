@@ -16,6 +16,7 @@ import {
 import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
 import { ConfirmPasswordBulkActivate } from "../modal/confirmPasswordBulkActivate";
+import { useSelector } from "react-redux";
 
 export const BulkActivate = ({
 	currentPagePIDs,
@@ -24,11 +25,12 @@ export const BulkActivate = ({
 	setReload,
 	setCheckboxState,
 	initialCheckboxState,
-    isAllActivated,
-    isAllDeleted,
-    selectedHasActive
+	isAllActivated,
+	isAllDeleted,
+	selectedHasActive,
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { id } = useSelector((state) => state?.user?.value);
 
 	const handleBulkActivate = () => {
 		if (currentPagePIDs.length === 0) {
@@ -47,6 +49,7 @@ export const BulkActivate = ({
 
 		axios
 			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkactivate`, {
+				id: id,
 				PIDs: currentPagePIDs,
 			})
 			.then((response) => {
@@ -81,7 +84,12 @@ export const BulkActivate = ({
 
 	return (
 		<>
-			<ButtonTemp content={"Activate"} onClick={onOpen} ml={"15px"} isDisabled={isAllDeleted || isAllActivated || selectedHasActive} />
+			<ButtonTemp
+				content={"Activate"}
+				onClick={onOpen}
+				ml={"15px"}
+				isDisabled={isAllDeleted || isAllActivated || selectedHasActive}
+			/>
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
@@ -103,11 +111,7 @@ export const BulkActivate = ({
 					</ModalBody>
 					<ModalFooter gap={1}>
 						<Button onClick={onClose}>Cancel</Button>
-						<ConfirmPasswordBulkActivate
-							isOpen={isOpen}
-							onClose={onClose}
-							handleBulkActivate={handleBulkActivate}
-						/>
+						<ConfirmPasswordBulkActivate isOpen={isOpen} onClose={onClose} handleBulkActivate={handleBulkActivate} />
 					</ModalFooter>
 				</ModalContent>
 			</Modal>

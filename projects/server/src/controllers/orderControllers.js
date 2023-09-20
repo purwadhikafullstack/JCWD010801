@@ -8,7 +8,6 @@ const carts = db.Carts;
 const cartItems = db.Cart_items;
 const products = db.Products;
 const categories = db.Categories;
-const branches = db.Branches;
 const stocks = db.Stocks;
 const { Sequelize } = require("sequelize");
 const schedule = require("node-schedule");

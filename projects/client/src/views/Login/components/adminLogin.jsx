@@ -27,6 +27,7 @@ export const AdminLogin = () => {
 			localStorage.setItem("token", response.data.token);
 			dispatch(setValue(response.data.checkLogin))
 			navigate("/dashboard");
+			console.log(response);
 			toast.success(`Welcome ${response.data.checkLogin.username}.`, {
 				position: "top-right",
 				autoClose: 4000,
@@ -38,6 +39,7 @@ export const AdminLogin = () => {
 				theme: "dark",
 			});
 		} catch (err) {
+			console.log(err);
 			toast.error(err.response.data.error.message, {
 				position: "top-center",
 				autoClose: 4000,
