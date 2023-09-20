@@ -1,7 +1,9 @@
 import "react-toastify/dist/ReactToastify.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import Axios from "axios";
 import styled from "@emotion/styled";
 import React, { useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { Flex, Checkbox, Image, Text, Switch } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { TiDelete } from "react-icons/ti";
@@ -25,16 +27,19 @@ export const ProductTabPanel = ({
 	reload,
 	setReload,
 	BranchId,
-	currentBranchName
+	currentBranchName,
+	isLoading,
+	isEvenIndex,
 }) => {
 	const navigate = useNavigate();
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 	const [inputPassword, setInputPassword] = useState("");
 	const [validationError, setValidationError] = useState("");
-	const [branchStock, setBranchStock] = useState(0); //! BIMO PROTECT
+	const [branchStock, setBranchStock] = useState(0);
 
 	useEffect(() => {
 		getBranchStock();
+		// eslint-disable-next-line
 	}, [reload]);
 
 	const openPasswordModal = () => {
@@ -62,12 +67,14 @@ export const ProductTabPanel = ({
 
 	const getBranchStock = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/stock/${data.id}?BranchId=${BranchId}`);
+			const response = await Axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/product/stock/${data.id}?BranchId=${BranchId}`
+			);
 			setBranchStock(response.data.currentStock);
 		} catch (error) {
 			// console.log(`There is no stock data for ${data.productName} in the ${currentBranchName} branch`);
 		}
-	}; //! BIMO PROTECT
+	};
 
 	const handleClick = () => {
 		if (data.isDeleted) {
@@ -100,7 +107,18 @@ export const ProductTabPanel = ({
 		}
 	`;
 
-	return (
+	return isLoading ? (
+		<div style={{ marginLeft: "1px" }} key={data.id}>
+			<Skeleton
+				count={1}
+				width={"1225px"}
+				containerClassName="flex-1"
+				height={"95px"}
+				highlightColor="#141415"
+				direction={isEvenIndex ? "rtl" : "ltr"}
+			/>
+		</div> //! BIMO PROTECTION
+	) : (
 		<Flex
 			key={data.id}
 			w={"1225px"}
@@ -278,4 +296,4 @@ export const ProductTabPanel = ({
 			</Flex>
 		</Flex>
 	);
-};
+}; //! BIMO PROTECTION SIG COUNT: 1

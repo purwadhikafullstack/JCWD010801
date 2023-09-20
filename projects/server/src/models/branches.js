@@ -6,14 +6,10 @@ module.exports = (sequelize, DataTypes) => {
 			Branches.hasMany(models.Users);
 			Branches.belongsToMany(models.Products, {
 				through: models.Stocks,
-				foreignKey: "branchId",
-			});
-			Branches.belongsToMany(models.Products, {
-				through: models.StockMovements,
-				foreignKey: "branchId",
+				foreignKey: "BranchId",
 			});
 		}
-	}
+	} //! BIMO PROTECT. HM USERS. BTM PRODUCTS ASSOCIATIONS 20 SEPT
 	Branches.init(
 		{
 			name: {

@@ -1,19 +1,15 @@
 const db = require("../models");
+const categories = db.Categories;
 const products = db.Products;
 const changelogs = db.Changelogs;
 const stocks = db.Stocks;
 const stockMovements = db.StockMovements;
-const categories = db.Categories;
-const users = db.Users;
-const role = db.Roles;
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const { Sequelize, Op } = require("sequelize");
 
 module.exports = {
 	addProduct: async (req, res) => {
 		try {
-			const { productName, price, description, CategoryId, weight, stock, BranchId } = req.body;
+			const { productName, price, description, CategoryId, weight, stock, BranchId, UID } = req.body;
 			const imgURL = req?.file?.filename;
 
 			if (!productName) {
@@ -118,7 +114,7 @@ module.exports = {
 
 			const branchStock = await stocks.findOne({
 				where: {
-					productId: newProduct.id,
+					ProductId: newProduct.id,
 					BranchId: BranchId,
 				},
 			});
@@ -132,25 +128,33 @@ module.exports = {
 					},
 					{
 						where: {
-							productId: newProduct.id,
+							ProductId: newProduct.id,
 							BranchId: BranchId,
 						},
 					}
 				);
 
+				//! This if block is for validation purposes only. If this request is caught in this if block, then it is a bad request.
+
 				await stockMovements.create({
-					//!BIMO PROTECT
 					change: updatedCurrentStock,
 					isAddition: true,
-					isAdjustment: false,
-					isInitialization: true,
-					branchId: BranchId,
-					productId: newProduct.id,
+					isAdjustment: true,
+					isInitialization: false,
+					BranchId: BranchId,
+					ProductId: newProduct.id,
+					UserId: UID,
+				});
+
+				return res.status(400).send({
+					error,
+					status: 400,
+					message: "You made a mistake. This product already exists!",
 				});
 			} else {
 				await stocks.create({
 					currentStock: updatedCurrentStock,
-					productId: newProduct.id,
+					ProductId: newProduct.id,
 					BranchId: BranchId,
 				});
 
@@ -159,8 +163,9 @@ module.exports = {
 					isAddition: true,
 					isAdjustment: false,
 					isInitialization: true,
-					branchId: BranchId,
-					productId: newProduct.id,
+					BranchId: BranchId,
+					ProductId: newProduct.id,
+					UserId: UID,
 				});
 			}
 
@@ -170,7 +175,6 @@ module.exports = {
 				product: newProduct,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -236,7 +240,7 @@ module.exports = {
 			const oldDescription = product.description;
 			const oldWeight = product.weight;
 			const oldCategoryId = product.CategoryId;
-			const oldStock = product.Stocks[0].dataValues.currentStock; //! BIMO PROTECT
+			const oldStock = parseInt(product?.Stocks[0]?.dataValues?.currentStock);
 
 			if (
 				productName == oldProductName &&
@@ -297,16 +301,22 @@ module.exports = {
 				};
 			}
 
-			//! ADD ENTRY IN STOCK TABLE
-			if (stock !== oldStock) {
-				const stockDelta = oldStock - stock;
-				if ('deltapositive conditional') {
-					
-				} else {
-					
-				}
-			} else {
+			const stockDelta = parseInt(stock) - parseInt(oldStock); //! BIMO PROTECT
 
+			if (stockDelta !== 0) {
+				const isAddition = stockDelta > 0;
+				const isAdjustment = true;
+				const isInitialization = false;
+
+				await stockMovements.create({
+					ProductId: PID,
+					BranchId: BranchId,
+					change: stockDelta,
+					isAddition: isAddition,
+					isAdjustment: isAdjustment,
+					isInitialization: isInitialization,
+					UserId: UserId,
+				});
 			}
 
 			if (oldImgURL !== imgURL) {
@@ -325,11 +335,33 @@ module.exports = {
 					});
 				}
 
-				//! ADD ENTRY IN STOCKMOVEMENTS
+				if (oldStock === undefined || isNaN(oldStock)) {
+					await stocks.create({ currentStock: Math.max(0, stock), ProductId: PID, BranchId: BranchId });
+
+					await products.increment("aggregateStock", { by: stock, where: { id: PID } });
+				} else {
+					await stocks.update(
+						{ currentStock: Math.max(0, stock) },
+						{
+							where: {
+								ProductId: PID,
+								BranchId: BranchId,
+							},
+						}
+					);
+
+					if (oldStock < stock) {
+						const addition = stock - oldStock;
+						await products.increment("aggregateStock", { by: addition, where: { id: PID } });
+					} else if (oldStock > stock) {
+						const reduction = oldStock - stock;
+						await products.decrement("aggregateStock", { by: reduction, where: { id: PID } });
+					}
+				}
 
 				res.status(200).send({
 					status: 200,
-					message: `${oldProductName}'s picture updated successfully.`,
+					message: `${oldProductName}'s picture & other infos(if any) have been updated successfully.`,
 				});
 			} else {
 				await products.update(
@@ -347,13 +379,36 @@ module.exports = {
 					});
 				}
 
+				if (oldStock === undefined || isNaN(oldStock)) {
+					await stocks.create({ currentStock: Math.max(0, stock), ProductId: PID, BranchId: BranchId });
+
+					await products.increment("aggregateStock", { by: stock, where: { id: PID } });
+				} else {
+					await stocks.update(
+						{ currentStock: Math.max(0, stock) },
+						{
+							where: {
+								ProductId: PID,
+								BranchId: BranchId,
+							},
+						}
+					);
+
+					if (oldStock < stock) {
+						const addition = stock - oldStock;
+						await products.increment("aggregateStock", { by: addition, where: { id: PID } });
+					} else if (oldStock > stock) {
+						const reduction = oldStock - stock;
+						await products.decrement("aggregateStock", { by: reduction, where: { id: PID } });
+					}
+				}
+
 				res.status(200).send({
 					status: 200,
-					message: `${oldProductName} updated successfully.`,
+					message: `${oldProductName} has been updated successfully.`,
 				});
 			}
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -627,7 +682,7 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
 					sortOrder,
 				]);
 			} else {
@@ -700,7 +755,7 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
 					sortOrder,
 				]);
 			} else {
@@ -772,7 +827,7 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
 					sortOrder,
 				]);
 			} else {
@@ -844,7 +899,7 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.productId = products.id)`),
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
 					sortOrder,
 				]);
 			} else {
@@ -877,7 +932,7 @@ module.exports = {
 	},
 	bulkUpdateCategory: async (req, res) => {
 		try {
-			const { newCategoryId, PIDs } = req.body;
+			const { UID, newCategoryId, PIDs } = req.body;
 
 			if (!newCategoryId || !Array.isArray(PIDs) || PIDs.length === 0) {
 				return res.status(400).send({
@@ -885,6 +940,23 @@ module.exports = {
 					message: "Invalid request body.",
 				});
 			}
+
+			const newCategoryData = await categories.findOne({
+				where: {
+					id: newCategoryId,
+				},
+			});
+			const newCategoryName = newCategoryData?.dataValues?.category || "data_not_available";
+
+			for (const PID of PIDs) {
+				await changelogs.create({
+					field: "bulk_cat_change",
+					oldValue: "data_not_available",
+					newValue: newCategoryName,
+					UserId: UID,
+					ProductId: PID,
+				});
+			} //! BIMO PROTECT
 
 			const updatedProducts = await products.update(
 				{ CategoryId: newCategoryId },
@@ -1097,14 +1169,14 @@ module.exports = {
 			const { BranchId } = req.query;
 			const result = await stocks.findOne({
 				where: {
-					productId: id,
+					ProductId: id,
 					BranchId: BranchId,
 				},
 			});
 
 			const product = await stocks.findOne({
 				where: {
-					productId: id,
+					ProductId: id,
 				},
 			});
 
@@ -1131,7 +1203,7 @@ module.exports = {
 
 			res.status(200).send({
 				status: 200,
-				PID: result?.productId || product.productId,
+				PID: result?.ProductId || product.ProductId,
 				BranchId: result?.BranchId || parseInt(BranchId),
 				currentStock: result?.currentStock || 0,
 			});
@@ -1142,5 +1214,5 @@ module.exports = {
 				message: "Internal server error.",
 			});
 		}
-	}, //!BIMO PROTECT
+	}, //!BIMO PROTECT: SIG COUNT 2
 };

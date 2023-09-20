@@ -4,12 +4,13 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
 	class StockMovements extends Model {
 		static associate(models) {
+			StockMovements.belongsTo(models.Users);
 			StockMovements.belongsTo(models.Products, {
-				foreignKey: "productId",
-			});
-			StockMovements.belongsTo(models.Branches, {
-				foreignKey: "branchId",
-			});
+				foreignKey: 'ProductId',
+			  });
+			  StockMovements.belongsTo(models.Branches, {
+				foreignKey: 'BranchId',
+			  });
 		}
 	}
 	StockMovements.init(

@@ -72,10 +72,7 @@ export const EditProduct = ({
 				const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 				return acceptedTypes.includes(value.type);
 			}),
-		stock: Yup.number()
-			.required("Stock cannot be empty.")
-			.typeError("Stock must be a number")
-			.positive("Stock must be a positive number"),
+		stock: Yup.number().required("Stock cannot be empty.").typeError("Stock must be a number"),
 	});
 
 	const handleSubmit = async (values) => {

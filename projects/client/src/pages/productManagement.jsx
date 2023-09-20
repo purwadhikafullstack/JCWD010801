@@ -64,6 +64,7 @@ const ProductManagement = () => {
 	const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
 	const [branches, setBranches] = useState([]);
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
 	let user = "";
 	if (gender !== null) {
@@ -104,6 +105,7 @@ const ProductManagement = () => {
 
 	const fetchDataAll = async (pageNum) => {
 		try {
+			setIsLoading(true);
 			let apiURL = "";
 
 			if (activeTab === 0) {
@@ -145,6 +147,9 @@ const ProductManagement = () => {
 			} else {
 				setTotalProductsDeleted(productsResponse.data.totalProducts);
 			}
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 500);
 		} catch (error) {
 			console.log(error);
 		}
@@ -416,6 +421,7 @@ const ProductManagement = () => {
 							setReload={setReload}
 							BranchId={BranchId}
 							currentBranchName={currentBranchName}
+							UID={id}
 						/>
 					</Flex>
 				</Flex>
@@ -1061,6 +1067,7 @@ const ProductManagement = () => {
 										reload={reload}
 										setReload={setReload}
 										isAllDeactivated={isAllDeactivated}
+										UID={id}
 									/>
 									<BulkActivate
 										currentPagePIDs={currentPagePIDs}
@@ -1158,6 +1165,7 @@ const ProductManagement = () => {
 								) : (
 									products?.map((data, index, array) => {
 										const isLastItem = index === array.length - 1;
+										const isEvenIndex = index % 2 === 0;
 										return (
 											<ProductTabPanel
 												id={id}
@@ -1176,6 +1184,8 @@ const ProductManagement = () => {
 												initialCheckboxState={initialCheckboxState}
 												BranchId={BranchId}
 												currentBranchName={currentBranchName}
+												isLoading={isLoading}
+												isEvenIndex={isEvenIndex}
 											/>
 										);
 									})
@@ -1189,6 +1199,7 @@ const ProductManagement = () => {
 								) : (
 									products?.map((data, index, array) => {
 										const isLastItem = index === array.length - 1;
+										const isEvenIndex = index % 2 === 0;
 										return (
 											<ProductTabPanel
 												id={id}
@@ -1207,6 +1218,8 @@ const ProductManagement = () => {
 												initialCheckboxState={initialCheckboxState}
 												BranchId={BranchId}
 												currentBranchName={currentBranchName}
+												isLoading={isLoading}
+												isEvenIndex={isEvenIndex}
 											/>
 										);
 									})
@@ -1220,6 +1233,7 @@ const ProductManagement = () => {
 								) : (
 									products?.map((data, index, array) => {
 										const isLastItem = index === array.length - 1;
+										const isEvenIndex = index % 2 === 0;
 										return (
 											<ProductTabPanel
 												id={id}
@@ -1238,6 +1252,8 @@ const ProductManagement = () => {
 												initialCheckboxState={initialCheckboxState}
 												BranchId={BranchId}
 												currentBranchName={currentBranchName}
+												isLoading={isLoading}
+												isEvenIndex={isEvenIndex}
 											/>
 										);
 									})
@@ -1251,6 +1267,7 @@ const ProductManagement = () => {
 								) : (
 									products?.map((data, index, array) => {
 										const isLastItem = index === array.length - 1;
+										const isEvenIndex = index % 2 === 0;
 										return (
 											<ProductTabPanel
 												id={id}
@@ -1269,6 +1286,8 @@ const ProductManagement = () => {
 												initialCheckboxState={initialCheckboxState}
 												BranchId={BranchId}
 												currentBranchName={currentBranchName}
+												isLoading={isLoading}
+												isEvenIndex={isEvenIndex}
 											/>
 										);
 									})
@@ -1292,4 +1311,4 @@ const ProductManagement = () => {
 	);
 };
 
-export default ProductManagement; //! BIMO PROTECTION COUNT: 9
+export default ProductManagement; //! BIMO PROTECTION SIG COUNT: 9 EXPLICIT SIG: 3
