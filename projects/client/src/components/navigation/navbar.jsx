@@ -71,18 +71,18 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		}
 	};
 
-	const fetchCart = async() => {
+	const fetchCart = async () => {
 		try {
 			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
-			setTotalCartItems( data.total );
+				headers: {
+					authorization: `Bearer ${token}`,
+				},
+			});
+			setTotalCartItems(data.total);
 		} catch (err) {
 			console.log(err);
 		}
-	}
+	};
 
 	const handleSearchFocus = () => {
 		setSearchFocused(true);
