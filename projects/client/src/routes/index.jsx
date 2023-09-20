@@ -54,7 +54,7 @@ export const AppRouter = createBrowserRouter([
 					<Suspense fallback={<Spinner />}>
 						<CartPage />
 					</Suspense>
-				)
+				),
 			},
 			{
 				path: "/product/:id",

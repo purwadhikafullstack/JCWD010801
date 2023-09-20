@@ -1,13 +1,16 @@
 import "react-toastify/dist/ReactToastify.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import Axios from "axios";
 import styled from "@emotion/styled";
 import React, { useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { Flex, Checkbox, Image, Text, Switch } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { TiDelete } from "react-icons/ti";
 import { toast } from "react-toastify";
 import { ConfirmPassword } from "../../components/modal/confirmPassword";
 import { EditProduct } from "../../components/modal/editProduct";
+import { useEffect } from "react";
 
 export const ProductTabPanel = ({
 	id,
@@ -23,11 +26,21 @@ export const ProductTabPanel = ({
 	initialCheckboxState,
 	reload,
 	setReload,
+	BranchId,
+	currentBranchName,
+	isLoading,
+	isEvenIndex,
 }) => {
 	const navigate = useNavigate();
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 	const [inputPassword, setInputPassword] = useState("");
 	const [validationError, setValidationError] = useState("");
+	const [branchStock, setBranchStock] = useState(0);
+
+	useEffect(() => {
+		getBranchStock();
+		// eslint-disable-next-line
+	}, [reload]);
 
 	const openPasswordModal = () => {
 		setIsPasswordModalOpen(true);
@@ -49,6 +62,17 @@ export const ProductTabPanel = ({
 			}
 		} catch (error) {
 			setValidationError(error.response.data.message);
+		}
+	};
+
+	const getBranchStock = async () => {
+		try {
+			const response = await Axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/product/stock/${data.id}?BranchId=${BranchId}`
+			);
+			setBranchStock(response.data.currentStock);
+		} catch (error) {
+			// console.log(`There is no stock data for ${data.productName} in the ${currentBranchName} branch`);
 		}
 	};
 
@@ -83,7 +107,18 @@ export const ProductTabPanel = ({
 		}
 	`;
 
-	return (
+	return isLoading ? (
+		<div style={{ marginLeft: "1px" }} key={data.id}>
+			<Skeleton
+				count={1}
+				width={"1225px"}
+				containerClassName="flex-1"
+				height={"95px"}
+				highlightColor="#141415"
+				direction={isEvenIndex ? "rtl" : "ltr"}
+			/>
+		</div> //! BIMO PROTECTION
+	) : (
 		<Flex
 			key={data.id}
 			w={"1225px"}
@@ -216,7 +251,7 @@ export const ProductTabPanel = ({
 				bgColor={data.isDeleted ? "rgba(3, 3, 3, 0.8)" : "rgba(51, 50, 52, 0.2)"}
 				borderRadius={"5px"}
 			>
-				<Text>{data.aggregateStock} Units</Text>
+				<Text>{branchStock} Units</Text>
 			</Flex>
 			<Flex w={"64px"} h={"75px"} justify={"center"} align={"center"} ml={"5px"}>
 				<Switch
@@ -244,6 +279,9 @@ export const ProductTabPanel = ({
 					isDeleted={data.isDeleted}
 					reload={reload}
 					setReload={setReload}
+					BranchId={BranchId}
+					currentBranchName={currentBranchName}
+					branchStock={branchStock}
 				/>
 				<DeleteButton size={40} onClick={handleClick} />
 				<ConfirmPassword
@@ -258,4 +296,4 @@ export const ProductTabPanel = ({
 			</Flex>
 		</Flex>
 	);
-};
+}; //! BIMO PROTECTION SIG COUNT: 1

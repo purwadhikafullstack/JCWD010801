@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { ConfirmPasswordBulkDelete } from "../modal/confirmPasswordBulkDelete";
 import { TbTrashX } from "react-icons/tb";
 import { PiWarningDuotone } from "react-icons/pi";
+import { useSelector } from "react-redux";
 
 export const BulkDelete = ({
 	selectedPIDs,
@@ -30,6 +31,7 @@ export const BulkDelete = ({
 	isAllDeactivated,
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { id } = useSelector((state) => state?.user?.value);
 
 	const handleBulkDelete = () => {
 		if (selectedPIDs.length === 0) {
@@ -48,6 +50,7 @@ export const BulkDelete = ({
 
 		axios
 			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkdelete`, {
+				id: id,
 				PIDs: selectedPIDs,
 			})
 			.then((response) => {
@@ -96,16 +99,19 @@ export const BulkDelete = ({
 				}
 			);
 		} else if (isAllDeactivated) {
-			toast.warn("You need to activate the products before proceeding with deletion. If you are sure you want to delete these products, you can proceed to delete them individually.", {
-				position: "top-right",
-				autoClose: 4000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
+			toast.warn(
+				"You need to activate the products before proceeding with deletion. If you are sure you want to delete these products, you can proceed to delete them individually.",
+				{
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				}
+			);
 		} else {
 			onOpen();
 		}

@@ -13,6 +13,22 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			shipment: {
 				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			shipmentMethod: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			etd: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			shipmentMethod: {
+				type: DataTypes.STRING,
+                allowNull: false
+			},
+			etd: {
+				type: DataTypes.STRING,
                 allowNull: false
 			},
 			shipmentMethod: {
@@ -25,26 +41,33 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			shippingFee: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			subtotal: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			tax: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			discount: {
 				type: DataTypes.INTEGER,
 			},
 			total: {
 				type: DataTypes.INTEGER,
-                allowNull: false
+				allowNull: false,
 			},
 			status: {
-				type: DataTypes.ENUM('Waiting payment', 'Pending payment confirmation', 'Processing', 'Sent', 'Received', 'Cancelled'),
-                allowNull: false
+				type: DataTypes.ENUM(
+					"Waiting payment",
+					"Pending payment confirmation",
+					"Processing",
+					"Sent",
+					"Received",
+					"Cancelled"
+				),
+				allowNull: false,
 			},
 			paymentProof: {
 				type: DataTypes.STRING,

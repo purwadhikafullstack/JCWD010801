@@ -1,5 +1,5 @@
-import Order from "./components/order"
+import Order from "./components/order";
 
 export const CheckoutPageView = () => {
-    return <Order/>
-}
+	return <Order />;
+};

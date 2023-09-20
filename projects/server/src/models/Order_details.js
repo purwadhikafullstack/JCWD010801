@@ -5,15 +5,15 @@ module.exports = (sequelize, DataTypes) => {
 	class Order_details extends Model {
 		static associate(models) {
 			Order_details.belongsTo(models.Orders);
-            Order_details.belongsTo(models.Products);
+			Order_details.belongsTo(models.Products);
 		}
 	}
 	Order_details.init(
 		{
 			quantity: {
 				type: DataTypes.INTEGER,
-                allowNull: false
-			}
+				allowNull: false,
+			},
 		},
 		{
 			sequelize,
