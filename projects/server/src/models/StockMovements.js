@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			StockMovements.belongsTo(models.Users);
 			StockMovements.belongsTo(models.Products, {
-				foreignKey: 'ProductId',
-			  });
-			  StockMovements.belongsTo(models.Branches, {
-				foreignKey: 'BranchId',
-			  });
+				foreignKey: "ProductId",
+			});
+			StockMovements.belongsTo(models.Branches, {
+				foreignKey: "BranchId",
+			});
 		}
 	}
 	StockMovements.init(
