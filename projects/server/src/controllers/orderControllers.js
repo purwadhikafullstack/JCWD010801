@@ -86,7 +86,7 @@ module.exports = {
 	},
 	order: async (req, res) => {
 		try {
-			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount } = req.body;
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId } = req.body;
 			const cartCheckedOut = await carts.findOne({
 				where: {
 					UserId: req.user.id,
@@ -109,6 +109,7 @@ module.exports = {
 				discount,
 				status: "Waiting payment",
 				CartId: cartCheckedOut.id,
+				AddressId: AddressId
 			});
 			const orderDetailPromises = orderedItems.map(async (item) => {
 				await order_details.create({
