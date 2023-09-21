@@ -1,7 +1,7 @@
+import "react-toastify/dist/ReactToastify.css";
 import source from "../../assets/public/AM_logo_white.png";
 import sourceLogo from "../../assets/public/AM_logo_only_white_trans.png";
-import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Flex, IconButton, Image, Text } from "@chakra-ui/react";
 import { toast } from "react-toastify";
@@ -14,12 +14,14 @@ import { BsPersonGear } from "react-icons/bs";
 import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
+import { sidebarEvent } from '../../events/sidebarEvent';
 
-export const AdminSidebar = ({ height, navSizeProp }) => {
+export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state?.user?.value);
 	const [navSize, setNavsize] = useState(navSizeProp || "large");
+
 	const logout = () => {
 		localStorage.removeItem("token");
 		toast.error("You have successfully logged out.", {
@@ -35,14 +37,20 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 		dispatch(setValue({}));
 		navigate("/login");
 	};
+
 	const toggleNavSize = () => {
 		setNavsize(navSize === "small" ? "large" : "small");
 	};
+
+	useEffect(() => {
+		sidebarEvent.emit("sidebarSizeChange", navSize);
+	}, [navSize]);
+
 	return (
 		<>
 			<Flex
-				// position={"fixed"}
-				w={navSize === "small" ? "100px" : "180px"}
+				position={navPosProp || null}
+				w={navSize === "small" ? "100px" : "170px"}
 				transition="width 0.3s"
 				h={height || "100vh"}
 				backgroundColor={"black"}

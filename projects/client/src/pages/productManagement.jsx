@@ -20,7 +20,7 @@ import {
 	Text,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom"; //!BIMO PROTECT
+import { useNavigate } from "react-router-dom";
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
@@ -40,6 +40,7 @@ import { MoveCategories } from "../components/modal/moveCategories";
 import { BulkDeactivate } from "../components/modal/bulkDeactivate";
 import { BulkActivate } from "../components/modal/bulkActivate";
 import { BulkDelete } from "../components/modal/bulkDelete";
+import { sidebarEvent } from "../events/sidebarEvent";
 
 const initialCheckboxState = {};
 
@@ -65,6 +66,9 @@ const ProductManagement = () => {
 	const [branches, setBranches] = useState([]);
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [marginLeftContainer, setMarginLeftContainer] = useState("168px");
+	const [marginLeftHeading, setMarginLeftHeading] = useState("13px");
+	const [marginLeftDescription, setMarginLeftDescription] = useState("15px");
 	const navigate = useNavigate();
 	let user = "";
 	if (gender !== null) {
@@ -102,6 +106,19 @@ const ProductManagement = () => {
 		fetchDataAll(page);
 		// eslint-disable-next-line
 	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages, activeTab]);
+
+	useEffect(() => {
+		const handleSidebarSizeChange = (newSize) => {
+			setMarginLeftContainer(newSize === "small" ? "100px" : "168px");
+			setMarginLeftHeading(newSize === "small" ? "48px" : "13px");
+			setMarginLeftDescription(newSize === "small" ? "50px" : "15px");
+		};
+		sidebarEvent.on("sidebarSizeChange", handleSidebarSizeChange);
+
+		return () => {
+			sidebarEvent.off("sidebarSizeChange", handleSidebarSizeChange);
+		};
+	}, []);
 
 	const fetchDataAll = async (pageNum) => {
 		try {
@@ -149,7 +166,7 @@ const ProductManagement = () => {
 			}
 			setTimeout(() => {
 				setIsLoading(false);
-			}, 500);
+			}, 300);
 		} catch (error) {
 			console.log(error);
 		}
@@ -168,9 +185,9 @@ const ProductManagement = () => {
 
 	const productCount = async () => {
 		try {
-			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`); //! asc33nzio 17SEPT23
-			setTotalProductsAll(all.data.totalProducts); //! commit signature: bimo cupaw
-			const active = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/active`); //! check for rollbacks
+			const all = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/alladmin`);
+			setTotalProductsAll(all.data.totalProducts);
+			const active = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/active`);
 			setTotalProductsActive(active.data.totalProducts);
 			const deactivated = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/deactivated`);
 			setTotalProductsDeactivated(deactivated.data.totalProducts);
@@ -183,7 +200,7 @@ const ProductManagement = () => {
 
 	const handleActivation = async (PID) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/activation/${PID}`, { id: id }); //!CHECK ROLLBACK
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/activation/${PID}`, { id: id });
 			toast.success(`${response.data.message}`, {
 				position: "top-right",
 				autoClose: 4000,
@@ -212,7 +229,7 @@ const ProductManagement = () => {
 
 	const handleDelete = async (PID) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/delete/${PID}`, { id: id }); //! CHECK ROLLBACK
+			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/delete/${PID}`, { id: id });
 			toast.warn(`${response.data.message}`, {
 				position: "top-right",
 				autoClose: 4000,
@@ -396,9 +413,9 @@ const ProductManagement = () => {
 
 	return (
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
-			<AdminSidebar navSizeProp="large" />
+			<AdminSidebar navSizeProp="large" navPosProp="fixed" />
 			<NavbarAdmin />
-			<Box ml={"168px"} h={"200vh"}>
+			<Box ml={marginLeftContainer} h={"200vh"}>
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text
 						textAlign={"left"}
@@ -408,13 +425,13 @@ const ProductManagement = () => {
 						fontSize={"40px"}
 						fontWeight={"bold"}
 						alignSelf={"center"}
-						ml={"13px"}
+						ml={marginLeftHeading}
 					>
 						Product Management
 					</Text>
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
 						{/* //! Sysadmin Re-Activation Button Goes Here */}
-						<CreateCategory isText={true}></CreateCategory>
+						<CreateCategory isText={true} />
 						<AddProduct
 							categories={categories}
 							reload={reload}
@@ -433,7 +450,7 @@ const ProductManagement = () => {
 						fontSize={"18px"}
 						fontFamily={"monospace"}
 						alignSelf={"center"}
-						ml={"15px"}
+						ml={marginLeftDescription}
 					>
 						Welcome {user}.
 					</Text>
@@ -446,7 +463,7 @@ const ProductManagement = () => {
 						fontSize={"18px"}
 						fontFamily={"monospace"}
 						alignSelf={"center"}
-						ml={"15px"}
+						ml={marginLeftDescription}
 					>
 						You are currently managing AlphaMart products for the {currentBranchName} branch
 					</Text>
@@ -686,7 +703,7 @@ const ProductManagement = () => {
 								<Radio
 									size="sm"
 									ml={"7px"}
-									isChecked={sortBy === "branchStock"} //! BIMO PROTECT
+									isChecked={sortBy === "branchStock"}
 									borderColor={"gray"}
 									onChange={() => {
 										setSortBy("branchStock");
@@ -1142,7 +1159,6 @@ const ProductManagement = () => {
 										<Text fontSize={"12px"} mr={"3px"}>
 											BRANCH
 										</Text>
-										{/* //! BIMO PROTECT */}
 										<BiSort
 											size={18}
 											color="#3E3D40"
@@ -1311,4 +1327,4 @@ const ProductManagement = () => {
 	);
 };
 
-export default ProductManagement; //! BIMO PROTECTION SIG COUNT: 9 EXPLICIT SIG: 3
+export default ProductManagement;
