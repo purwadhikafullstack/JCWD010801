@@ -7,9 +7,9 @@ const qs = require("qs");
 const carts = db.Carts;
 const cartItems = db.Cart_items;
 const products = db.Products;
-const categories = db.Categories;
 const stocks = db.Stocks;
-const { Sequelize } = require("sequelize");
+const branches = db.Branches;
+
 
 module.exports = {
 	shipment: async (req, res) => {
@@ -37,7 +37,6 @@ module.exports = {
 					data: response.data.rajaongkir.results[0],
 				});
 			} catch (error) {
-				console.log(error);
 				return res.status(500).send({
 					error,
 					status: 500,
@@ -45,7 +44,6 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -58,6 +56,145 @@ module.exports = {
 			const page = +req.query.page || 1;
 			const limit = +req.query.limit || 4;
 			const search = req.query.search;
+			const date = req.query.date;
+			const status = req.query.status;
+			const sort = req.query.sort || "DESC";
+			const offset = (page - 1) * limit;
+			const condition = {};
+			const whereCondition = {};
+			if (search) {
+				condition[Op.or] = [
+					{
+						productName: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+				];
+			}
+			if (status) {
+				whereCondition.status = status;
+			}
+			if (date) {
+				const startDate = new Date(date);
+				startDate.setUTCHours(0, 0, 0, 0);
+				const endDate = new Date(date);
+				endDate.setUTCHours(23, 59, 59, 999);
+				whereCondition.updatedAt = {
+					[Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }],
+				};
+			}
+			const result = await order_details.findAll({
+				include: [
+					{
+						model: orders,
+						include: [
+							{
+								model: carts,
+								include: [
+									{
+										model: branches,
+									},
+								],
+							},
+						],
+						where: whereCondition,
+					},
+					{ model: products, where: condition },
+				],
+				limit,
+				offset,
+				order: [[{ model: orders }, "updatedAt", sort]],
+			});
+			const filteredResult = result.filter((item) => item.Order.Cart.UserId === req.user.id);
+			res.status(200).send({
+				result: filteredResult,
+				currentPage: page,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	superAdminOrdersList: async (req, res) => {
+		try {
+			const page = +req.query.page || 1;
+			const limit = +req.query.limit || 4;
+			const search = req.query.search;
+			const date = req.query.date;
+			const branchId = req.query.branchId;
+			const status = req.query.status;
+			const sort = req.query.sort || "DESC";
+			const offset = (page - 1) * limit;
+			const condition = {};
+			const whereCondition = {};
+			const branchCondition = {};
+			if (search) {
+				condition[Op.or] = [
+					{
+						productName: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+				];
+			}
+			if (status) {
+				whereCondition.status = status;
+			}
+			if (date) {
+				const startDate = new Date(date);
+				startDate.setUTCHours(0, 0, 0, 0);
+				const endDate = new Date(date);
+				endDate.setUTCHours(23, 59, 59, 999);
+				whereCondition.updatedAt = {
+					[Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }],
+				};
+			}
+			if (branchId) branchCondition["BranchId"] = branchId;
+			const result = await order_details.findAll({
+				include: [
+					{
+						model: orders,
+						include: [
+							{
+								model: carts,
+								include: [
+									{
+										model: branches,
+									},
+								],
+								where: branchCondition
+							},
+						],
+						where: whereCondition,
+					},
+					{ model: products, where: condition },
+				],
+				limit,
+				offset,
+				order: [[{ model: orders }, "updatedAt", sort]],
+			});
+			res.status(200).send({
+				result,
+				currentPage: page,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	branchAdminOrdersList: async (req, res) => {
+		try {
+			const page = +req.query.page || 1;
+			const limit = +req.query.limit || 4;
+			const search = req.query.search;
+			const date = req.query.date;
 			const offset = (page - 1) * limit;
 			const condition = {};
 			if (search) {
@@ -69,8 +206,35 @@ module.exports = {
 					},
 				];
 			}
+			const whereCondition = {};
+			if (date) {
+				const startDate = new Date(date);
+				startDate.setUTCHours(0, 0, 0, 0);
+				const endDate = new Date(date);
+				endDate.setUTCHours(23, 59, 59, 999);
+				whereCondition.updatedAt = {
+					[Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }],
+				};
+			}
 			const result = await order_details.findAll({
-				include: [{ model: orders }, { model: products, where: condition }],
+				include: [
+					{
+						model: orders,
+						include: [
+							{
+								model: carts,
+								include: [
+									{
+										model: branches,
+									},
+								],
+								where: { BranchId: req.user.id },
+							},
+						],
+						where: whereCondition,
+					},
+					{ model: products, where: condition },
+				],
 				limit,
 				offset,
 			});
@@ -88,9 +252,9 @@ module.exports = {
 	},
 	order: async (req, res) => {
 		try {
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId } = req.body;
 			const cartCheckedOut = await carts.findOne({
 				where: {
-					id: req.params.id,
 					UserId: req.user.id,
 					status: "ACTIVE",
 				},
@@ -101,21 +265,40 @@ module.exports = {
 				},
 			});
 			const result = await orders.create({
-				courier,
+				shipment,
 				shipmentMethod,
 				etd,
 				shippingFee,
 				subtotal,
 				tax,
 				total,
+				discount,
 				status: "Waiting payment",
 				CartId: cartCheckedOut.id,
+				AddressId: AddressId
 			});
-			await order_details.create({
-				OrderId: result.id,
-				ProductId: orderedItems.ProductId,
-				quantity: orderedItems.quantity,
+			const orderDetailPromises = orderedItems.map(async (item) => {
+				await order_details.create({
+					OrderId: result.id,
+					ProductId: item.ProductId,
+					quantity: item.quantity,
+				});
 			});
+			await Promise.all(orderDetailPromises);
+			const stocksPromises = orderedItems.map(async (item) => {
+				await stocks.decrement(
+					{
+						currentStock: item.quantity,
+					},
+					{
+						where: {
+							ProductId: item.ProductId,
+							BranchId: cartCheckedOut.BranchId,
+						},
+					}
+				);
+			});
+			await Promise.all(stocksPromises);
 			await carts.update(
 				{
 					status: "CHECKEDOUT",

@@ -28,6 +28,10 @@ export default function AddAdmin({ reload, setReload }) {
 	const navigate = useNavigate();
 	const initialRef = useRef(null);
 	const finalRef = useRef(null);
+	const token = localStorage.getItem("token");
+	const headers = {
+		Authorization: `Bearer ${token}`,
+	};
 	const [show, setShow] = useState(false);
 	const [branch, setBranch] = useState();
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -48,7 +52,7 @@ export default function AddAdmin({ reload, setReload }) {
 	});
 	const handleCreate = async (value) => {
 		try {
-			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin`, value, {});
+			await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin`, value, { headers });
 			toast.success("New admin created", {
 				position: "top-center",
 				autoClose: 4000,
@@ -59,7 +63,7 @@ export default function AddAdmin({ reload, setReload }) {
 				progress: undefined,
 				theme: "dark",
 			});
-			navigate("/admindashboard/adminslist");
+			navigate("/dashboard/admins-list");
 			setReload(!reload);
 		} catch (err) {
 			toast.error(err.response.data.message, {
