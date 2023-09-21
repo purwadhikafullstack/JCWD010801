@@ -7,9 +7,8 @@ const qs = require("qs");
 const carts = db.Carts;
 const cartItems = db.Cart_items;
 const products = db.Products;
-const categories = db.Categories;
 const stocks = db.Stocks;
-const { Sequelize } = require("sequelize");
+
 
 module.exports = {
 	shipment: async (req, res) => {
