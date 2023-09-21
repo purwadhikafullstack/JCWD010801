@@ -43,7 +43,7 @@ export const Receipt = ({ subtotal, promo = true }) => {
                     { `Rp. ${convertToRp( subtotal + (subtotal / 10) )}`}
                 </Text>
             </Flex>
-            <ButtonTemp w={'100%'} content={"CHECK OUT"} onClick={() => navigate("/order")} />
+            <ButtonTemp w={'100%'} content={"CHECK OUT"} onClick={() => navigate("/checkout")} />
         </Stack>
     )
 }
