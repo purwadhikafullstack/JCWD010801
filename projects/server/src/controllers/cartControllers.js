@@ -6,6 +6,7 @@ const cartItems = db.Cart_items;
 const products = db.Products;
 const categories = db.Categories;
 const stocks = db.Stocks;
+const branches = db.Branches;
 
 module.exports = {
 	addToCart: async (req, res) => {
@@ -77,6 +78,7 @@ module.exports = {
 					UserId: req.user.id,
 					status: "ACTIVE",
 				},
+				include: { model: branches },
 			});
 			if (!result) throw { state: false, message: "Cart not found" };
 
@@ -118,7 +120,7 @@ module.exports = {
 						`subtotal`,
 					],
 				],
-                group: ['Cart_items.id'],
+				group: ["Cart_items.id"],
 			});
 
 			res.status(200).send({

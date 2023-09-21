@@ -1,3 +1,4 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
 import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
@@ -5,12 +6,24 @@ import { useDispatch } from "react-redux";
 import { setValue } from "./redux/userSlice";
 import { AppRouter } from "./routes/index";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 	const token = localStorage.getItem("token");
 	const dispatch = useDispatch();
-
+	if ("geolocation" in navigator) {
+		navigator.geolocation.getCurrentPosition(async function (position) {
+			try {
+				const latitude = position.coords.latitude;
+				const longitude = position.coords.longitude;
+				localStorage.setItem("lat", latitude);
+				localStorage.setItem("lng", longitude);
+			} catch (error) {
+				console.error("Error:", error);
+			}
+		});
+	} else {
+		console.log("Geolocation isn't supported in this device.");
+	}
 	useEffect(() => {
 		const keepLogin = async () => {
 			try {

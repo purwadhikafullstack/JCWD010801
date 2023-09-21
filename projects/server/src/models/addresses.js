@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
 	class Addresses extends Model {
 		static associate(models) {
 			Addresses.belongsTo(models.Users);
+			Addresses.hasOne(models.Orders);
 		}
 	}
 	Addresses.init(

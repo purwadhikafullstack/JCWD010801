@@ -25,8 +25,7 @@ export const UserOrdersList = () => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}
-				`,
+				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
 				{
 					headers,
 					params: queryParams,
@@ -35,7 +34,6 @@ export const UserOrdersList = () => {
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			console.log(response.data);
 		} catch (error) {
 			console.log(error);
 		}
