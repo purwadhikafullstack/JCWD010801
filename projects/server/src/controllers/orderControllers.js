@@ -277,7 +277,7 @@ module.exports = {
 				discount,
 				status: "Waiting payment",
 				CartId: cartCheckedOut.id,
-				AddressId: AddressId
+				AddressId: AddressId,
 			});
 			const orderDetailPromises = orderedItems.map(async (item) => {
 				await order_details.create({
