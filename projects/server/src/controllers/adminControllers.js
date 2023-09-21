@@ -11,12 +11,14 @@ module.exports = {
 		try {
 			const { username, firstName, lastName, email, phone, password, BranchId } = req.body;
 			const isAccountExist = await users.findOne({
-				where: { [Op.or]: { username, email } },
+				where: { [Op.or]: { username, email, phone } },
 			});
 			if (isAccountExist && isAccountExist.email === email) {
 				throw { message: "E-mail has been used." };
 			} else if (isAccountExist && isAccountExist.username === username) {
 				throw { message: "Username has been used." };
+			} else if (isAccountExist && isAccountExist.phone === phone) {
+				throw { message: "Phone Number has been used." };
 			}
 
 			const salt = await bcrypt.genSalt(10);
@@ -41,6 +43,7 @@ module.exports = {
 			});
 		} catch (error) {
 			return res.status(500).send({
+				error,
 				status: 500,
 				message: "Internal server error.",
 			});
