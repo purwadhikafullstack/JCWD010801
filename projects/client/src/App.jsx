@@ -1,3 +1,4 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
 import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
@@ -5,7 +6,6 @@ import { useDispatch } from "react-redux";
 import { setValue } from "./redux/userSlice";
 import { AppRouter } from "./routes/index";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 	const token = localStorage.getItem("token");
@@ -22,7 +22,7 @@ function App() {
 			}
 		});
 	} else {
-		console.log("Geolokasi tidak didukung di peramban ini.");
+		console.log("Geolocation isn't supported in this device.");
 	}
 	useEffect(() => {
 		const keepLogin = async () => {

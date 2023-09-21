@@ -1,7 +1,7 @@
+import "react-toastify/dist/ReactToastify.css";
 import source from "../../assets/public/AM_logo_white.png";
 import sourceLogo from "../../assets/public/AM_logo_only_white_trans.png";
-import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Flex, IconButton, Image, Text } from "@chakra-ui/react";
 import { toast } from "react-toastify";
@@ -14,12 +14,14 @@ import { BsPersonGear } from "react-icons/bs";
 import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
+import { sidebarEvent } from '../../events/sidebarEvent';
 
-export const AdminSidebar = ({ height, navSizeProp }) => {
+export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const user = useSelector((state) => state.user.value);
-	const [navSize, setNavsize] = useState(navSizeProp || "small");
+	const user = useSelector((state) => state?.user?.value);
+	const [navSize, setNavsize] = useState(navSizeProp || "large");
+
 	const logout = () => {
 		localStorage.removeItem("token");
 		toast.error("You have successfully logged out.", {
@@ -35,186 +37,194 @@ export const AdminSidebar = ({ height, navSizeProp }) => {
 		dispatch(setValue({}));
 		navigate("/login");
 	};
+
 	const toggleNavSize = () => {
 		setNavsize(navSize === "small" ? "large" : "small");
 	};
+
+	useEffect(() => {
+		sidebarEvent.emit("sidebarSizeChange", navSize);
+	}, [navSize]);
+
 	return (
-		<Flex
-			position={"fixed"}
-			w={navSize === "small" ? "100px" : "170px"}
-			transition="width 0.3s"
-			h={height || "100vh"}
-			backgroundColor={"black"}
-			borderTopRightRadius={"30px"}
-			boxShadow="0px 0px 8px black"
-			justifyContent={"space-between"}
-			direction={"column"}
-		>
-			<Flex mt={"10px"} direction={"column"}>
-				<Flex justifyContent={"center"} cursor={"pointer"} onClick={toggleNavSize}>
-					<Image
-						w={navSize === "small" ? "60px" : "120px"}
-						mr={navSize === "small" ? "0px" : "15px"}
-						src={navSize === "small" ? sourceLogo : source}
-						transition="transform 0.3s ease-in-out"
-						_hover={{ transform: "scale(1.1)" }}
-					/>
-				</Flex>
-				<Flex
-					onClick={toggleNavSize}
-					_hover={{ transform: "scale(1.1)" }}
-					transition="transform 0.3s ease-in-out"
-					justifyContent={"center"}
-				>
-					<IconButton
-						mb={"15px"}
-						variant={"unstyled"}
-						icon={<FaBars size={25} />}
-						color={"white"}
-						ml={navSize === "large" ? "0px" : "15px"}
-						justifyContent={navSize === "large" ? "start" : "center"}
-					/>
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
-							View Less
-						</Text>
-					) : null}
-				</Flex>
-				<Flex
-					as={Link}
-					to={"/dashboard"}
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "20px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<RiDashboardLine size={30} />
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-							Dashboard
-						</Text>
-					) : null}
-				</Flex>
-			</Flex>
-			<Box>
-				<Flex
-					as={Link}
-					to={"/"}
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "20px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<AiOutlineHome size={30} />
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-							Home
-						</Text>
-					) : null}
-				</Flex>
-				<Flex
-					as={Link}
-					to={"/dashboard"}
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "20px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<LiaBoxSolid size={30} />
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-							Products
-						</Text>
-					) : null}
-				</Flex>
-				<Flex
-					as={Link}
-					to={"/dashboard"}
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "20px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<RiFileList3Line size={30} />
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-							Orders
-						</Text>
-					) : null}
-				</Flex>
-				<Flex
-					as={Link}
-					to={"/dashboard"}
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "20px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<AiOutlineBranches size={30} />
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-							Branches
-						</Text>
-					) : null}
-				</Flex>
-				<Flex
-					as={Link}
-					to={"/dashboard"}
-					mb={"20px"}
-					color={"white"}
-					transition="transform 0.3s ease-in-out"
-					_hover={{ transform: "scale(1.2)" }}
-					ml={navSize === "large" ? "24px" : "0px"}
-					justifyContent={navSize === "large" ? "start" : "center"}
-				>
-					<VscGraphLine size={27} />
-					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
-							Report
-						</Text>
-					) : null}
-				</Flex>
-				{user.RoleId === 3 ? (
+		<>
+			<Flex
+				position={navPosProp || null}
+				w={navSize === "small" ? "100px" : "170px"}
+				transition="width 0.3s"
+				h={height || "100vh"}
+				backgroundColor={"black"}
+				borderTopRightRadius={"30px"}
+				boxShadow="0px 0px 8px black"
+				justifyContent={"space-between"}
+				direction={"column"}
+			>
+				<Flex mt={"10px"} direction={"column"}>
+					<Flex justifyContent={"center"} cursor={"pointer"} onClick={toggleNavSize}>
+						<Image
+							w={navSize === "small" ? "60px" : "120px"}
+							mr={navSize === "small" ? "0px" : "15px"}
+							src={navSize === "small" ? sourceLogo : source}
+							transition="transform 0.3s ease-in-out"
+							_hover={{ transform: "scale(1.1)" }}
+						/>
+					</Flex>
 					<Flex
-						as={Link}
-						to={"/dashboard/adminslist"}
-						mb={"20px"}
-						color={"white"}
-						transition="transform 0.3s ease-in-out"
+						onClick={toggleNavSize}
 						_hover={{ transform: "scale(1.1)" }}
-						ml={navSize === "large" ? "20px" : "0px"}
-						mt={navSize === "large" ? "20px" : "0px"}
-						justifyContent={navSize === "large" ? "start" : "center"}
+						transition="transform 0.3s ease-in-out"
+						justifyContent={"center"}
 					>
-						<Box mt={navSize === "large" ? "8px" : "0px"}>
-							<BsPersonGear size={32} />
-						</Box>
+						<IconButton
+							mb={"15px"}
+							variant={"unstyled"}
+							icon={<FaBars size={25} />}
+							color={"white"}
+							ml={navSize === "large" ? "0px" : "15px"}
+							justifyContent={navSize === "large" ? "start" : "center"}
+						/>
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"12px"} fontSize={"16px"}>
-								Admin Management
+							<Text cursor={"pointer"} color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
+								View Less
 							</Text>
 						) : null}
 					</Flex>
-				) : null}
-			</Box>
-			<Flex onClick={logout} mb={"20px"} justifyContent={"center"} color={"white"}>
-				<SlLogout size={25} />
-				{navSize === "large" ? (
-					<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
-						Logout
-					</Text>
-				) : null}
+					<Flex
+						as={Link}
+						to={"/dashboard"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "18px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<RiDashboardLine size={30} />
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+								Dashboard
+							</Text>
+						) : null}
+					</Flex>
+				</Flex>
+				<Box>
+					<Flex
+						as={Link}
+						to={"/"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<AiOutlineHome size={30} />
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+								Home
+							</Text>
+						) : null}
+					</Flex>
+					<Flex
+						as={Link}
+						to={"/dashboard/product-management"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<LiaBoxSolid size={30} />
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+								Products
+							</Text>
+						) : null}
+					</Flex>
+					<Flex
+						as={Link}
+						to={"/dashboard/orders-list"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<RiFileList3Line size={30} />
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+								Orders
+							</Text>
+						) : null}
+					</Flex>
+					<Flex
+						as={Link}
+						to={"/dashboard"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<AiOutlineBranches size={30} />
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+								Branches
+							</Text>
+						) : null}
+					</Flex>
+					<Flex
+						as={Link}
+						to={"/dashboard"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.3s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "24px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<VscGraphLine size={27} />
+						{navSize === "large" ? (
+							<Text cursor={"pointer"} color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
+								Report
+							</Text>
+						) : null}
+					</Flex>
+					{user.RoleId === 3 ? (
+						<Flex
+							as={Link}
+							to={"/dashboard/admins-list"}
+							mb={"20px"}
+							color={"white"}
+							transition="transform 0.3s ease-in-out"
+							_hover={{ transform: "scale(1.1)" }}
+							ml={navSize === "large" ? "20px" : "0px"}
+							mt={navSize === "large" ? "20px" : "0px"}
+							justifyContent={navSize === "large" ? "start" : "center"}
+						>
+							<Box mt={navSize === "large" ? "8px" : "0px"}>
+								<BsPersonGear size={32} />
+							</Box>
+							{navSize === "large" ? (
+								<Text cursor={"pointer"} color={"white"} mt={"2px"} ml={"12px"} fontSize={"14px"}>
+									Admin Management
+								</Text>
+							) : null}
+						</Flex>
+					) : null}
+				</Box>
+				<Flex onClick={logout} mb={"20px"} justifyContent={"center"} color={"white"}>
+					<SlLogout size={25} />
+					{navSize === "large" ? (
+						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							Logout
+						</Text>
+					) : null}
+				</Flex>
 			</Flex>
-		</Flex>
+		</>
 	);
 };

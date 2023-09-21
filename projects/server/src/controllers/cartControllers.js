@@ -80,7 +80,7 @@ module.exports = {
 				},
 				include: { model: branches },
 			});
-			
+
 			if (!result) res.status(404).send({
 				status: false,
 				message: "Cart not found"

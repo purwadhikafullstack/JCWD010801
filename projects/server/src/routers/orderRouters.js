@@ -4,6 +4,8 @@ const { verifyToken, checkUser } = require("../middlewares/auth");
 const { multerUpload } = require("../middlewares/multer");
 
 router.get("/", verifyToken, orderControllers.ordersList);
+router.get("/branchadmin", verifyToken, orderControllers.branchAdminOrdersList);
+router.get("/superAdmin", verifyToken, orderControllers.superAdminOrdersList);
 router.post("/", verifyToken, orderControllers.order);
 router.post("/shipment", orderControllers.shipment);
 router.get("/latest-id", orderControllers.getLatestId);
