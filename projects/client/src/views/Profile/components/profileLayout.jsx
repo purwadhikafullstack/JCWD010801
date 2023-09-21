@@ -2,7 +2,7 @@ import ProfileTab from "./profileTab";
 import AddressesTab from "./addressesTab";
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { Navigate } from "react-router-dom";
-import { OrdersList } from "../../OrdersList/components/ordersList";
+import { UserOrdersList } from "../../OrdersList/components/userOrdersList";
 
 export const ProfileLayout = () => {
 	const token = localStorage.getItem("token");
@@ -22,7 +22,7 @@ export const ProfileLayout = () => {
 						<AddressesTab />
 					</TabPanel>
 					<TabPanel>
-						<OrdersList />
+						<UserOrdersList />
 					</TabPanel>
 				</TabPanels>
 			</Tabs>
