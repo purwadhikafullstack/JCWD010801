@@ -65,8 +65,9 @@ export default function AddAdmin({ reload, setReload }) {
 			});
 			navigate("/dashboard/admins-list");
 			setReload(!reload);
+			onClose();
 		} catch (err) {
-			toast.error(err.response.data.message, {
+			toast.error(err.response.data.error.message, {
 				position: "top-center",
 				autoClose: 4000,
 				hideProgressBar: false,

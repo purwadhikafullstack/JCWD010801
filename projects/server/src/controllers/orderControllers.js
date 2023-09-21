@@ -86,29 +86,32 @@ module.exports = {
 					[Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }],
 				};
 			}
-			const result = await order_details.findAll({
+			const result = await orders.findAll({
 				include: [
 					{
-						model: orders,
+						model: order_details,
 						include: [
 							{
-								model: carts,
-								include: [
-									{
-										model: branches,
-									},
-								],
+								model: products,
+								where: condition,
 							},
 						],
-						where: whereCondition,
 					},
-					{ model: products, where: condition },
+					{
+						model: carts,
+						include: [
+							{
+								model: branches,
+							},
+						],
+					},
 				],
 				limit,
 				offset,
-				order: [[{ model: orders }, "updatedAt", sort]],
+				order: [["updatedAt", sort]],
+				where: whereCondition,
 			});
-			const filteredResult = result.filter((item) => item.Order.Cart.UserId === req.user.id);
+			const filteredResult = result.filter((item) => item.Cart.UserId === req.user.id);
 			res.status(200).send({
 				result: filteredResult,
 				currentPage: page,
@@ -169,7 +172,7 @@ module.exports = {
 										model: branches,
 									},
 								],
-								where: branchCondition
+								where: branchCondition,
 							},
 						],
 						where: whereCondition,
@@ -307,19 +310,21 @@ module.exports = {
 			});
 		}
 	},
-    uploadPaymentProof: async(req, res) => {
-        try {
-            const imgURL = req?.file?.filename;
+	uploadPaymentProof: async (req, res) => {
+		try {
+			const imgURL = req?.file?.filename;
 
-            await orders.update({ paymentProof: imgURL, status: "Pending payment confirmation" }, { where: { id: req.params.id } });
+			await orders.update(
+				{ paymentProof: imgURL, status: "Pending payment confirmation" },
+				{ where: { id: req.params.id } }
+			);
 
-            res.status(200).send({
-                status: true,
-                message: "Payment proof uploaded"
-            });
-
-        } catch (err) {
-            res.status(400).send(err);
-        }
-    }
+			res.status(200).send({
+				status: true,
+				message: "Payment proof uploaded",
+			});
+		} catch (err) {
+			res.status(400).send(err);
+		}
+	},
 };

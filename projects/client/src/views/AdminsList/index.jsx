@@ -13,7 +13,7 @@ export const AdminListPage = () => {
 	const token = localStorage.getItem("token");
 	const user = useSelector((state) => state?.user?.value);
 	const [data, setData] = useState();
-	const [reload, setReload] = useState(true);
+	const [reload, setReload] = useState(false);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
@@ -31,7 +31,7 @@ export const AdminListPage = () => {
 			setData(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			setReload(!reload);
+			setReload(true);
 		} catch (error) {
 			console.log(error);
 		}
@@ -62,7 +62,7 @@ export const AdminListPage = () => {
 		getEmployee(page);
 		getBranches();
 		// eslint-disable-next-line
-	}, [search, branchId, sort]);
+	}, [search, branchId, sort, reload]);
 
 	return (
 		<Flex>

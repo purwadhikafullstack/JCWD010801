@@ -4,6 +4,7 @@ import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
+// import { HiOutlineTruck } from "react-icons/hi";
 
 export const UserOrdersList = () => {
 	const [list, setList] = useState();
@@ -24,7 +25,8 @@ export const UserOrdersList = () => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}
+				`,
 				{
 					headers,
 					params: queryParams,
@@ -33,6 +35,7 @@ export const UserOrdersList = () => {
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
+			console.log(response.data);
 		} catch (error) {
 			console.log(error);
 		}
@@ -121,14 +124,14 @@ export const UserOrdersList = () => {
 									Shop
 								</Text>
 								<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-									{new Date(`${item.Order.createdAt}`).toLocaleDateString("us-us", {
+									{new Date(`${item.createdAt}`).toLocaleDateString("us-us", {
 										year: "numeric",
 										month: "long",
 										day: "numeric",
 									})}
 								</Text>
 								<Badge ml={"10px"} mt={"2px"} colorScheme="green">
-									{item.Order.status}
+									{item.status}
 								</Badge>
 								<Text mt={"2px"} ml={"10px"} fontFamily={"monospace"} fontSize={"13px"}>
 									INV/20230813/MPL/3400120239
@@ -137,34 +140,48 @@ export const UserOrdersList = () => {
 							<Flex mt={"3px"}>
 								<AiOutlineShopping color="blue" size={25} />
 								<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-									Alphamart {item.Order.Cart.Branch.name}
+									Alphamart {item.Cart.Branch.name}
 								</Text>
 							</Flex>
 							<Flex justifyContent={"space-between"}>
 								<Box>
-									<Flex mt={"10px"}>
-										<Box
-											as={Image}
-											w={"100px"}
-											bg={"gray.100"}
-											src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
-										></Box>
-										<Box>
-											<Text ml={"15px"} fontWeight={"bold"}>
-												{item.Product.productName}
-											</Text>
-											<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-												{item.quantity} Items X {item.Product.price}{" "}
-											</Text>
-										</Box>
-									</Flex>
+									{item.Order_details.map((item) => (
+										<Flex mt={"10px"} key={item.id}>
+											<Box
+												as={Image}
+												w={"100px"}
+												bg={"gray.100"}
+												src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
+											></Box>
+											<Box>
+												<Text ml={"15px"} fontWeight={"bold"}>
+													{item?.Product?.productName}
+												</Text>
+												<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
+													{item.quantity} Items X Rp.{item.Product.price},00
+												</Text>
+												<Text ml={"15px"} color={"balck"} fontSize={"11px"}>
+													{item.Product.description}
+												</Text>
+											</Box>
+										</Flex>
+									))}
 								</Box>
-								<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
+								<Flex direction={"column"} justifyContent={"end"} mr={"20px"}>
+									{/* <Flex>
+										<HiOutlineTruck color="black" size={23} />
+										<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+											{item.shipment} - {item.shipmentMethod}
+										</Text>
+									</Flex> */}
 									<Text color={"gray.500"} fontSize={"15px"}>
 										Total amount
 									</Text>
+									<Text color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
+										Rp. {item.subtotal},00 - {item.discount}%
+									</Text>
 									<Text color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-										Rp. {item.Order.subtotal},00
+										Rp. {item.total},00
 									</Text>
 								</Flex>
 							</Flex>
