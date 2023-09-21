@@ -40,7 +40,6 @@ export const ClearCart = ({ isEmpty }) => {
                 progress: undefined,
                 theme: "dark",
             });
-            window.location.reload();
             
         } catch (err) {
             closeModal();

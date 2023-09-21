@@ -6,6 +6,7 @@ const cartItems = db.Cart_items;
 const products = db.Products;
 const categories = db.Categories;
 const stocks = db.Stocks;
+const branches = db.Branches;
 
 module.exports = {
 	addToCart: async (req, res) => {
@@ -77,59 +78,69 @@ module.exports = {
 					UserId: req.user.id,
 					status: "ACTIVE",
 				},
+				include: { model: branches },
 			});
-			if (!result) throw { state: false, message: "Cart not found" };
-
-			const filter = {
-				where: { CartId: result.id },
-				include: {
-					model: products,
-					attributes: { exclude: ["isDeleted", "createdAt", "updatedAt"] },
+			
+			if (!result) res.status(404).send({
+				status: false,
+				message: "Cart not found"
+			})
+			else {
+				const filter = {
+					where: { CartId: result.id },
+					include: {
+						model: products,
+						attributes: { exclude: ["isDeleted", "createdAt", "updatedAt"] },
+						include: [
+							{
+								model: categories,
+								attributes: { exclude: ["isDeleted"] },
+							},
+							{
+								model: stocks,
+								where: { BranchId: result.BranchId },
+							},
+						],
+					},
+					attributes: { exclude: ["isDeleted"] },
+					order: [[Sequelize.col("createdAt"), `DESC`]],
+				};
+	
+				const cart_items = await cartItems.findAll(filter);
+				const total = await cartItems.count(filter);
+				const subtotal = await cartItems.findAll({
+					where: { CartId: result.id },
 					include: [
 						{
-							model: categories,
-							attributes: { exclude: ["isDeleted"] },
-						},
-						{
-							model: stocks,
-							where: { BranchId: result.BranchId },
+							model: products,
+							attributes: [],
 						},
 					],
-				},
-				attributes: { exclude: ["isDeleted"] },
-				order: [[Sequelize.col("createdAt"), `DESC`]],
-			};
-
-			const cart_items = await cartItems.findAll(filter);
-			const total = await cartItems.count(filter);
-			const subtotal = await cartItems.findAll({
-				where: { CartId: result.id },
-				include: [
-					{
-						model: products,
-						attributes: [],
-					},
-				],
-				attributes: [
-					[
-						Sequelize.literal(`(
-                            SELECT sum((Cart_items.quantity * Product.price))
-                        )`),
-						`subtotal`,
+					attributes: [
+						[
+							Sequelize.literal(`(
+								SELECT sum((Cart_items.quantity * Product.price))
+							)`),
+							`subtotal`,
+						],
 					],
-				],
-                group: ['Cart_items.id'],
-			});
+					group: ["Cart_items.id"],
+				});
+	
+				res.status(200).send({
+					status: true,
+					total,
+					subtotal,
+					cart: result,
+					cart_items,
+				});
+			}
 
-			res.status(200).send({
-				status: true,
-				total,
-				subtotal,
-				cart: result,
-				cart_items,
-			});
 		} catch (err) {
-			res.status(404).send(err);
+			res.status(500).send({
+				status: false,
+				message: "Internal server error"
+			});
 		}
 	},
 	switchBranch: async (req, res) => {

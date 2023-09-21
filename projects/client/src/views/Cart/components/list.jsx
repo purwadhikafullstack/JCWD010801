@@ -1,11 +1,5 @@
 import { Stack } from "@chakra-ui/react";
-import axios from "axios";
-import { useState, useEffect } from "react";
 import { CartCard } from "./card";
-import { useSelector } from "react-redux";
-import "react-toastify/dist/ReactToastify.css";
-import { toast } from "react-toastify";
-
 export const CartList = ({ list }) => {
 
     return (
@@ -13,7 +7,6 @@ export const CartList = ({ list }) => {
         borderRadius={'10px'} 
         w='100%' 
         h='auto'
-        gap={2}
         overflowY={list.length > 4 ? 'auto' : 'none'}
         sx={
             { 

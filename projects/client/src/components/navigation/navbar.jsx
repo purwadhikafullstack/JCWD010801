@@ -78,7 +78,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 					authorization: `Bearer ${token}`,
 				},
 			});
-			setTotalCartItems(data.total);
+			setTotalCartItems(data?.total);
 		} catch (err) {
 			console.log(err);
 		}
@@ -235,11 +235,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															fontWeight: 500,
 														}}
 														onClick={() => {
-<<<<<<< HEAD
-															localStorage.setItem("BranchId", 1)
-=======
 															localStorage.setItem("BranchId", index + 1);
->>>>>>> 619c7f85512576bdffb4b9c304b61188889a1dcf
 														}}
 													>
 														{item}
@@ -252,7 +248,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								</PopoverContent>
 							</Popover>
 						</Flex>
-						<Flex gap={3} alignItems={"center"}>
+						<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
 							<SearchMobile />
 							{/* //! SEARCH RESULTS */}
 							<div style={{ position: "relative" }}>
