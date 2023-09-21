@@ -68,7 +68,7 @@ export const AppRouter = createBrowserRouter([
 				path: "/checkout",
 				element: (
 					<Suspense fallback={<Spinner />}>
-						<CheckoutPage/>
+						<CheckoutPage />
 					</Suspense>
 				),
 			},

@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
 	class Orders extends Model {
 		static associate(models) {
 			Orders.belongsTo(models.Carts);
-            Orders.hasMany(models.Order_details);
-			Orders.belongsTo(models.Addresses)
+			Orders.hasMany(models.Order_details);
+			Orders.belongsTo(models.Addresses);
 		}
 	}
 	Orders.init(
@@ -22,22 +22,6 @@ module.exports = (sequelize, DataTypes) => {
 			etd: {
 				type: DataTypes.STRING,
 				allowNull: false,
-			},
-			shipmentMethod: {
-				type: DataTypes.STRING,
-                allowNull: false
-			},
-			etd: {
-				type: DataTypes.STRING,
-                allowNull: false
-			},
-			shipmentMethod: {
-				type: DataTypes.STRING,
-                allowNull: false
-			},
-			etd: {
-				type: DataTypes.STRING,
-                allowNull: false
 			},
 			shippingFee: {
 				type: DataTypes.INTEGER,
