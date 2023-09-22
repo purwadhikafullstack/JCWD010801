@@ -10,6 +10,7 @@ import { BsFillPersonFill } from "react-icons/bs";
 
 export const BranchAdminDashboardButton = () => {
 	const user = useSelector((state) => state?.user?.value);
+	
 	return (
 		<Flex>
 			<LayoutSidebar />
@@ -123,8 +124,7 @@ export const BranchAdminDashboardButton = () => {
 								Order List
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								Orders for "#branch" Branch -- use redux, get admin's branch. Fetch branch list, put in state. Match
-								admin's branch with correct branch
+								Cupu
 							</Text>
 						</Flex>
 						<Flex mt={"60px"} mr={"15px"} justifyContent={"end"}>
@@ -133,7 +133,7 @@ export const BranchAdminDashboardButton = () => {
 					</Box>
 					<Box
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/welcome"}
 						ml={"15px"}
 						w={"42%"}
 						h={"250px"}
@@ -148,7 +148,7 @@ export const BranchAdminDashboardButton = () => {
 								Report
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								Report for "#branch" Branch
+								Report
 							</Text>
 						</Flex>
 						<Flex mt={"65px"} mr={"10px"} justifyContent={"end"}>

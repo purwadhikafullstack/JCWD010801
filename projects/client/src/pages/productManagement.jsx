@@ -66,9 +66,12 @@ const ProductManagement = () => {
 	const [branches, setBranches] = useState([]);
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
-	const [marginLeftContainer, setMarginLeftContainer] = useState("168px");
-	const [marginLeftHeading, setMarginLeftHeading] = useState("13px");
-	const [marginLeftDescription, setMarginLeftDescription] = useState("15px");
+	const [marginStyles, setMarginStyles] = useState({
+		marginLeftContainer: "168px",
+		marginLeftHeading: "13px",
+		marginLeftDescription: "15px",
+	});
+
 	const navigate = useNavigate();
 	let user = "";
 	if (gender !== null) {
@@ -109,10 +112,20 @@ const ProductManagement = () => {
 
 	useEffect(() => {
 		const handleSidebarSizeChange = (newSize) => {
-			setMarginLeftContainer(newSize === "small" ? "100px" : "168px");
-			setMarginLeftHeading(newSize === "small" ? "48px" : "13px");
-			setMarginLeftDescription(newSize === "small" ? "50px" : "15px");
+			setMarginStyles((prevState) => {
+				const newMarginLeftContainer = newSize === "small" ? "100px" : "168px";
+				const newMarginLeftHeading = newSize === "small" ? "48px" : "13px";
+				const newMarginLeftDescription = newSize === "small" ? "50px" : "15px";
+
+				return {
+					...prevState,
+					marginLeftContainer: newMarginLeftContainer,
+					marginLeftHeading: newMarginLeftHeading,
+					marginLeftDescription: newMarginLeftDescription,
+				};
+			});
 		};
+
 		sidebarEvent.on("sidebarSizeChange", handleSidebarSizeChange);
 
 		return () => {
@@ -166,7 +179,7 @@ const ProductManagement = () => {
 			}
 			setTimeout(() => {
 				setIsLoading(false);
-			}, 300);
+			}, 500);
 		} catch (error) {
 			console.log(error);
 		}
@@ -415,19 +428,17 @@ const ProductManagement = () => {
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
 			<AdminSidebar navSizeProp="large" navPosProp="fixed" />
 			<NavbarAdmin />
-			<Box ml={marginLeftContainer} h={"200vh"}>
+			<Box className="transition-element" ml={marginStyles.marginLeftContainer} h={"200vh"}>
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text
+						className="pm-h"
 						textAlign={"left"}
-						fontFamily={"monospace"}
 						h={"50px"}
-						w={"500px"}
-						fontSize={"40px"}
-						fontWeight={"bold"}
+						w={"700px"}
 						alignSelf={"center"}
-						ml={marginLeftHeading}
+						ml={marginStyles.marginLeftHeading}
 					>
-						Product Management
+						PRODUCT MANAGEMENT
 					</Text>
 					<Flex h={"50px"} w={"280px"} align={"center"} justifyContent={"space-between"} mr={"10px"}>
 						{/* //! Sysadmin Re-Activation Button Goes Here */}
@@ -444,26 +455,24 @@ const ProductManagement = () => {
 				</Flex>
 				<Flex h={"25px"}>
 					<Text
+						className="pm-d"
 						textAlign={"left"}
 						h={"25px"}
 						w={"700px"}
-						fontSize={"18px"}
-						fontFamily={"monospace"}
 						alignSelf={"center"}
-						ml={marginLeftDescription}
+						ml={marginStyles.marginLeftDescription}
 					>
 						Welcome {user}.
 					</Text>
 				</Flex>
 				<Flex h={"25px"}>
 					<Text
+						className="pm-d"
 						textAlign={"left"}
 						h={"25px"}
 						w={"700px"}
-						fontSize={"18px"}
-						fontFamily={"monospace"}
 						alignSelf={"center"}
-						ml={marginLeftDescription}
+						ml={marginStyles.marginLeftDescription}
 					>
 						You are currently managing AlphaMart products for the {currentBranchName} branch
 					</Text>
