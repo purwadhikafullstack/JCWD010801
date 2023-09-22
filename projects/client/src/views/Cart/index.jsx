@@ -11,7 +11,7 @@ import { ErrorPageLayout } from "../../components/errorLayout"
 
 export const CartPageView = () => {
     const token = localStorage.getItem("token");
-    const [ subtotal, setSubtotal ] = useState(0);
+    const [ subtotal, setSubtotal ] = useState([]);
     const [ total, setTotal ] = useState(0);
     const [ list, setList ] = useState([]);
 
@@ -25,13 +25,17 @@ export const CartPageView = () => {
                     authorization: `Bearer ${token}`
                 }
             });
-            setSubtotal(parseInt(data.subtotal[0].subtotal));
-            setTotal(data.total);
-            setList(data.cart_items);
+            setSubtotal(data?.subtotal);
+            setTotal(data?.total);
+            setList(data?.cart_items);
         } catch (err) {
             
         }
     };
+    const totalSubtotalValue = subtotal.reduce((total, item) => {
+		const subtotalValue = parseInt(item.subtotal, 10);
+		return total + subtotalValue;
+	}, 0);
     
     useEffect(() => {
         fetchCart();
@@ -49,8 +53,8 @@ export const CartPageView = () => {
                         <GridItem colSpan={1}>
                             <CartList list={list}/>
                         </GridItem>
-                        <GridItem display={{ base: 'none', lg: 'block' }} colSpan={1}>
-                            <Receipt subtotal={subtotal}/>
+                        <GridItem display={{ base: 'none', md: 'block' }} colSpan={1}>
+                            <Receipt subtotal={totalSubtotalValue}/>
                         </GridItem>
                         </>
                     ) : (
@@ -60,7 +64,7 @@ export const CartPageView = () => {
                     )}
                 </Grid>
             </Stack>
-            <ReceiptMobile subtotal={subtotal} />
+            <ReceiptMobile subtotal={totalSubtotalValue} />
             </>
         ) : (
             <ErrorPageLayout title={"404 - Page not found"} timer={5000}/>

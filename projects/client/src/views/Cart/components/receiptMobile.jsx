@@ -3,16 +3,18 @@ import { ButtonTemp } from "../../../components/button";
 import { MdKeyboardArrowRight, MdKeyboardArrowUp } from "react-icons/md";
 import { Receipt } from "./receipt";
 import { TbDiscount2 } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
 
 export const ReceiptMobile = ({ subtotal }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const voucher = {};
+    const navigate = useNavigate();
 
     return (
         <>
         <Stack 
         w='100%' 
-        display={subtotal === 0 ? 'none' : { base: 'flex', lg: 'none' }} 
+        display={subtotal === 0 ? 'none' : { base: 'flex', md: 'none' }} 
         flexDir={'column'}
         position={'fixed'} 
         bgColor={'white'}
@@ -43,7 +45,7 @@ export const ReceiptMobile = ({ subtotal }) => {
                         <Icon as={MdKeyboardArrowUp} w='5' h='5' />
                     </Flex>
                 </Stack>
-                <ButtonTemp w={'50%'} content={'CHECK OUT'} />
+                <ButtonTemp onClick={() => navigate("/checkout")} w={'50%'} content={'CHECK OUT'} />
             </Flex>
         </Stack>
         <Drawer placement="bottom" isOpen={isOpen} onClose={onClose}>

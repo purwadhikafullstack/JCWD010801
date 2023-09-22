@@ -78,7 +78,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 					authorization: `Bearer ${token}`,
 				},
 			});
-			setTotalCartItems(data.total);
+			setTotalCartItems(data?.total);
 		} catch (err) {
 			console.log(err);
 		}
@@ -248,7 +248,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								</PopoverContent>
 							</Popover>
 						</Flex>
-						<Flex gap={3} alignItems={"center"}>
+						<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
 							<SearchMobile />
 							{/* //! SEARCH RESULTS */}
 							<div style={{ position: "relative" }}>
