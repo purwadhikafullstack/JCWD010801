@@ -20,7 +20,7 @@ import {
 	FormControl,
 } from "@chakra-ui/react";
 import Axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ButtonTemp } from "../../../components/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -28,6 +28,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { refreshCart } from "../../../redux/cartSlice";
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank-transfer");
 	const [address, setAddress] = useState([]);
@@ -47,6 +48,7 @@ function Order() {
 	const phone = reduxStore?.value?.phone;
 	const token = localStorage.getItem("token");
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
 	const getFilterAddress = (address) => address.filter((item) => item.city_id === branch?.city_id);
 
@@ -148,6 +150,13 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
+
+			const result = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/latest-id`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
 			toast.success(response.data.message, {
 				position: "top-right",
 				autoClose: 5000,
@@ -158,7 +167,16 @@ function Order() {
 				progress: undefined,
 				theme: "dark",
 			});
+
+			dispatch(refreshCart());
 			navigate("/profile");
+
+			await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`, {}, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
 				position: "top-right",

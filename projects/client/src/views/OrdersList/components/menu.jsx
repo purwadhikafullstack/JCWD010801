@@ -2,6 +2,7 @@ import { Menu, MenuButton, Icon, MenuList, MenuItem } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { UploadProof } from "./uploadProof";
 import { ViewProof } from "./viewProof";
+import { CancelOrder } from "./cancel";
 
 export const MenuOrder = ({ orderId, imgURL, date, branch, amount }) => {
     return (
@@ -15,6 +16,9 @@ export const MenuOrder = ({ orderId, imgURL, date, branch, amount }) => {
                 </MenuItem>
                 <MenuItem>
                     <UploadProof id={orderId} date={date} branch={branch} amount={amount} />
+                </MenuItem>
+                <MenuItem>
+                    <CancelOrder id={orderId} />
                 </MenuItem>
             </MenuList>
         </Menu>
