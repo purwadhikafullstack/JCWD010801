@@ -168,7 +168,7 @@ const ProductManagement = () => {
 				setIsSearchEmpty(false);
 			}
 			setTotalPages(productsResponse.data.totalPages);
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user?limit=50`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
@@ -219,7 +219,7 @@ const ProductManagement = () => {
 				setIsSearchEmpty(false);
 			}
 			setTotalPages(productsResponse.data.totalPages);
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user?limit=50`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
