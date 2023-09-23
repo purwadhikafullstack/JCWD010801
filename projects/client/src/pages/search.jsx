@@ -7,8 +7,11 @@ import { useNavigate, useLocation } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
 import { useMediaQuery } from "react-responsive";
 import { FaSearch } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const Search = () => {
+	const user = useSelector((state) => state?.user?.value);
+	const RoleId = user.RoleId || 0;
 	const [products, setProducts] = useState([]);
 	const [itemLimit, setItemLimit] = useState(15);
 	const [categories, setCategories] = useState([]);
@@ -125,8 +128,11 @@ const Search = () => {
 		setReload(!reload);
 	};
 
-	const productDetail = (id) => {
-		navigate(`/product/${id}`);
+	const productDetail = (PID) => {
+		Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/view/${PID}`, {
+			RoleId: RoleId,
+		});
+		navigate(`/product/${PID}`);
 	};
 
 	const handleSearch = debounce(

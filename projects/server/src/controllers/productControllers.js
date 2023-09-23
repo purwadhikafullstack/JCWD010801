@@ -1245,4 +1245,34 @@ module.exports = {
 			});
 		}
 	},
+	addOneUserView: async (req, res) => {
+		try {
+			const { PID } = req.params;
+			const { RoleId } = req.body;
+
+			const product = await products.findOne({
+				where: { id: PID },
+			});
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product not found.",
+				});
+			}
+
+			if (RoleId < 2) {
+				await product.update({
+					viewCount: +product.viewCount + 1,
+				});
+			} else {
+				return;
+			}
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
 };

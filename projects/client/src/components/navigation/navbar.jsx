@@ -51,7 +51,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const avatar = reduxStore?.value?.avatar;
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
-	const roleId = reduxStore?.value?.RoleId;
+	const RoleId = reduxStore?.value?.RoleId;
 	const { refresh } = useSelector((state) => state.cart.value);
 	const [search, setSearch] = useState("");
 	const [products, setProducts] = useState([]);
@@ -127,8 +127,11 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		setProducts([]);
 	};
 
-	const productDetail = (id) => {
-		navigate(`/product/${id}`);
+	const productDetail = (PID) => {
+		Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/view/${PID}`, {
+			RoleId: RoleId,
+		});
+		navigate(`/product/${PID}`);
 		setProducts([]);
 	};
 
@@ -338,7 +341,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								)}
 							</div>
 							<Button
-								isDisabled={+roleId === 1 ? false : true}
+								isDisabled={+RoleId === 1 ? false : true}
 								bgColor={"white"}
 								rounded={"full"}
 								cursor={"pointer"}
