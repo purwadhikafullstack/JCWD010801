@@ -68,7 +68,7 @@ export const MoveCategories = ({
 
 		axios
 			.patch(`${process.env.REACT_APP_API_BASE_URL}/product/bulkcategory`, {
-				UID: UID, //! BIMO PROTECT
+				UID: UID,
 				PIDs: selectedPIDs,
 				newCategoryId: newCategory,
 			})
@@ -153,4 +153,4 @@ export const MoveCategories = ({
 			</Modal>
 		</>
 	);
-}; //! SIG COUNT 1
+};

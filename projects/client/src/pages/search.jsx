@@ -156,7 +156,7 @@ const Search = () => {
 			leading: false,
 			trailing: true,
 		}
-	); //! BIMO PROTECT
+	);
 
 	const updateQueryParams = (paramsToUpdate) => {
 		const queryParams = new URLSearchParams(location.search);
@@ -168,7 +168,7 @@ const Search = () => {
 		}
 
 		navigate(`?${queryParams.toString()}`);
-	}; //! BIMO PROTECT
+	};
 
 	const customInputStyle = {
 		borderColor: "gray",
@@ -552,7 +552,6 @@ const Search = () => {
 								onChange={(e) => {
 									setPage(1);
 									handleSearch(e.target.value);
-									//! BIMO PROTECT
 								}}
 								onKeyDown={(e) => {
 									if (e.key === "Enter") {
@@ -851,4 +850,4 @@ const Search = () => {
 	);
 };
 
-export default Search; //! BIMO PROTECTED COMMIT. SIG COUNT: 3
+export default Search;
