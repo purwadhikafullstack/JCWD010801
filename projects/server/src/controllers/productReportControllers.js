@@ -223,4 +223,94 @@ module.exports = {
 			});
 		}
 	},
+	getAverageProductsPerCategory: async (req, res) => {
+		try {
+			const categoriesData = await categories.findAll({
+				include: [products],
+			});
+
+			const totalProductCount = categoriesData.reduce((total, category) => total + category.Products.length, 0);
+
+			const averageProductCount = Math.round(totalProductCount / categoriesData.length);
+
+			res.status(200).send({
+				status: 200,
+				result: averageProductCount,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	getProductStatusCountsByCategory: async (req, res) => {
+		try {
+			const categoriesData = await categories.findAll({
+				include: [products],
+			});
+
+			const productCountsByCategory = categoriesData.map((category) => {
+				const activeProductsCount = category.Products.filter((product) => product.isActive).length;
+				const deactivatedProductsCount = category.Products.filter((product) => !product.isActive).length;
+				const deletedProductsCount = category.Products.filter((product) => product.isDeleted).length;
+
+				return {
+					categoryId: category.id,
+					categoryName: category.category,
+					activeProductsCount,
+					deactivatedProductsCount,
+					deletedProductsCount
+				};
+			});
+
+			res.status(200).send({
+				status: 200,
+				productCountsByCategory,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	getProductStatusAverages: async (req, res) => {
+		try {
+			const categoriesData = await categories.findAll({
+				include: [products],
+			});
+
+			const totalActiveProductCount = categoriesData.reduce((total, category) => {
+				return total + category.Products.filter((product) => product.isActive).length;
+			}, 0);
+
+			const totalDeactivatedProductCount = categoriesData.reduce((total, category) => {
+				return total + category.Products.filter((product) => !product.isActive).length;
+			}, 0);
+
+			const totalDeletedProductCount = categoriesData.reduce((total, category) => {
+				return total + category.Products.filter((product) => product.isDeleted).length;
+			}, 0);
+
+			const averageActiveProductCount = Math.round(totalActiveProductCount / categoriesData.length);
+			const averageDeactivatedProductCount = Math.round(totalDeactivatedProductCount / categoriesData.length);
+			const averageDeletedProductCount = Math.round(totalDeletedProductCount / categoriesData.length);
+
+			res.status(200).send({
+				status: 200,
+				averageActiveProductCount,
+				averageDeactivatedProductCount,
+				averageDeletedProductCount
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
 };
