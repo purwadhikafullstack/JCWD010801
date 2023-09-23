@@ -9,6 +9,7 @@ router.patch("/bulkcategory", productControllers.bulkUpdateCategory);
 router.patch("/bulkdeactivate", productControllers.bulkDeactivate);
 router.patch("/bulkactivate", productControllers.bulkActivate);
 router.patch("/bulkdelete", productControllers.bulkDelete);
+router.patch("/view/:PID", productControllers.addOneUserView);
 router.patch("/:PID", multerUpload(`./src/public/products`, "P-IMG").single("image"), productControllers.updateProduct);
 router.get("/all", productControllers.getAllProducts);
 router.get("/alladmin", productControllers.getAllProductsAdmin);

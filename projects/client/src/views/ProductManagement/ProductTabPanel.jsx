@@ -117,7 +117,7 @@ export const ProductTabPanel = ({
 				highlightColor="#141415"
 				direction={isEvenIndex ? "rtl" : "ltr"}
 			/>
-		</div> //! BIMO PROTECTION
+		</div>
 	) : (
 		<Flex
 			key={data.id}
@@ -296,4 +296,4 @@ export const ProductTabPanel = ({
 			</Flex>
 		</Flex>
 	);
-}; //! BIMO PROTECTION SIG COUNT: 1
+};
