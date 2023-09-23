@@ -120,11 +120,106 @@ module.exports = {
 				adjustment_history: adjustmentHistory,
 			});
 		} catch (error) {
-			console.error(error);
 			return res.status(500).send({
-				error,
 				status: 500,
 				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	mostAndLeast: async (req, res) => {
+		try {
+			const categoriesData = await categories.findAll({
+				include: [products],
+			});
+
+			const result = categoriesData.map((category) => {
+				const productsData = category.Products;
+
+				const sortedProducts = {
+					byAggregateStock: productsData.slice().sort((a, b) => b.aggregateStock - a.aggregateStock),
+					byLowAggregateStock: productsData.slice().sort((a, b) => a.aggregateStock - b.aggregateStock),
+					byViews: productsData.slice().sort((a, b) => b.viewCount - a.viewCount),
+					byLowViews: productsData.slice().sort((a, b) => a.viewCount - b.viewCount),
+				};
+
+				const categoryProducts = {
+					topAggregateStock: sortedProducts.byAggregateStock.slice(0, 3),
+					lowAggregateStock: sortedProducts.byLowAggregateStock.slice(0, 3),
+					topViews: sortedProducts.byViews.slice(0, 3),
+					lowViews: sortedProducts.byLowViews.slice(0, 3),
+				};
+
+				return {
+					id: category.id,
+					category: category.category,
+					imgURL: category.imgURL,
+					isDeleted: category.isDeleted,
+					productCount: productsData.length,
+					products: categoryProducts,
+				};
+			});
+
+			res.status(200).send({
+				status: 200,
+				result: result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	getAllProductsDataInCategories: async (req, res) => {
+		try {
+			const { sortBy = "aggregateStock", order = "DESC" } = req.query;
+			const validSortOptions = ["aggregateStock", "viewCount"];
+			const validSortOrders = ["ASC", "DESC"];
+
+			if (!validSortOptions.includes(sortBy) || !validSortOrders.includes(order)) {
+				return res.status(400).send({
+					status: 400,
+					message:
+						"Invalid sorting options. Please use 'aggregateStock' or 'viewCount' for 'sortBy' and 'ASC' or 'DESC' for 'order'.",
+				});
+			}
+
+			const categoriesData = await categories.findAll({
+				include: [products],
+			});
+
+			const result = categoriesData.map((category) => {
+				const productsData = category.Products;
+
+				const sortedProducts = productsData.slice().sort((a, b) => {
+					if (order === "ASC") {
+						return a[sortBy] - b[sortBy];
+					} else {
+						return b[sortBy] - a[sortBy];
+					}
+				});
+
+				return {
+					id: category.id,
+					category: category.category,
+					imgURL: category.imgURL,
+					isDeleted: category.isDeleted,
+					productCount: productsData.length,
+					products: sortedProducts,
+				};
+			});
+
+			res.status(200).send({
+				status: 200,
+				result: result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
 			});
 		}
 	},

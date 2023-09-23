@@ -20,6 +20,7 @@ const CheckoutPage = lazy(() => import("../pages/checkOut"));
 const OrdersList = lazy(() => import("../pages/orderList"));
 const ReportPrelim = lazy(() => import("../pages/reportPrelim"));
 const ReportOverview = lazy(() => import("../pages/reportOverview"));
+const CategoryDoughnutChart = lazy(() => import("../components/stockReport/categoryDoughnutChart"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -169,6 +170,14 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ProfilePage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/doughnut",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<CategoryDoughnutChart />
 			</Suspense>
 		),
 	},

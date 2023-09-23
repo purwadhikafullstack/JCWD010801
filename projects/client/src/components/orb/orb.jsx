@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 
 export const Orb = () => {
 	const canvasRef = useRef(null);
+	let animationFrameId = null;
+	let isUnmounted = false;
 
 	useEffect(() => {
 		const MAX = 50;
@@ -82,12 +84,27 @@ export const Orb = () => {
 				}
 			}
 			count++;
-			requestAnimationFrame(orb);
+			animationFrameId = requestAnimationFrame(orb);
 		};
 
 		initializeCanvas();
+		orb();
 
-		return () => {};
+		return () => {
+			isUnmounted = true;
+
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId);
+			}
+
+			if (canvas) {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+			}
+
+			if (canvas && !isUnmounted) {
+				canvas.parentNode.removeChild(canvas);
+			}
+		};
 	}, []);
 
 	return <canvas ref={canvasRef} />;
