@@ -6,6 +6,7 @@ const products = db.Products;
 const stocks = db.Stocks;
 const stockMovements = db.StockMovements;
 const categories = db.Categories;
+const changelogs = db.Changelogs;
 
 const seedProducts = async () => {
 	try {
@@ -56,8 +57,45 @@ const seedProducts = async () => {
 				isAddition: true,
 				isAdjustment: false,
 				isInitialization: true,
+				isBranchInitialization: false,
 				UserId: 1,
 			});
+
+			const additions = {};
+			additions.productName = {
+				oldValue: "initialization",
+				newValue: productName,
+			};
+			additions.price = {
+				oldValue: "initialization",
+				newValue: price,
+			};
+			additions.description = {
+				oldValue: "initialization",
+				newValue: description,
+			};
+			additions.weight = {
+				oldValue: "initialization",
+				newValue: weight,
+			};
+			additions.CategoryId = {
+				oldValue: "initialization",
+				newValue: randomCategoryId,
+			};
+			additions.imgURL = {
+				oldValue: "initialization",
+				newValue: "P-IMG-1693692200758826652948.jpeg",
+			};
+
+			for (const field in additions) {
+				await changelogs.create({
+					field,
+					oldValue: additions[field].oldValue,
+					newValue: additions[field].newValue,
+					UserId: 1,
+					ProductId: result.id,
+				});
+			}
 		}
 		console.log("Products seeded successfully.");
 	} catch (error) {

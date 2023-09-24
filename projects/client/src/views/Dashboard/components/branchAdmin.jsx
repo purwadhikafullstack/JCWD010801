@@ -149,7 +149,7 @@ export const BranchAdminDashboardButton = () => {
 					</Box>
 					<Box
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/welcome"}
 						ml={"15px"}
 						w={"42%"}
 						h={"250px"}

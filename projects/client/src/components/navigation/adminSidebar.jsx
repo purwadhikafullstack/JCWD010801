@@ -273,7 +273,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 								<Box>
 									<Text
 										className={isTextVisible ? "text-visible" : "text-invisible"}
-										align={'left'}
+										align={"left"}
 										cursor={"pointer"}
 										color={"white"}
 										mt={"4px"}
