@@ -110,7 +110,7 @@ export const AppRouter = createBrowserRouter([
 		),
 	},
 	{
-		path: "/dashboard/welcome",
+		path: "/dashboard/report/welcome",
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ReportPrelim />
