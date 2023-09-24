@@ -45,6 +45,7 @@ import { sidebarEvent } from "../events/sidebarEvent";
 const initialCheckboxState = {};
 
 const ProductManagement = () => {
+	const token = localStorage.getItem("token");
 	const { id, username, lastName, gender, BranchId, RoleId } = useSelector((state) => state?.user?.value);
 	const [products, setProducts] = useState([]);
 	const [totalProductsAll, setTotalProductsAll] = useState(0);
@@ -88,7 +89,7 @@ const ProductManagement = () => {
 	const interval = 15000;
 	useEffect(() => {
 		const checkAuth = () => {
-			if (!RoleId || RoleId === 1) {
+			if (!RoleId || RoleId < 2 || token) {
 				navigate("/404");
 			}
 		};
@@ -168,7 +169,11 @@ const ProductManagement = () => {
 				setIsSearchEmpty(false);
 			}
 			setTotalPages(productsResponse.data.totalPages);
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user?limit=50`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/admin?limit=50`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
@@ -219,7 +224,11 @@ const ProductManagement = () => {
 				setIsSearchEmpty(false);
 			}
 			setTotalPages(productsResponse.data.totalPages);
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user?limit=50`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/admin?limit=50`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
