@@ -155,11 +155,11 @@ export const UserOrdersList = () => {
 												<Text ml={"15px"} fontWeight={"bold"}>
 													{item?.Product?.productName}
 												</Text>
-												<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-													{item.quantity} Items X Rp.{item.Product.price},00
-												</Text>
 												<Text ml={"15px"} color={"balck"} fontSize={"11px"}>
 													{item.Product.description}
+												</Text>
+												<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
+													{item.quantity} Items X Rp.{item.Product.price},00
 												</Text>
 											</Box>
 										</Flex>

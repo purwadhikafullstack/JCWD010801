@@ -8,7 +8,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { AdminSidebar } from "../../../components/navigation/adminSidebar";
 import { EmptyList } from "./emptyList";
 
-export const SuperAdminOrdersList = () => {
+export const SuperAdminOrdersList = () => { 
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
@@ -170,25 +170,23 @@ export const SuperAdminOrdersList = () => {
 											Shop
 										</Text>
 										<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-											{new Date(`${item.Order.createdAt}`).toLocaleDateString("us-us", {
+											{new Date(`${item.createdAt}`).toLocaleDateString("us-us", {
 												year: "numeric",
 												month: "long",
 												day: "numeric",
 											})}
 										</Text>
-										{item.Order.status === "Sent" || "Received" ? (
+										{item.status === "Sent" || "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
-												{item.Order.status}
+												{item.status}
 											</Badge>
-										) : item.Order.status === "Waiting for payment" ||
-										  "Pending payment confirmation" ||
-										  "Processing" ? (
+										) : item.status === "Waiting for payment" || "Pending payment confirmation" || "Processing" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="yellow">
-												{item.Order.status}
+												{item.status}
 											</Badge>
 										) : (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="red">
-												{item.Order.status}
+												{item.status}
 											</Badge>
 										)}
 										<Text mt={"2px"} ml={"10px"} fontFamily={"monospace"} fontSize={"13px"}>
@@ -198,64 +196,49 @@ export const SuperAdminOrdersList = () => {
 									<Flex mt={"3px"}>
 										<AiOutlineShopping color="blue" size={25} />
 										<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-											Alphamart {item.Order.Cart.Branch.name}
+											Alphamart {item.Cart.Branch.name}
 										</Text>
 									</Flex>
 									<Flex justifyContent={"space-between"}>
 										<Box>
-											<Flex mt={"10px"}>
-												<Box
-													as={Image}
-													w={"100px"}
-													bg={"gray.100"}
-													src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
-												></Box>
-												<Box>
-													<Text ml={"15px"} fontWeight={"bold"}>
-														{item.Product.productName}
-													</Text>
-													<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-														{item.quantity} Items X Rp. {item.Product.price},00
-													</Text>
-													<Flex ml={"15px"}>
-														<HiOutlineTruck size={21} />
-														<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
-															{item.Order.shipment}
+											{item.Order_details.map((item) => (
+												<Flex mt={"10px"}>
+													<Box
+														as={Image}
+														w={"100px"}
+														bg={"gray.100"}
+														src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
+													></Box>
+													<Box>
+														<Text ml={"15px"} fontWeight={"bold"}>
+															{item.Product.productName}
 														</Text>
-													</Flex>
-												</Box>
-											</Flex>
+														<Text ml={"15px"} color={"balck"} fontSize={"11px"}>
+															{item.Product.description}
+														</Text>
+														<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
+															{item.quantity} Items X Rp. {item.Product.price},00
+														</Text>
+													</Box>
+												</Flex>
+											))}
 										</Box>
 										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
+											{/* <Flex ml={"15px"}>
+												<HiOutlineTruck size={21} />
+												<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+													{item.Order.shipment}
+												</Text>
+											</Flex> */}
 											<Text color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>
-											<Text color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												Rp. {item.Order.subtotal},00
+											<Text color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
+												Rp. {item.subtotal},00 - {item.discount}%
 											</Text>
-										</Flex>
-									</Flex>
-									<Flex mt={"10px"} justifyContent={"end"}>
-										<Button
-											my={"auto"}
-											backgroundColor={"#000000"}
-											color={"white"}
-											mr={"10px"}
-											_hover={{
-												textColor: "#0A0A0B",
-												bg: "#F0F0F0",
-												_before: {
-													bg: "inherit",
-												},
-												_after: {
-													bg: "inherit",
-												},
-											}}
-										>
-											Review
-										</Button>
-										<Flex mr={"10px"} alignItems={"center"}>
-											<BsThreeDotsVertical size={25} />
+											<Text color={"black"} fontWeight={"bold"} fontSize={"18px"}>
+												Rp. {item.total},00
+											</Text>
 										</Flex>
 									</Flex>
 								</Box>
@@ -263,7 +246,7 @@ export const SuperAdminOrdersList = () => {
 						})
 					) : (
 						<Flex justifyContent={"center"}>
-						<EmptyList/>
+							<EmptyList />
 						</Flex>
 					)}
 				</Box>

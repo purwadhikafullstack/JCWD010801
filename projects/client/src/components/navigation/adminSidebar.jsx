@@ -14,12 +14,13 @@ import { BsPersonGear } from "react-icons/bs";
 import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
-import { sidebarEvent } from '../../events/sidebarEvent';
+import { sidebarEvent } from "../../events/sidebarEvent";
 
 export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state?.user?.value);
+	const [isTextVisible, setIsTextVisible] = useState(true);
 	const [navSize, setNavsize] = useState(navSizeProp || "large");
 
 	const logout = () => {
@@ -44,6 +45,11 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 
 	useEffect(() => {
 		sidebarEvent.emit("sidebarSizeChange", navSize);
+
+		const timer = setTimeout(() => {
+			setIsTextVisible(navSize === "large");
+		}, 2000);
+		return () => clearTimeout(timer);
 	}, [navSize]);
 
 	return (
@@ -51,7 +57,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 			<Flex
 				position={navPosProp || null}
 				w={navSize === "small" ? "100px" : "170px"}
-				transition="width 0.3s"
+				transition="all 3s ease-in-out"
 				h={height || "100vh"}
 				backgroundColor={"black"}
 				borderTopRightRadius={"30px"}
@@ -65,26 +71,33 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 							w={navSize === "small" ? "60px" : "120px"}
 							mr={navSize === "small" ? "0px" : "15px"}
 							src={navSize === "small" ? sourceLogo : source}
-							transition="transform 0.3s ease-in-out"
+							transition="transform 2s ease-in-out"
 							_hover={{ transform: "scale(1.1)" }}
 						/>
 					</Flex>
 					<Flex
 						onClick={toggleNavSize}
 						_hover={{ transform: "scale(1.1)" }}
-						transition="transform 0.3s ease-in-out"
+						transition="transform 0.5s ease-in-out"
 						justifyContent={"center"}
 					>
 						<IconButton
-							mb={"15px"}
+							mb={"7px"}
 							variant={"unstyled"}
 							icon={<FaBars size={25} />}
 							color={"white"}
-							ml={navSize === "large" ? "0px" : "15px"}
+							ml={navSize === "large" ? "0px" : "8px"}
 							justifyContent={navSize === "large" ? "start" : "center"}
 						/>
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} mr={"10px"} mt={"7px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								mr={"10px"}
+								mt={"7px"}
+								fontSize={"16px"}
+							>
 								View Less
 							</Text>
 						) : null}
@@ -92,16 +105,27 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 					<Flex
 						as={Link}
 						to={"/dashboard"}
-						mb={"20px"}
-						color={"white"}
-						transition="transform 0.3s ease-in-out"
-						_hover={{ transform: "scale(1.2)" }}
-						ml={navSize === "large" ? "18px" : "0px"}
-						justifyContent={navSize === "large" ? "start" : "center"}
+						_hover={{ transform: "scale(1.1)" }}
+						transition="transform 0.5s ease-in-out"
+						justifyContent={"center"}
 					>
-						<RiDashboardLine size={30} />
+						<IconButton
+							color={"white"}
+							variant={"unstyled"}
+							icon={<RiDashboardLine size={28} />}
+							ml={navSize === "large" ? "10px" : "4px"}
+							mr={navSize === "large" ? "1px" : "0px"}
+							justifyContent={navSize === "large" ? "start" : "center"}
+						/>
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								mr={"13px"}
+								mt={"7px"}
+								fontSize={"16px"}
+							>
 								Dashboard
 							</Text>
 						) : null}
@@ -113,14 +137,22 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						to={"/"}
 						mb={"20px"}
 						color={"white"}
-						transition="transform 0.3s ease-in-out"
+						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
 						ml={navSize === "large" ? "20px" : "0px"}
+						mr={navSize === "large" ? "0px" : "3px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
 						<AiOutlineHome size={30} />
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"11px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
 								Home
 							</Text>
 						) : null}
@@ -130,14 +162,22 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						to={"/dashboard/product-management"}
 						mb={"20px"}
 						color={"white"}
-						transition="transform 0.3s ease-in-out"
+						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
 						ml={navSize === "large" ? "20px" : "0px"}
+						mr={navSize === "large" ? "0px" : "3px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
 						<LiaBoxSolid size={30} />
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"11px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
 								Products
 							</Text>
 						) : null}
@@ -147,14 +187,21 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						to={"/dashboard/orders-list"}
 						mb={"20px"}
 						color={"white"}
-						transition="transform 0.3s ease-in-out"
+						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
 						ml={navSize === "large" ? "20px" : "0px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
 						<RiFileList3Line size={30} />
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"11px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
 								Orders
 							</Text>
 						) : null}
@@ -164,14 +211,21 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						to={"/dashboard"}
 						mb={"20px"}
 						color={"white"}
-						transition="transform 0.3s ease-in-out"
+						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
 						ml={navSize === "large" ? "20px" : "0px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
 						<AiOutlineBranches size={30} />
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"11px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
 								Branches
 							</Text>
 						) : null}
@@ -181,14 +235,21 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						to={"/dashboard"}
 						mb={"20px"}
 						color={"white"}
-						transition="transform 0.3s ease-in-out"
+						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
 						ml={navSize === "large" ? "24px" : "0px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
 						<VscGraphLine size={27} />
 						{navSize === "large" ? (
-							<Text cursor={"pointer"} color={"white"} ml={"12px"} mt={"2px"} fontSize={"16px"}>
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"12px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
 								Report
 							</Text>
 						) : null}
@@ -199,7 +260,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 							to={"/dashboard/admins-list"}
 							mb={"20px"}
 							color={"white"}
-							transition="transform 0.3s ease-in-out"
+							transition="transform 0.5s ease-in-out"
 							_hover={{ transform: "scale(1.1)" }}
 							ml={navSize === "large" ? "20px" : "0px"}
 							mt={navSize === "large" ? "20px" : "0px"}
@@ -209,17 +270,50 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 								<BsPersonGear size={32} />
 							</Box>
 							{navSize === "large" ? (
-								<Text cursor={"pointer"} color={"white"} mt={"2px"} ml={"12px"} fontSize={"14px"}>
-									Admin Management
-								</Text>
+								<Box>
+									<Text
+										className={isTextVisible ? "text-visible" : "text-invisible"}
+										align={'left'}
+										cursor={"pointer"}
+										color={"white"}
+										mt={"4px"}
+										ml={"12px"}
+										fontSize={"13px"}
+									>
+										Admin
+									</Text>
+									<Text
+										className={isTextVisible ? "text-visible" : "text-invisible"}
+										cursor={"pointer"}
+										color={"white"}
+										ml={"12px"}
+										fontSize={"13px"}
+									>
+										Management
+									</Text>
+								</Box>
 							) : null}
 						</Flex>
 					) : null}
 				</Box>
-				<Flex onClick={logout} mb={"20px"} justifyContent={"center"} color={"white"}>
-					<SlLogout size={25} />
+				<Flex
+					onClick={logout}
+					mb={"20px"}
+					justifyContent={"center"}
+					color={"white"}
+					transition="transform 0.5s ease-in-out"
+					_hover={{ transform: "scale(1.1)" }}
+				>
+					<SlLogout size={25} cursor={"pointer"} />
 					{navSize === "large" ? (
-						<Text cursor={"pointer"} color={"white"} ml={"11px"} mt={"2px"} fontSize={"16px"}>
+						<Text
+							className={isTextVisible ? "text-visible" : "text-invisible"}
+							cursor={"pointer"}
+							color={"white"}
+							ml={"11px"}
+							mt={"2px"}
+							fontSize={"16px"}
+						>
 							Logout
 						</Text>
 					) : null}

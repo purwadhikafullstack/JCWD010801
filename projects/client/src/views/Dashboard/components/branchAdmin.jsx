@@ -1,3 +1,4 @@
+import Axios from "axios";
 import LayoutSidebar from "../../../pages/layoutSidebar";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -7,19 +8,35 @@ import { FaBoxOpen } from "react-icons/fa";
 import { VscGraphLine } from "react-icons/vsc";
 import { RiFileList3Fill } from "react-icons/ri";
 import { BsFillPersonFill } from "react-icons/bs";
+import { useEffect, useState } from "react";
 
 export const BranchAdminDashboardButton = () => {
+	const [branches, setBranches] = useState([]);
 	const user = useSelector((state) => state?.user?.value);
+	const fetchBranchData = async () => {
+		try {
+			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(branchResponse.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
+	const currentBranchName = currentBranchInfo?.name;
+
+	useEffect(() => {
+		fetchBranchData();
+	});
 	return (
 		<Flex>
 			<LayoutSidebar />
-			<Box pt={"30px"} direction={"column"} w={"full"}>
+			<Flex justifyContent={"center"}  direction={"column"} w={"full"}>
 				<Flex ml={"80px"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
 							Dashboard Overview
 						</Text>
-						<Text fontWeight={"light"}>Branch Admin </Text>
+						<Text fontWeight={"light"}>{currentBranchName} Branch Admin </Text>
 					</Box>
 					<Flex mt={"10px"} as={Link} to={"/profile"} mr={"85px"}>
 						<Box mr={"7px"} mt={"5px"}>
@@ -30,7 +47,7 @@ export const BranchAdminDashboardButton = () => {
 								{user.username}
 							</Text>
 						</Box>
-						<Avatar size={"md"} src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar}`} />
+						<Avatar size={"md"} src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar ? user?.avatar : "default_not_set.png"}`} />
 					</Flex>
 				</Flex>
 				<Flex mt={"30px"} justifyContent={"center"}>
@@ -98,7 +115,7 @@ export const BranchAdminDashboardButton = () => {
 								Branch Info
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								AlphaMart Branch Information
+								AlphaMart {currentBranchName} Branch Information
 							</Text>
 						</Flex>
 						<Flex mr={"10px"} mt={"50px"} justifyContent={"end"}>
@@ -123,8 +140,7 @@ export const BranchAdminDashboardButton = () => {
 								Order List
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								Orders for "#branch" Branch -- use redux, get admin's branch. Fetch branch list, put in state. Match
-								admin's branch with correct branch
+								Orders for AlphaMart {currentBranchName} Branch 
 							</Text>
 						</Flex>
 						<Flex mt={"60px"} mr={"15px"} justifyContent={"end"}>
@@ -148,7 +164,7 @@ export const BranchAdminDashboardButton = () => {
 								Report
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								Report for "#branch" Branch
+								Report for AlphaMart {currentBranchName} Branch
 							</Text>
 						</Flex>
 						<Flex mt={"65px"} mr={"10px"} justifyContent={"end"}>
@@ -156,7 +172,7 @@ export const BranchAdminDashboardButton = () => {
 						</Flex>
 					</Box>
 				</Flex>
-			</Box>
+			</Flex>
 		</Flex>
 	);
 };

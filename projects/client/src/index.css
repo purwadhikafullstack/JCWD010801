@@ -52,3 +52,27 @@ code {
   background-color: #333;
 }
 /* END OF SCROLLBAR CSS */
+
+.transition-element {
+  transition: all 3s ease-in-out;
+}
+
+@keyframes typing {
+  0% {
+    width: 0;
+    border-right: 1px solid white;
+  }
+  100% {
+    width: 40%;
+  }
+}
+
+.text-visible {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 2s steps(48, end)
+}
+
+.text-invisible {
+  display: none;
+}

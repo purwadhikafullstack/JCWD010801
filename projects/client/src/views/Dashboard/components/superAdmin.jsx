@@ -13,7 +13,7 @@ export const SuperAdminDashboardButton = () => {
 	return (
 		<Flex>
 			<LayoutSidebar />
-			<Box w={"full"} pt={"30px"} direction={"column"}>
+			<Flex justifyContent={"center"} w={"full"} pt={"30px"} direction={"column"}>
 				<Flex ml={"7%"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
@@ -179,7 +179,7 @@ export const SuperAdminDashboardButton = () => {
 						</Flex>
 					</Box>
 				</Flex>
-			</Box>
+			</Flex>
 		</Flex>
 	);
 };

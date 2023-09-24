@@ -156,28 +156,31 @@ module.exports = {
 				};
 			}
 			if (branchId) branchCondition["BranchId"] = branchId;
-			const result = await order_details.findAll({
+			const result = await orders.findAll({
 				include: [
 					{
-						model: orders,
+						model: order_details,
 						include: [
 							{
-								model: carts,
-								include: [
-									{
-										model: branches,
-									},
-								],
-								where: branchCondition,
+								model: products,
+								where: condition,
 							},
 						],
-						where: whereCondition,
 					},
-					{ model: products, where: condition },
+					{
+						model: carts,
+						include: [
+							{
+								model: branches,
+							},
+						],
+						where: branchCondition,
+					},
 				],
 				limit,
 				offset,
-				order: [[{ model: orders }, "updatedAt", sort]],
+				order: [["updatedAt", sort]],
+				where: whereCondition,
 			});
 			res.status(200).send({
 				result,
