@@ -425,5 +425,41 @@ module.exports = {
 		} catch (err) {
 			res.status(400).send(err);
 		}
-	}
+	},
+	userConfirmOrder: async(req, res) => {
+        try {
+            await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
+
+            res.status(200).send({
+                status: true,
+                message: "Order confirmed"
+            });
+
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+    userAutoConfirmOrder: async(req, res) => {
+		const autoConfirmTime = new Date(Date.now() + 604800000);
+		schedule.scheduleJob(autoConfirmTime, async() => {
+			try {
+				const ord = await orders.findOne({
+					where: { id: req.params.id },
+					include: { model: carts }
+				});
+				
+				if (ord.status === "Sent") {
+					await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
+		
+					res.status(200).send({
+						status: true,
+						message: "Order confirmed"
+					});
+				}
+	
+			} catch (err) {
+				res.status(400).send(err);
+			}
+		});
+    },
 };
