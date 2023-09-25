@@ -9,9 +9,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Quicksand', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -52,3 +50,87 @@ code {
   background-color: #333;
 }
 /* END OF SCROLLBAR CSS */
+
+.transition-element {
+  transition: all 3s ease-in-out;
+}
+
+.pm-h {
+  transition: all 3s ease-in-out;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: 3px;
+}
+
+.pm-d {
+  transition: all 3s ease-in-out;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+@keyframes typing {
+  0% {
+    width: 0;
+    border-right: 1px solid white;
+  }
+  100% {
+    width: 40%;
+  }
+}
+
+.text-visible {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 2s steps(48, end)
+}
+
+.text-invisible {
+  display: none;
+}
+
+canvas {
+  width: 400px;
+  height: 400px;
+}
+
+.welcome-h {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 0px;
+  line-height: 1.5;
+  letter-spacing: 10px;
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  opacity: 0;
+  transition: opacity 3s ease-in, font-size 3s ease-in;
+  transform: scale(0);
+}
+
+.welcome-d {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 0px;
+  line-height: 0.8;
+  letter-spacing: 5px;
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  opacity: 0;
+  transition: opacity 3s ease-in, font-size 3s ease-in;
+  transform: scale(0);
+}
+
+.animate-h {
+  opacity: 1 !important;
+  font-size: 50px;
+  transform: scale(1);
+}
+
+.animate-d {
+  opacity: 1 !important;
+  font-size: 28px;
+  transform: scale(1);
+}

@@ -50,7 +50,7 @@ export const AddProduct = ({ categories, reload, setReload, BranchId, currentBra
 			.required("Stock cannot be empty.")
 			.typeError("Stock must be a number.")
 			.positive("You cannot initialize this product with 0 stock!"),
-	}); //! BIMO PROTECT 20SEPT
+	});
 
 	const handleSubmit = async (values) => {
 		try {
@@ -64,7 +64,7 @@ export const AddProduct = ({ categories, reload, setReload, BranchId, currentBra
 			userInput.append("weight", weight);
 			userInput.append("image", newImage);
 			userInput.append("stock", stock);
-			userInput.append("BranchId", BranchId); //! BIMO PROTECT
+			userInput.append("BranchId", BranchId);
 			userInput.append("UID", UID);
 
 			const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/product/`, userInput, {
@@ -307,4 +307,3 @@ export const AddProduct = ({ categories, reload, setReload, BranchId, currentBra
 		</>
 	);
 };
-//! SIG COUNT 2

@@ -121,35 +121,37 @@ module.exports = {
 
 			const updatedCurrentStock = branchStock ? branchStock.currentStock + stock : stock;
 
+			const additions = {};
+			additions.productName = {
+				oldValue: "initialization",
+				newValue: productName,
+			};
+			additions.price = {
+				oldValue: "initialization",
+				newValue: price,
+			};
+			additions.description = {
+				oldValue: "initialization",
+				newValue: description,
+			};
+			additions.weight = {
+				oldValue: "initialization",
+				newValue: weight,
+			};
+			additions.CategoryId = {
+				oldValue: "initialization",
+				newValue: CategoryId,
+			};
+			additions.imgURL = {
+				oldValue: "initialization",
+				newValue: imgURL,
+			};
+
 			if (branchStock) {
-				await stocks.update(
-					{
-						currentStock: updatedCurrentStock,
-					},
-					{
-						where: {
-							ProductId: newProduct.id,
-							BranchId: BranchId,
-						},
-					}
-				);
-
-				//! This if block is for validation purposes only. If this request is caught in this if block, then it is a bad request.
-
-				await stockMovements.create({
-					change: updatedCurrentStock,
-					isAddition: true,
-					isAdjustment: true,
-					isInitialization: false,
-					BranchId: BranchId,
-					ProductId: newProduct.id,
-					UserId: UID,
-				});
-
 				return res.status(400).send({
 					error,
 					status: 400,
-					message: "You made a mistake. This product already exists!",
+					message: "Product name already exists. Did you mean to update product?",
 				});
 			} else {
 				await stocks.create({
@@ -160,13 +162,26 @@ module.exports = {
 
 				await stockMovements.create({
 					change: updatedCurrentStock,
+					oldValue: 0,
+					newValue: updatedCurrentStock,
 					isAddition: true,
 					isAdjustment: false,
 					isInitialization: true,
+					isBranchInitialization: false,
 					BranchId: BranchId,
 					ProductId: newProduct.id,
 					UserId: UID,
 				});
+
+				for (const field in additions) {
+					await changelogs.create({
+						field,
+						oldValue: additions[field].oldValue,
+						newValue: additions[field].newValue,
+						UserId: UID,
+						ProductId: newProduct.id,
+					});
+				}
 			}
 
 			return res.status(201).send({
@@ -301,20 +316,35 @@ module.exports = {
 				};
 			}
 
-			const stockDelta = parseInt(stock) - parseInt(oldStock); //! BIMO PROTECT
+			const stockDelta = parseInt(stock) - parseInt(oldStock);
 
-			if (stockDelta !== 0) {
+			if (stockDelta !== 0 && !isNaN(stockDelta) && !isNaN(oldStock)) {
 				const isAddition = stockDelta > 0;
-				const isAdjustment = true;
-				const isInitialization = false;
 
 				await stockMovements.create({
 					ProductId: PID,
 					BranchId: BranchId,
+					oldValue: oldStock,
+					newValue: stock,
 					change: stockDelta,
 					isAddition: isAddition,
-					isAdjustment: isAdjustment,
-					isInitialization: isInitialization,
+					isAdjustment: true,
+					isInitialization: false,
+					UserId: UserId,
+				});
+			}
+
+			if (stock && isNaN(stockDelta) && isNaN(oldStock)) {
+				await stockMovements.create({
+					ProductId: PID,
+					BranchId: BranchId,
+					oldValue: 0,
+					newValue: stock,
+					change: stock,
+					isAddition: true,
+					isAdjustment: false,
+					isInitialization: false,
+					isBranchInitialization: true,
 					UserId: UserId,
 				});
 			}
@@ -956,7 +986,7 @@ module.exports = {
 					UserId: UID,
 					ProductId: PID,
 				});
-			} //! BIMO PROTECT
+			}
 
 			const updatedProducts = await products.update(
 				{ CategoryId: newCategoryId },
@@ -1214,5 +1244,35 @@ module.exports = {
 				message: "Internal server error.",
 			});
 		}
-	}, //!BIMO PROTECT: SIG COUNT 2
+	},
+	addOneUserView: async (req, res) => {
+		try {
+			const { PID } = req.params;
+			const { RoleId } = req.body;
+
+			const product = await products.findOne({
+				where: { id: PID },
+			});
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product not found.",
+				});
+			}
+
+			if (RoleId < 2) {
+				await product.update({
+					viewCount: +product.viewCount + 1,
+				});
+			} else {
+				return;
+			}
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
 };
