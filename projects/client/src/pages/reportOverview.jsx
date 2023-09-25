@@ -41,7 +41,7 @@ const ReportOverview = () => {
 				<Stack justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}>
 					<Flex
 						as={Link}
-						to={"/dashboard/"}
+						to={"/dashboard/report/stocks/charts"}
 						w={"400px"}
 						h={"200px"}
 						borderRadius={"10px"}

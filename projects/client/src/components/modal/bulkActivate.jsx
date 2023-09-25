@@ -21,8 +21,8 @@ import { useSelector } from "react-redux";
 export const BulkActivate = ({
 	currentPagePIDs,
 	currentPageProductNames,
-	reload,
-	setReload,
+	reload2,
+	setReload2,
 	setCheckboxState,
 	initialCheckboxState,
 	isAllActivated,
@@ -63,7 +63,7 @@ export const BulkActivate = ({
 					progress: undefined,
 					theme: "dark",
 				});
-				setReload(!reload);
+				setReload2(!reload2);
 				setCheckboxState(initialCheckboxState);
 				onClose();
 			})

@@ -124,7 +124,7 @@ export const BranchAdminDashboardButton = () => {
 								Order List
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								Hoamz
+								OrderzZz
 							</Text>
 						</Flex>
 						<Flex mt={"60px"} mr={"15px"} justifyContent={"end"}>
@@ -133,7 +133,7 @@ export const BranchAdminDashboardButton = () => {
 					</Box>
 					<Box
 						as={Link}
-						to={"/dashboard/welcome"}
+						to={"/dashboard/report/welcome"}
 						ml={"15px"}
 						w={"42%"}
 						h={"250px"}
