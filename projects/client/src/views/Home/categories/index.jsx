@@ -13,7 +13,7 @@ export const Categories = () => {
         <CreateCategory/>
       </Flex>
       <CategoryCarousel />
-      <HomeCategoryPrototype/>
+      {/* <HomeCategoryPrototype/> */}
     </Stack>
   );
 };
