@@ -89,7 +89,7 @@ const ProductManagement = () => {
 	const interval = 15000;
 	useEffect(() => {
 		const checkAuth = () => {
-			if (!RoleId || RoleId < 2 || token) {
+			if (!RoleId || RoleId < 2 || !token) {
 				navigate("/404");
 			}
 		};

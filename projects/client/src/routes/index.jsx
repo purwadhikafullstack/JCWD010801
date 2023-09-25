@@ -21,6 +21,7 @@ const OrdersList = lazy(() => import("../pages/orderList"));
 const ReportPrelim = lazy(() => import("../pages/reportPrelim"));
 const ReportOverview = lazy(() => import("../pages/reportOverview"));
 const CategoriesCharts = lazy(() => import("../pages/categoriesCharts"));
+const StockReport = lazy(() => import("../pages/stockReport"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -130,6 +131,14 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<CategoriesCharts />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/report/stocks",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<StockReport />
 			</Suspense>
 		),
 	},

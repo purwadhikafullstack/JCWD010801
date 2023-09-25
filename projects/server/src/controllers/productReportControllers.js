@@ -255,13 +255,17 @@ module.exports = {
 				const activeProductsCount = category.Products.filter((product) => product.isActive).length;
 				const deactivatedProductsCount = category.Products.filter((product) => !product.isActive).length;
 				const deletedProductsCount = category.Products.filter((product) => product.isDeleted).length;
+				const totalViewCount = category.Products.reduce((total, product) => {
+					return total + product.viewCount;
+				}, 0);
 
 				return {
 					categoryId: category.id,
 					categoryName: category.category,
 					activeProductsCount,
 					deactivatedProductsCount,
-					deletedProductsCount
+					deletedProductsCount,
+					totalViewCount,
 				};
 			});
 
@@ -294,16 +298,26 @@ module.exports = {
 			const totalDeletedProductCount = categoriesData.reduce((total, category) => {
 				return total + category.Products.filter((product) => product.isDeleted).length;
 			}, 0);
+			const totalViewCount = categoriesData.reduce((total, category) => {
+				return (
+					total +
+					category.Products.reduce((categoryTotal, product) => {
+						return categoryTotal + product.viewCount;
+					}, 0)
+				);
+			}, 0);
 
 			const averageActiveProductCount = Math.round(totalActiveProductCount / categoriesData.length);
 			const averageDeactivatedProductCount = Math.round(totalDeactivatedProductCount / categoriesData.length);
 			const averageDeletedProductCount = Math.round(totalDeletedProductCount / categoriesData.length);
+			const averageViewCount = Math.round(totalViewCount / categoriesData.length);
 
 			res.status(200).send({
 				status: 200,
 				averageActiveProductCount,
 				averageDeactivatedProductCount,
-				averageDeletedProductCount
+				averageDeletedProductCount,
+				averageViewCount,
 			});
 		} catch (error) {
 			return res.status(500).send({

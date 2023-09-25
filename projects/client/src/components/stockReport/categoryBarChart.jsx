@@ -37,7 +37,7 @@ const CategoryBarChart = () => {
 				backgroundColor: "#C3C1C1",
 			},
 			{
-				label: "Avg. Total PIDs In A Given Category",
+				label: "Avg. PPC Across All Categories",
 				data: Array(categoryData.length).fill(averageCount),
 				backgroundColor: "#000000",
 			},
@@ -49,7 +49,7 @@ const CategoryBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "Mean Comparison",
+				text: "All AlphaMart Products",
 			},
 		},
 	};
