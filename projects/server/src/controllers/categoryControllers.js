@@ -26,7 +26,7 @@ module.exports = {
 	getCategoriesAdmin: async (req, res) => {
 		try {
 			const page = parseInt(req.query.page) || 1;
-			const limit = 8;
+			const limit = parseInt(req.query.limit) || 8;
 			const totalCategories = await categories.count();
 			const result = await categories.findAll({
 				limit,

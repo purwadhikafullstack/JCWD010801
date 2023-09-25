@@ -45,6 +45,7 @@ import { sidebarEvent } from "../events/sidebarEvent";
 const initialCheckboxState = {};
 
 const ProductManagement = () => {
+	const token = localStorage.getItem("token");
 	const { id, username, lastName, gender, BranchId, RoleId } = useSelector((state) => state?.user?.value);
 	const [products, setProducts] = useState([]);
 	const [totalProductsAll, setTotalProductsAll] = useState(0);
@@ -56,7 +57,8 @@ const ProductManagement = () => {
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
 	const [activeTab, setActiveTab] = useState(0);
-	const [reload, setReload] = useState(true);
+	const [reload, setReload] = useState(false);
+	const [reload2, setReload2] = useState(false);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
@@ -87,7 +89,7 @@ const ProductManagement = () => {
 	const interval = 15000;
 	useEffect(() => {
 		const checkAuth = () => {
-			if (!RoleId || RoleId === 1) {
+			if (!RoleId || RoleId < 2 || !token) {
 				navigate("/404");
 			}
 		};
@@ -99,16 +101,21 @@ const ProductManagement = () => {
 
 	useEffect(() => {
 		fetchBranchData();
-	}, [reload]);
+	}, [reload, reload2]);
 
 	useEffect(() => {
 		productCount();
-	}, [reload, activeTab]);
+	}, [reload, reload2, activeTab]);
 
 	useEffect(() => {
 		fetchDataAll(page);
 		// eslint-disable-next-line
 	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages, activeTab]);
+
+	useEffect(() => {
+		fetchDataAllAlt(page);
+		// eslint-disable-next-line
+	}, [reload2]);
 
 	useEffect(() => {
 		const handleSidebarSizeChange = (newSize) => {
@@ -162,7 +169,11 @@ const ProductManagement = () => {
 				setIsSearchEmpty(false);
 			}
 			setTotalPages(productsResponse.data.totalPages);
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/admin?limit=50`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
@@ -180,6 +191,58 @@ const ProductManagement = () => {
 			setTimeout(() => {
 				setIsLoading(false);
 			}, 500);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const fetchDataAllAlt = async (pageNum) => {
+		try {
+			let apiURL = "";
+
+			if (activeTab === 0) {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/alladmin?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
+			} else if (activeTab === 1) {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/active?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
+			} else if (activeTab === 2) {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deactivated?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
+			} else {
+				apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/deleted?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}&BranchId=${BranchId}`;
+			}
+
+			if (selectedCategory) {
+				apiURL += `&CategoryId=${selectedCategory}`;
+			}
+			if (itemLimit) {
+				apiURL += `&itemLimit=${itemLimit}`;
+			}
+			const productsResponse = await Axios.get(apiURL);
+			setProducts(productsResponse.data.result);
+			if (products.length === 0) {
+				setIsSearchEmpty(true);
+			} else {
+				setIsSearchEmpty(false);
+			}
+			setTotalPages(productsResponse.data.totalPages);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/admin?limit=50`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			const categoryData = categoriesResponse.data.result.map((data) => ({
+				label: data.category,
+				value: data.id,
+			}));
+			setCategories(categoryData);
+			if (activeTab === 0) {
+				setTotalProductsAll(productsResponse.data.totalProducts);
+			} else if (activeTab === 1) {
+				setTotalProductsActive(productsResponse.data.totalProducts);
+			} else if (activeTab === 2) {
+				setTotalProductsDeactivated(productsResponse.data.totalProducts);
+			} else {
+				setTotalProductsDeleted(productsResponse.data.totalProducts);
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -224,7 +287,7 @@ const ProductManagement = () => {
 				progress: undefined,
 				theme: "dark",
 			});
-			setReload(!reload);
+			setReload2(!reload2);
 		} catch (error) {
 			toast.error(`${error.response.data.message}`, {
 				position: "top-right",
@@ -236,7 +299,7 @@ const ProductManagement = () => {
 				progress: undefined,
 				theme: "dark",
 			});
-			setReload(!reload);
+			setReload2(!reload2);
 		}
 	};
 
@@ -253,7 +316,7 @@ const ProductManagement = () => {
 				progress: undefined,
 				theme: "dark",
 			});
-			setReload(!reload);
+			setReload2(!reload2);
 		} catch (error) {
 			toast.error(`${error.response.data.message}`, {
 				position: "top-right",
@@ -265,7 +328,7 @@ const ProductManagement = () => {
 				progress: undefined,
 				theme: "dark",
 			});
-			setReload(!reload);
+			setReload2(!reload2);
 		}
 	};
 
@@ -1098,8 +1161,8 @@ const ProductManagement = () => {
 									<BulkActivate
 										currentPagePIDs={currentPagePIDs}
 										currentPageProductNames={currentPageProductNames}
-										reload={reload}
-										setReload={setReload}
+										reload2={reload2}
+										setReload2={setReload2}
 										setCheckboxState={setCheckboxState}
 										initialCheckboxState={initialCheckboxState}
 										isAllActivated={isAllActivated}
@@ -1109,8 +1172,8 @@ const ProductManagement = () => {
 									<BulkDeactivate
 										selectedPIDs={selectedPIDs}
 										selectedProductNames={selectedProductNames}
-										reload={reload}
-										setReload={setReload}
+										reload2={reload2}
+										setReload2={setReload2}
 										setCheckboxState={setCheckboxState}
 										initialCheckboxState={initialCheckboxState}
 										isAllDeactivated={isAllDeactivated}
@@ -1119,8 +1182,8 @@ const ProductManagement = () => {
 									<BulkDelete
 										selectedPIDs={selectedPIDs}
 										selectedProductNames={selectedProductNames}
-										reload={reload}
-										setReload={setReload}
+										reload2={reload2}
+										setReload2={setReload2}
 										setCheckboxState={setCheckboxState}
 										initialCheckboxState={initialCheckboxState}
 										isAllDeactivated={isAllDeactivated}

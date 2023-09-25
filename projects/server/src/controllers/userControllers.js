@@ -316,4 +316,25 @@ module.exports = {
 			});
 		}
 	},
+	resendVerificationEmail: async(req, res) => {
+		try {
+			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
+			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
+			const tempCompile = await handlebars.compile(data);
+			const tempResult = tempCompile({ username: req.user.id, token });
+			await transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: email,
+				subject: "Verify Your AlphaMart Account",
+				html: tempResult,
+			});
+			res.status(200).send({
+				status: true,
+				message: "Verification email sent. Link will expire in 5 minutes.",
+				token,
+			});
+		} catch (err) {
+			res.status(400).send(err);
+		}
+	},
 };

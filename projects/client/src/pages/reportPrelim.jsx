@@ -13,7 +13,7 @@ const ReportPrelim = () => {
 		setAnimateD(true);
 
 		const redirectTimeout = setTimeout(() => {
-			navigate("/dashboard/report-overview");
+			navigate("/dashboard/report/overview");
 		}, 6000);
 
 		return () => {
