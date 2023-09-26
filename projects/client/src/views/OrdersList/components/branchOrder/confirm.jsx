@@ -1,23 +1,33 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
-import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
+import { useSelector } from "react-redux";
+import { Badge, Box, Button, Flex, Image, Input, Select, Text } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "react-icons/ai";
-import { EmptyList } from "./emptyList";
-import { AdminSidebar } from "../../../components/navigation/adminSidebar";
+import { EmptyList } from "../emptyList";
 
-export const SuperAdminOrdersList = () => {
+export const ConfirmedOrders = () => {
 	const [list, setList] = useState();
-	const [branch, setBranch] = useState();
 	const [search, setSearch] = useState("");
 	const [status, setStatus] = useState("");
-	const [branchId, setBranchId] = useState("");
 	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
-	// const [reload, setReload] = useState(false);
+	const [reload, setReload] = useState(false);
+	const [branches, setBranches] = useState([]);
+	const user = useSelector((state) => state?.user?.value);
 	const token = localStorage.getItem("token");
+	const fetchBranchData = async () => {
+		try {
+			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(branchResponse.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
+	const currentBranchName = currentBranchInfo?.name;
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
@@ -28,28 +38,18 @@ export const SuperAdminOrdersList = () => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/superadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&branchId=${branchId}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=Confirmed`,
 				{
 					headers,
 					params: queryParams,
 				}
 			);
-			console.log(response.data);
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			// setReload(true);
+			setReload(true);
 		} catch (error) {
 			console.log(error);
-		}
-	};
-
-	const getBranches = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
-			setBranch(response.data);
-		} catch (err) {
-			console.log(err);
 		}
 	};
 
@@ -63,16 +63,18 @@ export const SuperAdminOrdersList = () => {
 	};
 	useEffect(() => {
 		ordersList(page);
-		getBranches();
-	}, [selectedDate, search, sort, branchId, status]);
+		fetchBranchData();
+	}, [selectedDate, search, sort, status, reload]);
 	return (
 		<Flex>
-			<AdminSidebar />
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
-				<Heading ml={"20px"} mt={"20px"}>
-					All orders from all branches
-				</Heading>
-				<Flex mt={"20px"} justifyContent={"center"}>
+				<Flex ml={"20px"} mt={"3px"}>
+					<AiOutlineShopping color="blue" size={25} />
+					<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
+						Alphamart {currentBranchName}
+					</Text>
+				</Flex>
+				<Flex justifyContent={"center"}>
 					<Input
 						borderRadius={"20px"}
 						border="1px solid #373433"
@@ -94,24 +96,6 @@ export const SuperAdminOrdersList = () => {
 					>
 						<option value="DESC">Newest</option>
 						<option value="ASC">Oldest</option>
-					</Select>
-					<Select
-						w={"115px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={branchId}
-						onChange={(e) => setBranchId(e.target.value)}
-					>
-						<option value="">Branch</option>
-						{branch?.map((item) => {
-							return (
-								<option key={item?.id} value={item?.id}>
-									{item?.name}
-								</option>
-							);
-						})}
 					</Select>
 					<Select
 						textAlign={"start"}
@@ -145,12 +129,13 @@ export const SuperAdminOrdersList = () => {
 				</Flex>
 				<Box
 					w={"95%"}
+					maxH={"55vh"}
 					borderRadius={"10px"}
 					boxShadow="0px 0px 3px gray"
 					mt={"10px"}
 					pb={"10px"}
 					ml={"18px"}
-					maxH={"408px"}
+					// maxH={"345px"}
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
@@ -198,12 +183,6 @@ export const SuperAdminOrdersList = () => {
 											{item.invoice}
 										</Text>
 									</Flex>
-									<Flex mt={"3px"}>
-										<AiOutlineShopping color="blue" size={25} />
-										<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-											Alphamart {item?.Cart?.Branch?.name}
-										</Text>
-									</Flex>
 									<Flex justifyContent={"space-between"}>
 										<Box>
 											{item.Order_details.map((item) => (
@@ -215,13 +194,13 @@ export const SuperAdminOrdersList = () => {
 														src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
 													></Box>
 													<Box>
-														<Text ml={"15px"} fontWeight={"bold"}>
+														<Text textAlign={"start"} ml={"15px"} fontWeight={"bold"}>
 															{item.Product.productName}
 														</Text>
-														<Text ml={"15px"} color={"balck"} fontSize={"11px"}>
+														<Text textAlign={"start"} ml={"15px"} color={"balck"} fontSize={"11px"}>
 															{item.Product.description}
 														</Text>
-														<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
+														<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
 															{item.quantity} Items X Rp. {item.Product.price},00
 														</Text>
 													</Box>
@@ -246,6 +225,7 @@ export const SuperAdminOrdersList = () => {
 											</Text>
 										</Flex>
 									</Flex>
+									<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}></Flex>
 								</Box>
 							);
 						})
@@ -255,7 +235,7 @@ export const SuperAdminOrdersList = () => {
 						</Flex>
 					)}
 				</Box>
-				<Flex mt={"20px"} justifyContent={"center"}>
+				<Flex mt={"14px"} justifyContent={"center"}>
 					<Button
 						backgroundColor={"#000000"}
 						color={"white"}

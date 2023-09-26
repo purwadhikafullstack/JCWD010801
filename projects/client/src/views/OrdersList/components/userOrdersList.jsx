@@ -1,19 +1,19 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
 import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
+import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
-// import { HiOutlineTruck } from "react-icons/hi";
 
 export const UserOrdersList = () => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
+	const [status, setStatus] = useState("");
+	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
-	const [selectedDate, setSelectedDate] = useState("");
 	const [sort, setSort] = useState("DESC");
-	const [status, setStatus] = useState("");
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -122,23 +122,37 @@ export const UserOrdersList = () => {
 									Shop
 								</Text>
 								<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-									{new Date(`${item.createdAt}`).toLocaleDateString("us-us", {
+									{new Date(`${item.updatedAt}`).toLocaleDateString("us-us", {
 										year: "numeric",
 										month: "long",
 										day: "numeric",
 									})}
 								</Text>
-								<Badge ml={"10px"} mt={"2px"} colorScheme="green">
-									{item.status}
-								</Badge>
+								{item.status === "Sent" || item.status === "Received" ? (
+									<Badge ml={"10px"} mt={"2px"} colorScheme="green">
+										{item.status}
+									</Badge>
+								) : item.status === "Waiting for payment" || item.status === "Pending payment confirmation" ? (
+									<Badge ml={"10px"} mt={"2px"} colorScheme="yellow">
+										{item.status}
+									</Badge>
+								) : item.status === "Processing" ? (
+									<Badge ml={"10px"} mt={"2px"} colorScheme="blue">
+										{item.status}
+									</Badge>
+								) : (
+									<Badge ml={"10px"} mt={"2px"} colorScheme="red">
+										{item.status}
+									</Badge>
+								)}
 								<Text mt={"2px"} ml={"10px"} fontFamily={"monospace"} fontSize={"13px"}>
-									INV/20230813/MPL/3400120239
+									{item.invoice}
 								</Text>
 							</Flex>
 							<Flex mt={"3px"}>
 								<AiOutlineShopping color="blue" size={25} />
 								<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-									Alphamart {item.Cart.Branch.name}
+									Alphamart {item?.Cart?.Branch?.name}
 								</Text>
 							</Flex>
 							<Flex justifyContent={"space-between"}>
@@ -165,20 +179,20 @@ export const UserOrdersList = () => {
 										</Flex>
 									))}
 								</Box>
-								<Flex direction={"column"} justifyContent={"end"} mr={"20px"}>
-									{/* <Flex>
-										<HiOutlineTruck color="black" size={23} />
+								<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
+									<Flex textAlign={"end"} ml={"15px"}>
+										<HiOutlineTruck size={21} />
 										<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
 											{item.shipment} - {item.shipmentMethod}
 										</Text>
-									</Flex> */}
-									<Text color={"gray.500"} fontSize={"15px"}>
+									</Flex>
+									<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 										Total amount
 									</Text>
-									<Text color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
+									<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
 										Rp. {item.subtotal},00 - {item.discount}%
 									</Text>
-									<Text color={"black"} fontWeight={"bold"} fontSize={"18px"}>
+									<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
 										Rp. {item.total},00
 									</Text>
 								</Flex>

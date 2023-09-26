@@ -56,6 +56,9 @@ module.exports = (sequelize, DataTypes) => {
 			paymentProof: {
 				type: DataTypes.STRING,
 			},
+			invoice: {
+				type: DataTypes.STRING,
+			},
 		},
 		{
 			sequelize,
