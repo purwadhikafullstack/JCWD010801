@@ -5,6 +5,7 @@ const categoryRouters = require("./categoryRouters");
 const addressRouters = require("./addressRouters");
 const cartRouters = require("./cartRouters");
 const orderRouters = require("./orderRouters");
+const reportRouters = require("./reportRouters");
 
 module.exports = {
 	userRouters,
@@ -14,4 +15,5 @@ module.exports = {
 	addressRouters,
 	cartRouters,
 	orderRouters,
+	reportRouters,
 };

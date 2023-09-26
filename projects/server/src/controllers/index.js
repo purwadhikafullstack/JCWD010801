@@ -5,6 +5,7 @@ const categoryControllers = require("./categoryControllers");
 const addressControllers = require("./addressControllers");
 const cartControllers = require("./cartControllers");
 const orderControllers = require("./orderControllers");
+const reportControllers = require("./reportControllers");
 
 module.exports = {
 	userControllers,
@@ -14,4 +15,5 @@ module.exports = {
 	addressControllers,
 	cartControllers,
 	orderControllers,
+	reportControllers,
 };

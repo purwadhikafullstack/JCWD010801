@@ -18,6 +18,7 @@ const ProductManagement = lazy(() => import("../pages/productManagement"));
 const CartPage = lazy(() => import("../pages/cart"));
 const CheckoutPage = lazy(() => import("../pages/checkOut"));
 const OrdersList = lazy(() => import("../pages/orderList"));
+const ReportPage = lazy(() => import("../pages/report"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -151,6 +152,14 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ProfilePage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/report",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ReportPage />
 			</Suspense>
 		),
 	},
