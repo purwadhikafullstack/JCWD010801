@@ -19,6 +19,10 @@ const CartPage = lazy(() => import("../pages/cart"));
 const CheckoutPage = lazy(() => import("../pages/checkOut"));
 const OrdersList = lazy(() => import("../pages/orderList"));
 const ReportPage = lazy(() => import("../pages/report"));
+const ReportPrelim = lazy(() => import("../pages/reportPrelim"));
+const ReportOverview = lazy(() => import("../pages/reportOverview"));
+const CategoriesCharts = lazy(() => import("../pages/categoriesCharts"));
+const StockReport = lazy(() => import("../pages/stockReport"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -104,6 +108,38 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ProductManagement />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/report/welcome",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ReportPrelim />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/report/overview",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ReportOverview />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/report/stocks/charts",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<CategoriesCharts />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/report/stocks",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<StockReport />
 			</Suspense>
 		),
 	},

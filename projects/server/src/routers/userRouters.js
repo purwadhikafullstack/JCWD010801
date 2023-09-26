@@ -15,5 +15,6 @@ router.patch("/profile", verifyToken, userControllers.updateProfile);
 router.patch("/email", checkUpdateEmail, verifyToken, userControllers.updateEmail);
 router.patch("/phone", checkUpdatePhone, verifyToken, userControllers.updatePhone);
 router.patch("/password", verifyToken, checkChangePassword, userControllers.changePassword);
+router.patch("/reverify", verifyToken, userControllers.resendVerificationEmail);
 
 module.exports = router;

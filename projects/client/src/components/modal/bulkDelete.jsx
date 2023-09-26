@@ -23,8 +23,8 @@ import { useSelector } from "react-redux";
 export const BulkDelete = ({
 	selectedPIDs,
 	selectedProductNames,
-	reload,
-	setReload,
+	reload2,
+	setReload2,
 	setCheckboxState,
 	initialCheckboxState,
 	isAllDeleted,
@@ -64,7 +64,7 @@ export const BulkDelete = ({
 					progress: undefined,
 					theme: "dark",
 				});
-				setReload(!reload);
+				setReload2(!reload2);
 				setCheckboxState(initialCheckboxState);
 				onClose();
 			})

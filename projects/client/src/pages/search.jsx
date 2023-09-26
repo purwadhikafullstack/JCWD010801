@@ -7,8 +7,11 @@ import { useNavigate, useLocation } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
 import { useMediaQuery } from "react-responsive";
 import { FaSearch } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const Search = () => {
+	const user = useSelector((state) => state?.user?.value);
+	const RoleId = user.RoleId || 0;
 	const [products, setProducts] = useState([]);
 	const [itemLimit, setItemLimit] = useState(15);
 	const [categories, setCategories] = useState([]);
@@ -92,7 +95,7 @@ const Search = () => {
 			} else {
 				setIsSearchEmpty(false);
 			}
-			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user`);
+			const categoriesResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/user?limit=50`);
 			const categoryData = categoriesResponse.data.result.map((data) => ({
 				label: data.category,
 				value: data.id,
@@ -125,8 +128,11 @@ const Search = () => {
 		setReload(!reload);
 	};
 
-	const productDetail = (id) => {
-		navigate(`/product/${id}`);
+	const productDetail = (PID) => {
+		Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/product/view/${PID}`, {
+			RoleId: RoleId,
+		});
+		navigate(`/product/${PID}`);
 	};
 
 	const handleSearch = debounce(
@@ -150,7 +156,7 @@ const Search = () => {
 			leading: false,
 			trailing: true,
 		}
-	); //! BIMO PROTECT
+	);
 
 	const updateQueryParams = (paramsToUpdate) => {
 		const queryParams = new URLSearchParams(location.search);
@@ -162,7 +168,7 @@ const Search = () => {
 		}
 
 		navigate(`?${queryParams.toString()}`);
-	}; //! BIMO PROTECT
+	};
 
 	const customInputStyle = {
 		borderColor: "gray",
@@ -546,7 +552,6 @@ const Search = () => {
 								onChange={(e) => {
 									setPage(1);
 									handleSearch(e.target.value);
-									//! BIMO PROTECT
 								}}
 								onKeyDown={(e) => {
 									if (e.key === "Enter") {
@@ -845,4 +850,4 @@ const Search = () => {
 	);
 };
 
-export default Search; //! BIMO PROTECTED COMMIT. SIG COUNT: 3
+export default Search;

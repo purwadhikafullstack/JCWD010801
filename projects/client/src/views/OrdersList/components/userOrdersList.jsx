@@ -208,6 +208,7 @@ export const UserOrdersList = () => {
 									date={item?.createdAt}
 									branch={"Bandung"}
 									amount={item.total}
+									status={item?.status}
 								/>
 							</Flex>
 						</Box>

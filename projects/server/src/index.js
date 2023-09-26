@@ -5,7 +5,8 @@ const { join } = require("path");
 const PORT = process.env.PORT || 8000;
 const server = express();
 const db = require('./models');
-const { userRouters, adminRouters, productRouters, categoryRouters, addressRouters, cartRouters, orderRouters, reportRouters } = require("./routers");
+const { userRouters, adminRouters, productRouters, categoryRouters, addressRouters, cartRouters, orderRouters, reportRouters, productReportRouters} = require("./routers");
+
 
 // server.use(
 //   cors({
@@ -31,6 +32,7 @@ server.use('/api/address', addressRouters)
 server.use('/api/cart', cartRouters);
 server.use('/api/order', orderRouters);
 server.use('/api/report', reportRouters);
+server.use('/api/product-report', productReportRouters);
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);
@@ -79,7 +81,7 @@ server.listen(PORT, (err) => {
 	if (err) {
 		console.log(`ERROR: ${err}`);
 	} else {
-		//db.sequelize.sync({ alter: true });
+		// db.sequelize.sync({ alter: true });
 		console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
 	}
 });

@@ -20,6 +20,14 @@ module.exports = (sequelize, DataTypes) => {
 				primaryKey: true,
 				autoIncrement: true,
 			},
+			oldValue: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
+			},
+			newValue: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
+			},
 			change: {
 				type: DataTypes.INTEGER,
 				defaultValue: 0,
@@ -33,6 +41,10 @@ module.exports = (sequelize, DataTypes) => {
 				defaultValue: false,
 			},
 			isInitialization: {
+				type: DataTypes.BOOLEAN,
+				defaultValue: false,
+			},
+			isBranchInitialization: {
 				type: DataTypes.BOOLEAN,
 				defaultValue: false,
 			},
