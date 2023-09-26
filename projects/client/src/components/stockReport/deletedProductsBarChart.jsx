@@ -34,7 +34,7 @@ const DeletedProductsBarChart = () => {
 			{
 				label: "Deleted PIDs",
 				data: deletedCountPerCategory.map((category) => category.deletedProductsCount),
-				backgroundColor: "#8F0024",
+				backgroundColor: "#7A0000",
 			},
 			{
 				label: "Avg. Deleted PIDs Across All Categories",
@@ -49,7 +49,7 @@ const DeletedProductsBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "Deleted Products",
+				text: "Deleted Products Mean Comparison",
 			},
 		},
 	};

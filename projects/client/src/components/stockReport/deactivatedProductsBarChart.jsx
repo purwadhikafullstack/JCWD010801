@@ -49,7 +49,7 @@ const DeactivatedProductsBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "Deactivated Products",
+				text: "Deactivated Products Mean Comparison",
 			},
 		},
 	};

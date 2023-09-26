@@ -5,20 +5,20 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const ActiveProductsBarChart = () => {
-	const [activeCountPerCategory, setActiveCountPerCategory] = useState([]);
-	const [activeCount, setActiveCount] = useState(0);
+const StatusStackedBarChart = () => {
+	const [status, setStatus] = useState([]);
+	const [averages, setAverages] = useState(0);
 
 	const fetchData = async () => {
 		try {
-			const activeResponse = await axios.get(
+			const deletedResponse = await axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusCounts`
 			);
-			setActiveCountPerCategory(activeResponse.data.productCountsByCategory);
-			const activeCount = await axios.get(
+			setStatus(deletedResponse.data.productCountsByCategory);
+			const averages = await axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusAverages`
 			);
-			setActiveCount(activeCount.data.averageActiveProductCount);
+			// setAverages(averages.data.averageAverages);
 		} catch (error) {
 			console.log("Error fetching data:", error);
 		}
@@ -29,27 +29,40 @@ const ActiveProductsBarChart = () => {
 	}, []);
 
 	const data = {
-		labels: activeCountPerCategory.map((category) => category.categoryName),
+		labels: status.map((category) => category.categoryName),
 		datasets: [
 			{
-				label: "Active PIDs",
-				data: activeCountPerCategory.map((category) => category.activeProductsCount),
+				label: "Active",
+				data: status.map((category) => category.activeProductsCount),
 				backgroundColor: "#357B14",
 			},
 			{
-				label: "Avg. Active PIDs Across All Categories",
-				data: Array(activeCountPerCategory.length).fill(activeCount),
-				backgroundColor: "#000000",
+				label: "Deactivated",
+				data: status.map((category) => category.deactivatedProductsCount),
+				backgroundColor: "#C41E3A",
+			},
+			{
+				label: "Deleted",
+				data: status.map((category) => category.deletedProductsCount),
+				backgroundColor: "#7A0000",
 			},
 		],
 	};
 
 	const options = {
-		responsive: true,
 		plugins: {
 			title: {
 				display: true,
-				text: "Active Products Mean Comparison",
+				text: "Categories' Product Statuses",
+			},
+		},
+		responsive: true,
+		scales: {
+			x: {
+				stacked: true,
+			},
+			y: {
+				stacked: true,
 			},
 		},
 	};
@@ -63,4 +76,4 @@ const ActiveProductsBarChart = () => {
 	);
 };
 
-export default ActiveProductsBarChart;
+export default StatusStackedBarChart;
