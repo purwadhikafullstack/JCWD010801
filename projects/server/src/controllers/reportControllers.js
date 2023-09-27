@@ -18,7 +18,7 @@ module.exports = {
 	reportSuperAdmin: async (req, res) => {
 		try {
 			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 10;
+			const limit = req.query.limit !== undefined ? +req.query.limit : null;
 			const search = req.query.search;
 			const condition = { status: "Received" };
 			const offset = (page - 1) * limit;
@@ -28,7 +28,8 @@ module.exports = {
 			const searchUser = req.query.searchUser;
 			const year = req.query.year;
 			const month = req.query.month;
-			const searchProduct = req.query.searchProduct
+			const searchProduct = req.query.searchProduct;
+			const searchBranch = req.query.searchBranch;
 			if (year) {
 				condition["createdAt"] = {
 					[Op.between]: [`${year}-01-01`, `${year}-12-31`],
@@ -69,37 +70,46 @@ module.exports = {
 					[Op.like]: `%${searchProduct}%`,
 				};
 			}
+			const branchCondition = {};
+			if (searchBranch) {
+				branchCondition.BranchId = searchBranch;
+			}
 			if (startDate && endDate) {
 				const startOfDay = new Date(startDate);
 				const endOfDay = new Date(endDate);
 				endOfDay.setHours(23, 59, 59, 999);
-				condition["createdAt"] = {
-					[Op.between]: [startOfDay, endOfDay],
+				condition.createdAt = {
+				  [Op.between]: [startOfDay, endOfDay],
 				};
-			} else if (startDate) {
+			  } else if (startDate) {
 				const startOfDay = new Date(startDate);
-				const endOfDay = new Date(startDate);
-				endOfDay.setHours(23, 59, 59, 999);
-				condition["createdAt"] = {
-					[Op.between]: [startOfDay, endOfDay],
+				condition.createdAt = {
+				  [Op.gte]: startOfDay,
 				};
-			}
+			  } else if (endDate) {
+				const endOfDay = new Date(endDate);
+				endOfDay.setHours(23, 59, 59, 999);
+				condition.createdAt = {
+				  [Op.lte]: endOfDay,
+				};
+			  }
 
 			const total = await orders.count({
 				where: condition,
 			});
-			
+
 			const result = await orders.findAll({
 				include: [
 					{
 						model: order_details,
 						include: {
-							 model: products,
-							 where: productCondition
-						 },
+							model: products,
+							where: productCondition,
+						},
 					},
 					{
 						model: carts,
+						where: branchCondition,
 						include: [
 							{
 								model: branches,
@@ -116,7 +126,7 @@ module.exports = {
 						],
 					},
 				],
-				limit,
+				limit: limit !== null ? limit : undefined,
 				offset: offset,
 				order: [["createdAt", sort]],
 				total,
@@ -135,8 +145,7 @@ module.exports = {
 				}
 				acc[year].orders.push(order);
 
-				
-				const month = new Date(order.createdAt).getMonth() + 1; 
+				const month = new Date(order.createdAt).getMonth() + 1;
 				if (!acc[year].monthlyTotal[month]) {
 					acc[year].monthlyTotal[month] = 0;
 				}
@@ -146,18 +155,15 @@ module.exports = {
 				return acc;
 			}, {});
 
-			
 			let totalAllOrders = 0;
 
-			
 			for (const order of result) {
-				
 				totalAllOrders += order.total;
 			}
 
 			res.status(200).send({
 				totalAllOrders,
-				totalPage: Math.ceil(total / limit),
+				totalPage: limit ? Math.ceil(total / limit) : 1,
 				currentpage: page,
 				total_order: total,
 				result,

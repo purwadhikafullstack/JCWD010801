@@ -3,6 +3,7 @@ import {
 	ArrowRightIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
+	CloseIcon,
 	TriangleDownIcon,
 	TriangleUpIcon,
 } from "@chakra-ui/icons";
@@ -28,6 +29,9 @@ import {
 	Input,
 	InputRightElement,
 	InputGroup,
+	Grid,
+	FormControl,
+	FormLabel,
 } from "@chakra-ui/react";
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -182,19 +186,36 @@ function CustomTable({ columns, data }) {
 	);
 }
 
-const TableReport = ({ dataReport, startDate, setStartDate, endDate, setEndDate, searchUser, setSearchUser, search, setSearch, searchProduct, setSearchProduct }) => {
-	const currentYear = new Date().getFullYear();
-	const [selectedYear, setSelectedYear] = useState(currentYear.toString());
-	const availableYears = Object.keys(dataReport.groupedResults);
-	availableYears.sort((a, b) => parseInt(b) - parseInt(a));
-	
+const TableReport = ({
+	dataReport,
+	startDate,
+	setStartDate,
+	endDate,
+	setEndDate,
+	searchUser,
+	setSearchUser,
+	search,
+	setSearch,
+	searchProduct,
+	setSearchProduct,
+	branches,
+	searchBranch,
+	setSearchBranch,
+	sort,
+	setSort,
+	page,
+	setPage,
+	limit,
+	setLimit,
+	totalPage,
+}) => {
 	const clearInput = (inputType) => {
 		if (inputType === "startDate") {
-		  setStartDate("");
+			setStartDate("");
 		} else if (inputType === "endDate") {
-		  setEndDate("");
+			setEndDate("");
 		}
-	  };
+	};
 	const columns = React.useMemo(
 		() => [
 			{
@@ -239,87 +260,156 @@ const TableReport = ({ dataReport, startDate, setStartDate, endDate, setEndDate,
 					);
 				},
 			},
+			{
+				Header: "Branch",
+				accessor: "branch",
+			},
 		],
 		[]
 	);
 
 	const data = React.useMemo(() => {
-		if (selectedYear && dataReport.groupedResults[selectedYear]) {
-			const yearData = dataReport.groupedResults[selectedYear];
-			return yearData.orders.map((order) => {
-				return {
-					id: order.id,
-					username: order.Address.User.username,
-					total: order.total,
-					purchaseDate: new Date(order.createdAt).toLocaleDateString(),
-					items: order.Order_details.map((orderDetail) => ({
-						productName: orderDetail.Product.productName,
-						quantity: orderDetail.quantity,
-					})),
-				};
-			});
-		}
-		return [];
-	}, [selectedYear, dataReport.groupedResults]);
+		return dataReport.result.map((order) => {
+			
+			return {
+				id: order.id,
+				username: order.Address.User.username,
+				total: order.total,
+				purchaseDate: new Date(order.createdAt).toLocaleDateString(),
+				items: order.Order_details.map((orderDetail) => ({
+					productName: orderDetail.Product.productName,
+					quantity: orderDetail.quantity,
+				})),
+				branch: order.Cart.Branch.name,
+			};
+		});
+	}, [dataReport.result]);
 	const handleSearchUserChange = (event) => {
 		setSearchUser(event.target.value);
-		
-	  };
+	};
 	const handleSearchChange = (event) => {
 		setSearch(event.target.value);
-		
-	  };
+	};
 	const handleSearchProductChange = (event) => {
 		setSearchProduct(event.target.value);
-		
-	  };
-	
+	};
+
 	return (
 		<Box p="5rem">
-			<Select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-				{availableYears.map((year) => (
-					<option key={year} value={year}>
-						{year}
-					</option>
-				))}
-			</Select>
-			<Flex>
-          <InputGroup>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <InputRightElement width="2rem">
-              <IconButton
-                aria-label="Clear"
-                icon={<DeleteIcon />}
-                size="sm"
-                onClick={() => clearInput("startDate")}
-              />
-            </InputRightElement>
-          </InputGroup>
-        </Flex>
-        <Flex>
-          <InputGroup>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-            <InputRightElement width="2rem">
-              <IconButton
-                aria-label="Clear"
-                icon={<DeleteIcon />}
-                size="sm"
-                onClick={() => clearInput("endDate")}
-              />
-            </InputRightElement>
-          </InputGroup>
-        </Flex>
-		  <Input value={searchUser} onChange={handleSearchUserChange} placeholder="search user"/>
-		  <Input value={search} onChange={handleSearchChange} placeholder="search id"/>
-		  <Input value={searchProduct} onChange={handleSearchProductChange} placeholder="search product"/>
+			<Grid
+				templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(200px, 1fr))" }}
+				gap={4}
+				alignItems="center"
+				justifyContent="center"
+			>
+				<Box w={{ base: "100%", md: "auto" }}>
+					<FormControl>
+						<FormLabel color="gray.500">Select Branch</FormLabel>
+						<Select value={searchBranch} onChange={(e) => setSearchBranch(e.target.value)} borderColor="gray.300">
+							<option value="">All Branches</option>
+							{branches.map((value, index) => (
+								<option key={index} value={value.id}>
+									{value.name}
+								</option>
+							))}
+						</Select>
+					</FormControl>
+				</Box>
+
+				<Box w={{ base: "100%", md: "auto" }}>
+					<FormControl>
+						<FormLabel color="gray.500">Start Date</FormLabel>
+						<InputGroup>
+							<Input
+								focusBorderColor="#373433"
+								type="date"
+								value={startDate}
+								onChange={(e) => setStartDate(e.target.value)}
+								borderColor="gray.300"
+							/>
+							<InputRightElement width="2rem">
+								<IconButton
+									bg="none"
+									color="red.500"
+									_hover={{ bg: "none" }}
+									_active={{ bg: "none" }}
+									aria-label="Clear"
+									icon={<CloseIcon />}
+									size="sm"
+									onClick={() => clearInput("startDate")}
+								/>
+							</InputRightElement>
+						</InputGroup>
+					</FormControl>
+				</Box>
+
+				<Box w={{ base: "100%", md: "auto" }}>
+					<FormControl>
+						<FormLabel color="gray.500">End Date</FormLabel>
+						<InputGroup>
+							<Input
+								focusBorderColor="#373433"
+								type="date"
+								value={endDate}
+								onChange={(e) => setEndDate(e.target.value)}
+								borderColor="gray.300"
+							/>
+							<InputRightElement width="2rem">
+								<IconButton
+									bg="none"
+									color="red.500"
+									_hover={{ bg: "none" }}
+									_active={{ bg: "none" }}
+									aria-label="Clear"
+									icon={<CloseIcon />}
+									size="sm"
+									onClick={() => clearInput("endDate")}
+								/>
+							</InputRightElement>
+						</InputGroup>
+					</FormControl>
+				</Box>
+
+				<Box w={{ base: "100%", md: "auto" }}>
+					<FormControl>
+						<FormLabel color="gray.500">Search User</FormLabel>
+						<Input
+							focusBorderColor="#373433"
+							value={searchUser}
+							onChange={handleSearchUserChange}
+							placeholder="Search User"
+							borderColor="gray.300"
+						/>
+					</FormControl>
+				</Box>
+
+				<Box w={{ base: "100%", md: "auto" }}>
+					<FormControl>
+						<FormLabel color="gray.500">Search ID</FormLabel>
+						<Input
+							focusBorderColor="#373433"
+							value={search}
+							onChange={handleSearchChange}
+							placeholder="Search ID"
+							borderColor="gray.300"
+						/>
+					</FormControl>
+				</Box>
+
+				<Box w={{ base: "100%", md: "auto" }}>
+					<FormControl>
+						<FormLabel color="gray.500">Search Product</FormLabel>
+						<Input
+							focusBorderColor="#373433"
+							value={searchProduct}
+							onChange={handleSearchProductChange}
+							placeholder="Search Product"
+							borderColor="gray.300"
+						/>
+					</FormControl>
+				</Box>
+			</Grid>
+
 			<CustomTable columns={columns} data={data} />
 		</Box>
 	);
