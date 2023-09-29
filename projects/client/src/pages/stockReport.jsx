@@ -8,7 +8,15 @@ import NoProduct from "../assets/public/404.png";
 import NoDate from "../assets/public/404_calendar.jpeg";
 import NoProductThumb from "../assets/public/404_thumb.gif";
 import React, { useEffect, useState } from "react";
-import { debounce, isDate } from "lodash";
+import CategoryBarChart from "../components/stockReport/categoryBarChart";
+import CategoryDoughnutChart from "../components/stockReport/categoryDoughnutChart";
+import ActiveProductsBarChart from "../components/stockReport/activeProductsBarChart";
+import DeactivatedProductsBarChart from "../components/stockReport/deactivatedProductsBarChart";
+import DeletedProductsBarChart from "../components/stockReport/deletedProductsBarChart";
+import ViewCountBarChart from "../components/stockReport/viewCountBarChart";
+import StatusStackedBarChart from "../components/stockReport/statusStackedBarChart";
+import StockMovementLineChart from "../components/stockReport/stockMovementLineChart";
+import { debounce } from "lodash";
 import { DateRangePicker } from "react-date-range";
 import { toast } from "react-toastify";
 import {
@@ -28,30 +36,30 @@ import {
 	Table,
 	Thead,
 	Tbody,
-	Tfoot,
 	Tr,
 	Th,
 	Td,
-	TableCaption,
 	TableContainer,
+	Menu,
+	MenuButton,
+	MenuList,
+	MenuItem,
+	TableCaption,
+	Tfoot,
+	Button,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { Pagination } from "../components/navigation/pagination";
-import { BiCategoryAlt } from "react-icons/bi";
+import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
-import { TbCategory2 } from "react-icons/tb";
 import { sidebarEvent } from "../events/sidebarEvent";
-import CategoryBarChart from "../components/stockReport/categoryBarChart";
-import CategoryDoughnutChart from "../components/stockReport/categoryDoughnutChart";
-import ActiveProductsBarChart from "../components/stockReport/activeProductsBarChart";
-import DeactivatedProductsBarChart from "../components/stockReport/deactivatedProductsBarChart";
-import DeletedProductsBarChart from "../components/stockReport/deletedProductsBarChart";
-import ViewCountBarChart from "../components/stockReport/viewCountBarChart";
-import StatusStackedBarChart from "../components/stockReport/statusStackedBarChart";
+import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
+import { IoCalendarNumberOutline } from "react-icons/io5";
+import { CiCalendarDate } from "react-icons/ci";
 
 const StockReport = () => {
 	const navigate = useNavigate();
@@ -72,12 +80,15 @@ const StockReport = () => {
 	const [movementHistory, setMovementHistory] = useState([]);
 	const [sortBy, setSortBy] = useState("createdAt");
 	const [sortOrder, setSortOrder] = useState("ASC");
+	const itemLimits = [10, 20, 50, 75, 100];
 	const [itemLimit, setItemLimit] = useState(20);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [BranchId, setBranchId] = useState(null);
+	const [selectedBranch, setSelectedBranch] = useState("");
 	const [sortedData, setSortedData] = useState([]);
 	const [administrators, setAdministrators] = useState([]);
+	const [selectedEntryTypes, setSelectedEntryTypes] = useState([]);
 	const [dateRange, setDateRange] = useState([
 		{
 			startDate: null,
@@ -97,6 +108,26 @@ const StockReport = () => {
 		const minutes = date.getMinutes().toString().padStart(2, "0");
 
 		return `${day} ${month} ${year} ${hours}:${minutes}`;
+	};
+
+	const entryTypeOptions = [
+		"Product Created",
+		"Stock Initialized For Branch",
+		"Manual Adjustment",
+		"Sales",
+		"Clear Selections (All Entries)",
+	];
+
+	const toggleEntryType = (entryType) => {
+		if (entryType === "Clear Selections (All Entries)") {
+			setSelectedEntryTypes([]);
+		} else {
+			if (selectedEntryTypes.includes(entryType)) {
+				setSelectedEntryTypes((prev) => prev.filter((selected) => selected !== entryType));
+			} else {
+				setSelectedEntryTypes((prev) => [...prev, entryType]);
+			}
+		}
 	};
 
 	let user = "";
@@ -131,12 +162,35 @@ const StockReport = () => {
 			.catch((error) => {
 				console.error("Error fetching administrators info:", error);
 			});
-		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`)
+		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/branch/?limit=5`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 			.then((response) => {
-				setBranches(response.data);
+				const branchData = response.data.result.map((data) => ({
+					label: data.name,
+					value: data.id,
+				}));
+				setBranches(branchData);
 			})
 			.catch((error) => {
 				console.error("Error fetching branches info:", error);
+			});
+		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/admin?limit=50`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+			.then((response) => {
+				const categoryData = response.data.result.map((data) => ({
+					label: data.category,
+					value: data.id,
+				}));
+				setCategories(categoryData);
+			})
+			.catch((error) => {
+				console.error("Error fetching categories info:", error);
 			});
 	}, []);
 
@@ -144,6 +198,7 @@ const StockReport = () => {
 		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/random`)
 			.then((response) => {
 				setSearch(response.data.productName);
+				setPage(1);
 			})
 			.catch((error) => {
 				console.error("Error fetching administrators info:", error);
@@ -180,7 +235,7 @@ const StockReport = () => {
 		if (activeTab === 1) {
 			fetchMovementData(page);
 		}
-	}, [search, reload, dateRange]);
+	}, [search, reload, dateRange, selectedEntryTypes, itemLimit, selectedBranch, sortBy, sortOrder]);
 
 	const fetchMovementData = async (pageNum) => {
 		try {
@@ -196,8 +251,8 @@ const StockReport = () => {
 				apiURL += `&endDate=${formattedEndDate}`;
 			}
 
-			if (BranchId) {
-				apiURL += `&BranchId=${BranchId}`;
+			if (selectedBranch) {
+				apiURL += `&BranchId=${selectedBranch}`;
 			}
 			if (itemLimit) {
 				apiURL += `&itemLimit=${itemLimit}`;
@@ -253,6 +308,7 @@ const StockReport = () => {
 
 	const handleSearchDebounced = debounce((query) => {
 		setSearch(query);
+		setPage(1);
 	}, 1000);
 
 	const handleSearchChange = (e) => {
@@ -266,31 +322,53 @@ const StockReport = () => {
 	};
 
 	const findBranchNameById = (BID) => {
-		const branch = branches.find((branch) => branch.id === BID);
-		return branch ? branch.name : "Unknown";
+		const branch = branches.find((branch) => branch.value === BID);
+		return branch ? branch.label : "Unknown";
 	};
 
 	const renderTableEntries = (data, isLoading) => {
+		const filteredData =
+			selectedEntryTypes.length === 0
+				? data
+				: data.filter((item) =>
+						selectedEntryTypes.includes(
+							item.isInitialization
+								? "Product Created"
+								: item.isBranchInitialization
+								? "Stock Initialized For Branch"
+								: item.isAdjustment
+								? "Manual Adjustment"
+								: "Sales"
+						)
+				  );
+
 		if (isLoading) {
-			return data.map((item, index) => {
+			return filteredData.map((item, index) => {
 				const isEvenIndex = index % 2 === 0;
 				return (
 					<Tr key={item.id}>
-						<div style={{ width: "10px" }}>
-							<Skeleton
-								count={1}
-								width={"1190px"}
-								containerClassName="flex-1"
-								height={"35px"}
-								highlightColor="#141415"
-								direction={isEvenIndex ? "rtl" : "ltr"}
-							/>
-						</div>
+						<Td>
+							<div
+								style={{
+									width: "10px",
+									marginLeft: "-13px",
+								}}
+							>
+								<Skeleton
+									count={1}
+									width={"1220px"}
+									containerClassName="flex-1"
+									height={"35px"}
+									highlightColor="#141415"
+									direction={isEvenIndex ? "rtl" : "ltr"}
+								/>
+							</div>
+						</Td>
 					</Tr>
 				);
 			});
 		} else {
-			return data.map((item, index) => {
+			return filteredData.map((item, index) => {
 				const createdAtDate = new Date(item.createdAt);
 				const formattedDate = `${createdAtDate.getDate()} ${months[createdAtDate.getMonth()]} ${createdAtDate
 					.getFullYear()
@@ -306,9 +384,9 @@ const StockReport = () => {
 						<Td textAlign={"left"}>{index + 1}</Td>
 						<Td textAlign={"center"}>
 							{item.isInitialization
-								? "Product Initialization"
+								? "Product Created"
 								: item.isBranchInitialization
-								? "Branch Initialization"
+								? "Stock Initialized For Branch"
 								: item.isAdjustment
 								? "Manual Adjustment"
 								: "Sales"}
@@ -316,8 +394,8 @@ const StockReport = () => {
 						<Td textAlign={"center"}>{item.oldValue} units</Td>
 						<Td textAlign={"center"}>{item.change} units</Td>
 						<Td textAlign={"center"}>{item.newValue} units</Td>
-						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
 						<Td textAlign={"center"}>{findBranchNameById(item.BranchId)}</Td>
+						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
 						<Td textAlign={"center"}>{formattedDate}</Td>
 						<Td isNumeric>{formattedTime}</Td>
 					</Tr>
@@ -328,7 +406,6 @@ const StockReport = () => {
 
 	const updateSortedData = () => {
 		const sorted = [...movementHistory];
-
 		sorted.sort((a, b) => {
 			switch (sortBy) {
 				case "UserId":
@@ -343,8 +420,8 @@ const StockReport = () => {
 						: new Date(b.createdAt) - new Date(a.createdAt);
 			}
 		});
-
 		setSortedData(sorted);
+		setReload(true);
 	};
 
 	useEffect(() => {
@@ -483,7 +560,6 @@ const StockReport = () => {
 					py={"5px"}
 					border={"1px solid #39393C"}
 					borderRadius={"10px"}
-					flexDirection="column"
 					position={"relative"}
 				>
 					<Tabs
@@ -590,83 +666,155 @@ const StockReport = () => {
 										style={{ cursor: "pointer" }}
 									/>
 								</Flex>
-								<Flex w={"210px"} h={"45px"} justify="left" align={"center"} fontWeight="bold" ml={"10px"}>
+								<Flex
+									w={"530px"}
+									h={"45px"}
+									justify="left"
+									align={"center"}
+									fontWeight="bold"
+									justifyContent={"space-evenly"}
+								>
 									<Select
-										placeholder="All Branches" //!xxx convert to branches
-										value={selectedCategory.toString()}
+										placeholder="All Branches"
+										value={selectedBranch.toString()}
 										onChange={(e) => {
 											const selectedValue = parseInt(e.target.value, 10);
-											setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
+											setSelectedBranch(isNaN(selectedValue) ? "" : selectedValue);
 											setReload(!reload);
 										}}
-										w={"200px"}
+										w={"150px"}
 										h={"30px"}
 										border={"1px solid gray"}
 										bgColor={"white"}
 										{...customSelectStyle}
 									>
-										{categories.map((category) => (
+										{branches.map((branch) => (
 											<option
-												key={category.value}
-												value={category.value.toString()}
+												key={branch.value}
+												value={branch.value.toString()}
 												style={{
-													backgroundColor: selectedCategory === category.value ? "#F0F0F0" : "#FFFFFF",
-													color: selectedCategory === category.value ? "#18181A" : "#535256",
-													fontWeight: selectedCategory === category.value ? "bold" : "normal",
+													backgroundColor: selectedBranch === branch.value ? "#F0F0F0" : "#FFFFFF",
+													color: selectedBranch === branch.value ? "#18181A" : "#535256",
+													fontWeight: selectedBranch === branch.value ? "bold" : "normal",
 													fontSize: "16px",
 													cursor: "pointer",
 												}}
 											>
-												{category.label}
+												{branch.label}
 											</option>
 										))}
 									</Select>
+									<Select
+										placeholder="Items Per Page"
+										onChange={(e) => {
+											setItemLimit(parseInt(e.target.value));
+											setReload(!reload);
+										}}
+										w={"155px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										{...customSelectStyle}
+									>
+										{itemLimits.map((limit) => (
+											<option
+												key={limit}
+												value={limit}
+												style={{
+													backgroundColor: itemLimit === limit ? "#F0F0F0" : "#FFFFFF",
+													color: itemLimit === limit ? "#18181A" : "#535256",
+													fontWeight: itemLimit === limit ? "bold" : "normal",
+													fontSize: "16px",
+													cursor: "pointer",
+												}}
+											>
+												{limit}
+											</option>
+										))}
+									</Select>
+									<Menu>
+										<MenuButton
+											as={Button}
+											w="190px"
+											h="30px"
+											border={"1px solid gray"}
+											borderColor="gray"
+											bgColor="white"
+											fontWeight={selectedEntryTypes.length < 2 ? "normal" : "semibold"}
+											fontSize={
+												selectedEntryTypes.includes(entryTypeOptions[1]) && selectedEntryTypes.length === 1
+													? "11px"
+													: "16px"
+											}
+											rightIcon={<BiSolidChevronsDown size={18} />}
+											overflow={"hidden"}
+											textOverflow={"ellipsis"}
+										>
+											{selectedEntryTypes.length === 0
+												? "Select Entry Types"
+												: selectedEntryTypes.length === 1
+												? selectedEntryTypes[0]
+												: selectedEntryTypes.length === 2
+												? "2 Selected"
+												: selectedEntryTypes.length === 3
+												? "3 Selected"
+												: "4 Selected"}
+										</MenuButton>
+										<MenuList>
+											{entryTypeOptions.map((entryType) => (
+												<MenuItem key={entryType} onClick={() => toggleEntryType(entryType)}>
+													<Text fontWeight={selectedEntryTypes.includes(entryType) ? "bold" : "normal"} fontSize="16px">
+														{entryType}
+													</Text>
+												</MenuItem>
+											))}
+										</MenuList>
+									</Menu>
 								</Flex>
 								<Flex
-									w={"625px"}
+									w={"325px"}
 									h={"31px"}
 									justify="space-evenly"
 									align="center"
 									fontWeight="bold"
-									ml={"10px"}
 									border={"1px solid black"}
 									borderRadius={"10px"}
 								>
 									<Radio
 										size="sm"
 										ml={"7px"}
-										isChecked={sortBy === "CategoryId"}
+										isChecked={sortBy === "createdAt"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("CategoryId");
+											setSortBy("createdAt");
 										}}
 										{...customRadioStyle}
 									>
-										Categories
+										Entry Time
 									</Radio>
 									<Radio
 										size="sm"
 										ml={"7px"}
-										isChecked={sortBy === "aggregateStock"}
+										isChecked={sortBy === "change"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("aggregateStock");
+											setSortBy("change");
 										}}
 										{...customRadioStyle}
 									>
-										N.Stock
+										Change Delta
 									</Radio>
 									<Radio
 										size="sm"
 										ml={"7px"}
-										isChecked={sortBy === "branchStock"}
+										isChecked={sortBy === "BranchId"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("branchStock");
+											setSortBy("BranchId");
 										}}
 										{...customRadioStyle}
 									>
-										B.Stock
+										Branch
 									</Radio>
 								</Flex>
 								<Flex
@@ -680,7 +828,7 @@ const StockReport = () => {
 									border={"1px solid black"}
 									borderRadius={"10px"}
 								>
-									{sortBy === "CategoryId" && (
+									{sortBy === "createdAt" && (
 										<>
 											<Radio
 												borderColor={"gray"}
@@ -690,7 +838,7 @@ const StockReport = () => {
 												}}
 												{...customRadioStyle}
 											>
-												<BiCategoryAlt size={25} />
+												<IoCalendarNumberOutline size={26} />
 											</Radio>
 											<Radio
 												borderColor={"gray"}
@@ -700,11 +848,11 @@ const StockReport = () => {
 												}}
 												{...customRadioStyle}
 											>
-												<TbCategory2 size={25} />
+												<CiCalendarDate size={32} />
 											</Radio>
 										</>
 									)}
-									{sortBy === "aggregateStock" && (
+									{sortBy === "change" && (
 										<>
 											<Radio
 												borderColor={"gray"}
@@ -728,7 +876,7 @@ const StockReport = () => {
 											</Radio>
 										</>
 									)}
-									{sortBy === "branchStock" && (
+									{sortBy === "BranchId" && (
 										<>
 											<Radio
 												borderColor={"gray"}
@@ -738,7 +886,7 @@ const StockReport = () => {
 												}}
 												{...customRadioStyle}
 											>
-												<PiChartLineDown size={25} />
+												<AiOutlineShop size={30} />
 											</Radio>
 											<Radio
 												borderColor={"gray"}
@@ -748,7 +896,7 @@ const StockReport = () => {
 												}}
 												{...customRadioStyle}
 											>
-												<PiChartLineUp size={25} />
+												<AiTwotoneShop size={30} />
 											</Radio>
 										</>
 									)}
@@ -765,7 +913,11 @@ const StockReport = () => {
 											onChange={(date) => {
 												setDateRange([date.selection]);
 											}}
+											rangeColors={["#7CB69D"]}
+											startDatePlaceholder={dateRange[0].startDate || "Currently Showing"}
+											endDatePlaceholder={dateRange[0].endDate || "All Entries"}
 										/>
+										<StockMovementLineChart sortedData={sortedData} />
 									</Flex>
 									<Stack
 										h={"155px"}
@@ -875,18 +1027,79 @@ const StockReport = () => {
 									{!isSearchEmpty && (
 										<>
 											{isDateFound ? (
-												<TableContainer>
-													<Table size="sm" variant={"striped"} overflowY={"auto"}>
-														<Thead>
+												<TableContainer className="scrollbar-3px" overflowY={"auto"}>
+													<Table size="sm" variant={!isLoading ? "striped" : "unstyled"}>
+														<Thead
+															style={{
+																position: "sticky",
+																top: 0,
+																zIndex: 1,
+																backgroundColor: "#FFFFFF",
+															}}
+														>
 															<Tr>
 																<Th textAlign={"left"}>No.</Th>
 																<Th textAlign={"center"}>Type</Th>
 																<Th textAlign={"center"}>Old Value</Th>
-																<Th textAlign={"center"}>Change</Th>
+																<Th
+																	style={{
+																		display: "flex",
+																		alignItems: "center",
+																		justifyContent: "center",
+																	}}
+																>
+																	Change
+																	<BiSort
+																		display={"flex"}
+																		size={14}
+																		color="#3E3D40"
+																		cursor="pointer"
+																		onClick={() => {
+																			setSortBy("change");
+																			setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																		}}
+																	/>
+																</Th>
 																<Th textAlign={"center"}>New Value</Th>
+																<Th
+																	style={{
+																		display: "flex",
+																		alignItems: "center",
+																		justifyContent: "center",
+																	}}
+																>
+																	Branch
+																	<BiSort
+																		display={"flex"}
+																		size={14}
+																		color="#3E3D40"
+																		cursor="pointer"
+																		onClick={() => {
+																			setSortBy("BranchId");
+																			setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																		}}
+																	/>
+																</Th>
 																<Th textAlign={"center"}>User</Th>
-																<Th textAlign={"center"}>Branch</Th>
-																<Th textAlign={"center"}>Date</Th>
+																<Th
+																	style={{
+																		display: "flex",
+																		alignItems: "center",
+																		justifyContent: "center",
+																	}}
+																>
+																	Date
+																	<BiSort
+																		display={"flex"}
+																		size={14}
+																		color="#3E3D40"
+																		cursor="pointer"
+																		onClick={() => {
+																			setSortBy("createdAt");
+																			setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																		}}
+																	/>
+																</Th>
 																<Th isNumeric>Time</Th>
 															</Tr>
 														</Thead>
