@@ -309,7 +309,7 @@ const StockReport = () => {
 	const handleSearchDebounced = debounce((query) => {
 		setSearch(query);
 		setPage(1);
-	}, 1000);
+	}, 2000);
 
 	const handleSearchChange = (e) => {
 		const query = e.target.value;
