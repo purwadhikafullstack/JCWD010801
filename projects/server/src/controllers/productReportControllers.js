@@ -9,7 +9,17 @@ const { Sequelize, Op } = require("sequelize");
 module.exports = {
 	getProductReport: async (req, res) => {
 		try {
-			const { productName, BranchId = null, startDate = null, endDate = null, UserId = null } = req.query;
+			const {
+				productName,
+				BranchId = null,
+				startDate = null,
+				endDate = null,
+				UserId = null,
+				page = 1,
+				itemLimit = 20,
+				sortBy = "createdAt",
+				sortOrder = "ASC",
+			} = req.query;
 
 			if (!productName) {
 				return res.status(404).send({
@@ -31,93 +41,72 @@ module.exports = {
 				});
 			}
 
-			const filterSales = {
+			const filterMovement = {
 				ProductId: product.id,
-				isAddition: false,
-				isAdjustment: false,
-				isInitialization: false,
-				isBranchInitialization: false,
-			};
-
-			const filterAdjustments = {
-				ProductId: product.id,
-				isAdjustment: true,
-				isInitialization: false,
-				isBranchInitialization: false,
 			};
 
 			if (startDate && endDate) {
-				filterSales.createdAt = {
-					[Op.between]: [new Date(startDate + " 00:00:00"), new Date(endDate + " 23:59:59")],
-				};
-				filterAdjustments.createdAt = {
-					[Op.between]: [new Date(startDate + " 00:00:00"), new Date(endDate + " 23:59:59")],
+				filterMovement.createdAt = {
+					[Op.between]: [new Date(startDate), new Date(endDate)],
 				};
 			} else if (startDate || endDate) {
 				if (startDate) {
-					filterSales.createdAt = {
-						[Op.gte]: new Date(startDate + " 00:00:00"),
-					};
-					filterAdjustments.createdAt = {
-						[Op.gte]: new Date(startDate + " 00:00:00"),
+					filterMovement.createdAt = {
+						[Op.gte]: new Date(startDate),
 					};
 				}
 
 				if (endDate) {
-					filterSales.createdAt = {
-						[Op.lte]: new Date(endDate + " 23:59:59"),
-					};
-					filterAdjustments.createdAt = {
-						[Op.lte]: new Date(endDate + " 23:59:59"),
+					filterMovement.createdAt = {
+						[Op.lte]: new Date(endDate),
 					};
 				}
 			}
 
 			if (BranchId) {
-				filterSales.BranchId = BranchId;
-				filterAdjustments.BranchId = BranchId;
+				filterMovement.BranchId = BranchId;
 			}
 
 			if (UserId) {
-				filterSales.UserId = UserId;
-				filterAdjustments.UserId = UserId;
+				filterMovement.UserId = UserId;
 			}
 
-			const initialization = await stockMovements.findOne({
-				where: {
-					ProductId: product.id,
-					isAddition: true,
-					isAdjustment: false,
-					isInitialization: true,
-					isBranchInitialization: false,
-				},
+			const offset = (page - 1) * parseInt(itemLimit);
+
+			let sortOption;
+			switch (sortBy) {
+				case "UserId":
+					sortOption = [["UserId", sortOrder]];
+					break;
+				case "BranchId":
+					sortOption = [["BranchId", sortOrder]];
+					break;
+				case "change":
+					sortOption = [["change", sortOrder]];
+					break;
+				default:
+					sortOption = [["createdAt", sortOrder]];
+			}
+
+			const movementHistory = await stockMovements.findAll({
+				where: filterMovement,
+				limit: parseInt(itemLimit),
+				offset: offset,
+				order: sortOption,
 			});
 
-			const branchInitializations = await stockMovements.findAll({
-				where: {
-					ProductId: product.id,
-					isAddition: true,
-					isAdjustment: false,
-					isInitialization: false,
-					isBranchInitialization: true,
-				},
+			const totalCount = await stockMovements.count({
+				where: filterMovement,
 			});
 
-			const salesHistory = await stockMovements.findAll({
-				where: filterSales,
-			});
-
-			const adjustmentHistory = await stockMovements.findAll({
-				where: filterAdjustments,
-			});
+			const totalPages = Math.ceil(totalCount / parseInt(itemLimit));
 
 			res.status(200).send({
 				status: 200,
+				currentPage: parseInt(page),
+				totalPages: totalPages,
 				product_details: product,
-				initialization: initialization,
-				branch_inititalizations: branchInitializations,
-				sales_history: salesHistory,
-				adjustment_history: adjustmentHistory,
+				movement_history: movementHistory,
 			});
 		} catch (error) {
 			return res.status(500).send({

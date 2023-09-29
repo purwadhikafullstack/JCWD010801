@@ -533,7 +533,7 @@ const ProductManagement = () => {
 						className="pm-d"
 						textAlign={"left"}
 						h={"25px"}
-						w={"700px"}
+						w={"800px"}
 						alignSelf={"center"}
 						ml={marginStyles.marginLeftDescription}
 					>

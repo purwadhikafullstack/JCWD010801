@@ -7,6 +7,7 @@ router.post("/login", adminControllers.login);
 router.post("/:UID", adminControllers.confirmPassword);
 router.get("/all", adminControllers.getAllAdmins);
 router.get("/branches", adminControllers.getBranches);
+router.get("/info", adminControllers.findAdminInfo);
 router.get("/:id", adminControllers.getAdmin);
 
 module.exports = router;
