@@ -63,7 +63,7 @@ const ReportOverview = () => {
 					<Flex
 						mt={"10px"}
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/report/sales"}
 						w={"400px"}
 						h={"200px"}
 						borderRadius={"10px"}

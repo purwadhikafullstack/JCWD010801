@@ -1,8 +1,6 @@
-const router = require("express").Router()
-const {reportControllers} = require("../controllers")
-const {verifyToken} = require("../middlewares/auth")
+const router = require("express").Router();
+const { reportControllers } = require("../controllers");
 
-router.get("/", reportControllers.reportSuperAdmin)
-router.get("/product", reportControllers.reportProduct)
+router.get("/", reportControllers.reportSales);
 
-module.exports = router
+module.exports = router;

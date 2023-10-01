@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import { Box, Center, Divider, FormControl, FormLabel, Grid, Select, Text } from "@chakra-ui/react";
 import "chart.js/auto";
 import Axios from "axios";
 export const options = {
 	responsive: true,
+	maintainAspectRatio: false,
 	plugins: {
 		legend: {
 			position: "top",
@@ -45,8 +46,8 @@ function ChartReport({ roleId, branchId }) {
 					searchBranch,
 				},
 			});
-			
-			console.log(response);
+
+			 console.log(response);
 			setDataReport(response.data);
 		} catch (error) {
 			console.log(error);
@@ -56,12 +57,12 @@ function ChartReport({ roleId, branchId }) {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches/`);
 			setBranches(response.data);
-			console.log(response);
+			// console.log(response);
 		} catch (error) {
 			console.log(error);
 		}
 	};
-	console.log(dataReport);
+	// console.log(dataReport);
 	function formatAsIDR(number) {
 		return new Intl.NumberFormat("id-ID", {
 			style: "currency",
@@ -81,14 +82,13 @@ function ChartReport({ roleId, branchId }) {
 			},
 		],
 	};
-	
+
 	useEffect(() => {
 		if (branchId) {
-			setSearchBranch(branchId)
+			setSearchBranch(branchId);
 		}
 		fetchReport();
 		fetchBranch();
-	
 	}, [searchBranch, branchId]);
 	useEffect(() => {
 		if (dataReport && selectedYear) {
@@ -105,10 +105,10 @@ function ChartReport({ roleId, branchId }) {
 			}
 		}
 	}, [dataReport, selectedYear]);
-
+console.log(searchBranch);
 	return dataReport ? (
 		<Center>
-			<Box border={"2px"} p="4" maxW={"80%"} w="100%">
+			<Box boxShadow={"md"} p="4" maxW={"80%"} w="100%">
 				<Grid
 					templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(200px, 1fr))" }}
 					gap={4}
@@ -151,7 +151,14 @@ function ChartReport({ roleId, branchId }) {
 						{formatAsIDR(dataReport.groupedResults[selectedYear]?.realTotal?.toFixed(2))}
 					</Text>
 				)}
-				<Line options={options} data={data} />
+				<Box
+					wwidth="100%" // Make the chart container 100% of the parent width
+					
+					height={["auto", "300px", "700px"]} // Set different heights for different screen sizes
+					margin="0 auto"
+				>
+					<Line options={options} data={data} />
+				</Box>
 			</Box>
 		</Center>
 	) : null;

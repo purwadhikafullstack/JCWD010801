@@ -58,7 +58,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 				position={navPosProp || null}
 				w={navSize === "small" ? "100px" : "170px"}
 				transition="all 3s ease-in-out"
-				h={height || "100vh"}
+				minH={height || "100vh"}
 				backgroundColor={"black"}
 				borderTopRightRadius={"30px"}
 				boxShadow="0px 0px 8px black"

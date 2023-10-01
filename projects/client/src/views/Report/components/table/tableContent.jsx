@@ -1,9 +1,10 @@
 import { Table, Thead, Tbody, Tr, Th, Td, chakra, Box } from "@chakra-ui/react";
 import { useTable, useSortBy, usePagination } from "react-table";
-import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import React, { useEffect, useState } from "react";
 
-function TableContent({ columns, data, updateParams, params, handleSort }) {
+
+function TableContent({ columns, data }) {
+  
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -13,7 +14,8 @@ function TableContent({ columns, data, updateParams, params, handleSort }) {
   } = useTable(
     {
       columns,
-      data
+      data,
+      manualPagination: true, 
     },
     useSortBy,
     usePagination
@@ -26,22 +28,11 @@ function TableContent({ columns, data, updateParams, params, handleSort }) {
     borderTopRightRadius: "0.5rem"
   };
 
-  useEffect(() => {
-    // Log the values of isSorted and isSortedDesc from the React-Table state
-    headerGroups.forEach((headerGroup) => {
-      headerGroup.headers.forEach((column) => {
-        console.log(`${column.Header} - isSorted: ${column.isSorted}`);
-        console.log(`${column.Header} - isSortedDesc: ${column.isSortedDesc}`);
-      });
-    });
-  }, [headerGroups]); // Monitor changes in the sorting state
-
-  console.log("params.sortBy", params);
-  return (
+    return (
     <Box
       py={5}
-      roundedLeft="lg" // Rounded left corner
-      roundedRight="lg" // Rounded right corner
+      roundedLeft="lg" 
+      roundedRight="lg" 
       boxShadow="lg"
       overflowX="auto"
     >
@@ -59,13 +50,12 @@ function TableContent({ columns, data, updateParams, params, handleSort }) {
               <Tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column, index) => (
                   <Th
-                    {...column.getHeaderProps({
-                      onClick: () => handleSort(column) // Call handleSort on click
-                    })}
+                   key={index}
                     isNumeric={column.isNumeric}
                     px={4}
                     py={3}
                     bg="gray"
+                    color="white"
                     borderBottomWidth="1px"
                     fontWeight="bold"
                     css={
@@ -78,21 +68,6 @@ function TableContent({ columns, data, updateParams, params, handleSort }) {
                   >
                     <chakra.div display="flex" alignItems="center">
                       {column.render("Header")}
-                      {column.isSorted ? (
-                        <chakra.span
-                          aria-label={
-                            column.isSortedDesc
-                              ? "sorted descending"
-                              : "sorted ascending"
-                          }
-                        >
-                          {column.isSortedDesc ? (
-                            <TriangleDownIcon />
-                          ) : (
-                            <TriangleUpIcon />
-                          )}
-                        </chakra.span>
-                      ) : null}
                     </chakra.div>
                   </Th>
                 ))}

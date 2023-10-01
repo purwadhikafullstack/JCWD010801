@@ -144,6 +144,14 @@ export const AppRouter = createBrowserRouter([
 		),
 	},
 	{
+		path: "/dashboard/report/sales",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ReportPage />
+			</Suspense>
+		),
+	},
+	{
 		path: "/login",
 		element: (
 			<Suspense fallback={<Spinner />}>
@@ -188,14 +196,6 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ProfilePage />
-			</Suspense>
-		),
-	},
-	{
-		path: "/report",
-		element: (
-			<Suspense fallback={<Spinner />}>
-				<ReportPage />
 			</Suspense>
 		),
 	},
