@@ -16,7 +16,7 @@ module.exports = {
 				endDate = null,
 				UserId = null,
 				page = 1,
-				itemLimit = 20,
+				itemLimit = 15,
 				sortBy = "createdAt",
 				sortOrder = "ASC",
 			} = req.query;
@@ -55,7 +55,6 @@ module.exports = {
 						[Op.gte]: new Date(startDate),
 					};
 				}
-
 				if (endDate) {
 					filterMovement.createdAt = {
 						[Op.lte]: new Date(endDate),
@@ -307,6 +306,256 @@ module.exports = {
 				averageDeactivatedProductCount,
 				averageDeletedProductCount,
 				averageViewCount,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	getProductAggregateStock: async (req, res) => {
+		try {
+			const { productName } = req.query;
+
+			const product = await products.findOne({
+				where: {
+					productName: productName,
+				},
+			});
+
+			if (!productName) {
+				return res.status(400).send({
+					status: 400,
+					message: "Please enter a valid product name.",
+				});
+			}
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product not found.",
+				});
+			}
+
+			res.status(200).send({
+				status: 200,
+				message: "Aggregate stock successfully fetched.",
+				aggregateStock: product.aggregateStock,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	trackAggregateStockChangesByDate: async (req, res) => {
+		try {
+			const { productName, startDate = null, endDate = null, page = 1, itemLimit = 15, sortOrder = "ASC" } = req.query;
+
+			if (!productName) {
+				return res.status(400).send({
+					status: 400,
+					message: "Please enter a valid product name.",
+				});
+			}
+
+			const product = await products.findOne({
+				where: {
+					productName: productName,
+				},
+			});
+
+			if (!product) {
+				return res.status(400).send({
+					status: 400,
+					message: "No product found with the given ID.",
+				});
+			}
+
+			const filterMovement = {
+				ProductId: product.id,
+			};
+
+			const dateFilter = {};
+
+			if (startDate && endDate) {
+				dateFilter.createdAt = {
+					[Op.between]: [new Date(startDate), new Date(endDate)],
+				};
+			} else if (startDate || endDate) {
+				if (startDate) {
+					dateFilter.createdAt = {
+						[Op.gte]: new Date(startDate),
+					};
+				}
+				if (endDate) {
+					dateFilter.createdAt = {
+						[Op.lte]: new Date(endDate),
+					};
+				}
+			}
+
+			const productMovements = await stockMovements.findAll({
+				where: {
+					...filterMovement,
+					...dateFilter,
+				},
+			});
+
+			if (!productMovements || productMovements.length === 0) {
+				return res.status(200).send({
+					status: 200,
+					message: "No stock movements found within the specified date range.",
+					aggregateStockHistory: [],
+				});
+			}
+
+			let aggregateStock = 0;
+			let aggregateStockHistory = {};
+
+			for (const movement of productMovements) {
+				const date = movement.createdAt;
+				// .toISOString().split("T")[0];
+				aggregateStock += movement.change;
+				aggregateStockHistory[date] = aggregateStock;
+			}
+
+			const startIndex = (parseInt(page) - 1) * parseInt(itemLimit);
+			const endIndex = startIndex + parseInt(itemLimit);
+			let paginatedAggregateStockHistory = {};
+
+			const keys = Object.keys(aggregateStockHistory);
+			if (sortOrder === "ASC") {
+				const paginatedKeys = keys.slice(startIndex, endIndex);
+				for (const key of paginatedKeys) {
+				  paginatedAggregateStockHistory[key] = aggregateStockHistory[key];
+				}
+			  } else if (sortOrder === "DESC") {
+				const reversedKeys = keys.slice().reverse(); 
+				const paginatedReversedKeys = reversedKeys.slice(startIndex, endIndex);
+				for (const key of paginatedReversedKeys) {
+				  paginatedAggregateStockHistory[key] = aggregateStockHistory[key];
+				}
+			  }
+
+			res.status(200).send({
+				status: 200,
+				currentPage: parseInt(page),
+				itemLimit,
+				message: "Aggregate stock history successfully fetched.",
+				PID: product.id,
+				aggregateStockHistory: paginatedAggregateStockHistory,
+			});
+		} catch (error) {
+			res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	getChangelogs: async (req, res) => {
+		try {
+			const {
+				productName,
+				BranchId = null,
+				startDate = null,
+				endDate = null,
+				UserId = null,
+				page = 1,
+				itemLimit = 15,
+				sortBy = "createdAt",
+				sortOrder = "ASC",
+			} = req.query;
+
+			if (!productName) {
+				return res.status(404).send({
+					status: 404,
+					message: "Please specify a product name.",
+				});
+			}
+
+			const product = await products.findOne({
+				where: {
+					productName: productName,
+				},
+			});
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product is not found.",
+				});
+			}
+
+			const filterChange = {
+				ProductId: product.id,
+			};
+
+			if (startDate && endDate) {
+				filterChange.createdAt = {
+					[Op.between]: [new Date(startDate), new Date(endDate)],
+				};
+			} else if (startDate || endDate) {
+				if (startDate) {
+					filterChange.createdAt = {
+						[Op.gte]: new Date(startDate),
+					};
+				}
+				if (endDate) {
+					filterChange.createdAt = {
+						[Op.lte]: new Date(endDate),
+					};
+				}
+			}
+
+			if (BranchId) {
+				filterChange.BranchId = BranchId;
+			}
+
+			if (UserId) {
+				filterChange.UserId = UserId;
+			}
+
+			const offset = (page - 1) * parseInt(itemLimit);
+
+			let sortOption;
+			switch (sortBy) {
+				case "UserId":
+					sortOption = [["UserId", sortOrder]];
+					break;
+				case "BranchId":
+					sortOption = [["BranchId", sortOrder]];
+					break;
+				case "change":
+					sortOption = [["change", sortOrder]];
+					break;
+				default:
+					sortOption = [["createdAt", sortOrder]];
+			}
+
+			const changeHistory = await changelogs.findAll({
+				where: filterChange,
+				limit: parseInt(itemLimit),
+				offset: offset,
+				order: sortOption,
+			});
+
+			const totalCount = await stockMovements.count({
+				where: filterChange,
+			});
+
+			const totalPages = Math.ceil(totalCount / parseInt(itemLimit));
+
+			res.status(200).send({
+				status: 200,
+				currentPage: parseInt(page),
+				totalPages: totalPages,
+				product_details: product,
+				changelogs: changeHistory,
 			});
 		} catch (error) {
 			return res.status(500).send({

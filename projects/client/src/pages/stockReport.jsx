@@ -80,8 +80,8 @@ const StockReport = () => {
 	const [movementHistory, setMovementHistory] = useState([]);
 	const [sortBy, setSortBy] = useState("createdAt");
 	const [sortOrder, setSortOrder] = useState("ASC");
-	const itemLimits = [10, 20, 50, 75, 100];
-	const [itemLimit, setItemLimit] = useState(20);
+	const itemLimits = [5, 10, 15, 20, 25, 50];
+	const [itemLimit, setItemLimit] = useState(15);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [BranchId, setBranchId] = useState(null);
@@ -89,6 +89,13 @@ const StockReport = () => {
 	const [sortedData, setSortedData] = useState([]);
 	const [administrators, setAdministrators] = useState([]);
 	const [selectedEntryTypes, setSelectedEntryTypes] = useState([]);
+	//? Changelogs States
+	const [changelogsHistory, setChangelogsHistory] = useState([]);
+
+
+
+
+
 	const [dateRange, setDateRange] = useState([
 		{
 			startDate: null,
@@ -112,13 +119,14 @@ const StockReport = () => {
 
 	const entryTypeOptions = [
 		"Product Created",
-		"Stock Initialized For Branch",
+		"Branch Stock Initialization",
 		"Manual Adjustment",
 		"Sales",
 		"Clear Selections (All Entries)",
 	];
 
 	const toggleEntryType = (entryType) => {
+		setPage(1);
 		if (entryType === "Clear Selections (All Entries)") {
 			setSelectedEntryTypes([]);
 		} else {
@@ -237,6 +245,12 @@ const StockReport = () => {
 		}
 	}, [search, reload, dateRange, selectedEntryTypes, itemLimit, selectedBranch, sortBy, sortOrder]);
 
+	useEffect(() => {
+		if (activeTab === 2) {
+			fetchChangelogsData(page);
+		}
+	}, [search, reload, dateRange, itemLimit, selectedBranch, sortBy, sortOrder]);
+
 	const fetchMovementData = async (pageNum) => {
 		try {
 			setIsLoading(true);
@@ -306,6 +320,75 @@ const StockReport = () => {
 		}
 	};
 
+	const fetchChangelogsData = async (pageNum) => {
+		try {
+			setIsLoading(true);
+			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product-report/changelogs/?productName=${search}&page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+			const { startDate, endDate } = dateRange[0];
+			if (startDate && endDate) {
+				startDate.setHours(0, 0, 0, 0);
+				endDate.setHours(23, 59, 59, 999);
+				const formattedStartDate = startDate.toISOString();
+				const formattedEndDate = endDate.toISOString();
+				apiURL += `&startDate=${formattedStartDate}`;
+				apiURL += `&endDate=${formattedEndDate}`;
+			}
+
+			if (selectedBranch) {
+				apiURL += `&BranchId=${selectedBranch}`;
+			}
+			if (itemLimit) {
+				apiURL += `&itemLimit=${itemLimit}`;
+			}
+			const changelogsResponse = await Axios.get(apiURL);
+			const { product_details, changelogs, currentPage, totalPages } = changelogsResponse.data;
+			if (startDate && endDate && startDate !== endDate && changelogs.length === 0) {
+				setIsDateFound(false);
+				const adjustedStartDate = new Date(startDate);
+				adjustedStartDate.setHours(adjustedStartDate.getHours() + 7);
+				toast.warn(
+					`No entry found for the range ${adjustedStartDate.toISOString().split("T")[0]} to ${
+						endDate.toISOString().split("T")[0]
+					}. Please broaden your date query range.`,
+					{
+						position: "top-right",
+						autoClose: 4000,
+						hideProgressBar: false,
+						closeOnClick: true,
+						pauseOnHover: true,
+						draggable: true,
+						progress: undefined,
+						theme: "dark",
+					}
+				);
+				return;
+			}
+			setPage(currentPage);
+			setTotalPages(totalPages);
+			setProductDetails(product_details);
+			setChangelogsHistory(changelogs);
+			setIsDateFound(true);
+			setIsSearchEmpty(false);
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 500);
+		} catch (error) {
+			setIsSearchEmpty(true);
+			if (search !== "") {
+				toast.warn(`No product found for "${search}"`, {
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+			}
+		}
+	};
+
 	const handleSearchDebounced = debounce((query) => {
 		setSearch(query);
 		setPage(1);
@@ -335,7 +418,7 @@ const StockReport = () => {
 							item.isInitialization
 								? "Product Created"
 								: item.isBranchInitialization
-								? "Stock Initialized For Branch"
+								? "Branch Stock Initialization"
 								: item.isAdjustment
 								? "Manual Adjustment"
 								: "Sales"
@@ -377,7 +460,7 @@ const StockReport = () => {
 				const formattedTime = `${createdAtDate.getHours().toString().padStart(2, "0")}:${createdAtDate
 					.getMinutes()
 					.toString()
-					.padStart(2, "0")}`;
+					.padStart(2, "0")}:${createdAtDate.getSeconds().toString().padStart(2, "0")}`;
 
 				return (
 					<Tr key={item.id}>
@@ -386,7 +469,7 @@ const StockReport = () => {
 							{item.isInitialization
 								? "Product Created"
 								: item.isBranchInitialization
-								? "Stock Initialized For Branch"
+								? "Branch Stock Initialization"
 								: item.isAdjustment
 								? "Manual Adjustment"
 								: "Sales"}
@@ -637,6 +720,7 @@ const StockReport = () => {
 								Statistics
 							</Tab>
 						</TabList>
+						{/* //! Stock Movement Tab */}
 						{activeTab === 1 ? (
 							<Flex
 								w={"1225px"}
@@ -680,6 +764,7 @@ const StockReport = () => {
 										onChange={(e) => {
 											const selectedValue = parseInt(e.target.value, 10);
 											setSelectedBranch(isNaN(selectedValue) ? "" : selectedValue);
+											setPage(1);
 											setReload(!reload);
 										}}
 										w={"150px"}
@@ -708,6 +793,7 @@ const StockReport = () => {
 										placeholder="Items Per Page"
 										onChange={(e) => {
 											setItemLimit(parseInt(e.target.value));
+											setPage(1);
 											setReload(!reload);
 										}}
 										w={"155px"}
@@ -743,7 +829,7 @@ const StockReport = () => {
 											fontWeight={selectedEntryTypes.length < 2 ? "normal" : "semibold"}
 											fontSize={
 												selectedEntryTypes.includes(entryTypeOptions[1]) && selectedEntryTypes.length === 1
-													? "11px"
+													? "12px"
 													: "16px"
 											}
 											rightIcon={<BiSolidChevronsDown size={18} />}
@@ -902,7 +988,19 @@ const StockReport = () => {
 									)}
 								</Flex>
 							</Flex>
-						) : null}
+						) : null
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						}
 						<TabPanels ml={"-15px"}>
 							<TabPanel key="stock-analysis">Stock Analysis</TabPanel>
 							<TabPanel key="stock-movement">
@@ -912,12 +1010,25 @@ const StockReport = () => {
 											ranges={dateRange}
 											onChange={(date) => {
 												setDateRange([date.selection]);
+												setPage(1);
 											}}
 											rangeColors={["#7CB69D"]}
 											startDatePlaceholder={dateRange[0].startDate || "Currently Showing"}
 											endDatePlaceholder={dateRange[0].endDate || "All Entries"}
 										/>
-										<StockMovementLineChart sortedData={sortedData} />
+										<StockMovementLineChart
+											sortedData={sortedData}
+											productName={search}
+											isSearchEmpty={isSearchEmpty}
+											isDateFound={isDateFound}
+											startDate={dateRange[0].startDate}
+											endDate={dateRange[0].endDate}
+											selectedBranch={selectedBranch}
+											itemLimit={itemLimit}
+											page={page}
+											sortBy={sortBy}
+											sortOrder={sortOrder}
+										/>
 									</Flex>
 									<Stack
 										h={"155px"}
@@ -961,7 +1072,8 @@ const StockReport = () => {
 													PRODUCT NAME : {!isSearchEmpty ? productDetails.productName : "No Match"}
 												</Text>
 												<Text overflow={"hidden"}>
-													CATEGORY‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎{!isSearchEmpty ? productDetails.CategoryId : "No Match"}
+													CATEGORY‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty ? getCategoryLabel(productDetails.CategoryId) : "No Match"}
 												</Text>
 												<Text>
 													PRICE ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
@@ -1137,7 +1249,14 @@ const StockReport = () => {
 							<TabPanel key="changelogs">Changelogs</TabPanel>
 							<TabPanel key="key-metrics">Key Metrics</TabPanel>
 							<TabPanel key="statistics">
-								<Stack align={"center"} overflowY={"auto"} height={"1000px"}>
+								<Stack
+									className="scrollbar-4px"
+									align={"center"}
+									overflowY={"auto"}
+									width={"1225px"}
+									height={"1040px"}
+									borderRadius={"10px"}
+								>
 									<CategoryDoughnutChart />
 									<ViewCountBarChart />
 									<CategoryBarChart />

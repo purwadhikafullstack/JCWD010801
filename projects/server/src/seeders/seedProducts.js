@@ -59,6 +59,8 @@ const seedProducts = async () => {
 				isInitialization: true,
 				isBranchInitialization: false,
 				UserId: 1,
+				oldValue: 0,
+				newValue: 100,
 			});
 
 			const additions = {};
