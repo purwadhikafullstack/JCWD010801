@@ -91,10 +91,7 @@ const StockReport = () => {
 	const [selectedEntryTypes, setSelectedEntryTypes] = useState([]);
 	//? Changelogs States
 	const [changelogsHistory, setChangelogsHistory] = useState([]);
-
-
-
-
+	const [selectedChangelogsEntryTypes, setSelectedChangelogsEntryTypes] = useState([]);
 
 	const [dateRange, setDateRange] = useState([
 		{
@@ -487,6 +484,117 @@ const StockReport = () => {
 		}
 	};
 
+	const renderChangelogsTableEntries = (isLoading) => {
+		if (isLoading) {
+			return changelogsHistory.map((item, index) => {
+				const isEvenIndex = index % 2 === 0;
+				return (
+					<Tr key={item.id}>
+						<Td>
+							<div
+								style={{
+									width: "10px",
+									marginLeft: "-13px",
+								}}
+							>
+								<Skeleton
+									count={1}
+									width={"1220px"}
+									containerClassName="flex-1"
+									height={"35px"}
+									highlightColor="#141415"
+									direction={isEvenIndex ? "rtl" : "ltr"}
+								/>
+							</div>
+						</Td>
+					</Tr>
+				);
+			});
+		} else {
+			return changelogsHistory.map((item, index) => {
+				const createdAtDate = new Date(item.createdAt);
+				const formattedDate = `${createdAtDate.getDate()} ${months[createdAtDate.getMonth()]} ${createdAtDate
+					.getFullYear()
+					.toString()
+					.slice(-2)}`;
+				const formattedTime = `${createdAtDate.getHours().toString().padStart(2, "0")}:${createdAtDate
+					.getMinutes()
+					.toString()
+					.padStart(2, "0")}:${createdAtDate.getSeconds().toString().padStart(2, "0")}`;
+				const startsWith = (str, prefix) => {
+					return str.indexOf(prefix) === 0;
+				};
+
+				return (
+					<Tr key={item.id}>
+						<Td textAlign={"left"}>{index + 1}</Td>
+						<Td textAlign={"center"}>
+							{item.field === "productName"
+								? "Product Name Change"
+								: item.field === "price"
+								? "Price Change"
+								: item.field === "description"
+								? "Description Change"
+								: item.field === "weight"
+								? "Weight Change"
+								: item.field === "CategoryId"
+								? "Category Change"
+								: item.field === "imgURL"
+								? "Image Change"
+								: item.field === "activation"
+								? "Product Activation"
+								: item.field === "deactivation"
+								? "Product Deactivation"
+								: item.field === "deletion"
+								? "Product Deletion"
+								: item.field === "bulk_activation"
+								? "Bulk Operation: Product Activation"
+								: item.field === "bulk_deactivation"
+								? "Bulk Operation: Product Deactivation"
+								: item.field === "bulk_deletion"
+								? "Bulk Operation: Product Deletion"
+								: "Bulk Operation: Product Category Change"}
+						</Td>
+						<Td className="centered-td" textAlign={"center"}>
+							{item.oldValue === "initialization" ? (
+								"Initialization Entry"
+							) : item.oldValue === "active" ? (
+								"Active"
+							) : item.oldValue === "deactivated" ? (
+								"Deactivated"
+							) : item.oldValue === "not_deleted" ? (
+								"Not Deleted"
+							) : item.oldValue === "data_not_available" ? (
+								"Old Category Not Recorded"
+							) : startsWith(item.oldValue, "P-IMG") ? (
+								<Image
+									className="thumb-hover-zoom"
+									boxSize={"25px"}
+									borderRadius={"5px"}
+									boxShadow={"1px 2px 3px black"}
+									src={`${process.env.REACT_APP_BASE_URL}/products/${item.oldValue}`}
+									cursor={"pointer"}
+								/>
+							) : item.field === "price" ? (
+								`Rp. ${parseInt(item?.oldValue).toLocaleString("id-ID")}`
+							) : item.field === "weight" ? (
+								`${(Number(parseInt(item?.oldValue) / 1000).toFixed(3))} Kg`
+							) : item.field === "CategoryId" ? (
+								getCategoryLabel(item?.oldValue)
+							) : (
+								item.oldValue
+							)}
+						</Td>
+						<Td textAlign={"center"}>{item.newValue}</Td>
+						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
+						<Td textAlign={"center"}>{formattedDate}</Td>
+						<Td isNumeric>{formattedTime}</Td>
+					</Tr>
+				);
+			});
+		}
+	};
+
 	const updateSortedData = () => {
 		const sorted = [...movementHistory];
 		sorted.sort((a, b) => {
@@ -512,7 +620,7 @@ const StockReport = () => {
 	}, [movementHistory, sortBy, sortOrder]);
 
 	const getCategoryLabel = (catId) => {
-		const category = categories.find((category) => category.value === catId);
+		const category = categories.find((category) => category.value === parseInt(catId));
 		return category ? category.label : "Category Missing!";
 	};
 
@@ -649,6 +757,16 @@ const StockReport = () => {
 						value={activeTab}
 						onChange={(index) => {
 							setActiveTab(index);
+							setSortBy("createdAt");
+							setSortOrder("ASC");
+							setPage(1);
+							setDateRange([
+								{
+									startDate: null,
+									endDate: null,
+									key: "selection",
+								},
+							]);
 						}}
 						w="1225px"
 						align="left"
@@ -988,21 +1106,178 @@ const StockReport = () => {
 									)}
 								</Flex>
 							</Flex>
-						) : null
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						}
+						) : activeTab === 2 ? (
+							<Flex
+								w={"1225px"}
+								h={"45px"}
+								align="center"
+								fontWeight="bold"
+								mb={"2px"}
+								borderBottom={"1px solid #39393C"}
+							>
+								{/* //! Changelogs Tab */}
+								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
+									<Input
+										type="search"
+										mr={"5px"}
+										w={"200px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										placeholder="Enter a Product Name"
+										{...customInputStyle}
+										onChange={handleSearchChange}
+									/>
+									<FaSearch
+										size={20}
+										onClick={() => {
+											setReload(!reload);
+										}}
+										style={{ cursor: "pointer" }}
+									/>
+								</Flex>
+								<Flex
+									w={"530px"}
+									h={"45px"}
+									justify="left"
+									align={"center"}
+									fontWeight="bold"
+									justifyContent={"space-evenly"}
+								>
+									<Select
+										placeholder="Items Per Page"
+										onChange={(e) => {
+											setItemLimit(parseInt(e.target.value));
+											setPage(1);
+											setReload(!reload);
+										}}
+										w={"155px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										{...customSelectStyle}
+									>
+										{itemLimits.map((limit) => (
+											<option
+												key={limit}
+												value={limit}
+												style={{
+													backgroundColor: itemLimit === limit ? "#F0F0F0" : "#FFFFFF",
+													color: itemLimit === limit ? "#18181A" : "#535256",
+													fontWeight: itemLimit === limit ? "bold" : "normal",
+													fontSize: "16px",
+													cursor: "pointer",
+												}}
+											>
+												{limit}
+											</option>
+										))}
+									</Select>
+									<Menu>
+										<MenuButton
+											as={Button}
+											w="190px"
+											h="30px"
+											border={"1px solid gray"}
+											borderColor="gray"
+											bgColor="white"
+											fontWeight={selectedEntryTypes.length < 2 ? "normal" : "semibold"}
+											fontSize={
+												selectedEntryTypes.includes(entryTypeOptions[1]) && selectedEntryTypes.length === 1
+													? "12px"
+													: "16px"
+											}
+											rightIcon={<BiSolidChevronsDown size={18} />}
+											overflow={"hidden"}
+											textOverflow={"ellipsis"}
+										>
+											{selectedEntryTypes.length === 0
+												? "Select Entry Types"
+												: selectedEntryTypes.length === 1
+												? selectedEntryTypes[0]
+												: selectedEntryTypes.length === 2
+												? "2 Selected"
+												: selectedEntryTypes.length === 3
+												? "3 Selected"
+												: "4 Selected"}
+										</MenuButton>
+										<MenuList>
+											{entryTypeOptions.map((entryType) => (
+												<MenuItem key={entryType} onClick={() => toggleEntryType(entryType)}>
+													<Text fontWeight={selectedEntryTypes.includes(entryType) ? "bold" : "normal"} fontSize="16px">
+														{entryType}
+													</Text>
+												</MenuItem>
+											))}
+										</MenuList>
+									</Menu>
+								</Flex>
+								<Flex
+									w={"325px"}
+									h={"31px"}
+									justify="space-evenly"
+									align="center"
+									fontWeight="bold"
+									border={"1px solid black"}
+									borderRadius={"10px"}
+								>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "createdAt"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("createdAt");
+										}}
+										{...customRadioStyle}
+									>
+										Entry Time
+									</Radio>
+								</Flex>
+								<Flex
+									justifyContent={"space-around"}
+									w={"122px"}
+									h={"31px"}
+									ml={"8px"}
+									justify="center"
+									align="center"
+									fontWeight="bold"
+									border={"1px solid black"}
+									borderRadius={"10px"}
+								>
+									{sortBy === "createdAt" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<IoCalendarNumberOutline size={26} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<CiCalendarDate size={32} />
+											</Radio>
+										</>
+									)}
+								</Flex>
+							</Flex>
+						) : null}
+						{/* //? End of Content Headers */}
+						{/* //? Start of Tab Content */}
 						<TabPanels ml={"-15px"}>
+							{/* //? Stock Analysis Tab Content */}
 							<TabPanel key="stock-analysis">Stock Analysis</TabPanel>
+							{/* //? Stock Movement Tab Content */}
 							<TabPanel key="stock-movement">
 								<Stack h={"1000px"} w={"1225px"} borderRadius={"15px"}>
 									<Flex>
@@ -1246,8 +1521,202 @@ const StockReport = () => {
 									)}
 								</Stack>
 							</TabPanel>
-							<TabPanel key="changelogs">Changelogs</TabPanel>
+							{/* //? Changelogs Tab Content */}
+							<TabPanel key="changelogs">
+								<Stack h={"1000px"} w={"1225px"} borderRadius={"15px"}>
+									<Flex justify={"center"} align={"center"}>
+										<DateRangePicker
+											ranges={dateRange}
+											onChange={(date) => {
+												setDateRange([date.selection]);
+												setPage(1);
+											}}
+											rangeColors={["#7CB69D"]}
+											startDatePlaceholder={dateRange[0].startDate || "Currently Showing"}
+											endDatePlaceholder={dateRange[0].endDate || "All Entries"}
+										/>
+									</Flex>
+									<Stack
+										h={"155px"}
+										w={"1225px"}
+										border={"1px ridge grey"}
+										borderRadius={"15px"}
+										align={"space-between"}
+									>
+										<Text
+											className="p-overview-h"
+											w={"1224px"}
+											h={"35px"}
+											alignSelf={"top"}
+											justify={"center"}
+											textAlign={"center"}
+											borderBottom={"1px ridge grey"}
+										>
+											PRODUCT OVERVIEW
+										</Text>
+										<Flex mt={"-8px"} align={"center"}>
+											<Image
+												ml={"5px"}
+												borderRadius={"15px"}
+												boxShadow={"1px 2px 3px black"}
+												w={"110px"}
+												h={"110px"}
+												src={
+													!isSearchEmpty
+														? `${process.env.REACT_APP_BASE_URL}/products/${productDetails?.imgURL}`
+														: NoProductThumb
+												}
+												onClick={() => (!isSearchEmpty ? navigate(`/product/${productDetails?.id}`) : null)}
+												cursor={"pointer"}
+											/>
+											<Stack ml={"10px"} w={"375px"} h={"115px"} fontSize={"15px"} justify={"center"}>
+												<Text>
+													PID ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty ? productDetails?.id : "No Match"}
+												</Text>
+												<Text overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} maxWidth={"375px"}>
+													PRODUCT NAME : {!isSearchEmpty ? productDetails.productName : "No Match"}
+												</Text>
+												<Text overflow={"hidden"}>
+													CATEGORY‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty ? getCategoryLabel(productDetails.CategoryId) : "No Match"}
+												</Text>
+												<Text>
+													PRICE ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty && productDetails?.price !== undefined
+														? new Intl.NumberFormat("id-ID", {
+																style: "currency",
+																currency: "IDR",
+														  }).format(productDetails?.price)
+														: "No Match"}
+												</Text>
+											</Stack>
+											<Stack ml={"5px"} w={"375px"} h={"115px"} fontSize={"15px"} justify={"center"}>
+												<Text overflow={"hidden"}>
+													NATIONWIDE STOCK ‎ ‎ : ‎
+													{!isSearchEmpty ? `${productDetails.aggregateStock} Units` : "No Match"}
+												</Text>
+												<Text>
+													VIEW COUNT ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty ? `${productDetails?.viewCount} Views` : "No Match"}
+												</Text>
+												<Text>
+													WEIGHT ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty ? `${(productDetails?.weight / 1000).toFixed(2)} Kg` : "No Match"}
+												</Text>
+												<Text overflow={"hidden"}>
+													ACTIVATION ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{productDetails.isActive && !isSearchEmpty
+														? "ACTIVE"
+														: !productDetails.isActive && !isSearchEmpty
+														? "DEACTIVATED"
+														: "No Match"}
+												</Text>
+											</Stack>
+											<Stack ml={"5px"} w={"375px"} h={"115px"} fontSize={"15px"} justify={"center"}>
+												<Text overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} maxWidth={"375px"}>
+													DESCRIPTION ‎: ‎
+													{!isSearchEmpty
+														? productDetails?.description && productDetails.description.length > 35
+															? productDetails.description.substring(0, 35) + "..."
+															: productDetails.description
+														: "Please check your search query."}
+												</Text>
+												<Text>
+													CREATION ‎ ‎ ‎ ‎ ‎ ‎ :{" "}
+													{!isSearchEmpty
+														? formatDate(productDetails.createdAt)
+														: "Did you mean to create this product?"}
+												</Text>
+												<Text>
+													LAST UPDATE ‎ : {!isSearchEmpty ? formatDate(productDetails.updatedAt) : "If so, please go"}
+												</Text>
+												<Text overflow={"hidden"}>
+													DELETED ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
+													{!isSearchEmpty && productDetails.isDeleted
+														? "YES"
+														: !isSearchEmpty && !productDetails.isDeleted
+														? "NO"
+														: "to product management."}
+												</Text>
+											</Stack>
+										</Flex>
+									</Stack>
+									{!isSearchEmpty && (
+										<>
+											{isDateFound ? (
+												<TableContainer className="scrollbar-3px" overflowY={"auto"}>
+													<Table size="sm" variant={!isLoading ? "striped" : "unstyled"}>
+														<Thead
+															style={{
+																position: "sticky",
+																top: 0,
+																zIndex: 1,
+																backgroundColor: "#FFFFFF",
+															}}
+														>
+															<Tr>
+																<Th textAlign={"left"}>No.</Th>
+																<Th textAlign={"center"}>Field</Th>
+																<Th textAlign={"center"}>Old Value</Th>
+																<Th textAlign={"center"}>New Value</Th>
+																<Th textAlign={"center"}>User</Th>
+																<Th
+																	style={{
+																		display: "flex",
+																		alignItems: "center",
+																		justifyContent: "center",
+																	}}
+																>
+																	Date
+																	<BiSort
+																		display={"flex"}
+																		size={14}
+																		color="#3E3D40"
+																		cursor="pointer"
+																		onClick={() => {
+																			setSortBy("createdAt");
+																			setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																		}}
+																	/>
+																</Th>
+																<Th isNumeric>Time</Th>
+															</Tr>
+														</Thead>
+														<Tbody>{renderChangelogsTableEntries(isLoading)}</Tbody>
+													</Table>
+												</TableContainer>
+											) : (
+												<Flex
+													w={"1225px"}
+													h={"300px"}
+													align={"center"}
+													borderTop={"1px ridge grey"}
+													borderBottom={"1px ridge grey"}
+													borderRadius={"10px"}
+												>
+													<Image src={NoDate} alt="404DateNotFound" objectFit="cover" borderRadius={"5px"} />
+												</Flex>
+											)}
+										</>
+									)}
+									{isSearchEmpty && (
+										<Flex
+											w={"1225px"}
+											h={"300px"}
+											align={"center"}
+											borderTop={"1px ridge grey"}
+											borderBottom={"1px ridge grey"}
+											borderRadius={"10px"}
+										>
+											<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+										</Flex>
+									)}
+								</Stack>
+							</TabPanel>
+							{/* //? Key Metrics Tab Content */}
 							<TabPanel key="key-metrics">Key Metrics</TabPanel>
+							{/* //? Statistics Tab Content */}
 							<TabPanel key="statistics">
 								<Stack
 									className="scrollbar-4px"
@@ -1269,7 +1738,7 @@ const StockReport = () => {
 						</TabPanels>
 					</Tabs>
 					<Box position="absolute" bottom="-20" left="50%" transform="translateX(-50%)">
-						{activeTab === 1 ? (
+						{activeTab === 1 || 2 ? (
 							<Pagination
 								page={page}
 								totalPages={totalPages}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
-import { Flex, Stack, Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -25,6 +25,7 @@ const StockMovementLineChart = ({
 	page,
 	sortBy,
 	sortOrder,
+	selectedBranch,
 }) => {
 	const [aggregateStock, setAggregateStock] = useState(0);
 	const [aggregateStockHistory, setAggregateStockHistory] = useState({});
@@ -54,7 +55,7 @@ const StockMovementLineChart = ({
 			.catch((error) => {
 				console.error("Error fetching aggregate stock history data:", error);
 			});
-	}, [productName, startDate, endDate, itemLimit, page, sortOrder]);
+	}, [productName, startDate, endDate, itemLimit, page, sortOrder, sortBy]);
 
 	const extractLastEntryForEachDate = (historyData) => {
 		const result = {};
@@ -91,32 +92,32 @@ const StockMovementLineChart = ({
 		);
 	}
 
-	if (sortBy === "change") {
-		return (
-			<Stack align={"center"} justify={"center"} w={"650px"} h={"320px"} ml={"20px"}>
-				<Text
-					color="#D90824"
-					bgColor={"black"}
-					fontWeight="bold"
-					border={"1px solid black"}
-					borderRadius={"35px"}
-					p={"8px"}
-				>
-					Chart Data Not Available.
-				</Text>
-				<Text
-					color="#D90824"
-					bgColor={"black"}
-					fontWeight="bold"
-					border={"1px solid black"}
-					borderRadius={"35px"}
-					p={"8px"}
-				>
-					No significant extrapolation can be made based on change delta data.
-				</Text>
-			</Stack>
-		);
-	}
+	// if (sortBy === "change") {
+	// 	return (
+	// 		<Stack align={"center"} justify={"center"} w={"650px"} h={"320px"} ml={"20px"}>
+	// 			<Text
+	// 				color="#D90824"
+	// 				bgColor={"black"}
+	// 				fontWeight="bold"
+	// 				border={"1px solid black"}
+	// 				borderRadius={"35px"}
+	// 				p={"8px"}
+	// 			>
+	// 				Chart Data Not Available.
+	// 			</Text>
+	// 			<Text
+	// 				color="#D90824"
+	// 				bgColor={"black"}
+	// 				fontWeight="bold"
+	// 				border={"1px solid black"}
+	// 				borderRadius={"35px"}
+	// 				p={"8px"}
+	// 			>
+	// 				No significant extrapolation can be made based on change delta data.
+	// 			</Text>
+	// 		</Stack>
+	// 	);
+	// }
 
 	const labels = sortedData.map((entry) => {
 		const createdAtDate = new Date(entry.createdAt);
@@ -177,53 +178,86 @@ const StockMovementLineChart = ({
 
 	const data = {
 		labels,
-		datasets: [
-			{
+		datasets: (!selectedBranch && sortBy !== "change")
+		  ? [
+			  {
 				label: "Jakarta",
 				data: dataPoints1,
 				borderColor: "#E25668",
 				backgroundColor: "#AFACAC",
-			},
-			{
+			  },
+			  {
 				label: "Bandung",
 				data: dataPoints2,
 				borderColor: "#E28956",
 				backgroundColor: "#AFACAC",
-			},
-			{
+			  },
+			  {
 				label: "Jogjakarta",
 				data: dataPoints3,
 				borderColor: "#68E256",
 				backgroundColor: "#AFACAC",
-			},
-			{
+			  },
+			  {
 				label: "Surabaya",
 				data: dataPoints4,
 				borderColor: "#56E2CF",
 				backgroundColor: "#AFACAC",
-			},
-			{
+			  },
+			  {
 				label: "Batam",
 				data: dataPoints5,
 				borderColor: "#5668E2",
 				backgroundColor: "#AFACAC",
-			},
-			{
+			  },
+			  {
 				label: "Aggregate Nationwide Stock",
 				data: lastEntries,
 				borderColor: "#000000",
 				backgroundColor: "#F7B6E7",
 				borderDash: [25, 5],
-			},
-			{
+			  },
+			  {
 				label: "Current Aggregate Benchmark",
 				data: Array(longestDataPointsLength).fill(aggregateStock),
 				borderColor: "#F7B6E7",
 				backgroundColor: "#000000",
 				borderDash: [5, 5],
-			},
-		],
-	};
+			  },
+			]
+		  : [
+			  {
+				label: "Jakarta",
+				data: dataPoints1,
+				borderColor: "#E25668",
+				backgroundColor: "#AFACAC",
+			  },
+			  {
+				label: "Bandung",
+				data: dataPoints2,
+				borderColor: "#E28956",
+				backgroundColor: "#AFACAC",
+			  },
+			  {
+				label: "Jogjakarta",
+				data: dataPoints3,
+				borderColor: "#68E256",
+				backgroundColor: "#AFACAC",
+			  },
+			  {
+				label: "Surabaya",
+				data: dataPoints4,
+				borderColor: "#56E2CF",
+				backgroundColor: "#AFACAC",
+			  },
+			  {
+				label: "Batam",
+				data: dataPoints5,
+				borderColor: "#5668E2",
+				backgroundColor: "#AFACAC",
+			  },
+			],
+	  };
 
 	const options = {
 		responsive: true,

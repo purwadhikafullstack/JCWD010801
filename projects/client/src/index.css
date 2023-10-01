@@ -143,3 +143,17 @@ canvas {
   letter-spacing: 20px;
   -webkit-font-smoothing: antialiased;
 }
+
+.thumb-hover-zoom {
+  transition: transform 2s ease-in-out;
+}
+
+.thumb-hover-zoom:hover {
+  transform: scale(8);
+}
+
+.centered-td {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

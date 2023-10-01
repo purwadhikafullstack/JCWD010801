@@ -70,7 +70,7 @@ module.exports = {
 				filterMovement.UserId = UserId;
 			}
 
-			const offset = (page - 1) * parseInt(itemLimit);
+			const offset = (parseInt(page) - 1) * parseInt(itemLimit);
 
 			let sortOption;
 			switch (sortBy) {
@@ -461,7 +461,6 @@ module.exports = {
 		try {
 			const {
 				productName,
-				BranchId = null,
 				startDate = null,
 				endDate = null,
 				UserId = null,
@@ -512,26 +511,16 @@ module.exports = {
 				}
 			}
 
-			if (BranchId) {
-				filterChange.BranchId = BranchId;
-			}
-
 			if (UserId) {
 				filterChange.UserId = UserId;
 			}
 
-			const offset = (page - 1) * parseInt(itemLimit);
+			const offset = (parseInt(page) - 1) * parseInt(itemLimit);
 
 			let sortOption;
 			switch (sortBy) {
 				case "UserId":
 					sortOption = [["UserId", sortOrder]];
-					break;
-				case "BranchId":
-					sortOption = [["BranchId", sortOrder]];
-					break;
-				case "change":
-					sortOption = [["change", sortOrder]];
 					break;
 				default:
 					sortOption = [["createdAt", sortOrder]];
@@ -544,7 +533,7 @@ module.exports = {
 				order: sortOption,
 			});
 
-			const totalCount = await stockMovements.count({
+			const totalCount = await changelogs.count({
 				where: filterChange,
 			});
 
