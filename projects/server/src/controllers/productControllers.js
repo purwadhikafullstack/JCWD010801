@@ -1275,4 +1275,33 @@ module.exports = {
 			});
 		}
 	},
+	getRandomProductName: async (req, res) => {
+		try {
+			const productCount = await products.count();
+			const randomIndex = Math.floor(Math.random() * productCount);
+
+			const randomProduct = await products.findOne({
+				attributes: ["productName"],
+				offset: randomIndex,
+			});
+
+			if (!randomProduct) {
+				return res.status(404).send({
+					status: 404,
+					message: "Randomizer failed.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				productName: randomProduct.productName,
+			});
+		} catch (error) {
+			console.error(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
 };

@@ -7,6 +7,7 @@ const cartControllers = require("./cartControllers");
 const orderControllers = require("./orderControllers");
 const reportControllers = require("./reportControllers");
 const productReportControllers = require("./productReportControllers");
+const branchControllers = require("./branchControllers");
 
 module.exports = {
 	userControllers,
@@ -17,5 +18,6 @@ module.exports = {
 	cartControllers,
 	orderControllers,
 	reportControllers,
-	productReportControllers
+	productReportControllers,
+	branchControllers
 };
