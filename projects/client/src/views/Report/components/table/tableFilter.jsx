@@ -40,7 +40,7 @@ const TableFilter = ({ queryObj, setQueryObj, branches, branchId }) => {
 	const handleSort = (event) => {
 		setQueryObj({ ...queryObj, sort: event.target.value });
 	};
-console.log(branchId);
+
 	return (
 		<Grid
 			templateColumns={{

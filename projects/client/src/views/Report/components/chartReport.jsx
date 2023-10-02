@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Bar, Line } from "react-chartjs-2";
-import { Box, Center, Divider, FormControl, FormLabel, Grid, Select, Text } from "@chakra-ui/react";
+import { Line } from "react-chartjs-2";
+import { Box, Center, FormControl, FormLabel, Grid, Select, Text } from "@chakra-ui/react";
 import "chart.js/auto";
 import Axios from "axios";
 export const options = {
@@ -47,22 +47,16 @@ function ChartReport({ roleId, branchId }) {
 				},
 			});
 
-			 console.log(response);
 			setDataReport(response.data);
-		} catch (error) {
-			console.log(error);
-		}
+		} catch (error) {}
 	};
 	const fetchBranch = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches/`);
 			setBranches(response.data);
-			// console.log(response);
-		} catch (error) {
-			console.log(error);
-		}
+		} catch (error) {}
 	};
-	// console.log(dataReport);
+
 	function formatAsIDR(number) {
 		return new Intl.NumberFormat("id-ID", {
 			style: "currency",
@@ -105,7 +99,6 @@ function ChartReport({ roleId, branchId }) {
 			}
 		}
 	}, [dataReport, selectedYear]);
-console.log(searchBranch);
 	return dataReport ? (
 		<Center>
 			<Box boxShadow={"md"} p="4" maxW={"80%"} w="100%">
@@ -151,12 +144,7 @@ console.log(searchBranch);
 						{formatAsIDR(dataReport.groupedResults[selectedYear]?.realTotal?.toFixed(2))}
 					</Text>
 				)}
-				<Box
-					wwidth="100%" // Make the chart container 100% of the parent width
-					
-					height={["auto", "300px", "700px"]} // Set different heights for different screen sizes
-					margin="0 auto"
-				>
+				<Box wwidth="100%" height={["auto", "300px", "700px"]} margin="0 auto">
 					<Line options={options} data={data} />
 				</Box>
 			</Box>

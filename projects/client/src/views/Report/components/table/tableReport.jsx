@@ -75,18 +75,12 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 			};
 		});
 	}, [dataReport.result]);
-	const {
-		
-		gotoPage,
-		nextPage,
-		previousPage,
-		
-	} = useTable(
+	const { gotoPage, nextPage, previousPage } = useTable(
 		{
 			columns,
 			data,
 			manualSortBy: true,
-			manualPagination: true, // Enable manual pagination
+			manualPagination: true, 
 			initialState: {
 				pageIndex: queryObj.page,
 				pageSize: queryObj.limit,
@@ -96,25 +90,17 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 		usePagination
 	);
 
-	
 	const canPreviousPage = queryObj.page > 0;
 	const canNextPage = queryObj.page < totalPage - 1;
 
-	// Handle page size changes
 	const handlePageSizeChange = (pageSize) => {
-		// Update queryObj.limit to the new page size
-		updateQueryObj({ ...queryObj, limit: pageSize, page: 0 }); // Reset to the first page when changing page size
+		updateQueryObj({ ...queryObj, limit: pageSize, page: 0 });
 	};
 
 	return (
 		<>
 			<Box p={8}>
-				<TableContent
-					columns={columns}
-					data={data}
-					updateQueryObj={updateQueryObj}
-					queryObj={queryObj}
-				/>
+				<TableContent columns={columns} data={data} updateQueryObj={updateQueryObj} queryObj={queryObj} />
 				{havePagination && (
 					<Pagination
 						pageIndex={queryObj.page}
@@ -125,7 +111,7 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 						previousPage={previousPage}
 						nextPage={nextPage}
 						pageSize={queryObj.limit}
-						setPageSize={handlePageSizeChange} // Use the custom handler
+						setPageSize={handlePageSizeChange}
 						updateQueryObj={updateQueryObj}
 					/>
 				)}
