@@ -44,7 +44,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
-	const branches = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya"];
 	const reduxStore = useSelector((state) => state?.user);
 	const username = reduxStore?.value?.username;
 	const email = reduxStore?.value?.email;
@@ -59,6 +58,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const [reload, setReload] = useState(false);
 	const [isSearchFocused, setSearchFocused] = useState(false);
 	const [totalCartItems, setTotalCartItems] = useState(0);
+	const [branches, setBranches] = useState([]);
+	const [branchesShorthand, setBranchesShorthand] = useState([]);
 
 	const fetchData = async () => {
 		try {
@@ -79,8 +80,22 @@ export const Navbar = ({ isNotDisabled = true }) => {
 				},
 			});
 			setTotalCartItems(data?.total);
-		} catch (err) {
-			console.log(err);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const fetchBranchData = async () => {
+		try {
+			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			const shorthandData = data.map((branch) => ({
+				label: branch.name,
+				value: branch.id,
+			}));
+			setBranches(data);
+			setBranchesShorthand(shorthandData);
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
@@ -105,10 +120,48 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	}, [reload, search]);
 
 	useEffect(() => {
+		fetchBranchData();
+		// eslint-disable-next-line
+	}, []);
+
+	useEffect(() => {
 		fetchCart();
-		//! Ini dibenerin raf useEffectnya, nge fetch seperlunya aja nih trigger nya diperbaiki
 		// eslint-disable-next-line
 	}, [refresh]);
+
+	const calculateDistance = (lat1, lon1, lat2, lon2) => {
+		const R = 6371;
+		const dLat = (lat2 - lat1) * (Math.PI / 180);
+		const dLon = (lon2 - lon1) * (Math.PI / 180);
+		const a =
+			Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+			Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		const distance = R * c;
+		return distance;
+	};
+
+	const findClosestBranch = (userLat, userLng, branchData) => {
+		let closestBranch = null;
+		let minDistance = Infinity;
+
+		branchData.forEach((branch) => {
+			const branchLat = parseFloat(branch.lat);
+			const branchLng = parseFloat(branch.lng);
+			const distance = calculateDistance(userLat, userLng, branchLat, branchLng);
+
+			if (distance < minDistance) {
+				minDistance = distance;
+				closestBranch = branch;
+			}
+		});
+		return closestBranch;
+	};
+
+	const userLat = parseFloat(localStorage.getItem("lat"));
+	const userLng = parseFloat(localStorage.getItem("lng"));
+	const closestBranch = findClosestBranch(userLat, userLng, branches);
+	localStorage.setItem("BranchId", closestBranch?.id);
 
 	const logout = () => {
 		localStorage.removeItem("token");
@@ -220,13 +273,13 @@ export const Navbar = ({ isNotDisabled = true }) => {
 										</Text>
 									</PopoverHeader>
 									<PopoverBody>
-										{branches.map((item, index) => {
+										{branchesShorthand.map((branch) => {
+											const { label, value } = branch;
 											return (
-												<React.Fragment key={index}>
+												<React.Fragment key={value}>
 													<Text
 														textAlign={"center"}
 														as={Box}
-														key={index}
 														role={"group"}
 														borderRadius={"md"}
 														p={2}
@@ -236,14 +289,15 @@ export const Navbar = ({ isNotDisabled = true }) => {
 															bgColor: "blackAlpha.100",
 															color: "black",
 															fontWeight: 500,
+															cursor: "pointer",
 														}}
 														onClick={() => {
-															localStorage.setItem("BranchId", index + 1);
+															localStorage.setItem("BranchId", value);
 														}}
 													>
-														{item}
+														{label}
 													</Text>
-													{index + 1 !== branches.length && <Divider size={"xl"} colorScheme="gray" />}
+													{value !== branchesShorthand.length && <Divider size={"xl"} colorScheme="gray" />}
 												</React.Fragment>
 											);
 										})}

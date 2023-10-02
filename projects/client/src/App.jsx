@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 function App() {
 	const token = localStorage.getItem("token");
 	const dispatch = useDispatch();
+	
 	if ("geolocation" in navigator) {
 		navigator.geolocation.getCurrentPosition(async function (position) {
 			try {
@@ -24,6 +25,7 @@ function App() {
 	} else {
 		console.log("Geolocation isn't supported in this device.");
 	}
+
 	useEffect(() => {
 		const keepLogin = async () => {
 			try {
