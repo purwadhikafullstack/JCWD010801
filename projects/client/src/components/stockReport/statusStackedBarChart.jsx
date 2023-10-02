@@ -53,7 +53,7 @@ const StatusStackedBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "Categories' Product Statuses",
+				text: "Categories' Product Status Distribution",
 			},
 		},
 		responsive: true,

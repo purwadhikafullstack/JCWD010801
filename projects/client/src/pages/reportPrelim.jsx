@@ -14,7 +14,7 @@ const ReportPrelim = () => {
 
 		const redirectTimeout = setTimeout(() => {
 			navigate("/dashboard/report/overview");
-		}, 6000);
+		}, 3500);
 
 		return () => {
 			clearTimeout(redirectTimeout);
