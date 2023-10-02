@@ -22,6 +22,8 @@ const ReportPrelim = lazy(() => import("../pages/reportPrelim"));
 const ReportOverview = lazy(() => import("../pages/reportOverview"));
 const CategoriesCharts = lazy(() => import("../pages/categoriesCharts"));
 const StockReport = lazy(() => import("../pages/stockReport"));
+const VoucherPage = lazy(() => import("../pages/voucher"));
+const DiscountManagementPage = lazy(() => import("../pages/discountManagement"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -76,6 +78,14 @@ export const AppRouter = createBrowserRouter([
 					</Suspense>
 				),
 			},
+			{
+				path: "/voucher",
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<VoucherPage />
+					</Suspense>
+				),
+			},
 		],
 	},
 	{
@@ -107,6 +117,14 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<ProductManagement />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/discount-management",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<DiscountManagementPage />
 			</Suspense>
 		),
 	},

@@ -4,6 +4,7 @@ import { MdKeyboardArrowRight, MdKeyboardArrowUp } from "react-icons/md";
 import { Receipt } from "./receipt";
 import { TbDiscount2 } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
+import { SelectVoucher } from "../../Voucher/components/selectVoucher";
 
 export const ReceiptMobile = ({ subtotal }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -22,17 +23,7 @@ export const ReceiptMobile = ({ subtotal }) => {
         p={3}
         pt={5}
         zIndex={10}>
-            <Flex cursor={'pointer'} border={'2px solid lightgray'} borderRadius={'10px'} p={1} w={'100%'} justifyContent={'space-between'} alignItems={'center'}>
-                <Flex ml={2} gap={3} alignItems={'center'}>
-                    <Icon as={TbDiscount2} w='7' h='7' color={'black'} />
-                    <Text>
-                        {voucher.id ? voucher.name : 'Save more using promos'}
-                    </Text>
-                </Flex>
-                <Flex justifyContent={'center'} alignItems={'center'} p={2} borderLeft={'2px solid lightgray'}>
-                    <Icon as={MdKeyboardArrowRight} w='8' h='8' color={'lightgray'}/>
-                </Flex>
-            </Flex>
+            <SelectVoucher/>
             <Flex w='100%' p={2} alignItems={'center'}>
                 <Stack onClick={onOpen} gap={0} w='50%'>
                     <Text fontSize={'sm'}>

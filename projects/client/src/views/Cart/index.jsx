@@ -48,7 +48,7 @@ export const CartPageView = () => {
             <Stack overflowX={'hidden'} mx={{ base: "20px", md: "50px" }} my={{ base: "30px" }} gap={5}>
                 <CartHeader total={total} />
                 <Grid gap={5} templateColumns={{ base: '1fr', lg: '6fr 3fr'}}>
-                    {subtotal ? (
+                    {total ? (
                         <>
                         <GridItem colSpan={1}>
                             <CartList list={list}/>

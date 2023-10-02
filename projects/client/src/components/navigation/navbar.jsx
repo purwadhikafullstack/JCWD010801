@@ -197,7 +197,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								Shop
 							</Text>
 							<Text
-								onClick={() => navigate("/")}
+								onClick={() => navigate("/voucher")}
 								fontSize={{ base: "sm", lg: "md" }}
 								cursor={"pointer"}
 								fontWeight={"medium"}

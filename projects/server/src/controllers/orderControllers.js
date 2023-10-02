@@ -11,6 +11,10 @@ const stocks = db.Stocks;
 const { Sequelize } = require("sequelize");
 const schedule = require("node-schedule");
 const branches = db.Branches;
+const user_vouchers = db.User_vouchers;
+
+
+const cancelOrderScheduleJob = {}
 
 module.exports = {
 	shipment: async (req, res) => {
@@ -255,8 +259,9 @@ module.exports = {
 		}
 	},
 	order: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
-			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId } = req.body;
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } = req.body;
 			const cartCheckedOut = await carts.findOne({
 				where: {
 					UserId: req.user.id,
@@ -280,7 +285,7 @@ module.exports = {
 				status: "Waiting payment",
 				CartId: cartCheckedOut.id,
 				AddressId: AddressId,
-			});
+			}, transaction);
 			const orderDetailPromises = orderedItems.map(async (item) => {
 				await order_details.create({
 					OrderId: result.id,
@@ -299,6 +304,7 @@ module.exports = {
 							ProductId: item.ProductId,
 							BranchId: cartCheckedOut.BranchId,
 						},
+						transaction
 					}
 				);
 			});
@@ -311,8 +317,48 @@ module.exports = {
 					where: {
 						id: cartCheckedOut.id,
 					},
+					transaction
 				}
 			);
+
+			// Use voucher
+			const filter = {
+                where: {
+                    UserId: req.user.id,
+                    VoucherId
+                },
+				transaction
+            }
+            if (VoucherId) {
+				const voucherCheck = await user_vouchers.findOne(filter);
+				if (!voucherCheck.amount) throw { status: false, message: "You are out of voucher" };
+				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
+			} 
+
+			// Auto cancel order
+			const autoCancelTime = new Date(Date.now() + 300000);
+			schedule.scheduleJob(autoCancelTime, async() => {
+				const ord = await orders.findOne({
+					where: { id: result.id },
+					include: { model: carts }
+				});
+				if (!ord.paymentProof) {
+					await orders.update({ status: "cancelled" }, { where: { id: result.id }, transaction });
+
+					const ord_details = await order_details.findAll({ where: { OrderId: result.id } });
+
+					for (const {ProductId, quantity} of ord_details) {
+						let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
+						await stocks.update({ currentStock: currentStock + quantity }, {
+							where: { ProductId, BranchId: ord.Cart.BranchId },
+							transaction
+						})
+					}
+				}
+			});
+
+            await transaction.commit();
+
 			res.status(200).send({
 				status: true,
 				message:
@@ -320,6 +366,7 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
