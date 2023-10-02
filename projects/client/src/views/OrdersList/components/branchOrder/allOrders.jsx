@@ -5,13 +5,12 @@ import { Badge, Box, Button, Flex, Image, Input, Select, Text } from "@chakra-ui
 import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
-import { ProcessOrder } from "./ModalProcessing/confirmModal";
-import { CancelProcessOrder } from "./ModalProcessing/cancelModal";
-import { DetailProcessModal } from "./ModalProcessing/detailProcessModal";
 
-export const ProcessingOrders = ({ reload, setReload }) => {
+export const AllOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
+	const [status, setStatus] = useState("");
+	const [totalOrders, setTotalOrders] = useState("");
 	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
@@ -47,7 +46,7 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=Processing`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
 				{
 					headers,
 					params: queryParams,
@@ -56,6 +55,7 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
+			setTotalOrders(response.data.count)
 			setReload(true);
 		} catch (error) {
 			console.log(error);
@@ -73,7 +73,7 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 	useEffect(() => {
 		ordersList();
 		fetchBranchData();
-	}, [selectedDate, search, sort, reload]);
+	}, [selectedDate, search, sort, status, reload]);
 	return (
 		<Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
@@ -94,6 +94,24 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 					/>
+					<Select
+						textAlign={"start"}
+						pl={"10px"}
+						w={"140px"}
+						border="1px solid #373433"
+						borderRadius={"20px"}
+						focusBorderColor="#373433"
+						value={status}
+						onChange={(e) => setStatus(e.target.value)}
+					>
+						<option value={""}>Status</option>
+						<option value={"Waiting payment"}>Waiting for payment</option>
+						<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
+						<option value={"Processing"}>Processing</option>
+						<option value={"Sent"}>Sent</option>
+						<option value={"Received"}>Received</option>
+						<option value={"Cancelled"}>Cancelled</option>
+					</Select>
 					<Select
 						w={"105px"}
 						ml={"10px"}
@@ -135,7 +153,6 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
-									pb={"10px"}
 									pl={"20px"}
 									bg={"white"}
 									borderRadius={"8px"}
@@ -215,7 +232,7 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
 														{item.Address.city}, {item.Address.province}
-													</Text>
+													</Text>{" "}
 												</Box>
 											</Flex>
 										</Box>
@@ -237,51 +254,7 @@ export const ProcessingOrders = ({ reload, setReload }) => {
 											</Text>
 										</Flex>
 									</Flex>
-									<Flex justifyContent={"space-between"}>
-										<Flex mt={"10px"} mr={"10px"}>
-											<DetailProcessModal
-												reload={reload}
-												setReload={setReload}
-												orderId={item?.id}
-												paymentProof={item?.paymentProof}
-												created={item?.createdAt}
-												date={item?.updatedAt}
-												status={item?.status}
-												subtotal={item?.subtotal}
-												tax={item?.tax}
-												discount={item?.discount}
-												total={item?.total}
-												shipment={item?.shipment}
-												shipmentMethod={item?.shipmentMethod}
-												etd={item?.etd}
-												label={item?.Address.label}
-												address={item?.Address.address}
-												subdistrict={item?.Address.subdistrict}
-												city={item?.Address.city}
-												province={item?.Address.province}
-												postal_code={item?.Address.postal_code}
-												quantity={item?.Order_details[0]?.quantity}
-												productName={item?.Order_details[0]?.Product.productName}
-												productPhoto={item?.Order_details[0]?.Product.productPhoto}
-												description={item?.Order_details[0]?.Product.description}
-												price={item?.Order_details[0]?.Product.price}
-											/>
-										</Flex>
-										<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}>
-											<ProcessOrder
-												reload={reload}
-												setReload={setReload}
-												orderId={item?.id}
-												imgURL={item?.paymentProof}
-											/>
-											<CancelProcessOrder
-												reload={reload}
-												setReload={setReload}
-												orderId={item?.id}
-												imgURL={item?.paymentProof}
-											/>
-										</Flex>
-									</Flex>
+									<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}></Flex>
 								</Box>
 							);
 						})

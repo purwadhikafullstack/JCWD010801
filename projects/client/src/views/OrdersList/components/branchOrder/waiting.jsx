@@ -6,15 +6,13 @@ import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
 
-export const WaitingOrders = () => {
+export const WaitingOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
-	const [status, setStatus] = useState("");
 	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
-	// const [reload, setReload] = useState(false);
 	const [branches, setBranches] = useState([]);
 	const user = useSelector((state) => state?.user?.value);
 	const token = localStorage.getItem("token");
@@ -31,6 +29,14 @@ export const WaitingOrders = () => {
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
+	const formatRupiah = (number) => {
+		const formatter = new Intl.NumberFormat("id-ID", {
+			style: "currency",
+			currency: "IDR",
+			minimumFractionDigits: 0,
+		});
+		return formatter.format(number);
+	};
 	const ordersList = async (pageNum) => {
 		try {
 			const queryParams = {};
@@ -38,17 +44,16 @@ export const WaitingOrders = () => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=Waiting payment`,
 				{
 					headers,
 					params: queryParams,
 				}
 			);
-			console.log(response.data);
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			// setReload(true);
+			setReload(true);
 		} catch (error) {
 			console.log(error);
 		}
@@ -65,7 +70,7 @@ export const WaitingOrders = () => {
 	useEffect(() => {
 		ordersList();
 		fetchBranchData();
-	}, [selectedDate, search, sort, status]);
+	}, [selectedDate, search, sort, reload]);
 	return (
 		<Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
@@ -76,7 +81,7 @@ export const WaitingOrders = () => {
 					</Text>
 				</Flex>
 				<Flex justifyContent={"center"}>
-					<Input
+					{/* <Input
 						borderRadius={"20px"}
 						border="1px solid #373433"
 						focusBorderColor="#373433"
@@ -85,7 +90,7 @@ export const WaitingOrders = () => {
 						type="search"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
-					/>
+					/> */}
 					<Select
 						w={"105px"}
 						ml={"10px"}
@@ -95,26 +100,8 @@ export const WaitingOrders = () => {
 						value={sort}
 						onChange={(e) => setSort(e.target.value)}
 					>
-						<option value="DESC">Oldest</option>
-						<option value="ASC">Newest</option>
-					</Select>
-					<Select
-						textAlign={"start"}
-						pl={"10px"}
-						w={"140px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={status}
-						onChange={(e) => setStatus(e.target.value)}
-					>
-						<option value={""}>Status</option>
-						<option value={"Waiting payment"}>Waiting for payment</option>
-						<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
-						<option value={"Processing"}>Processing</option>
-						<option value={"Sent"}>Sent</option>
-						<option value={"Received"}>Received</option>
-						<option value={"Cancelled"}>Cancelled</option>
+						<option value="DESC">Newest</option>
+						<option value="ASC">Oldest</option>
 					</Select>
 					<Input
 						borderRadius={"20px"}
@@ -134,9 +121,8 @@ export const WaitingOrders = () => {
 					borderRadius={"10px"}
 					boxShadow="0px 0px 3px gray"
 					mt={"10px"}
-					pb={"10px"}
+					pb={"11px"}
 					ml={"18px"}
-					// maxH={"345px"}
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
@@ -146,7 +132,7 @@ export const WaitingOrders = () => {
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
-									pb={"10px"}
+									pb={"px"}
 									pl={"20px"}
 									bg={"white"}
 									borderRadius={"8px"}
@@ -157,11 +143,17 @@ export const WaitingOrders = () => {
 											Shop
 										</Text>
 										<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-											{new Date(`${item.updatedAt}`).toLocaleDateString("us-us", {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											})}
+											{new Date(`${item.updatedAt}`)
+												.toLocaleDateString("us-us", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+													hour: "numeric",
+													minute: "numeric",
+													second: "numeric",
+													hour12: false,
+												})
+												.replace("at", "|")}
 										</Text>
 										{item.status === "Sent" || item.status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
@@ -202,11 +194,27 @@ export const WaitingOrders = () => {
 															{item.Product.description}
 														</Text>
 														<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-															{item.quantity} Items X Rp. {item.Product.price},00
+															{item.quantity} Items X {formatRupiah(item.Product.price)}
 														</Text>
 													</Box>
 												</Flex>
 											))}
+												<Flex justifyContent={"start"}>
+												<Box>
+													<Text textAlign={"start"} fontSize={"15px"} fontWeight={"semibold"}>
+														{item.Cart.User.firstName} {item.Cart.User.lastName}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"} fontFamily={"serif"}>
+														{item.Cart.User.email}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address.address}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address.city}, {item.Address.province}
+													</Text>
+												</Box>
+											</Flex>
 										</Box>
 										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
 											<Flex textAlign={"end"} ml={"15px"}>
@@ -219,10 +227,10 @@ export const WaitingOrders = () => {
 												Total amount
 											</Text>
 											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												Rp. {item.subtotal},00 - {item.discount}%
+												{formatRupiah(item.subtotal)} - {item.discount}%
 											</Text>
 											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												Rp. {item.total},00
+												{formatRupiah(item.total)}
 											</Text>
 										</Flex>
 									</Flex>

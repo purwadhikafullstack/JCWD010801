@@ -6,20 +6,31 @@ import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
 import { PaymentProofAdmin } from "./paymentProofAdmin";
+import { DetailProcessModal } from "./ModalProcessing/detailProcessModal";
 
-export const PendingOrders = () => {
+export const PendingOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
+	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
-	const [selectedDate, setSelectedDate] = useState("");
 	const [sort, setSort] = useState("DESC");
-	const [reload, setReload] = useState(false);
-	const [status, setStatus] = useState("");
 	const [branches, setBranches] = useState([]);
 	const user = useSelector((state) => state?.user?.value);
 	const token = localStorage.getItem("token");
-	console.log(reload);
+	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
+	const currentBranchName = currentBranchInfo?.name;
+	const headers = {
+		Authorization: `Bearer ${token}`,
+	};
+	const formatRupiah = (number) => {
+		const formatter = new Intl.NumberFormat("id-ID", {
+			style: "currency",
+			currency: "IDR",
+			minimumFractionDigits: 0,
+		});
+		return formatter.format(number);
+	};
 	const fetchBranchData = async () => {
 		try {
 			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
@@ -27,11 +38,6 @@ export const PendingOrders = () => {
 		} catch (error) {
 			console.log(error);
 		}
-	};
-	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
-	const currentBranchName = currentBranchInfo?.name;
-	const headers = {
-		Authorization: `Bearer ${token}`,
 	};
 	const ordersList = async (pageNum) => {
 		try {
@@ -49,7 +55,7 @@ export const PendingOrders = () => {
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			// setReload(true);
+			setReload(true);
 		} catch (error) {
 			console.log(error);
 		}
@@ -66,7 +72,7 @@ export const PendingOrders = () => {
 	useEffect(() => {
 		ordersList(page);
 		fetchBranchData();
-	}, [selectedDate, search, sort, status]);
+	}, [selectedDate, search, sort, reload, page]);
 	return (
 		<Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
@@ -77,7 +83,7 @@ export const PendingOrders = () => {
 					</Text>
 				</Flex>
 				<Flex justifyContent={"center"}>
-					<Input
+					{/* <Input
 						borderRadius={"20px"}
 						border="1px solid #373433"
 						focusBorderColor="#373433"
@@ -86,7 +92,7 @@ export const PendingOrders = () => {
 						type="search"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
-					/>
+					/> */}
 					<Select
 						w={"105px"}
 						ml={"10px"}
@@ -98,24 +104,6 @@ export const PendingOrders = () => {
 					>
 						<option value="DESC">Newest</option>
 						<option value="ASC">Oldest</option>
-					</Select>
-					<Select
-						textAlign={"start"}
-						pl={"10px"}
-						w={"140px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={status}
-						onChange={(e) => setStatus(e.target.value)}
-					>
-						<option value={""}>Status</option>
-						<option value={"Waiting payment"}>Waiting for payment</option>
-						<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
-						<option value={"Processing"}>Processing</option>
-						<option value={"Sent"}>Sent</option>
-						<option value={"Received"}>Received</option>
-						<option value={"Cancelled"}>Cancelled</option>
 					</Select>
 					<Input
 						borderRadius={"20px"}
@@ -137,7 +125,6 @@ export const PendingOrders = () => {
 					mt={"10px"}
 					pb={"10px"}
 					ml={"18px"}
-					// maxH={"345px"}
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
@@ -147,7 +134,7 @@ export const PendingOrders = () => {
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
-									pb={"10px"}
+									pb={"8px"}
 									pl={"20px"}
 									bg={"white"}
 									borderRadius={"8px"}
@@ -158,11 +145,17 @@ export const PendingOrders = () => {
 											Shop
 										</Text>
 										<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-											{new Date(`${item.updatedAt}`).toLocaleDateString("us-us", {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											})}
+											{new Date(`${item.updatedAt}`)
+												.toLocaleDateString("us-us", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+													hour: "numeric",
+													minute: "numeric",
+													second: "numeric",
+													hour12: false,
+												})
+												.replace("at", "|")}
 										</Text>
 										{item.status === "Sent" || item.status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
@@ -203,11 +196,27 @@ export const PendingOrders = () => {
 															{item.Product.description}
 														</Text>
 														<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-															{item.quantity} Items X Rp. {item.Product.price},00
+															{item.quantity} Items X {formatRupiah(item.Product.price)}
 														</Text>
 													</Box>
 												</Flex>
 											))}
+											<Flex justifyContent={"start"}>
+												<Box>
+													<Text textAlign={"start"} fontSize={"15px"} fontWeight={"semibold"}>
+														{item.Cart.User.firstName} {item.Cart.User.lastName}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"} fontFamily={"serif"}>
+														{item.Cart.User.email}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address.address}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address.city}, {item.Address.province}
+													</Text>
+												</Box>
+											</Flex>
 										</Box>
 										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
 											<Flex textAlign={"end"} ml={"15px"}>
@@ -220,20 +229,51 @@ export const PendingOrders = () => {
 												Total amount
 											</Text>
 											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												Rp. {item.subtotal},00 - {item.discount}%
+												{formatRupiah(item.subtotal)} - {item.discount}%
 											</Text>
 											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												Rp. {item.total},00
+												{formatRupiah(item.total)}
 											</Text>
 										</Flex>
 									</Flex>
-									<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}>
-										<PaymentProofAdmin
-											reload={reload}
-											setReload={setReload}
-											orderId={item?.id}
-											imgURL={item?.paymentProof}
-										/>
+									<Flex justifyContent={"space-between"}>
+										<Flex mt={"10px"} mr={"10px"}>
+											<DetailProcessModal
+												reload={reload}
+												setReload={setReload}
+												orderId={item?.id}
+												paymentProof={item?.paymentProof}
+												created={item?.createdAt}
+												date={item?.updatedAt}
+												status={item?.status}
+												subtotal={item?.subtotal}
+												tax={item?.tax}
+												discount={item?.discount}
+												total={item?.total}
+												shipment={item?.shipment}
+												shipmentMethod={item?.shipmentMethod}
+												etd={item?.etd}
+												label={item?.Address.label}
+												address={item?.Address.address}
+												subdistrict={item?.Address.subdistrict}
+												city={item?.Address.city}
+												province={item?.Address.province}
+												postal_code={item?.Address.postal_code}
+												quantity={item?.Order_details[0]?.quantity}
+												productName={item?.Order_details[0]?.Product.productName}
+												productPhoto={item?.Order_details[0]?.Product.productPhoto}
+												description={item?.Order_details[0]?.Product.description}
+												price={item?.Order_details[0]?.Product.price}
+											/>
+										</Flex>
+										<Flex mt={"10px"} mr={"7px"} justifyContent={"end"} alignItems={"center"}>
+											<PaymentProofAdmin
+												reload={reload}
+												setReload={setReload}
+												orderId={item?.id}
+												imgURL={item?.paymentProof}
+											/>
+										</Flex>
 									</Flex>
 								</Box>
 							);

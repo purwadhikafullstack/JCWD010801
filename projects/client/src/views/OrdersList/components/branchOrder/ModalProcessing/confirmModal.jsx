@@ -7,15 +7,12 @@ import {
 	ModalContent,
 	ModalHeader,
 	ModalFooter,
-	ModalBody,
 	ModalCloseButton,
 	useDisclosure,
 	Button,
 } from "@chakra-ui/react";
-import { useState } from "react";
 
-export const ProcessOrder = ({ orderId }) => {
-	const [reload, setReload] = useState(false);
+export const ProcessOrder = ({ reload, setReload, orderId }) => {
 	const token = localStorage.getItem("token");
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const sendOrder = async (id) => {
@@ -40,31 +37,6 @@ export const ProcessOrder = ({ orderId }) => {
 			});
 			setReload(!reload);
 			onClose();
-		} catch (error) {
-			console.log(error);
-		}
-	};
-	const cancelOrder = async (id) => {
-		try {
-			await Axios.patch(
-				`${process.env.REACT_APP_API_BASE_URL}/order/cancel-by-admin/${id}`,
-				{},
-				{
-					headers: { Authorization: `Bearer ${token}` },
-					"content-Type": "Multiple/form-data",
-				}
-			);
-			toast.error("Order canclled", {
-				position: "top-center",
-				autoClose: 4000,
-				hideProgressBar: false,
-				closeOnClick: true,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "dark",
-			});
-			// setReload(!reload);
 		} catch (error) {
 			console.log(error);
 		}

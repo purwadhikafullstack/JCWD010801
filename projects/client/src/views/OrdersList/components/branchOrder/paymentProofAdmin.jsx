@@ -13,27 +13,24 @@ import {
 	Image,
 	Button,
 } from "@chakra-ui/react";
-import { BiUpload } from "react-icons/bi";
+import { HiOutlinePhotograph } from "react-icons/hi";
 import { NoPaymentProof } from "./noPaymentProof";
 
 export const PaymentProofAdmin = ({ imgURL, orderId, reload, setReload }) => {
 	const hasImage = !!imgURL;
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const token = localStorage.getItem("token");
-	console.log(reload);
 	const confirmOrder = async (id) => {
 		try {
-			const response = await Axios.patch(
+			await Axios.patch(
 				`${process.env.REACT_APP_API_BASE_URL}/order/payment-confirm/${id}`,
 				{},
 				{
 					headers: { Authorization: `Bearer ${token}` },
 					"content-Type": "Multiple/form-data",
 				}
-				);
-				console.log(response);
-			// setReload(!reload);
-			console.log(reload);
+			);
+			setReload(!reload);
 			toast.success("Order confirmed", {
 				position: "top-center",
 				autoClose: 4000,
@@ -70,7 +67,7 @@ export const PaymentProofAdmin = ({ imgURL, orderId, reload, setReload }) => {
 				onClick={onOpen}
 			>
 				Payment proof ‎
-				<BiUpload />
+				<HiOutlinePhotograph />
 			</Button>
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
@@ -102,7 +99,7 @@ export const PaymentProofAdmin = ({ imgURL, orderId, reload, setReload }) => {
 							isDisabled={!hasImage}
 							onClick={() => confirmOrder(orderId)}
 						>
-							Confirm Order
+							Process Order
 						</Button>
 						<Button
 							my={"auto"}

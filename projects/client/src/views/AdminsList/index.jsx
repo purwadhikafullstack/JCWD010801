@@ -128,7 +128,7 @@ export const AdminListPage = () => {
 									<>
 										<Box w={"240px"} ml={"25px"} my={"10px"} bg={"#f7f7f9"} borderRadius={"8px"}>
 											<Flex pt={"10px"} pl={"20px"}>
-												<Avatar />
+												<Avatar  src={`${process.env.REACT_APP_BASE_URL}/avatars/${item?.avatar ? item?.avatar : "default_not_set.png"}`} />
 												<Box mt={"5px"}>
 													<Text ml={"10px"} fontWeight={"bold"}>
 														{item.firstName} {item?.lastName}

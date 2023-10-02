@@ -11,6 +11,8 @@ const stocks = db.Stocks;
 const { Sequelize } = require("sequelize");
 const schedule = require("node-schedule");
 const branches = db.Branches;
+const addresses = db.Addresses;
+const users = db.Users;
 
 function generateInvoiceNumber() {
 	const currentDate = new Date();
@@ -228,6 +230,7 @@ module.exports = {
 			const sort = req.query.sort || "DESC";
 			const offset = (page - 1) * limit;
 			const condition = {};
+			const countCondition = {};
 			const whereCondition = {};
 			const branchCondition = {};
 			if (search) {
@@ -251,15 +254,14 @@ module.exports = {
 					[Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }],
 				};
 			}
-			if (branchId) branchCondition["BranchId"] = branchId;
 			const result = await orders.findAll({
+				where: whereCondition,
 				include: [
 					{
 						model: order_details,
 						include: [
 							{
 								model: products,
-								where: condition,
 							},
 						],
 					},
@@ -269,22 +271,62 @@ module.exports = {
 							{
 								model: branches,
 							},
+							{
+								model: users,
+							},
 						],
-						where: branchCondition,
+					},
+					{
+						model: addresses,
 					},
 				],
 				limit,
 				offset,
 				order: [["updatedAt", sort]],
-				where: whereCondition,
 			});
 			const countOrders = await orders.count({
-				where: condition,
+				where: whereCondition,
+			});
+			const waitingOrders = await orders.count({
+				where: {
+					status: "Waiting Payment",
+				},
+			});
+			const pendingOrders = await orders.count({
+				where: {
+					status: "Pending payment confirmation",
+				},
+			});
+			const processingOrders = await orders.count({
+				where: {
+					status: "Processing",
+				},
+			});
+			const sentOrders = await orders.count({
+				where: {
+					status: "Sent",
+				},
+			});
+			const receivedOrders = await orders.count({
+				where: {
+					status: "Received",
+				},
+			});
+			const cancelledOrders = await orders.count({
+				where: {
+					status: "Cancelled",
+				},
 			});
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
 				currentPage: page,
 				countOrders,
+				waitingOrders,
+				pendingOrders,
+				processingOrders,
+				sentOrders,
+				receivedOrders,
+				cancelledOrders,
 				result,
 			});
 		} catch (error) {
@@ -344,7 +386,6 @@ module.exports = {
 				message: "Order updated to 'Sent' successfully",
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,

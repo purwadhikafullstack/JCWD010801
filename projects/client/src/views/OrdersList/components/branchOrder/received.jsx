@@ -18,6 +18,19 @@ export const ConfirmedOrders = () => {
 	const [branches, setBranches] = useState([]);
 	const user = useSelector((state) => state?.user?.value);
 	const token = localStorage.getItem("token");
+	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
+	const currentBranchName = currentBranchInfo?.name;
+	const headers = {
+		Authorization: `Bearer ${token}`,
+	};
+	const formatRupiah = (number) => {
+		const formatter = new Intl.NumberFormat("id-ID", {
+			style: "currency",
+			currency: "IDR",
+			minimumFractionDigits: 0,
+		});
+		return formatter.format(number);
+	};
 	const fetchBranchData = async () => {
 		try {
 			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
@@ -26,11 +39,6 @@ export const ConfirmedOrders = () => {
 			console.log(error);
 		}
 	};
-	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
-	const currentBranchName = currentBranchInfo?.name;
-	const headers = {
-		Authorization: `Bearer ${token}`,
-	};
 	const ordersList = async (pageNum) => {
 		try {
 			const queryParams = {};
@@ -38,7 +46,7 @@ export const ConfirmedOrders = () => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=Confirmed`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=Received`,
 				{
 					headers,
 					params: queryParams,
@@ -97,24 +105,6 @@ export const ConfirmedOrders = () => {
 						<option value="DESC">Newest</option>
 						<option value="ASC">Oldest</option>
 					</Select>
-					<Select
-						textAlign={"start"}
-						pl={"10px"}
-						w={"140px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={status}
-						onChange={(e) => setStatus(e.target.value)}
-					>
-						<option value={""}>Status</option>
-						<option value={"Waiting payment"}>Waiting for payment</option>
-						<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
-						<option value={"Processing"}>Processing</option>
-						<option value={"Sent"}>Sent</option>
-						<option value={"Received"}>Received</option>
-						<option value={"Cancelled"}>Cancelled</option>
-					</Select>
 					<Input
 						borderRadius={"20px"}
 						border="1px solid #373433"
@@ -135,7 +125,6 @@ export const ConfirmedOrders = () => {
 					mt={"10px"}
 					pb={"10px"}
 					ml={"18px"}
-					// maxH={"345px"}
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
@@ -145,7 +134,6 @@ export const ConfirmedOrders = () => {
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
-									pb={"10px"}
 									pl={"20px"}
 									bg={"white"}
 									borderRadius={"8px"}
@@ -156,11 +144,17 @@ export const ConfirmedOrders = () => {
 											Shop
 										</Text>
 										<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-											{new Date(`${item.updatedAt}`).toLocaleDateString("us-us", {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											})}
+											{new Date(`${item.updatedAt}`)
+												.toLocaleDateString("us-us", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+													hour: "numeric",
+													minute: "numeric",
+													second: "numeric",
+													hour12: false,
+												})
+												.replace("at", "|")}
 										</Text>
 										{item.status === "Sent" || item.status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
@@ -201,7 +195,7 @@ export const ConfirmedOrders = () => {
 															{item.Product.description}
 														</Text>
 														<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-															{item.quantity} Items X Rp. {item.Product.price},00
+															{item.quantity} Items X {formatRupiah(item.Product.price)}
 														</Text>
 													</Box>
 												</Flex>
@@ -218,10 +212,10 @@ export const ConfirmedOrders = () => {
 												Total amount
 											</Text>
 											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												Rp. {item.subtotal},00 - {item.discount}%
+												{formatRupiah(item.subtotal)} - {item.discount}%
 											</Text>
 											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												Rp. {item.total},00
+												{formatRupiah(item.total)}
 											</Text>
 										</Flex>
 									</Flex>
