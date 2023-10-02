@@ -204,4 +204,27 @@ module.exports = {
 			});
 		}
 	},
+	findAdminInfo: async (req, res) => {
+		try {
+			const admins = await users.findAll({
+				where: {
+					RoleId: {
+						[Op.gt]: 1,
+					},
+				},
+				attributes: ["id", "username", "RoleId"],
+			});
+
+			res.status(200).send({
+				status: 200,
+				message: "Admin usernames successfully fetched.",
+				admins,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
 };
