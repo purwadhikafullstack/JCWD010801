@@ -578,7 +578,7 @@ const StockReport = () => {
 							) : item.field === "price" ? (
 								`Rp. ${parseInt(item?.oldValue).toLocaleString("id-ID")}`
 							) : item.field === "weight" ? (
-								`${(Number(parseInt(item?.oldValue) / 1000).toFixed(3))} Kg`
+								`${Number(parseInt(item?.oldValue) / 1000).toFixed(3)} Kg`
 							) : item.field === "CategoryId" ? (
 								getCategoryLabel(item?.oldValue)
 							) : (
@@ -759,6 +759,7 @@ const StockReport = () => {
 							setActiveTab(index);
 							setSortBy("createdAt");
 							setSortOrder("ASC");
+							// setSearch("");
 							setPage(1);
 							setDateRange([
 								{
