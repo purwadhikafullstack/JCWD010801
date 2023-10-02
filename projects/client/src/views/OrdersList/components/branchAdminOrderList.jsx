@@ -8,7 +8,7 @@ import { ProcessingOrders } from "./branchOrder/processing";
 import { PendingOrders } from "./branchOrder/pending";
 import { SentOrders } from "./branchOrder/sent";
 import { ConfirmedOrders } from "./branchOrder/received";
-import { CanceledOrders } from "./branchOrder/cancel";
+import { CanceledOrders } from "./branchOrder/cancelByAdmin";
 import { AllOrders } from "./branchOrder/allOrders";
 
 export const BranchAdminOrdersList = () => {
