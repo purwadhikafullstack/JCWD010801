@@ -62,7 +62,7 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 				variant={"ghost"}
 				icon={<MdAddLocationAlt />}
 				onClick={onOpen}
-				title="Set as Main Adrress"
+				title="Set as Main Address"
 			/>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
