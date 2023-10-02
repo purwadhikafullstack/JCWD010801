@@ -18,7 +18,6 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const token = localStorage.getItem("token");
 
-	
 	const handleSubmit = async (id) => {
 		try {
 			const response = await Axios.patch(
@@ -58,7 +57,13 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 
 	return (
 		<>
-			<IconButton size={"md"} variant={"ghost"} icon={<MdAddLocationAlt />} onClick={onOpen} />
+			<IconButton
+				size={"md"}
+				variant={"ghost"}
+				icon={<MdAddLocationAlt />}
+				onClick={onOpen}
+				title="Set as Main Adrress"
+			/>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>

@@ -82,12 +82,7 @@ const EditFirstNameField = () => {
 					<Text flex={1} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
 						{data?.firstName}
 					</Text>
-					<IconButton
-						size="sm"
-						variant="ghost"
-						icon={<EditIcon />}
-						onClick={() => setIsModalOpen(true)}
-					/>
+					<IconButton size="sm" variant="ghost" icon={<EditIcon />} onClick={() => setIsModalOpen(true)} />
 
 					<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
 						<ModalOverlay />
@@ -99,7 +94,7 @@ const EditFirstNameField = () => {
 									<Field name="firstName">
 										{({ field }) => (
 											<FormControl id="firstName">
-												<Input {...field} type="text" />
+												<Input {...field} type="text" focusBorderColor="#373433" />
 												<ErrorMessage name="firstName" component="div" style={{ color: "red" }} />
 											</FormControl>
 										)}
