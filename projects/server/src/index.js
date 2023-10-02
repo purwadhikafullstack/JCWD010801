@@ -15,6 +15,7 @@ const {
 	orderRouters,
 	productReportRouters,
 	branchRouters,
+	reportRouters
 } = require("./routers");
 
 // server.use(
@@ -42,6 +43,8 @@ server.use("/api/cart", cartRouters);
 server.use("/api/order", orderRouters);
 server.use("/api/product-report", productReportRouters);
 server.use("/api/branch", branchRouters);
+server.use('/api/report', reportRouters);
+
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);
