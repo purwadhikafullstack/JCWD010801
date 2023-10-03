@@ -232,7 +232,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 					</Flex>
 					<Flex
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/report/overview"}
 						mb={"20px"}
 						color={"white"}
 						transition="transform 0.5s ease-in-out"

@@ -153,6 +153,10 @@ canvas {
 }
 
 .centered-td {
+  text-align: center;
+}
+
+.centered-content {
   display: flex;
   align-items: center;
   justify-content: center;
