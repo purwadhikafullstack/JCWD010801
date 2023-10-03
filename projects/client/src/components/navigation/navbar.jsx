@@ -6,7 +6,6 @@ import {
 	Flex,
 	Stack,
 	Text,
-	Box,
 	Image,
 	Avatar,
 	Button,
@@ -14,17 +13,11 @@ import {
 	Input,
 	InputGroup,
 	InputLeftElement,
-	Popover,
-	PopoverTrigger,
-	PopoverContent,
-	PopoverHeader,
-	PopoverBody,
 	Menu,
 	MenuList,
 	MenuItem,
 	MenuButton,
 	MenuDivider,
-	Divider,
 	Spacer,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,7 +26,6 @@ import { BsCart, BsPerson } from "react-icons/bs";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdLogout, MdLogin, MdAppRegistration } from "react-icons/md";
 import { LuSearch } from "react-icons/lu";
-import { BsChevronDown } from "react-icons/bs";
 import { CiLocationOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { NavbarMobile } from "./navbarMobile";
@@ -58,8 +50,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const [reload, setReload] = useState(false);
 	const [isSearchFocused, setSearchFocused] = useState(false);
 	const [totalCartItems, setTotalCartItems] = useState(0);
-	const [branches, setBranches] = useState([]);
-	const [branchesShorthand, setBranchesShorthand] = useState([]);
 
 	const fetchData = async () => {
 		try {
@@ -80,20 +70,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 				},
 			});
 			setTotalCartItems(data?.total);
-		} catch (error) {
-			console.log(error);
-		}
-	};
-
-	const fetchBranchData = async () => {
-		try {
-			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
-			const shorthandData = data.map((branch) => ({
-				label: branch.name,
-				value: branch.id,
-			}));
-			setBranches(data);
-			setBranchesShorthand(shorthandData);
 		} catch (error) {
 			console.log(error);
 		}
@@ -120,48 +96,9 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	}, [reload, search]);
 
 	useEffect(() => {
-		fetchBranchData();
-		// eslint-disable-next-line
-	}, []);
-
-	useEffect(() => {
 		fetchCart();
 		// eslint-disable-next-line
 	}, [refresh]);
-
-	const calculateDistance = (lat1, lon1, lat2, lon2) => {
-		const R = 6371;
-		const dLat = (lat2 - lat1) * (Math.PI / 180);
-		const dLon = (lon2 - lon1) * (Math.PI / 180);
-		const a =
-			Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-			Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		const distance = R * c;
-		return distance;
-	};
-
-	const findClosestBranch = (userLat, userLng, branchData) => {
-		let closestBranch = null;
-		let minDistance = Infinity;
-
-		branchData.forEach((branch) => {
-			const branchLat = parseFloat(branch.lat);
-			const branchLng = parseFloat(branch.lng);
-			const distance = calculateDistance(userLat, userLng, branchLat, branchLng);
-
-			if (distance < minDistance) {
-				minDistance = distance;
-				closestBranch = branch;
-			}
-		});
-		return closestBranch;
-	};
-
-	const userLat = parseFloat(localStorage.getItem("lat"));
-	const userLng = parseFloat(localStorage.getItem("lng"));
-	const closestBranch = findClosestBranch(userLat, userLng, branches);
-	localStorage.setItem("BranchId", closestBranch?.id);
 
 	const logout = () => {
 		localStorage.removeItem("token");
@@ -257,53 +194,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							>
 								Voucher
 							</Text>
-							<Popover>
-								<PopoverTrigger>
-									<Flex gap={3} alignItems={"center"}>
-										<Text fontSize={{ base: "sm", lg: "md" }} cursor={"pointer"} fontWeight={"medium"}>
-											Select Branch
-										</Text>
-										<Icon as={BsChevronDown} w={4} h={4} color={"black"} />
-									</Flex>
-								</PopoverTrigger>
-								<PopoverContent>
-									<PopoverHeader justifyContent={"center"} w="100%">
-										<Text textAlign={"center"} fontWeight={"medium"} fontSize={"lg"}>
-											Select Branch Location
-										</Text>
-									</PopoverHeader>
-									<PopoverBody>
-										{branchesShorthand.map((branch) => {
-											const { label, value } = branch;
-											return (
-												<React.Fragment key={value}>
-													<Text
-														textAlign={"center"}
-														as={Box}
-														role={"group"}
-														borderRadius={"md"}
-														p={2}
-														fontWeight={400}
-														color={"gray.500"}
-														_hover={{
-															bgColor: "blackAlpha.100",
-															color: "black",
-															fontWeight: 500,
-															cursor: "pointer",
-														}}
-														onClick={() => {
-															localStorage.setItem("BranchId", value);
-														}}
-													>
-														{label}
-													</Text>
-													{value !== branchesShorthand.length && <Divider size={"xl"} colorScheme="gray" />}
-												</React.Fragment>
-											);
-										})}
-									</PopoverBody>
-								</PopoverContent>
-							</Popover>
 						</Flex>
 						<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
 							<SearchMobile />

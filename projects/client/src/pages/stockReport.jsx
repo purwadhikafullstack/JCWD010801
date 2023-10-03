@@ -53,13 +53,17 @@ import { useNavigate } from "react-router-dom";
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { Pagination } from "../components/navigation/pagination";
-import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
+import { BiSolidChevronsDown, BiSort, BiCategoryAlt } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { sidebarEvent } from "../events/sidebarEvent";
 import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
+import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
+import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
+import { RiScalesLine, RiScalesFill } from "react-icons/ri";
+import { TbCategory2 } from "react-icons/tb";
 
 const StockReport = () => {
 	const navigate = useNavigate();
@@ -157,6 +161,13 @@ const StockReport = () => {
 		}
 	}, [selectedEntryTypes, activeTab]);
 
+	useEffect(() => {
+		if (activeTab === 0) {
+			setSortBy('productName');
+			setSortOrder('ASC');
+		}
+	}, [activeTab]);
+
 	let user = "";
 	if (gender !== null) {
 		if (gender === "Male") {
@@ -232,8 +243,8 @@ const StockReport = () => {
 			});
 	}, [activeTab]);
 
-	const currentBranchInfo = branches.find((branch) => branch.id === adminBranchId);
-	const currentBranchName = currentBranchInfo?.name;
+	const currentBranchInfo = branches.find((branch) => branch.value === adminBranchId);
+	const currentBranchName = currentBranchInfo?.label;
 
 	useEffect(() => {
 		const handleSidebarSizeChange = (newSize) => {
@@ -833,7 +844,7 @@ const StockReport = () => {
 					>
 						<TabList>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -846,7 +857,7 @@ const StockReport = () => {
 								Stock Levels
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -859,7 +870,7 @@ const StockReport = () => {
 								Stock Movements
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -872,7 +883,7 @@ const StockReport = () => {
 								Changelogs
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -882,10 +893,10 @@ const StockReport = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Key Metrics(category top&low aggregate; views)
+								Key Metrics
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -898,8 +909,8 @@ const StockReport = () => {
 								Statistics
 							</Tab>
 						</TabList>
-						{/* //! Stock Movement Tab */}
-						{activeTab === 1 ? (
+						{/* //! Stock Levels Tab */}
+						{activeTab === 0 ? (
 							<Flex
 								w={"1225px"}
 								h={"45px"}
@@ -908,6 +919,356 @@ const StockReport = () => {
 								mb={"2px"}
 								borderBottom={"1px solid #39393C"}
 							>
+								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
+									<Input
+										type="search"
+										value={levelsSearch}
+										mr={"5px"}
+										w={"200px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										placeholder="Enter a Product Name"
+										{...customInputStyle}
+										onChange={(e) => {
+											setPage(1);
+											setLevelsSearch(e.target.value);
+										}}
+									/>
+									<FaSearch
+										size={20}
+										onClick={() => {
+											setPage(1);
+											setReload(!reload);
+										}}
+										style={{ cursor: "pointer" }}
+									/>
+								</Flex>
+								<Flex w={"210px"} h={"45px"} justify="left" align={"center"} fontWeight="bold" ml={"10px"}>
+									<Select
+										placeholder="All Categories"
+										value={selectedCategory.toString()}
+										onChange={(e) => {
+											const selectedValue = parseInt(e.target.value, 10);
+											setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
+											setPage(1);
+											setReload(!reload);
+										}}
+										w={"200px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										{...customSelectStyle}
+									>
+										{categories.map((category) => (
+											<option
+												key={category.value}
+												value={category.value.toString()}
+												style={{
+													backgroundColor: selectedCategory === category.value ? "#F0F0F0" : "#FFFFFF",
+													color: selectedCategory === category.value ? "#18181A" : "#535256",
+													fontWeight: selectedCategory === category.value ? "bold" : "normal",
+													fontSize: "16px",
+													cursor: "pointer",
+												}}
+											>
+												{category.label}
+											</option>
+										))}
+									</Select>
+								</Flex>
+								<Flex
+									w={"625px"}
+									h={"31px"}
+									justify="space-evenly"
+									align="center"
+									fontWeight="bold"
+									ml={"10px"}
+									border={"1px solid black"}
+									borderRadius={"10px"}
+								>
+									<Radio
+										size="sm"
+										isChecked={sortBy === "productName"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("productName");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Alphabetical
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "price"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("price");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Price
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "weight"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("weight");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Weight
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "CategoryId"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("CategoryId");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Categories
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "aggregateStock"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("aggregateStock");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										N.Stock
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "branchStock"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("branchStock");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										B.Stock
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "createdAt"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("createdAt");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Listing Time
+									</Radio>
+								</Flex>
+								<Flex
+									justifyContent={"space-around"}
+									w={"122px"}
+									h={"31px"}
+									ml={"8px"}
+									justify="center"
+									align="center"
+									fontWeight="bold"
+									border={"1px solid black"}
+									borderRadius={"10px"}
+								>
+									{sortBy === "productName" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineSortAscending size={30} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineSortDescending size={30} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "price" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<BsSortNumericDown size={28} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<BsSortNumericUp size={28} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "weight" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<RiScalesLine size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<RiScalesFill size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "CategoryId" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<BiCategoryAlt size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<TbCategory2 size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "aggregateStock" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "branchStock" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "createdAt" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<IoCalendarNumberOutline size={26} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<CiCalendarDate size={32} />
+											</Radio>
+										</>
+									)}
+								</Flex>
+							</Flex>
+						) : activeTab === 1 ? (
+							<Flex
+								w={"1225px"}
+								h={"45px"}
+								align="center"
+								fontWeight="bold"
+								mb={"2px"}
+								borderBottom={"1px solid #39393C"}
+							>
+								{/* //! Stock Movements Tab */}
 								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
 									<Input
 										type={"search"}
@@ -1765,7 +2126,7 @@ const StockReport = () => {
 						</TabPanels>
 					</Tabs>
 					<Box position="absolute" bottom="-20" left="50%" transform="translateX(-50%)">
-						{activeTab === 1 || 2 ? (
+						{activeTab === 0 || activeTab === 1 || activeTab === 2 ? (
 							<Pagination
 								page={page}
 								totalPages={totalPages}
