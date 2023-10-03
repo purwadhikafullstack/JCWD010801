@@ -25,11 +25,11 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 			},
 			lng: {
-				type: DataTypes.FLOAT,
+				type: DataTypes.DECIMAL(10, 6),
 				allowNull: true,
 			},
 			lat: {
-				type: DataTypes.FLOAT,
+				type: DataTypes.DECIMAL(10, 6),
 				allowNull: true,
 			},
 			city_id: DataTypes.STRING,

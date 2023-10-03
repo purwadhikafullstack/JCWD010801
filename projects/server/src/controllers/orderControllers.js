@@ -1,17 +1,18 @@
+const { Op } = require("sequelize");
+const { Sequelize } = require("sequelize");
+const Axios = require("axios");
 const db = require("../models");
+const qs = require("qs");
+const schedule = require("node-schedule");
 const orders = db.Orders;
 const order_details = db.Order_details;
-const { Op } = require("sequelize");
-const Axios = require("axios");
-const qs = require("qs");
 const carts = db.Carts;
 const cartItems = db.Cart_items;
 const products = db.Products;
 const stocks = db.Stocks;
-const { Sequelize } = require("sequelize");
-const schedule = require("node-schedule");
 const branches = db.Branches;
 const addresses = db.Addresses;
+const stockMovements = db.StockMovements;
 
 module.exports = {
 	shipment: async (req, res) => {
@@ -264,11 +265,13 @@ module.exports = {
 					status: "ACTIVE",
 				},
 			});
+
 			const orderedItems = await cartItems.findAll({
 				where: {
 					CartId: cartCheckedOut.id,
 				},
 			});
+
 			const result = await orders.create({
 				shipment,
 				shipmentMethod,
@@ -282,6 +285,7 @@ module.exports = {
 				CartId: cartCheckedOut.id,
 				AddressId: AddressId,
 			});
+
 			const orderDetailPromises = orderedItems.map(async (item) => {
 				await order_details.create({
 					OrderId: result.id,
@@ -290,10 +294,11 @@ module.exports = {
 				});
 			});
 			await Promise.all(orderDetailPromises);
+
 			const stocksPromises = orderedItems.map(async (item) => {
 				await stocks.decrement(
 					{
-						currentStock: item.quantity,
+						currentStock: parseInt(item.quantity),
 					},
 					{
 						where: {
@@ -302,8 +307,29 @@ module.exports = {
 						},
 					}
 				);
+				//! TO BE TESTED
+				const product = products.findOne({
+					where: {
+						id: item.ProductId,
+					},
+				});
+
+				const newStock = parseInt(product.aggregateStock) - parseInt(item.quantity);
+				await stockMovements.create({
+					ProductId: item.id,
+					BranchId: cartCheckedOut.BranchId,
+					oldValue: product.aggregateStock,
+					newValue: newStock,
+					change: -parseInt(item.quantity),
+					isAddition: false,
+					isAdjustment: false,
+					isInitialization: false,
+					isBranchInitialization: false,
+					UserId: req.user.id,
+				});
 			});
 			await Promise.all(stocksPromises);
+
 			await carts.update(
 				{
 					status: "CHECKEDOUT",
@@ -314,6 +340,7 @@ module.exports = {
 					},
 				}
 			);
+
 			res.status(200).send({
 				status: true,
 				message:

@@ -53,13 +53,17 @@ import { useNavigate } from "react-router-dom";
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { Pagination } from "../components/navigation/pagination";
-import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
+import { BiSolidChevronsDown, BiSort, BiCategoryAlt } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { sidebarEvent } from "../events/sidebarEvent";
 import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
+import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
+import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
+import { RiScalesLine, RiScalesFill } from "react-icons/ri";
+import { TbCategory2 } from "react-icons/tb";
 
 const StockReport = () => {
 	const navigate = useNavigate();
@@ -80,7 +84,7 @@ const StockReport = () => {
 	const [movementHistory, setMovementHistory] = useState([]);
 	const [sortBy, setSortBy] = useState("createdAt");
 	const [sortOrder, setSortOrder] = useState("ASC");
-	const itemLimits = [5, 10, 15, 20, 25, 50];
+	const itemLimits = [5, 10, 15, 20, 25, 50, 100];
 	const [itemLimit, setItemLimit] = useState(15);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
@@ -89,9 +93,11 @@ const StockReport = () => {
 	const [sortedData, setSortedData] = useState([]);
 	const [administrators, setAdministrators] = useState([]);
 	const [selectedEntryTypes, setSelectedEntryTypes] = useState([]);
+	const [multipleSelectToggled, setMultipleSelectToggled] = useState(false);
 	//? Changelogs States
 	const [changelogsHistory, setChangelogsHistory] = useState([]);
-	const [selectedChangelogsEntryTypes, setSelectedChangelogsEntryTypes] = useState([]);
+	//? Stock Levels States
+	const [levelsSearch, setLevelsSearch] = useState("");
 
 	const [dateRange, setDateRange] = useState([
 		{
@@ -126,14 +132,41 @@ const StockReport = () => {
 		setPage(1);
 		if (entryType === "Clear Selections (All Entries)") {
 			setSelectedEntryTypes([]);
+			setMultipleSelectToggled(false);
 		} else {
 			if (selectedEntryTypes.includes(entryType)) {
+				setItemLimit(100);
+				setMultipleSelectToggled(true);
 				setSelectedEntryTypes((prev) => prev.filter((selected) => selected !== entryType));
 			} else {
+				setItemLimit(100);
+				setMultipleSelectToggled(true);
 				setSelectedEntryTypes((prev) => [...prev, entryType]);
 			}
 		}
 	};
+
+	useEffect(() => {
+		if (selectedEntryTypes.length === 0) {
+			setMultipleSelectToggled(false);
+		}
+		if (activeTab !== 1) {
+			setMultipleSelectToggled(false);
+		}
+	}, [selectedEntryTypes, activeTab]);
+
+	useEffect(() => {
+		if (activeTab === 1 && selectedEntryTypes.length > 0) {
+			setMultipleSelectToggled(true);
+		}
+	}, [selectedEntryTypes, activeTab]);
+
+	useEffect(() => {
+		if (activeTab === 0) {
+			setSortBy('productName');
+			setSortOrder('ASC');
+		}
+	}, [activeTab]);
 
 	let user = "";
 	if (gender !== null) {
@@ -210,8 +243,8 @@ const StockReport = () => {
 			});
 	}, [activeTab]);
 
-	const currentBranchInfo = branches.find((branch) => branch.id === adminBranchId);
-	const currentBranchName = currentBranchInfo?.name;
+	const currentBranchInfo = branches.find((branch) => branch.value === adminBranchId);
+	const currentBranchName = currentBranchInfo?.label;
 
 	useEffect(() => {
 		const handleSidebarSizeChange = (newSize) => {
@@ -386,15 +419,15 @@ const StockReport = () => {
 		}
 	};
 
-	const handleSearchDebounced = debounce((query) => {
-		setSearch(query);
-		setPage(1);
-	}, 2000);
-
 	const handleSearchChange = (e) => {
 		const query = e.target.value;
 		handleSearchDebounced(query);
 	};
+
+	const handleSearchDebounced = debounce((query) => {
+		setSearch(query);
+		setPage(1);
+	}, 2000);
 
 	const findAdminNameById = (UID) => {
 		const admin = administrators.find((admin) => admin.id === UID);
@@ -556,36 +589,73 @@ const StockReport = () => {
 								: "Bulk Operation: Product Category Change"}
 						</Td>
 						<Td className="centered-td" textAlign={"center"}>
-							{item.oldValue === "initialization" ? (
-								"Initialization Entry"
-							) : item.oldValue === "active" ? (
-								"Active"
-							) : item.oldValue === "deactivated" ? (
-								"Deactivated"
-							) : item.oldValue === "not_deleted" ? (
-								"Not Deleted"
-							) : item.oldValue === "data_not_available" ? (
-								"Old Category Not Recorded"
-							) : startsWith(item.oldValue, "P-IMG") ? (
-								<Image
-									className="thumb-hover-zoom"
-									boxSize={"25px"}
-									borderRadius={"5px"}
-									boxShadow={"1px 2px 3px black"}
-									src={`${process.env.REACT_APP_BASE_URL}/products/${item.oldValue}`}
-									cursor={"pointer"}
-								/>
-							) : item.field === "price" ? (
-								`Rp. ${parseInt(item?.oldValue).toLocaleString("id-ID")}`
-							) : item.field === "weight" ? (
-								`${(Number(parseInt(item?.oldValue) / 1000).toFixed(3))} Kg`
-							) : item.field === "CategoryId" ? (
-								getCategoryLabel(item?.oldValue)
-							) : (
-								item.oldValue
-							)}
+							<div className="centered-content">
+								{item.oldValue === "initialization" ? (
+									"Initialization Entry"
+								) : item.oldValue === "active" ? (
+									"Active"
+								) : item.oldValue === "deactivated" ? (
+									"Deactivated"
+								) : item.oldValue === "not_deleted" ? (
+									"Not Deleted"
+								) : item.oldValue === "data_not_available" ? (
+									"Old Category Not Recorded"
+								) : startsWith(item.oldValue, "P-IMG") ? (
+									<Image
+										className="thumb-hover-zoom"
+										boxSize={"21px"}
+										borderRadius={"5px"}
+										boxShadow={"1px 2px 3px black"}
+										src={`${process.env.REACT_APP_BASE_URL}/products/${item.oldValue}`}
+										cursor={"pointer"}
+									/>
+								) : item.field === "price" ? (
+									`Rp. ${parseInt(item?.oldValue).toLocaleString("id-ID")}`
+								) : item.field === "weight" ? (
+									`${Number(parseInt(item?.oldValue) / 1000).toFixed(3)} Kg`
+								) : item.field === "CategoryId" ? (
+									getCategoryLabel(item?.oldValue)
+								) : item.oldValue.length > 25 ? (
+									`${item.oldValue.slice(0, 25)}...`
+								) : (
+									item.oldValue
+								)}
+							</div>
 						</Td>
-						<Td textAlign={"center"}>{item.newValue}</Td>
+						<Td className="centered-td" textAlign={"center"}>
+							<div className="centered-content">
+								{item.newValue === "initialization" ? (
+									"Initialization Entry"
+								) : item.newValue === "active" ? (
+									"Active"
+								) : item.newValue === "deactivated" ? (
+									"Deactivated"
+								) : item.newValue === "not_deleted" ? (
+									"Not Deleted"
+								) : item.newValue === "data_not_available" ? (
+									"Old Category Not Recorded"
+								) : startsWith(item.newValue, "P-IMG") ? (
+									<Image
+										className="thumb-hover-zoom"
+										boxSize={"21px"}
+										borderRadius={"5px"}
+										boxShadow={"1px 2px 3px black"}
+										src={`${process.env.REACT_APP_BASE_URL}/products/${item.newValue}`}
+										cursor={"pointer"}
+									/>
+								) : item.field === "price" ? (
+									`Rp. ${parseInt(item?.newValue).toLocaleString("id-ID")}`
+								) : item.field === "weight" ? (
+									`${Number(parseInt(item?.newValue) / 1000).toFixed(3)} Kg`
+								) : item.field === "CategoryId" ? (
+									getCategoryLabel(item?.newValue)
+								) : item.newValue.length > 25 ? (
+									`${item.newValue.slice(0, 25)}...`
+								) : (
+									item.newValue
+								)}
+							</div>
+						</Td>
 						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
 						<Td textAlign={"center"}>{formattedDate}</Td>
 						<Td isNumeric>{formattedTime}</Td>
@@ -767,13 +837,14 @@ const StockReport = () => {
 									key: "selection",
 								},
 							]);
+							setSearch("");
 						}}
 						w="1225px"
 						align="left"
 					>
 						<TabList>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -783,10 +854,10 @@ const StockReport = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Stock Analysis(All PIDs)
+								Stock Levels
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -799,7 +870,7 @@ const StockReport = () => {
 								Stock Movements
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -812,7 +883,7 @@ const StockReport = () => {
 								Changelogs
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -822,10 +893,10 @@ const StockReport = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Key Metrics(category top&low aggregate; views)
+								Key Metrics
 							</Tab>
 							<Tab
-								width="15%"
+								width="14%"
 								variant="unstyled"
 								fontWeight={"bold"}
 								sx={{
@@ -838,8 +909,8 @@ const StockReport = () => {
 								Statistics
 							</Tab>
 						</TabList>
-						{/* //! Stock Movement Tab */}
-						{activeTab === 1 ? (
+						{/* //! Stock Levels Tab */}
+						{activeTab === 0 ? (
 							<Flex
 								w={"1225px"}
 								h={"45px"}
@@ -851,6 +922,357 @@ const StockReport = () => {
 								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
 									<Input
 										type="search"
+										value={levelsSearch}
+										mr={"5px"}
+										w={"200px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										placeholder="Enter a Product Name"
+										{...customInputStyle}
+										onChange={(e) => {
+											setPage(1);
+											setLevelsSearch(e.target.value);
+										}}
+									/>
+									<FaSearch
+										size={20}
+										onClick={() => {
+											setPage(1);
+											setReload(!reload);
+										}}
+										style={{ cursor: "pointer" }}
+									/>
+								</Flex>
+								<Flex w={"210px"} h={"45px"} justify="left" align={"center"} fontWeight="bold" ml={"10px"}>
+									<Select
+										placeholder="All Categories"
+										value={selectedCategory.toString()}
+										onChange={(e) => {
+											const selectedValue = parseInt(e.target.value, 10);
+											setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
+											setPage(1);
+											setReload(!reload);
+										}}
+										w={"200px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										{...customSelectStyle}
+									>
+										{categories.map((category) => (
+											<option
+												key={category.value}
+												value={category.value.toString()}
+												style={{
+													backgroundColor: selectedCategory === category.value ? "#F0F0F0" : "#FFFFFF",
+													color: selectedCategory === category.value ? "#18181A" : "#535256",
+													fontWeight: selectedCategory === category.value ? "bold" : "normal",
+													fontSize: "16px",
+													cursor: "pointer",
+												}}
+											>
+												{category.label}
+											</option>
+										))}
+									</Select>
+								</Flex>
+								<Flex
+									w={"625px"}
+									h={"31px"}
+									justify="space-evenly"
+									align="center"
+									fontWeight="bold"
+									ml={"10px"}
+									border={"1px solid black"}
+									borderRadius={"10px"}
+								>
+									<Radio
+										size="sm"
+										isChecked={sortBy === "productName"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("productName");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Alphabetical
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "price"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("price");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Price
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "weight"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("weight");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Weight
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "CategoryId"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("CategoryId");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Categories
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "aggregateStock"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("aggregateStock");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										N.Stock
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "branchStock"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("branchStock");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										B.Stock
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "createdAt"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortBy("createdAt");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										Listing Time
+									</Radio>
+								</Flex>
+								<Flex
+									justifyContent={"space-around"}
+									w={"122px"}
+									h={"31px"}
+									ml={"8px"}
+									justify="center"
+									align="center"
+									fontWeight="bold"
+									border={"1px solid black"}
+									borderRadius={"10px"}
+								>
+									{sortBy === "productName" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineSortAscending size={30} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineSortDescending size={30} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "price" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<BsSortNumericDown size={28} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<BsSortNumericUp size={28} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "weight" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<RiScalesLine size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<RiScalesFill size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "CategoryId" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<BiCategoryAlt size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<TbCategory2 size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "aggregateStock" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "branchStock" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortBy === "createdAt" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "ASC"}
+												onChange={() => {
+													setSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<IoCalendarNumberOutline size={26} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={sortOrder === "DESC"}
+												onChange={() => {
+													setSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<CiCalendarDate size={32} />
+											</Radio>
+										</>
+									)}
+								</Flex>
+							</Flex>
+						) : activeTab === 1 ? (
+							<Flex
+								w={"1225px"}
+								h={"45px"}
+								align="center"
+								fontWeight="bold"
+								mb={"2px"}
+								borderBottom={"1px solid #39393C"}
+							>
+								{/* //! Stock Movements Tab */}
+								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
+									<Input
+										type={"search"}
+										defaultValue={search}
 										mr={"5px"}
 										w={"200px"}
 										h={"30px"}
@@ -908,7 +1330,8 @@ const StockReport = () => {
 										))}
 									</Select>
 									<Select
-										placeholder="Items Per Page"
+										placeholder="Select Number of IPP"
+										value={itemLimit}
 										onChange={(e) => {
 											setItemLimit(parseInt(e.target.value));
 											setPage(1);
@@ -919,6 +1342,8 @@ const StockReport = () => {
 										border={"1px solid gray"}
 										bgColor={"white"}
 										{...customSelectStyle}
+										fontSize={"13px"}
+										isDisabled={multipleSelectToggled}
 									>
 										{itemLimits.map((limit) => (
 											<option
@@ -928,11 +1353,11 @@ const StockReport = () => {
 													backgroundColor: itemLimit === limit ? "#F0F0F0" : "#FFFFFF",
 													color: itemLimit === limit ? "#18181A" : "#535256",
 													fontWeight: itemLimit === limit ? "bold" : "normal",
-													fontSize: "16px",
+													fontSize: "14px",
 													cursor: "pointer",
 												}}
 											>
-												{limit}
+												{limit} Items Per Page
 											</option>
 										))}
 									</Select>
@@ -1005,6 +1430,7 @@ const StockReport = () => {
 											setSortBy("change");
 										}}
 										{...customRadioStyle}
+										isDisabled={multipleSelectToggled}
 									>
 										Change Delta
 									</Radio>
@@ -1017,6 +1443,7 @@ const StockReport = () => {
 											setSortBy("BranchId");
 										}}
 										{...customRadioStyle}
+										isDisabled={multipleSelectToggled}
 									>
 										Branch
 									</Radio>
@@ -1051,6 +1478,7 @@ const StockReport = () => {
 													setSortOrder("DESC");
 												}}
 												{...customRadioStyle}
+												isDisabled={multipleSelectToggled}
 											>
 												<CiCalendarDate size={32} />
 											</Radio>
@@ -1119,6 +1547,7 @@ const StockReport = () => {
 								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
 									<Input
 										type="search"
+										defaultValue={search}
 										mr={"5px"}
 										w={"200px"}
 										h={"30px"}
@@ -1136,26 +1565,23 @@ const StockReport = () => {
 										style={{ cursor: "pointer" }}
 									/>
 								</Flex>
-								<Flex
-									w={"530px"}
-									h={"45px"}
-									justify="left"
-									align={"center"}
-									fontWeight="bold"
-									justifyContent={"space-evenly"}
-								>
+								<Flex w={"530px"} h={"45px"} justify="left" align={"center"} fontWeight="bold">
 									<Select
-										placeholder="Items Per Page"
+										ml={"164px"}
+										placeholder="Select Number of IPP"
+										value={itemLimit}
 										onChange={(e) => {
 											setItemLimit(parseInt(e.target.value));
 											setPage(1);
 											setReload(!reload);
 										}}
-										w={"155px"}
+										w={"156px"}
 										h={"30px"}
 										border={"1px solid gray"}
 										bgColor={"white"}
 										{...customSelectStyle}
+										fontSize={"13px"}
+										isDisabled={multipleSelectToggled}
 									>
 										{itemLimits.map((limit) => (
 											<option
@@ -1165,52 +1591,14 @@ const StockReport = () => {
 													backgroundColor: itemLimit === limit ? "#F0F0F0" : "#FFFFFF",
 													color: itemLimit === limit ? "#18181A" : "#535256",
 													fontWeight: itemLimit === limit ? "bold" : "normal",
-													fontSize: "16px",
+													fontSize: "14px",
 													cursor: "pointer",
 												}}
 											>
-												{limit}
+												{limit} Items Per Page
 											</option>
 										))}
 									</Select>
-									<Menu>
-										<MenuButton
-											as={Button}
-											w="190px"
-											h="30px"
-											border={"1px solid gray"}
-											borderColor="gray"
-											bgColor="white"
-											fontWeight={selectedEntryTypes.length < 2 ? "normal" : "semibold"}
-											fontSize={
-												selectedEntryTypes.includes(entryTypeOptions[1]) && selectedEntryTypes.length === 1
-													? "12px"
-													: "16px"
-											}
-											rightIcon={<BiSolidChevronsDown size={18} />}
-											overflow={"hidden"}
-											textOverflow={"ellipsis"}
-										>
-											{selectedEntryTypes.length === 0
-												? "Select Entry Types"
-												: selectedEntryTypes.length === 1
-												? selectedEntryTypes[0]
-												: selectedEntryTypes.length === 2
-												? "2 Selected"
-												: selectedEntryTypes.length === 3
-												? "3 Selected"
-												: "4 Selected"}
-										</MenuButton>
-										<MenuList>
-											{entryTypeOptions.map((entryType) => (
-												<MenuItem key={entryType} onClick={() => toggleEntryType(entryType)}>
-													<Text fontWeight={selectedEntryTypes.includes(entryType) ? "bold" : "normal"} fontSize="16px">
-														{entryType}
-													</Text>
-												</MenuItem>
-											))}
-										</MenuList>
-									</Menu>
 								</Flex>
 								<Flex
 									w={"325px"}
@@ -1738,7 +2126,7 @@ const StockReport = () => {
 						</TabPanels>
 					</Tabs>
 					<Box position="absolute" bottom="-20" left="50%" transform="translateX(-50%)">
-						{activeTab === 1 || 2 ? (
+						{activeTab === 0 || activeTab === 1 || activeTab === 2 ? (
 							<Pagination
 								page={page}
 								totalPages={totalPages}
