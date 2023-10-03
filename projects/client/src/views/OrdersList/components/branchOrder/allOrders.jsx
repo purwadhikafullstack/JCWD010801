@@ -9,8 +9,8 @@ import { EmptyList } from "../emptyList";
 export const AllOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
+	const [searchName, setSearchName] = useState("");
 	const [status, setStatus] = useState("");
-	const [totalOrders, setTotalOrders] = useState("");
 	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
@@ -46,7 +46,7 @@ export const AllOrders = ({ reload, setReload }) => {
 				queryParams.date = selectedDate;
 			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
 				{
 					headers,
 					params: queryParams,
@@ -55,7 +55,6 @@ export const AllOrders = ({ reload, setReload }) => {
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			setTotalOrders(response.data.count)
 			setReload(true);
 		} catch (error) {
 			console.log(error);
@@ -73,7 +72,7 @@ export const AllOrders = ({ reload, setReload }) => {
 	useEffect(() => {
 		ordersList();
 		fetchBranchData();
-	}, [selectedDate, search, sort, status, reload]);
+	}, [selectedDate, search, searchName, sort, status, reload]);
 	return (
 		<Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
@@ -83,13 +82,26 @@ export const AllOrders = ({ reload, setReload }) => {
 						Alphamart {currentBranchName}
 					</Text>
 				</Flex>
-				<Flex justifyContent={"center"}>
+				<Flex mt={"5px"} justifyContent={"center"}>
 					<Input
 						borderRadius={"20px"}
+						pl={"12px"}
 						border="1px solid #373433"
 						focusBorderColor="#373433"
-						w={"250px"}
-						placeholder="Search"
+						w={"228px"}
+						placeholder="Search by Name or E-mail"
+						type="search"
+						value={searchName}
+						onChange={(e) => setSearchName(e.target.value)}
+					/>
+					<Input
+						borderRadius={"20px"}
+						pl={"12px"}
+						ml={"10px"}
+						border="1px solid #373433"
+						focusBorderColor="#373433"
+						w={"232px"}
+						placeholder="Search by Invoice Number"
 						type="search"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
@@ -264,7 +276,7 @@ export const AllOrders = ({ reload, setReload }) => {
 						</Flex>
 					)}
 				</Box>
-				<Flex mt={"14px"} justifyContent={"center"}>
+				<Flex mt={"10px"} justifyContent={"center"}>
 					<Button
 						backgroundColor={"#000000"}
 						color={"white"}

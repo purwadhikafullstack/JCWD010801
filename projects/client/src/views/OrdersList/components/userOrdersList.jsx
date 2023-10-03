@@ -5,15 +5,25 @@ import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
 
 export const UserOrdersList = () => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
 	const [status, setStatus] = useState("");
-	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
+	const [dateRangeActive, setDateRangeActive] = useState(false);
+	const [selectedDate, setSelectedDate] = useState([
+		{
+			startDate: null,
+			endDate: null,
+			key: "selection",
+		},
+	]);
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -21,8 +31,13 @@ export const UserOrdersList = () => {
 	const ordersList = async (pageNum) => {
 		try {
 			const queryParams = {};
-			if (selectedDate) {
-				queryParams.date = selectedDate;
+			if (selectedDate[0].startDate && selectedDate[0].endDate) {
+			  const startDate = new Date(selectedDate[0].startDate);
+			  startDate.setHours(0, 0, 0, 0);
+			  const endDate = new Date(selectedDate[0].endDate);
+			  endDate.setHours(23, 59, 59, 999);
+			  queryParams.startDate = startDate.toISOString();
+			  queryParams.endDate = endDate.toISOString();
 			}
 			const response = await Axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
@@ -38,6 +53,13 @@ export const UserOrdersList = () => {
 			console.log(error);
 		}
 	};
+	const toggleDateRange = () => {
+		setDateRangeActive(!dateRangeActive);
+	};
+	const handleDateRangeSelect = (ranges) => {
+		setSelectedDate([ranges.selection]);
+		toggleDateRange();
+	  };
 	const prevPage = () => {
 		if (page > 1) ordersList(page - 1);
 	};
@@ -52,6 +74,9 @@ export const UserOrdersList = () => {
 	return (
 		<Box>
 			<Heading>Your orders list</Heading>
+			<Box>
+
+			</Box>
 			<Flex mt={"20px"} justifyContent={"center"}>
 				<Input
 					borderRadius={"20px"}
@@ -93,18 +118,23 @@ export const UserOrdersList = () => {
 					<option value={"Received"}>Received</option>
 					<option value={"Cancelled"}>Cancelled</option>
 				</Select>
-				<Input
-					borderRadius={"20px"}
-					border="1px solid #373433"
-					focusBorderColor="#373433"
-					ml={"10px"}
-					w={"150px"}
-					placeholder="Date"
-					type="date"
-					value={selectedDate}
-					onChange={(e) => setSelectedDate(e.target.value)}
-				/>
 			</Flex>
+				<Flex justifyContent={"center"}
+					// as={Input}
+					// borderRadius={"20px"}
+					// 	border="1px solid #373433"
+					// 	focusBorderColor="#373433"
+					ml={"10px"}
+					// placeholder="Date"
+				>
+					<DateRange
+						editableDateInputs={true}
+						moveRangeOnFirstSelection={false}
+						ranges={selectedDate}
+						onChange={handleDateRangeSelect}
+						rangeColors={["black"]}
+					/>
+				</Flex>
 			{list && list.length > 0 ? (
 				list?.map((item) => {
 					return (
