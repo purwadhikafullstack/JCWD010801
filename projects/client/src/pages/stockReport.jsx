@@ -92,6 +92,7 @@ const StockReport = () => {
 	const [selectedBranch, setSelectedBranch] = useState("");
 	const [sortedData, setSortedData] = useState([]);
 	const [administrators, setAdministrators] = useState([]);
+	const [users, setUsers] = useState([]);
 	const [selectedEntryTypes, setSelectedEntryTypes] = useState([]);
 	const [multipleSelectToggled, setMultipleSelectToggled] = useState(false);
 	//? Changelogs States
@@ -163,8 +164,8 @@ const StockReport = () => {
 
 	useEffect(() => {
 		if (activeTab === 0) {
-			setSortBy('productName');
-			setSortOrder('ASC');
+			setSortBy("productName");
+			setSortOrder("ASC");
 		}
 	}, [activeTab]);
 
@@ -193,12 +194,19 @@ const StockReport = () => {
 	}, [RoleId]);
 
 	useEffect(() => {
-		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/info`)
+		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/infoadmins`)
 			.then((response) => {
 				setAdministrators(response.data.admins);
 			})
 			.catch((error) => {
-				console.error("Error fetching administrators info:", error);
+				console.error("Error fetching random product info:", error);
+			});
+		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/infousers`)
+			.then((response) => {
+				setUsers(response.data.users);
+			})
+			.catch((error) => {
+				console.error("Error fetching users info:", error);
 			});
 		Axios.get(`${process.env.REACT_APP_API_BASE_URL}/branch/?limit=5`, {
 			headers: {
@@ -239,7 +247,7 @@ const StockReport = () => {
 				setPage(1);
 			})
 			.catch((error) => {
-				console.error("Error fetching administrators info:", error);
+				console.error("Error fetching random product info:", error);
 			});
 	}, [activeTab]);
 
@@ -431,7 +439,8 @@ const StockReport = () => {
 
 	const findAdminNameById = (UID) => {
 		const admin = administrators.find((admin) => admin.id === UID);
-		return admin ? admin.username : "Unknown";
+		const user = users.find((user) => user.id === UID);
+		return admin ? admin.username : user ? `${user.username}(Customer)` : "Unknown";
 	};
 
 	const findBranchNameById = (BID) => {
@@ -491,6 +500,8 @@ const StockReport = () => {
 					.getMinutes()
 					.toString()
 					.padStart(2, "0")}:${createdAtDate.getSeconds().toString().padStart(2, "0")}`;
+
+					console.log(item);
 
 				return (
 					<Tr key={item.id}>
@@ -630,8 +641,8 @@ const StockReport = () => {
 									"Active"
 								) : item.newValue === "deactivated" ? (
 									"Deactivated"
-								) : item.newValue === "not_deleted" ? (
-									"Not Deleted"
+								) : item.newValue === "deleted" ? (
+									"Permanently Deleted"
 								) : item.newValue === "data_not_available" ? (
 									"Old Category Not Recorded"
 								) : startsWith(item.newValue, "P-IMG") ? (

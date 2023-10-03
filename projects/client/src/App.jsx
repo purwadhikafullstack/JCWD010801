@@ -9,10 +9,23 @@ import { toast } from "react-toastify";
 
 function App() {
 	const [branches, setBranches] = useState([]);
+	const [address, setAddress] = useState([]);
 	const token = localStorage.getItem("token");
+	const currentBranchId = localStorage.getItem("BranchId");
 	const userLat = parseFloat(localStorage.getItem("lat"));
 	const userLng = parseFloat(localStorage.getItem("lng"));
 	const dispatch = useDispatch();
+
+	const fetchAddress = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address?sort=asc`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			setAddress(response.data.result);
+		} catch (error) {}
+	};
 
 	const fetchBranchData = async () => {
 		try {
@@ -40,6 +53,7 @@ function App() {
 
 	useEffect(() => {
 		fetchBranchData();
+		fetchAddress();
 		// eslint-disable-next-line
 	}, []);
 
@@ -73,8 +87,21 @@ function App() {
 			return closestBranch;
 		};
 		const closestBranch = findClosestBranch(userLat, userLng, branches);
-		closestBranch !== null ? localStorage.setItem("BranchId", closestBranch?.id) : localStorage.setItem("BranchId", 1);
-	}, [userLat, userLng]);
+		if (address.length !== 0) {
+			const filteredBranch = branches.filter(
+				(item) =>
+					address[0].lat <= item.northeast_lat &&
+					address[0].lat >= item.southwest_lat &&
+					address[0].lng <= item.northeast_lng &&
+					address[0].lng >= item.southwest_lng
+			);
+			localStorage.setItem("BranchId", parseInt(filteredBranch[0]?.id));
+		} else {
+			closestBranch !== null
+				? localStorage.setItem("BranchId", closestBranch?.id)
+				: localStorage.setItem("BranchId", 1);
+		}
+	}, [userLat, userLng, address, currentBranchId]);
 
 	useEffect(() => {
 		if (!userLat && !userLng) {
