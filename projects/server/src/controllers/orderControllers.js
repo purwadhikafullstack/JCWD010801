@@ -11,6 +11,7 @@ const stocks = db.Stocks;
 const { Sequelize } = require("sequelize");
 const schedule = require("node-schedule");
 const branches = db.Branches;
+const addresses = db.Addresses;
 
 module.exports = {
 	shipment: async (req, res) => {
@@ -336,130 +337,162 @@ module.exports = {
 				{ where: { id: req.params.id } }
 			);
 
-            res.status(200).send({
-                status: true,
-                message: "Payment proof uploaded"
-            });
+			res.status(200).send({
+				status: true,
+				message: "Payment proof uploaded",
+			});
+		} catch (err) {
+			res.status(400).send(err);
+		}
+	},
+	userCancelOrder: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
+		try {
+			await orders.update({ status: "cancelled" }, { where: { id: req.params.id }, transaction });
+			const ord = await orders.findOne({
+				where: { id: req.params.id },
+				include: { model: carts },
+			});
 
-        } catch (err) {
-            res.status(400).send(err);
-        }
-    },
-    userCancelOrder: async(req, res) => {
-        const transaction = await db.sequelize.transaction();
-        try {
-            await orders.update({ status: "cancelled" }, { where: { id: req.params.id }, transaction });
-            const ord = await orders.findOne({
-                where: { id: req.params.id },
-                include: { model: carts }
-            });
+			const result = await order_details.findAll({ where: { OrderId: req.params.id } });
 
-            const result = await order_details.findAll({ where: { OrderId: req.params.id } });
+			for (const { ProductId, quantity } of result) {
+				let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
+				await stocks.update(
+					{ currentStock: currentStock + quantity },
+					{
+						where: { ProductId, BranchId: ord.Cart.BranchId },
+						transaction,
+					}
+				);
+			}
 
-            for (const {ProductId, quantity} of result) {
-                let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
-                await stocks.update({ currentStock: currentStock + quantity }, {
-                    where: { ProductId, BranchId: ord.Cart.BranchId },
-                    transaction
-                })
-            }
+			await transaction.commit();
 
-            await transaction.commit();
-
-            res.status(200).send({
-                status: true,
-                message: "Order cancelled"
-            });
-
-        } catch (err) {
-            await transaction.rollback();
-            res.status(400).send(err);
-        }
-    },
-    userAutoCancelOrder: async(req, res) => {
+			res.status(200).send({
+				status: true,
+				message: "Order cancelled",
+			});
+		} catch (err) {
+			await transaction.rollback();
+			res.status(400).send(err);
+		}
+	},
+	userAutoCancelOrder: async (req, res) => {
 		const autoCancelTime = new Date(Date.now() + 300000);
-		schedule.scheduleJob(autoCancelTime, async() => {
+		schedule.scheduleJob(autoCancelTime, async () => {
 			const transaction = await db.sequelize.transaction();
 			try {
 				const ord = await orders.findOne({
 					where: { id: req.params.id },
-					include: { model: carts }
+					include: { model: carts },
 				});
-				
+
 				if (!ord.paymentProof) {
 					await orders.update({ status: "cancelled" }, { where: { id: req.params.id }, transaction });
-		
+
 					const result = await order_details.findAll({ where: { OrderId: req.params.id } });
-		
-					for (const {ProductId, quantity} of result) {
-						let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
-						await stocks.update({ currentStock: currentStock + quantity }, {
-							where: { ProductId, BranchId: ord.Cart.BranchId },
-							transaction
-						})
+
+					for (const { ProductId, quantity } of result) {
+						let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
+						await stocks.update(
+							{ currentStock: currentStock + quantity },
+							{
+								where: { ProductId, BranchId: ord.Cart.BranchId },
+								transaction,
+							}
+						);
 					}
-		
+
 					await transaction.commit();
-		
+
 					res.status(200).send({
 						status: true,
-						message: "Order cancelled"
+						message: "Order cancelled",
 					});
 				}
-	
 			} catch (err) {
 				await transaction.rollback();
 				res.status(400).send(err);
 			}
 		});
-    },
-	getLatestId: async(req, res) => {
+	},
+	getLatestId: async (req, res) => {
 		try {
 			const { id } = await orders.findOne({
-				order: [[ Sequelize.col("id"), "DESC" ]]
+				order: [[Sequelize.col("id"), "DESC"]],
 			});
 			res.status(200).send({
 				status: true,
-				latestId: id
-			})
+				latestId: id,
+			});
 		} catch (err) {
 			res.status(400).send(err);
 		}
 	},
-	userConfirmOrder: async(req, res) => {
-        try {
-            await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
+	userConfirmOrder: async (req, res) => {
+		try {
+			await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
 
-            res.status(200).send({
-                status: true,
-                message: "Order confirmed"
-            });
-
-        } catch (err) {
-            res.status(400).send(err);
-        }
-    },
-    userAutoConfirmOrder: async(req, res) => {
+			res.status(200).send({
+				status: true,
+				message: "Order confirmed",
+			});
+		} catch (err) {
+			res.status(400).send(err);
+		}
+	},
+	userAutoConfirmOrder: async (req, res) => {
 		const autoConfirmTime = new Date(Date.now() + 604800000);
-		schedule.scheduleJob(autoConfirmTime, async() => {
+		schedule.scheduleJob(autoConfirmTime, async () => {
 			try {
 				const ord = await orders.findOne({
 					where: { id: req.params.id },
-					include: { model: carts }
+					include: { model: carts },
 				});
-				
+
 				if (ord.status === "Sent") {
 					await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
-		
+
 					res.status(200).send({
 						status: true,
-						message: "Order confirmed"
+						message: "Order confirmed",
 					});
 				}
-	
 			} catch (err) {
 				res.status(400).send(err);
 			}
 		});
-    },
+	},
+	address: async (req, res) => {
+		try {
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+				include: { model: branches },
+			});
+			const userAddress = await addresses.findAll({
+				where: {
+					UserId: req.user.id,
+				},
+			});
+			const result = userAddress.filter(
+				(item) =>
+					item.lat <= cartCheckedOut.Branch.northeast_lat &&
+					item.lat >= cartCheckedOut.Branch.southwest_lat &&
+					item.lng <= cartCheckedOut.Branch.northeast_lng &&
+					item.lng >= cartCheckedOut.Branch.southwest_lng
+			);
+
+			res.status(200).send({
+				status: true,
+				result,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(400).send(error);
+		}
+	},
 };

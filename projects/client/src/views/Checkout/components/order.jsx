@@ -18,6 +18,7 @@ import {
 	MenuDivider,
 	Icon,
 	FormControl,
+	Spinner,
 } from "@chakra-ui/react";
 import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,12 +35,11 @@ function Order() {
 	const [address, setAddress] = useState([]);
 	const [branch, setBranch] = useState({});
 	const [selectedAddress, setSelectedAddress] = useState({});
-	const [dataOngkir, setDataOngkir] = useState({});
+	const [dataOngkir, setDataOngkir] = useState(null);
 	const [item, setItem] = useState([]);
 	const [subTotalItem, setSubTotalItem] = useState([]);
 	const [shipmentFee, setShipmentFee] = useState();
 	const [etd, setEtd] = useState("");
-	const [filteredAddress, setFilteredAddress] = useState([]);
 	const [shipmentMethods, setShipmentMethods] = useState("");
 	const [shipments, setShipments] = useState("");
 	const reduxStore = useSelector((state) => state?.user);
@@ -50,8 +50,6 @@ function Order() {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
-	const getFilterAddress = (address) => address.filter((item) => item.city_id === branch?.city_id);
-
 	const getCartItems = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart/`, {
@@ -59,20 +57,33 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
+			console.log(response);
 			setBranch(response.data.cart.Branch);
 			setItem(response.data.cart_items);
 			setSubTotalItem(response.data.subtotal);
-		} catch (error) {}
+		} catch (error) {
+			toast.warn("Cart is empty", {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			navigate("/search")
+		}
 	};
 
 	const getAddress = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/`, {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/address/`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (response.data.total_addresses === 0) {
+			if (response.data.result.length === 0) {
 				navigate("/profile");
 				toast.warn("You must add your address first, before continue your order", {
 					position: "top-right",
@@ -89,10 +100,6 @@ function Order() {
 			setSelectedAddress(response.data.result[0]);
 		} catch (error) {}
 	};
-
-	useEffect(() => {
-		setFilteredAddress(getFilterAddress(address));
-	}, [address]);
 
 	const totalWeight = item.reduce((total, item) => {
 		return total + item.Product.weight * item.quantity;
@@ -171,12 +178,15 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile");
 
-			await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`, {}, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
+			await Axios.patch(
+				`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`,
+				{},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
 				position: "top-right",
@@ -235,7 +245,7 @@ function Order() {
 												<Text fontSize="xs">Select Address</Text>
 											</MenuButton>
 											<MenuList>
-												{filteredAddress?.map((item, index) => (
+												{address?.map((item, index) => (
 													<Box key={index}>
 														<MenuItem onClick={() => setSelectedAddress(item)}>
 															<Box>
@@ -330,6 +340,7 @@ function Order() {
 													props.setFieldValue("shipment", e.target.value);
 													setShipments(e.target.value);
 													setShipmentMethods("");
+													setDataOngkir(null)
 												}}
 											>
 												<option value="jne">JNE</option>
@@ -340,7 +351,12 @@ function Order() {
 										</FormControl>
 									)}
 								</Field>
-								{shipments ? (
+
+								{shipments && !dataOngkir ? (
+									<Flex justify={"center"}>
+										<Spinner size="lg" color="black" mt={6}/>
+									</Flex>
+								) : shipments && dataOngkir ? (
 									<Field name="shipmentMethod">
 										{({ field }) => (
 											<FormControl>
