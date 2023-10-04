@@ -11,6 +11,7 @@ const cartItems = db.Cart_items;
 const products = db.Products;
 const stocks = db.Stocks;
 const branches = db.Branches;
+const addresses = db.Addresses;
 const stockMovements = db.StockMovements;
 
 module.exports = {
@@ -306,16 +307,26 @@ module.exports = {
 						},
 					}
 				);
-				//! TO BE TESTED
-				const product = products.findOne({
+				
+				const product = await products.findOne({
 					where: {
 						id: item.ProductId,
 					},
 				});
-
+				await product.decrement(
+					{
+						aggregateStock: parseInt(item.quantity),
+					},
+					{
+						where: {
+							id: item.ProductId,
+						},
+					}
+				);
 				const newStock = parseInt(product.aggregateStock) - parseInt(item.quantity);
+
 				await stockMovements.create({
-					ProductId: item.id,
+					ProductId: item.ProductId,
 					BranchId: cartCheckedOut.BranchId,
 					oldValue: product.aggregateStock,
 					newValue: newStock,
@@ -489,5 +500,36 @@ module.exports = {
 				res.status(400).send(err);
 			}
 		});
+	},
+	address: async (req, res) => {
+		try {
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+				include: { model: branches },
+			});
+			const userAddress = await addresses.findAll({
+				where: {
+					UserId: req.user.id,
+				},
+			});
+			const result = userAddress.filter(
+				(item) =>
+					item.lat <= cartCheckedOut.Branch.northeast_lat &&
+					item.lat >= cartCheckedOut.Branch.southwest_lat &&
+					item.lng <= cartCheckedOut.Branch.northeast_lng &&
+					item.lng >= cartCheckedOut.Branch.southwest_lng
+			);
+
+			res.status(200).send({
+				status: true,
+				result,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(400).send(error);
+		}
 	},
 };

@@ -92,12 +92,7 @@ const EditPhoneField = () => {
 					<Text flex={1} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
 						{data?.phone}
 					</Text>
-					<IconButton
-						size="sm"
-						variant="ghost"
-						icon={<EditIcon />}
-						onClick={() => setIsModalOpen(true)}
-					/>
+					<IconButton size="sm" variant="ghost" icon={<EditIcon />} onClick={() => setIsModalOpen(true)} />
 
 					<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
 						<ModalOverlay />
@@ -110,7 +105,7 @@ const EditPhoneField = () => {
 										{({ field }) => (
 											<FormControl id="currentPhone">
 												<FormLabel htmlFor="currentPhone">Current Phone Number</FormLabel>
-												<Input {...field} type="tel" />
+												<Input {...field} type="tel" focusBorderColor="#373433" />
 												<ErrorMessage name="currentPhone" component="div" style={{ color: "red" }} />
 											</FormControl>
 										)}
@@ -119,7 +114,7 @@ const EditPhoneField = () => {
 										{({ field }) => (
 											<FormControl id="phone">
 												<FormLabel htmlFor="phone">New Phone Number</FormLabel>
-												<Input {...field} type="tel" placeholder="New Phone number" />
+												<Input {...field} type="tel" placeholder="New Phone number" focusBorderColor="#373433" />
 												<ErrorMessage name="phone" component="div" style={{ color: "red" }} />
 											</FormControl>
 										)}

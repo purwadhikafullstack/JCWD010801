@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
 			city: DataTypes.STRING,
 			province_id: DataTypes.STRING,
 			province: DataTypes.STRING,
+			northeast_lat: DataTypes.DECIMAL(10, 6),
+			northeast_lng: DataTypes.DECIMAL(10, 6),
+			southwest_lat: DataTypes.DECIMAL(10, 6),
+			southwest_lng: DataTypes.DECIMAL(10, 6),
 		},
 		{
 			sequelize,

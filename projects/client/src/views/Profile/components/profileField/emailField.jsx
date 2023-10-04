@@ -42,7 +42,7 @@ const EditEmailField = () => {
 		try {
 			const response = await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/user/email`, values, { headers });
 			const updatedUser = { ...data, email: values.email };
-			localStorage.removeItem("token")
+			localStorage.removeItem("token");
 			dispatch(setValue(updatedUser));
 			setIsModalOpen(false);
 			toast.success(response.data.message, {
@@ -55,7 +55,7 @@ const EditEmailField = () => {
 				progress: undefined,
 				theme: "dark",
 			});
-			navigate("/login")
+			navigate("/login");
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
 				position: "top-right",
@@ -87,12 +87,7 @@ const EditEmailField = () => {
 					<Text flex={1} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
 						{data?.email}
 					</Text>
-					<IconButton
-						size="sm"
-						variant="ghost"
-						icon={<EditIcon />}
-						onClick={() => setIsModalOpen(true)}
-					/>
+					<IconButton size="sm" variant="ghost" icon={<EditIcon />} onClick={() => setIsModalOpen(true)} />
 
 					<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
 						<ModalOverlay />
@@ -105,7 +100,7 @@ const EditEmailField = () => {
 										{({ field }) => (
 											<FormControl id="currentEmail">
 												<FormLabel htmlFor="currentEmail">Current Email Address</FormLabel>
-												<Input {...field} type="email" />
+												<Input {...field} type="email" focusBorderColor="#373433" />
 												<ErrorMessage name="currentEmail" component="div" style={{ color: "red" }} />
 											</FormControl>
 										)}
@@ -114,7 +109,7 @@ const EditEmailField = () => {
 										{({ field }) => (
 											<FormControl id="email">
 												<FormLabel htmlFor="email">New Email Address</FormLabel>
-												<Input {...field} type="email" placeholder="New Email address" />
+												<Input {...field} type="email" placeholder="New Email address" focusBorderColor="#373433" />
 												<ErrorMessage name="email" component="div" style={{ color: "red" }} />
 											</FormControl>
 										)}
