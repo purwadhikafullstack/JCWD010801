@@ -17,9 +17,6 @@ function App() {
 	const dispatch = useDispatch();
 	const currentBranchId = localStorage.getItem("BranchId");
 	const userFromRedux = useSelector((state) => state.user.value.id);
-	const dataUser = useSelector((state) => state.user.value);
-
-	const isUserExist = () => Object.keys(dataUser).length > 0;
 
 	const fetchAddress = async () => {
 		try {
