@@ -30,7 +30,10 @@ export const SuperAdminDashboardButton = () => {
 								{user.username}
 							</Text>
 						</Box>
-						<Avatar size={"md"} src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar ? user?.avatar : "default_not_set.png"}`} />
+						<Avatar
+							size={"md"}
+							src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar ? user?.avatar : "default_not_set.png"}`}
+						/>
 					</Flex>
 				</Flex>
 				<Flex mt={"30px"} justifyContent={"center"}>

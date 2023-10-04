@@ -465,18 +465,90 @@ module.exports = {
 	cancelOrderByAdmin: async (req, res) => {
 		try {
 			const orderId = req.params.id;
+			const { AID } = req.query;
 			const order = await orders.findOne({ where: { id: orderId } });
+
 			if (!order) {
 				return res.status(404).send({
 					message: "Order not found",
 				});
 			}
+
 			if (order.status !== "Processing") {
 				return res.status(400).send({
 					message: "Order cannot be updated to 'Cancelled'. Current status is not 'Processing'.",
 				});
 			}
+
 			await orders.update({ status: "Cancelled" }, { where: { id: orderId } });
+
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					id: order.CartId,
+					status: "CHECKEDOUT",
+				},
+			});
+
+			const orderedItems = await cartItems.findAll({
+				where: {
+					CartId: order.CartId,
+				},
+			});
+
+			const stocksPromises = orderedItems.map(async (item) => {
+				const product = await products.findOne({
+					where: {
+						id: item.ProductId,
+					},
+				});
+
+				await product.increment(
+					{
+						aggregateStock: parseInt(item.quantity),
+					},
+					{
+						where: {
+							id: item.ProductId,
+						},
+					}
+				);
+
+				const oldBranchStock = await stocks.findOne({
+					where: {
+						ProductId: item.ProductId,
+						BranchId: cartCheckedOut.BranchId,
+					},
+				});
+
+				const newBranchStock = parseInt(oldBranchStock.currentStock) + parseInt(item.quantity);
+
+				await stockMovements.create({
+					ProductId: item.ProductId,
+					BranchId: cartCheckedOut.BranchId,
+					oldValue: oldBranchStock.currentStock,
+					newValue: parseInt(newBranchStock),
+					change: parseInt(item.quantity),
+					isAddition: true,
+					isAdjustment: false,
+					isInitialization: false,
+					isBranchInitialization: false,
+					UserId: AID,
+				});
+
+				await stocks.increment(
+					{
+						currentStock: parseInt(item.quantity),
+					},
+					{
+						where: {
+							ProductId: item.ProductId,
+							BranchId: cartCheckedOut.BranchId,
+						},
+					}
+				);
+			});
+			await Promise.all(stocksPromises);
+
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Cancelled' successfully",
@@ -550,8 +622,8 @@ module.exports = {
 					where: {
 						ProductId: item.ProductId,
 						BranchId: cartCheckedOut.BranchId,
-					}
-				})
+					},
+				});
 
 				const newBranchStock = parseInt(oldBranchStock.currentStock) - parseInt(item.quantity);
 
