@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
 import { store } from "./redux";
 import { theme, colorModeConfig } from "./chakraTheme";
-import { BrowserRouter as Router } from 'react-router-dom';
 
 const LightModeWrapper = ({ children }) => {
 	React.useEffect(() => {
