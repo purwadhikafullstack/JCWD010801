@@ -29,9 +29,7 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 					},
 				}
 			);
-
 			setReload(!reload);
-
 			onClose();
 			toast.success(response.data.message, {
 				position: "top-right",
