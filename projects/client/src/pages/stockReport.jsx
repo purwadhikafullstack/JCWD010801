@@ -44,8 +44,6 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
-	TableCaption,
-	Tfoot,
 	Button,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
@@ -99,6 +97,13 @@ const StockReport = () => {
 	const [changelogsHistory, setChangelogsHistory] = useState([]);
 	//? Stock Levels States
 	const [levelsSearch, setLevelsSearch] = useState("");
+	const [isLevelSearchEmpty, setIsLevelSearchEmpty] = useState(true);
+	const [sortLevelBy, setSortLevelBy] = useState("createdAt");
+	const [levelSortOrder, setLevelSortOrder] = useState("ASC");
+	const [levelEntries, setLevelEntries] = useState([]);
+	const levelItemLimits = [15, 30, 45, 60, 100];
+	const [levelItemLimit, setLevelItemLimit] = useState(30);
+	const [branchSortId, setBranchSortId] = useState(0);
 
 	const [dateRange, setDateRange] = useState([
 		{
@@ -851,6 +856,8 @@ const StockReport = () => {
 									key: "selection",
 								},
 							]);
+							setSelectedBranch("");
+							setSelectedCategory("");
 							setSearch("");
 						}}
 						w="1225px"
@@ -1019,12 +1026,12 @@ const StockReport = () => {
 										isChecked={sortBy === "price"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("price");
+											// setSortBy("price");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Price
+										Nationwide
 									</Radio>
 									<Radio
 										size="sm"
@@ -1032,12 +1039,12 @@ const StockReport = () => {
 										isChecked={sortBy === "weight"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("weight");
+											// setSortBy("weight");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Weight
+										JKT
 									</Radio>
 									<Radio
 										size="sm"
@@ -1045,12 +1052,12 @@ const StockReport = () => {
 										isChecked={sortBy === "CategoryId"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("CategoryId");
+											// setSortBy("CategoryId");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Categories
+										BDG
 									</Radio>
 									<Radio
 										size="sm"
@@ -1058,12 +1065,12 @@ const StockReport = () => {
 										isChecked={sortBy === "aggregateStock"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("aggregateStock");
+											// setSortBy("aggregateStock");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										N.Stock
+										YGY
 									</Radio>
 									<Radio
 										size="sm"
@@ -1071,12 +1078,12 @@ const StockReport = () => {
 										isChecked={sortBy === "branchStock"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("branchStock");
+											// setSortBy("branchStock");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										B.Stock
+										SBY
 									</Radio>
 									<Radio
 										size="sm"
@@ -1084,12 +1091,38 @@ const StockReport = () => {
 										isChecked={sortBy === "createdAt"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("createdAt");
+											// setSortBy("createdAt");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Listing Time
+										BTM
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "createdAt"}
+										borderColor={"gray"}
+										onChange={() => {
+											// setSortBy("createdAt");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										#TX
+									</Radio>
+									<Radio
+										size="sm"
+										ml={"7px"}
+										isChecked={sortBy === "createdAt"}
+										borderColor={"gray"}
+										onChange={() => {
+											// setSortBy("createdAt");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										#Failed
 									</Radio>
 								</Flex>
 								<Flex
@@ -1679,8 +1712,179 @@ const StockReport = () => {
 						{/* //? End of Content Headers */}
 						{/* //? Start of Tab Content */}
 						<TabPanels ml={"-15px"}>
-							{/* //? Stock Analysis Tab Content */}
-							<TabPanel key="stock-analysis">Stock Analysis</TabPanel>
+							{/* //? Stock Levels Tab Content */}
+							<TabPanel key="stock-levels">
+								<Stack h={"1000px"} w={"1225px"} borderRadius={"15px"}>
+									{!isSearchEmpty ? (
+										<TableContainer className="scrollbar-3px" overflowY={"auto"}>
+											<Table size="sm" variant={!isLoading ? "striped" : "unstyled"}>
+												<Thead
+													style={{
+														position: "sticky",
+														top: 0,
+														zIndex: 1,
+														backgroundColor: "#FFFFFF",
+													}}
+												>
+													<Tr>
+														<Th textAlign={"left"}>No.</Th>
+														<Th>
+															<div className="centered-content">
+																Product Name
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Aggregate Stock
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">Category</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Jakarta
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Bandung
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Jogjakarta
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Surabaya
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Batam
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Tx Count
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Failed Tx
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		// setSortBy("change");
+																		setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+													</Tr>
+												</Thead>
+												<Tbody>{renderTableEntries(sortedData, isLoading)}</Tbody>
+											</Table>
+										</TableContainer>
+									) : (
+										<Flex
+											w={"1225px"}
+											h={"300px"}
+											align={"center"}
+											borderTop={"1px ridge grey"}
+											borderBottom={"1px ridge grey"}
+											borderRadius={"10px"}
+										>
+											<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+										</Flex>
+									)}
+								</Stack>
+							</TabPanel>
 							{/* //? Stock Movement Tab Content */}
 							<TabPanel key="stock-movement">
 								<Stack h={"1000px"} w={"1225px"} borderRadius={"15px"}>

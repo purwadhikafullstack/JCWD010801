@@ -431,15 +431,15 @@ module.exports = {
 			if (sortOrder === "ASC") {
 				const paginatedKeys = keys.slice(startIndex, endIndex);
 				for (const key of paginatedKeys) {
-				  paginatedAggregateStockHistory[key] = aggregateStockHistory[key];
+					paginatedAggregateStockHistory[key] = aggregateStockHistory[key];
 				}
-			  } else if (sortOrder === "DESC") {
-				const reversedKeys = keys.slice().reverse(); 
+			} else if (sortOrder === "DESC") {
+				const reversedKeys = keys.slice().reverse();
 				const paginatedReversedKeys = reversedKeys.slice(startIndex, endIndex);
 				for (const key of paginatedReversedKeys) {
-				  paginatedAggregateStockHistory[key] = aggregateStockHistory[key];
+					paginatedAggregateStockHistory[key] = aggregateStockHistory[key];
 				}
-			  }
+			}
 
 			res.status(200).send({
 				status: 200,
@@ -551,6 +551,142 @@ module.exports = {
 				status: 500,
 				message: "Internal server error.",
 				error,
+			});
+		}
+	},
+	getAllStocks: async (req, res) => {
+		try {
+			const {
+				search = "",
+				CategoryId,
+				page = 1,
+				sortBy = "productName",
+				sortOrder = "ASC",
+				BranchId,
+			} = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 30;
+
+			const whereCondition = {
+				productName: { [Op.like]: `%${search}%` },
+			};
+
+			if (CategoryId) {
+				whereCondition.CategoryId = CategoryId;
+			}
+
+			const queriedCount = await products.count({
+				where: whereCondition,
+			});
+
+			let orderCriteria = [];
+
+			if (sortBy === "productName") {
+				orderCriteria.push(["productName", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["aggregateStock", sortOrder]);
+			} else if (sortBy === "createdAt") {
+				orderCriteria.push(["createdAt", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["CategoryId", sortOrder]);
+			} else if (sortBy === "branchStock") {
+				orderCriteria.push([
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id AND stocks.BranchId = ${BranchId})`
+					),
+					sortOrder,
+				]);
+			} else if (sortBy === "txCount") {
+				orderCriteria.push([
+					Sequelize.literal(
+						`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
+                stockMovements.isAddition = false AND
+                stockMovements.isAdjustment = false AND
+                stockMovements.isInitialization = false AND
+                stockMovements.isBranchInitialization = false)`
+					),
+					sortOrder,
+				]);
+			} else if (sortBy === "failedTxCount") {
+				orderCriteria.push([
+					Sequelize.literal(
+						`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
+                stockMovements.isAddition = true AND
+                stockMovements.isAdjustment = false AND
+                stockMovements.isInitialization = false AND
+                stockMovements.isBranchInitialization = false)`
+					),
+					sortOrder,
+				]);
+			} else {
+				orderCriteria.push(["productName", "ASC"]);
+			}
+
+			const tempResult = await products.findAll({
+				where: whereCondition,
+				order: orderCriteria,
+				limit: itemLimit,
+				offset: itemLimit * (page - 1),
+				include: [
+					{
+						model: stocks,
+						required: false,
+					},
+					{
+						model: stockMovements,
+						required: false,
+						attributes: [
+							[
+								Sequelize.literal(
+									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
+								stockMovements.isAddition = false AND
+								stockMovements.isAdjustment = false AND
+								stockMovements.isInitialization = false AND
+								stockMovements.isBranchInitialization = false)`
+								),
+								"txCount",
+							],
+						],
+					},
+					{
+						model: stockMovements,
+						required: false,
+						attributes: [
+							[
+								Sequelize.literal(
+									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
+								stockMovements.isAddition = true AND
+								stockMovements.isAdjustment = false AND
+								stockMovements.isInitialization = false AND
+								stockMovements.isBranchInitialization = false)`
+								),
+								"failedTxCount",
+							],
+						],
+					},
+				],
+			});
+
+			const totalPages = Math.ceil(queriedCount / itemLimit);
+
+			const result = tempResult.map((product) => {
+				return {
+					...product.toJSON(),
+					StockMovements: product.StockMovements[0],
+				};
+			});
+
+			return res.status(200).send({
+				totalProducts: queriedCount,
+				productsPerPage: itemLimit,
+				totalPages,
+				currentPage: page,
+				result,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
 			});
 		}
 	},

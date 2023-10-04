@@ -10,5 +10,6 @@ router.get("/categories/average", productReportControllers.getAverageProductsPer
 router.get("/categories/mostandleast", productReportControllers.mostAndLeast);
 router.get("/categories/statuscounts", productReportControllers.getProductStatusCountsByCategory);
 router.get("/categories/statusaverages", productReportControllers.getProductStatusAverages);
+router.get("/levels", productReportControllers.getAllStocks);
 
 module.exports = router;
