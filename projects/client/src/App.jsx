@@ -9,14 +9,13 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 
 function App() {
-	const [branches, setBranches] = useState([]);
-	const [address, setAddress] = useState([]);
+	const dispatch = useDispatch();
+	const userFromRedux = useSelector((state) => state.user.value.id);
 	const token = localStorage.getItem("token");
 	const userLat = parseFloat(localStorage.getItem("lat"));
 	const userLng = parseFloat(localStorage.getItem("lng"));
-	const dispatch = useDispatch();
-	const currentBranchId = localStorage.getItem("BranchId");
-	const userFromRedux = useSelector((state) => state.user.value.id);
+	const [branches, setBranches] = useState([]);
+	const [address, setAddress] = useState([]);
 
 	const fetchAddress = async () => {
 		try {
@@ -30,14 +29,17 @@ function App() {
 			} else {
 				setAddress([]);
 			}
-		} catch (error) {}
+		} catch (error) {
+			console.log("Error fetching user's main address.");
+		}
 	};
+
 	const fetchBranchData = async () => {
 		try {
 			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
 			setBranches(data);
 		} catch (error) {
-			console.log(error);
+			console.log("Error fetching branch data.");
 		}
 	};
 
@@ -57,7 +59,7 @@ function App() {
 	}
 
 	useEffect(() => {
-		if (branches && userLat && userLng) {
+		if (branches.length > 0) {
 			const calculateDistance = (lat1, lon1, lat2, lon2) => {
 				const R = 6371;
 				const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -86,6 +88,7 @@ function App() {
 				});
 				return closestBranch;
 			};
+
 			const closestBranch = findClosestBranch(userLat, userLng, branches);
 			if (address.length !== 0) {
 				const filteredBranch = branches.filter(
@@ -99,21 +102,23 @@ function App() {
 					localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
 				} else {
 					closestBranch !== null
-						? localStorage.setItem("BranchId", closestBranch?.id)
+						? localStorage.setItem("BranchId", parseInt(closestBranch?.id))
 						: localStorage.setItem("BranchId", 1);
 				}
 			} else {
-				console.log(closestBranch);
 				closestBranch !== null
-					? localStorage.setItem("BranchId", closestBranch?.id)
+					? localStorage.setItem("BranchId", parseInt(closestBranch?.id))
 					: localStorage.setItem("BranchId", 1);
 			}
 		}
-	}, [userLat, userLng, address, currentBranchId]);
+	}, [userLat, userLng, address, branches]);
+
+	useEffect(() => {
+		fetchBranchData();
+	}, []);
 
 	useEffect(() => {
 		fetchAddress();
-		fetchBranchData();
 	}, [userFromRedux]);
 
 	useEffect(() => {
