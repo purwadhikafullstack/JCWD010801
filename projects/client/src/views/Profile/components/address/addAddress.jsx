@@ -69,7 +69,16 @@ const AddAddress = ({ reload, setReload, province, city }) => {
 
 	return (
 		<Formik
-			initialValues={{ label: "", address: "", city_id: "", city: "", province_id: "", province: "", subdistrict:"", postal_code:"" }}
+			initialValues={{
+				label: "",
+				address: "",
+				city_id: "",
+				city: "",
+				province_id: "",
+				province: "",
+				subdistrict: "",
+				postal_code: "",
+			}}
 			validationSchema={validationSchema}
 			onSubmit={(values, actions) => {
 				handleSubmit(values);
@@ -102,7 +111,7 @@ const AddAddress = ({ reload, setReload, province, city }) => {
 										{({ field }) => (
 											<FormControl>
 												<FormLabel htmlFor="label">Label</FormLabel>
-												<Input {...field} type="text" id="label" />
+												<Input {...field} type="text" id="label" focusBorderColor="#373433" />
 												<ErrorMessage style={{ color: "red" }} name="label" component="div" />
 											</FormControl>
 										)}
@@ -111,7 +120,7 @@ const AddAddress = ({ reload, setReload, province, city }) => {
 										{({ field }) => (
 											<FormControl>
 												<FormLabel htmlFor="address">Address</FormLabel>
-												<Input {...field} type="text" id="address" />
+												<Input {...field} type="text" id="address" focusBorderColor="#373433" />
 												<ErrorMessage style={{ color: "red" }} name="address" component="div" />
 											</FormControl>
 										)}
@@ -171,7 +180,7 @@ const AddAddress = ({ reload, setReload, province, city }) => {
 										{({ field }) => (
 											<FormControl>
 												<FormLabel htmlFor="subdistrict">Subdistrict</FormLabel>
-												<Input {...field} type="text" id="subdistrict" />
+												<Input {...field} type="text" id="subdistrict" focusBorderColor="#373433" />
 												<ErrorMessage style={{ color: "red" }} name="subdistrict" component="div" />
 											</FormControl>
 										)}
@@ -180,7 +189,7 @@ const AddAddress = ({ reload, setReload, province, city }) => {
 										{({ field }) => (
 											<FormControl>
 												<FormLabel htmlFor="postal_code">Postal Code</FormLabel>
-												<Input {...field} type="text" id="postal_code" />
+												<Input {...field} type="text" id="postal_code" focusBorderColor="#373433" />
 												<ErrorMessage style={{ color: "red" }} name="postal_code" component="div" />
 											</FormControl>
 										)}

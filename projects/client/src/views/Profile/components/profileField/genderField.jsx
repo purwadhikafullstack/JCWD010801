@@ -94,7 +94,7 @@ const EditGenderField = () => {
 									<Field name="gender">
 										{({ field }) => (
 											<FormControl id="gender">
-												<Select {...field}>
+												<Select {...field} placeholder="Select your gender">
 													<option value="Male">Male</option>
 													<option value="Female">Female</option>
 												</Select>

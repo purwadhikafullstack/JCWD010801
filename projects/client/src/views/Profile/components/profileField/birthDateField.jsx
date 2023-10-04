@@ -86,12 +86,7 @@ const EditBirthDateField = () => {
 					<Text flex={1} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
 						{formatBirthDate(data?.birthDate)}
 					</Text>
-					<IconButton
-						size="sm"
-						variant="ghost"
-						icon={<EditIcon />}
-						onClick={() => setIsModalOpen(true)}
-					/>
+					<IconButton size="sm" variant="ghost" icon={<EditIcon />} onClick={() => setIsModalOpen(true)} />
 
 					<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
 						<ModalOverlay />
@@ -103,7 +98,7 @@ const EditBirthDateField = () => {
 									<Field name="birthDate">
 										{({ field }) => (
 											<FormControl id="birthDate">
-												<Input {...field} type="date" />
+												<Input {...field} type="date" focusBorderColor="#373433" />
 												<ErrorMessage name="birthDate" component="div" style={{ color: "red" }} />
 											</FormControl>
 										)}

@@ -117,21 +117,6 @@ module.exports = {
 			});
 		}
 	},
-
-	getAdmin: async (req, res) => {
-		try {
-			const result = await branches.findAll({
-				where: { id: req.params.id },
-				include: [{ model: users, model: role }],
-			});
-			res.status(200).send(result);
-		} catch (error) {
-			return res.status(500).send({
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
 	getBranches: async (req, res) => {
 		try {
 			const result = await branches.findAll({});
@@ -231,6 +216,30 @@ module.exports = {
 				admins,
 			});
 		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	findUserInfo: async (req, res) => {
+		try {
+			const usersInfo = await users.findAll({
+				where: {
+					RoleId: {
+						[Op.lt]: 2,
+					},
+				},
+				attributes: ["id", "username", "RoleId"],
+			});
+
+			res.status(200).send({
+				status: 200,
+				message: "User usernames successfully fetched.",
+				users: usersInfo,
+			});
+		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
