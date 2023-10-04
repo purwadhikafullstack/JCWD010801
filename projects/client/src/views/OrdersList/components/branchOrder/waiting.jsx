@@ -1,55 +1,44 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
-import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Flex, FormControl, FormLabel, Image, Input, Select, Text } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
-import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "react-icons/ai";
-import { EmptyList } from "./emptyList";
-import { AdminSidebar } from "../../../components/navigation/adminSidebar";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { EmptyList } from "../emptyList";
 
-export const SuperAdminOrdersList = () => {
+export const WaitingOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
-	const [branch, setBranch] = useState();
-	const [search, setSearch] = useState("");
-	const [status, setStatus] = useState("");
-	const [branchId, setBranchId] = useState("");
-	const [selectedDate, setSelectedDate] = useState("");
+	const [searchName, setSearchName] = useState("");
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
-	// const [reload, setReload] = useState(false);
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
+	const formatRupiah = (number) => {
+		const formatter = new Intl.NumberFormat("id-ID", {
+			style: "currency",
+			currency: "IDR",
+			minimumFractionDigits: 0,
+		});
+		return formatter.format(number);
+	};
 	const ordersList = async (pageNum) => {
 		try {
-			const queryParams = {};
-			if (selectedDate) {
-				queryParams.date = selectedDate;
-			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/superadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&branchId=${branchId}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=Waiting payment&startDate=${startDate}&endDate=${endDate}`,
 				{
 					headers,
-					params: queryParams,
 				}
 			);
-			console.log(response.data);
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
-			// setReload(true);
+			setReload(true);
 		} catch (error) {
 			console.log(error);
-		}
-	};
-
-	const getBranches = async () => {
-		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
-			setBranch(response.data);
-		} catch (err) {
-			console.log(err);
 		}
 	};
 
@@ -62,95 +51,93 @@ export const SuperAdminOrdersList = () => {
 		}
 	};
 	useEffect(() => {
-		ordersList(page);
-		getBranches();
-	}, [selectedDate, search, sort, branchId, status]);
+		ordersList();
+	}, [startDate, endDate, searchName, sort, reload]);
 	return (
 		<Flex>
-			<AdminSidebar />
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
-				<Heading ml={"20px"} mt={"20px"}>
-					All orders from all branches
-				</Heading>
-				<Flex mt={"20px"} justifyContent={"center"}>
-					<Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						w={"250px"}
-						placeholder="Search"
-						type="search"
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-					/>
-					<Select
-						w={"105px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={sort}
-						onChange={(e) => setSort(e.target.value)}
-					>
-						<option value="DESC">Newest</option>
-						<option value="ASC">Oldest</option>
-					</Select>
-					<Select
-						w={"115px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={branchId}
-						onChange={(e) => setBranchId(e.target.value)}
-					>
-						<option value="">Branch</option>
-						{branch?.map((item) => {
-							return (
-								<option key={item?.id} value={item?.id}>
-									{item?.name}
-								</option>
-							);
-						})}
-					</Select>
-					<Select
-						textAlign={"start"}
-						pl={"10px"}
-						w={"140px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={status}
-						onChange={(e) => setStatus(e.target.value)}
-					>
-						<option value={""}>Status</option>
-						<option value={"Waiting payment"}>Waiting for payment</option>
-						<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
-						<option value={"Processing"}>Processing</option>
-						<option value={"Sent"}>Sent</option>
-						<option value={"Received"}>Received</option>
-						<option value={"Cancelled"}>Cancelled</option>
-					</Select>
-					<Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						ml={"10px"}
-						w={"150px"}
-						placeholder="Date"
-						type="date"
-						value={selectedDate}
-						onChange={(e) => setSelectedDate(e.target.value)}
-					/>
+				<Flex justifyContent={"center"}>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"10px"}>
+								Search by Name or Email
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								w={"200px"}
+								placeholder="Search"
+								type="search"
+								value={searchName}
+								onChange={(e) => setSearchName(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Sort by
+							</FormLabel>
+							<Select
+								w={"105px"}
+								ml={"10px"}
+								border="1px solid #373433"
+								borderRadius={"20px"}
+								focusBorderColor="#373433"
+								value={sort}
+								onChange={(e) => setSort(e.target.value)}
+							>
+								<option value="DESC">Newest</option>
+								<option value="ASC">Oldest</option>
+							</Select>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Start Date
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								ml={"10px"}
+								w={"150px"}
+								placeholder="Date"
+								type="date"
+								value={startDate}
+								onChange={(e) => setStartDate(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								End Date
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								ml={"10px"}
+								w={"150px"}
+								placeholder="Date"
+								type="date"
+								value={endDate}
+								onChange={(e) => setEndDate(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
 				</Flex>
 				<Box
 					w={"95%"}
+					maxH={"55vh"}
 					borderRadius={"10px"}
 					boxShadow="0px 0px 3px gray"
 					mt={"10px"}
-					pb={"10px"}
+					pb={"11px"}
 					ml={"18px"}
-					maxH={"408px"}
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
@@ -160,7 +147,7 @@ export const SuperAdminOrdersList = () => {
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
-									pb={"10px"}
+									pb={"px"}
 									pl={"20px"}
 									bg={"white"}
 									borderRadius={"8px"}
@@ -171,11 +158,17 @@ export const SuperAdminOrdersList = () => {
 											Shop
 										</Text>
 										<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-											{new Date(`${item.updatedAt}`).toLocaleDateString("us-us", {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											})}
+											{new Date(`${item.updatedAt}`)
+												.toLocaleDateString("us-us", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+													hour: "numeric",
+													minute: "numeric",
+													second: "numeric",
+													hour12: false,
+												})
+												.replace("at", "|")}
 										</Text>
 										{item.status === "Sent" || item.status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
@@ -198,12 +191,6 @@ export const SuperAdminOrdersList = () => {
 											{item.invoice}
 										</Text>
 									</Flex>
-									<Flex mt={"3px"}>
-										<AiOutlineShopping color="blue" size={25} />
-										<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-											Alphamart {item?.Cart?.Branch?.name}
-										</Text>
-									</Flex>
 									<Flex justifyContent={"space-between"}>
 										<Box>
 											{item.Order_details.map((item) => (
@@ -215,18 +202,34 @@ export const SuperAdminOrdersList = () => {
 														src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
 													></Box>
 													<Box>
-														<Text ml={"15px"} fontWeight={"bold"}>
+														<Text textAlign={"start"} ml={"15px"} fontWeight={"bold"}>
 															{item.Product.productName}
 														</Text>
-														<Text ml={"15px"} color={"balck"} fontSize={"11px"}>
+														<Text textAlign={"start"} ml={"15px"} color={"balck"} fontSize={"11px"}>
 															{item.Product.description}
 														</Text>
-														<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-															{item.quantity} Items X Rp. {item.Product.price},00
+														<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
+															{item.quantity} Items X {formatRupiah(item.Product.price)}
 														</Text>
 													</Box>
 												</Flex>
 											))}
+											<Flex justifyContent={"start"}>
+												<Box>
+													<Text textAlign={"start"} fontSize={"15px"} fontWeight={"semibold"}>
+														{item.Cart.User.firstName} {item.Cart.User.lastName}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"} fontFamily={"serif"}>
+														{item.Cart.User.email}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address.address}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address.city}, {item.Address.province}
+													</Text>
+												</Box>
+											</Flex>
 										</Box>
 										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
 											<Flex textAlign={"end"} ml={"15px"}>
@@ -235,17 +238,23 @@ export const SuperAdminOrdersList = () => {
 													{item.shipment} - {item.shipmentMethod}
 												</Text>
 											</Flex>
+											{item.status !== "Cancelled" ? (
+												<Text textAlign={"end"} ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+													Esitame time: {item.etd}
+												</Text>
+											) : null}
 											<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>
 											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												Rp. {item.subtotal},00 - {item.discount}%
+												{formatRupiah(item.subtotal)} - {item.discount}%
 											</Text>
 											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												Rp. {item.total},00
+												{formatRupiah(item.total)}
 											</Text>
 										</Flex>
 									</Flex>
+									<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}></Flex>
 								</Box>
 							);
 						})
@@ -255,7 +264,7 @@ export const SuperAdminOrdersList = () => {
 						</Flex>
 					)}
 				</Box>
-				<Flex mt={"20px"} justifyContent={"center"}>
+				<Flex mt={"14px"} justifyContent={"center"}>
 					<Button
 						backgroundColor={"#000000"}
 						color={"white"}

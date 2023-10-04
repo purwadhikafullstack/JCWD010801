@@ -15,6 +15,9 @@ router.patch("/cancel/:id", verifyToken, checkUser, orderControllers.userCancelO
 router.patch("/expire/:id", verifyToken, checkUser, orderControllers.userAutoCancelOrder);
 router.patch("/user-confirm/:id", verifyToken, checkUser, orderControllers.userConfirmOrder);
 router.patch("/auto-confirm/:id", verifyToken, checkUser, orderControllers.userAutoConfirmOrder);
+router.patch("/send/:id", verifyToken, orderControllers.processingToSent);
+router.patch("/payment-confirm/:id", verifyToken, orderControllers.paymentConfirmation);
+router.patch("/cancel-by-admin/:id", verifyToken, orderControllers.cancelOrderByAdmin);
 
 
 module.exports = router;
