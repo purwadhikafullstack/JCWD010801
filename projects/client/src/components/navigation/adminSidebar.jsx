@@ -25,7 +25,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 
 	const logout = () => {
 		localStorage.removeItem("token");
-		toast.error("You have successfully logged out.", {
+		toast.success("You have successfully logged out.", {
 			position: "top-right",
 			autoClose: 4000,
 			hideProgressBar: false,

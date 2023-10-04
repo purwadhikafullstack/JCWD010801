@@ -13,6 +13,9 @@ import { useEffect, useState } from "react";
 export const BranchAdminDashboardButton = () => {
 	const [branches, setBranches] = useState([]);
 	const user = useSelector((state) => state?.user?.value);
+	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
+	const currentBranchName = currentBranchInfo?.name;
+
 	const fetchBranchData = async () => {
 		try {
 			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
@@ -21,16 +24,15 @@ export const BranchAdminDashboardButton = () => {
 			console.log(error);
 		}
 	};
-	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
-	const currentBranchName = currentBranchInfo?.name;
 
 	useEffect(() => {
 		fetchBranchData();
-	});
+	}, []);
+
 	return (
 		<Flex>
 			<LayoutSidebar />
-			<Flex justifyContent={"center"}  direction={"column"} w={"full"}>
+			<Flex justifyContent={"center"} direction={"column"} w={"full"}>
 				<Flex ml={"80px"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
@@ -47,7 +49,10 @@ export const BranchAdminDashboardButton = () => {
 								{user.username}
 							</Text>
 						</Box>
-						<Avatar size={"md"} src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar ? user?.avatar : "default_not_set.png"}`} />
+						<Avatar
+							size={"md"}
+							src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar ? user?.avatar : "default_not_set.png"}`}
+						/>
 					</Flex>
 				</Flex>
 				<Flex mt={"30px"} justifyContent={"center"}>
@@ -140,7 +145,7 @@ export const BranchAdminDashboardButton = () => {
 								Order List
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={"12px"}>
-								Orders for AlphaMart {currentBranchName} Branch 
+								Orders for AlphaMart {currentBranchName} Branch
 							</Text>
 						</Flex>
 						<Flex mt={"60px"} mr={"15px"} justifyContent={"end"}>
