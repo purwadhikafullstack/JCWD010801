@@ -1,6 +1,7 @@
 import Axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 import {
 	Modal,
 	ModalOverlay,
@@ -14,11 +15,13 @@ import {
 
 export const CancelProcessOrder = ({ reload, setReload, orderId }) => {
 	const token = localStorage.getItem("token");
+	const AID = useSelector((state) => state?.user?.value?.id);
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	const cancelOrder = async (id) => {
 		try {
 			await Axios.patch(
-				`${process.env.REACT_APP_API_BASE_URL}/order/cancel-by-admin/${id}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/cancel-by-admin/${id}?AID=${AID}`,
 				{},
 				{
 					headers: { Authorization: `Bearer ${token}` },
@@ -41,6 +44,7 @@ export const CancelProcessOrder = ({ reload, setReload, orderId }) => {
 			console.log(error);
 		}
 	};
+
 	return (
 		<>
 			<Button
