@@ -106,7 +106,12 @@ const ChangePassword = () => {
 											<FormControl mt={4}>
 												<FormLabel htmlFor="currentPassword">Current Password</FormLabel>
 												<InputGroup>
-													<Input {...field} type={showCurrentPassword ? "text" : "password"} id="currentPassword" />
+													<Input
+														{...field}
+														type={showCurrentPassword ? "text" : "password"}
+														id="currentPassword"
+														focusBorderColor="#373433"
+													/>
 													<InputRightElement>
 														<IconButton
 															variant={"ghost"}
@@ -124,7 +129,12 @@ const ChangePassword = () => {
 											<FormControl mt={4}>
 												<FormLabel htmlFor="password">New Password</FormLabel>
 												<InputGroup>
-													<Input {...field} type={showNewPassword ? "text" : "password"} id="password" />
+													<Input
+														{...field}
+														type={showNewPassword ? "text" : "password"}
+														id="password"
+														focusBorderColor="#373433"
+													/>
 													<InputRightElement>
 														<IconButton
 															variant={"ghost"}
@@ -142,7 +152,12 @@ const ChangePassword = () => {
 											<FormControl mt={4}>
 												<FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
 												<InputGroup>
-													<Input {...field} type={showConfirmPassword ? "text" : "password"} id="confirmPassword" />
+													<Input
+														{...field}
+														type={showConfirmPassword ? "text" : "password"}
+														id="confirmPassword"
+														focusBorderColor="#373433"
+													/>
 													<InputRightElement>
 														<IconButton
 															variant={"ghost"}

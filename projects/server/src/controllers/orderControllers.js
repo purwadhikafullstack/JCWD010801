@@ -11,6 +11,7 @@ const cartItems = db.Cart_items;
 const products = db.Products;
 const stocks = db.Stocks;
 const branches = db.Branches;
+const addresses = db.Addresses;
 const stockMovements = db.StockMovements;
 
 module.exports = {
@@ -306,7 +307,7 @@ module.exports = {
 						},
 					}
 				);
-
+				
 				const product = await products.findOne({
 					where: {
 						id: item.ProductId,
@@ -378,7 +379,11 @@ module.exports = {
 				message: "Payment proof uploaded",
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userCancelOrder: async (req, res) => {
@@ -411,7 +416,11 @@ module.exports = {
 			});
 		} catch (err) {
 			await transaction.rollback();
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userAutoCancelOrder: async (req, res) => {
@@ -449,7 +458,11 @@ module.exports = {
 				}
 			} catch (err) {
 				await transaction.rollback();
-				res.status(400).send(err);
+				return res.status(500).send({
+					err,
+					status: 500,
+					message: "Internal server error.",
+				});
 			}
 		});
 	},
@@ -463,7 +476,11 @@ module.exports = {
 				latestId: id,
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userConfirmOrder: async (req, res) => {
@@ -475,7 +492,11 @@ module.exports = {
 				message: "Order confirmed",
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userAutoConfirmOrder: async (req, res) => {
@@ -496,8 +517,46 @@ module.exports = {
 					});
 				}
 			} catch (err) {
-				res.status(400).send(err);
+				return res.status(500).send({
+					err,
+					status: 500,
+					message: "Internal server error.",
+				});
 			}
 		});
+	},
+	address: async (req, res) => {
+		try {
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+				include: { model: branches },
+			});
+			const userAddress = await addresses.findAll({
+				where: {
+					UserId: req.user.id,
+				},
+			});
+			const result = userAddress.filter(
+				(item) =>
+					item.lat <= cartCheckedOut.Branch.northeast_lat &&
+					item.lat >= cartCheckedOut.Branch.southwest_lat &&
+					item.lng <= cartCheckedOut.Branch.northeast_lng &&
+					item.lng >= cartCheckedOut.Branch.southwest_lng
+			);
+
+			res.status(200).send({
+				status: true,
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
 	},
 };
