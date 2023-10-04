@@ -501,8 +501,6 @@ const StockReport = () => {
 					.toString()
 					.padStart(2, "0")}:${createdAtDate.getSeconds().toString().padStart(2, "0")}`;
 
-					console.log(item);
-
 				return (
 					<Tr key={item.id}>
 						<Td textAlign={"left"}>{index + 1}</Td>
