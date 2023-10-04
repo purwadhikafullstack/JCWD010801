@@ -17,6 +17,17 @@ const AddressesTab = () => {
 	const [reload, setReload] = useState(0);
 	const [province, setProvince] = useState([]);
 	const [city, setCity] = useState([]);
+	const [branches, setBranches] = useState([]);
+
+	const fetchBranchData = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(response.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	const getAddress = async () => {
 		try {
 			const response = await Axios.get(
@@ -31,7 +42,7 @@ const AddressesTab = () => {
 			setTotalPage(response.data.totalPage);
 		} catch (error) {}
 	};
-	
+
 	const getProvince = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/province`);
@@ -76,6 +87,22 @@ const AddressesTab = () => {
 			setPage(totalPage);
 		}
 	}, [reload, search, page, totalPage]);
+	useEffect(() => {
+		fetchBranchData();
+		if (data.length !== 0 && branches.length !== 0) {
+			const filteredBranch = branches.filter(
+				(item) =>
+					data[0].lat <= item.northeast_lat &&
+					data[0].lat >= item.southwest_lat &&
+					data[0].lng <= item.northeast_lng &&
+					data[0].lng >= item.southwest_lng
+			);
+
+			if (filteredBranch.length > 0) {
+				localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
+			}
+		}
+	}, [data]);
 
 	const handleSearchChange = (event) => {
 		setSearch(event.target.value);
@@ -129,7 +156,7 @@ const AddressesTab = () => {
 								Main
 							</Badge>
 						) : (
-							<MainAddressButton id={value?.id} reload={reload} setReload={setReload} />
+							<MainAddressButton id={value?.id} reload={reload} setReload={setReload} data={data} />
 						)}
 					</Flex>
 					<Grid templateColumns="max-content 1fr" gap={2}>

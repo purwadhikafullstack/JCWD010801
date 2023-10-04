@@ -307,16 +307,26 @@ module.exports = {
 						},
 					}
 				);
-				//! TO BE TESTED
-				const product = products.findOne({
+				
+				const product = await products.findOne({
 					where: {
 						id: item.ProductId,
 					},
 				});
-
+				await product.decrement(
+					{
+						aggregateStock: parseInt(item.quantity),
+					},
+					{
+						where: {
+							id: item.ProductId,
+						},
+					}
+				);
 				const newStock = parseInt(product.aggregateStock) - parseInt(item.quantity);
+
 				await stockMovements.create({
-					ProductId: item.id,
+					ProductId: item.ProductId,
 					BranchId: cartCheckedOut.BranchId,
 					oldValue: product.aggregateStock,
 					newValue: newStock,

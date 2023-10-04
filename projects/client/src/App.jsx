@@ -6,14 +6,33 @@ import { useDispatch } from "react-redux";
 import { setValue } from "./redux/userSlice";
 import { AppRouter } from "./routes/index";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 function App() {
 	const [branches, setBranches] = useState([]);
+	const [address, setAddress] = useState([]);
 	const token = localStorage.getItem("token");
 	const userLat = parseFloat(localStorage.getItem("lat"));
 	const userLng = parseFloat(localStorage.getItem("lng"));
 	const dispatch = useDispatch();
+	const currentBranchId = localStorage.getItem("BranchId");
+	const userFromRedux = useSelector((state) => state.user.value.id);
+	const dataUser = useSelector((state) => state.user.value);
 
+	const isUserExist = () => Object.keys(dataUser).length > 0;
+
+	const fetchAddress = async () => {
+		try {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address?sort=asc`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			setAddress(response.data.result);
+		} catch (error) {
+			setAddress([]);
+		}
+	};
 	const fetchBranchData = async () => {
 		try {
 			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
@@ -37,11 +56,6 @@ function App() {
 	} else {
 		console.log("Geolocation isn't supported in this device.");
 	}
-
-	useEffect(() => {
-		fetchBranchData();
-		// eslint-disable-next-line
-	}, []);
 
 	useEffect(() => {
 		const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -73,8 +87,32 @@ function App() {
 			return closestBranch;
 		};
 		const closestBranch = findClosestBranch(userLat, userLng, branches);
-		closestBranch !== null ? localStorage.setItem("BranchId", closestBranch?.id) : localStorage.setItem("BranchId", 1);
-	}, [userLat, userLng]);
+		if (address.length !== 0) {
+			const filteredBranch = branches.filter(
+				(item) =>
+					address[0].lat <= item.northeast_lat &&
+					address[0].lat >= item.southwest_lat &&
+					address[0].lng <= item.northeast_lng &&
+					address[0].lng >= item.southwest_lng
+			);
+			if (filteredBranch.length > 0) {
+				localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
+			} else {
+				closestBranch !== null
+					? localStorage.setItem("BranchId", closestBranch?.id)
+					: localStorage.setItem("BranchId", 1);
+			}
+		} else {
+			closestBranch !== null
+				? localStorage.setItem("BranchId", closestBranch?.id)
+				: localStorage.setItem("BranchId", 1);
+		}
+	}, [userLat, userLng, address, currentBranchId]);
+
+	useEffect(() => {
+		fetchAddress();
+		fetchBranchData();
+	}, [userFromRedux]);
 
 	useEffect(() => {
 		if (!userLat && !userLng) {

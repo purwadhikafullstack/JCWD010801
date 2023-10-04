@@ -57,7 +57,19 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			console.log(response);
+			if (response.data.cart_items.length === 0) {
+				toast.warn("Cart is empty", {
+					position: "top-right",
+					autoClose: 5000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+				navigate("/search");
+			}
 			setBranch(response.data.cart.Branch);
 			setItem(response.data.cart_items);
 			setSubTotalItem(response.data.subtotal);
@@ -72,7 +84,7 @@ function Order() {
 				progress: undefined,
 				theme: "dark",
 			});
-			navigate("/search")
+			navigate("/search");
 		}
 	};
 
@@ -84,7 +96,7 @@ function Order() {
 				},
 			});
 			if (response.data.result.length === 0) {
-				navigate("/profile");
+				navigate("/profile#addresses");
 				toast.warn("You must add your address first, before continue your order", {
 					position: "top-right",
 					autoClose: 5000,
@@ -176,7 +188,7 @@ function Order() {
 			});
 
 			dispatch(refreshCart());
-			navigate("/profile");
+			navigate("/profile#orders");
 
 			await Axios.patch(
 				`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`,
@@ -340,7 +352,7 @@ function Order() {
 													props.setFieldValue("shipment", e.target.value);
 													setShipments(e.target.value);
 													setShipmentMethods("");
-													setDataOngkir(null)
+													setDataOngkir(null);
 												}}
 											>
 												<option value="jne">JNE</option>
@@ -354,7 +366,7 @@ function Order() {
 
 								{shipments && !dataOngkir ? (
 									<Flex justify={"center"}>
-										<Spinner size="lg" color="black" mt={6}/>
+										<Spinner size="lg" color="black" mt={6} />
 									</Flex>
 								) : shipments && dataOngkir ? (
 									<Field name="shipmentMethod">
