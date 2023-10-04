@@ -63,6 +63,16 @@ module.exports = {
 			if (search) {
 				condition[Op.or] = [
 					{
+						email: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+					{
+						phone: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+					{
 						username: {
 							[Op.like]: `%${search}%`,
 						},

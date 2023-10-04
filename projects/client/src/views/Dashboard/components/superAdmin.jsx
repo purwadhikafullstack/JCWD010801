@@ -13,7 +13,7 @@ export const SuperAdminDashboardButton = () => {
 	return (
 		<Flex>
 			<LayoutSidebar />
-			<Box w={"full"} pt={"30px"} direction={"column"}>
+			<Flex justifyContent={"center"} w={"full"} pt={"30px"} direction={"column"}>
 				<Flex ml={"7%"} justifyContent={"space-between"}>
 					<Box>
 						<Text fontSize={"30px"} fontWeight={"bold"}>
@@ -30,7 +30,7 @@ export const SuperAdminDashboardButton = () => {
 								{user.username}
 							</Text>
 						</Box>
-						<Avatar size={"md"} src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar}`} />
+						<Avatar size={"md"} src={`${process.env.REACT_APP_BASE_URL}/avatars/${user?.avatar ? user?.avatar : "default_not_set.png"}`} />
 					</Flex>
 				</Flex>
 				<Flex mt={"30px"} justifyContent={"center"}>
@@ -179,7 +179,7 @@ export const SuperAdminDashboardButton = () => {
 						</Flex>
 					</Box>
 				</Flex>
-			</Box>
+			</Flex>
 		</Flex>
 	);
 };
