@@ -319,7 +319,6 @@ module.exports = {
 					[Op.lte]: endOfDay,
 				};
 			}
-			const userBranchId = req.user.branchId;
 			const result = await orders.findAll({
 				where: whereCondition,
 				include: [
@@ -384,17 +383,18 @@ module.exports = {
 					status: "Cancelled",
 				},
 			});
+			const filteredResult = result.filter((item) => item.Cart.BranchId === req.user.BranchId);
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
 				currentPage: page,
 				countOrders,
-				waitingOrders,
-				pendingOrders,
-				processingOrders,
-				sentOrders,
-				receivedOrders,
-				cancelledOrders,
-				result,
+				// waitingOrders,
+				// pendingOrders,
+				// processingOrders,
+				// sentOrders,
+				// receivedOrders,
+				// cancelledOrders,
+				result: filteredResult,
 			});
 		} catch (error) {
 			console.log(error);
