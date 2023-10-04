@@ -117,7 +117,6 @@ module.exports = {
 				currentPage: page,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -379,7 +378,11 @@ module.exports = {
 				message: "Payment proof uploaded",
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userCancelOrder: async (req, res) => {
@@ -412,7 +415,11 @@ module.exports = {
 			});
 		} catch (err) {
 			await transaction.rollback();
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userAutoCancelOrder: async (req, res) => {
@@ -450,7 +457,11 @@ module.exports = {
 				}
 			} catch (err) {
 				await transaction.rollback();
-				res.status(400).send(err);
+				return res.status(500).send({
+					err,
+					status: 500,
+					message: "Internal server error.",
+				});
 			}
 		});
 	},
@@ -464,7 +475,11 @@ module.exports = {
 				latestId: id,
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userConfirmOrder: async (req, res) => {
@@ -476,7 +491,11 @@ module.exports = {
 				message: "Order confirmed",
 			});
 		} catch (err) {
-			res.status(400).send(err);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 	userAutoConfirmOrder: async (req, res) => {
@@ -497,7 +516,11 @@ module.exports = {
 					});
 				}
 			} catch (err) {
-				res.status(400).send(err);
+				return res.status(500).send({
+					err,
+					status: 500,
+					message: "Internal server error.",
+				});
 			}
 		});
 	},
@@ -528,8 +551,11 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
-			res.status(400).send(error);
+			return res.status(500).send({
+				err,
+				status: 500,
+				message: "Internal server error.",
+			});
 		}
 	},
 };
