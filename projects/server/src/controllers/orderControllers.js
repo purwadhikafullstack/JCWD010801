@@ -24,7 +24,7 @@ function generateInvoiceNumber(userId) {
 	const minutes = currentDate.getMinutes().toString().padStart(2, "0");
 	const seconds = currentDate.getSeconds().toString().padStart(2, "0");
 	const userIdPart = userId.toString().padStart(4, "0");
-	const timestamp = `INV/${userIdPart}/OGWA/${year}${month}${day}${hours}${minutes}${seconds}`;
+	const timestamp = `INV/${userIdPart}/APM/${year}${month}${day}${hours}${minutes}${seconds}`;
 	return timestamp;
 }
 
@@ -383,18 +383,18 @@ module.exports = {
 					status: "Cancelled",
 				},
 			});
-			const filteredResult = result.filter((item) => item.Cart.BranchId === req.user.BranchId);
+			// const filteredResult = result.filter((item) => item.Cart.BranchId === req.user.BranchId);
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
 				currentPage: page,
 				countOrders,
-				// waitingOrders,
-				// pendingOrders,
-				// processingOrders,
-				// sentOrders,
-				// receivedOrders,
-				// cancelledOrders,
-				result: filteredResult,
+				waitingOrders,
+				pendingOrders,
+				processingOrders,
+				sentOrders,
+				receivedOrders,
+				cancelledOrders,
+				result,
 			});
 		} catch (error) {
 			console.log(error);
