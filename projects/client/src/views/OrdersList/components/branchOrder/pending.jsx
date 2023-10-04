@@ -1,25 +1,21 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { Badge, Box, Button, Flex, Image, Input, Select, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Flex, FormControl, FormLabel, Image, Input, Select, Text } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
-import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
 import { PaymentProofAdmin } from "./paymentProofAdmin";
 import { DetailProcessModal } from "./ModalProcessing/detailProcessModal";
 
 export const PendingOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
-	const [search, setSearch] = useState("");
-	const [selectedDate, setSelectedDate] = useState("");
+	const [searchName, setSearchName] = useState("");
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
-	const [branches, setBranches] = useState([]);
-	const user = useSelector((state) => state?.user?.value);
 	const token = localStorage.getItem("token");
-	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
-	const currentBranchName = currentBranchInfo?.name;
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
@@ -31,25 +27,12 @@ export const PendingOrders = ({ reload, setReload }) => {
 		});
 		return formatter.format(number);
 	};
-	const fetchBranchData = async () => {
-		try {
-			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
-			setBranches(branchResponse.data);
-		} catch (error) {
-			console.log(error);
-		}
-	};
 	const ordersList = async (pageNum) => {
 		try {
-			const queryParams = {};
-			if (selectedDate) {
-				queryParams.date = selectedDate;
-			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=Pending payment confirmation`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=Pending payment confirmation`,
 				{
 					headers,
-					params: queryParams,
 				}
 			);
 			setList(response.data.result);
@@ -71,51 +54,83 @@ export const PendingOrders = ({ reload, setReload }) => {
 	};
 	useEffect(() => {
 		ordersList(page);
-		fetchBranchData();
-	}, [selectedDate, search, sort, reload, page]);
+	}, [startDate, endDate, searchName, sort, reload, page]);
 	return (
 		<Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
-				<Flex ml={"20px"} mt={"3px"}>
-					<AiOutlineShopping color="blue" size={25} />
-					<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-						Alphamart {currentBranchName}
-					</Text>
-				</Flex>
 				<Flex justifyContent={"center"}>
-					{/* <Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						w={"250px"}
-						placeholder="Search"
-						type="search"
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-					/> */}
-					<Select
-						w={"105px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={sort}
-						onChange={(e) => setSort(e.target.value)}
-					>
-						<option value="DESC">Newest</option>
-						<option value="ASC">Oldest</option>
-					</Select>
-					<Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						ml={"10px"}
-						w={"150px"}
-						placeholder="Date"
-						type="date"
-						value={selectedDate}
-						onChange={(e) => setSelectedDate(e.target.value)}
-					/>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"10px"}>
+								Search by Name or Email
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								w={"200px"}
+								placeholder="Search"
+								type="search"
+								value={searchName}
+								onChange={(e) => setSearchName(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Sort by
+							</FormLabel>
+							<Select
+								w={"105px"}
+								ml={"10px"}
+								border="1px solid #373433"
+								borderRadius={"20px"}
+								focusBorderColor="#373433"
+								value={sort}
+								onChange={(e) => setSort(e.target.value)}
+							>
+								<option value="DESC">Newest</option>
+								<option value="ASC">Oldest</option>
+							</Select>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Start Date
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								ml={"10px"}
+								w={"150px"}
+								placeholder="Date"
+								type="date"
+								value={startDate}
+								onChange={(e) => setStartDate(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								End Date
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								ml={"10px"}
+								w={"150px"}
+								placeholder="Date"
+								type="date"
+								value={endDate}
+								onChange={(e) => setEndDate(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
 				</Flex>
 				<Box
 					w={"95%"}
@@ -225,6 +240,11 @@ export const PendingOrders = ({ reload, setReload }) => {
 													{item.shipment} - {item.shipmentMethod}
 												</Text>
 											</Flex>
+											{item.status !== "Cancelled" ? (
+												<Text textAlign={"end"} ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+													Esitame time: {item.etd}
+												</Text>
+											) : null}
 											<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>

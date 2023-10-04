@@ -118,7 +118,7 @@ export const PaymentProofAdmin = ({ imgURL, orderId, reload, setReload }) => {
 							}}
 							onClick={onClose}
 						>
-							Close
+							Reject Order
 						</Button>
 					</Flex>
 				</ModalContent>

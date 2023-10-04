@@ -5,45 +5,28 @@ import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
-import { DateRange } from "react-date-range";
-import "react-date-range/dist/styles.css"; // main css file
-import "react-date-range/dist/theme/default.css"; // theme css file
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 export const UserOrdersList = () => {
 	const [list, setList] = useState();
 	const [search, setSearch] = useState("");
 	const [status, setStatus] = useState("");
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
-	const [dateRangeActive, setDateRangeActive] = useState(false);
-	const [selectedDate, setSelectedDate] = useState([
-		{
-			startDate: null,
-			endDate: null,
-			key: "selection",
-		},
-	]);
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
 	const ordersList = async (pageNum) => {
 		try {
-			const queryParams = {};
-			if (selectedDate[0].startDate && selectedDate[0].endDate) {
-			  const startDate = new Date(selectedDate[0].startDate);
-			  startDate.setHours(0, 0, 0, 0);
-			  const endDate = new Date(selectedDate[0].endDate);
-			  endDate.setHours(23, 59, 59, 999);
-			  queryParams.startDate = startDate.toISOString();
-			  queryParams.endDate = endDate.toISOString();
-			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order?search=${search}&page=${pageNum}&limit=4&sort=${sort}&status=${status}&startDate=${startDate}&endDate=${endDate}`,
 				{
 					headers,
-					params: queryParams,
 				}
 			);
 			setList(response.data.result);
@@ -53,13 +36,6 @@ export const UserOrdersList = () => {
 			console.log(error);
 		}
 	};
-	const toggleDateRange = () => {
-		setDateRangeActive(!dateRangeActive);
-	};
-	const handleDateRangeSelect = (ranges) => {
-		setSelectedDate([ranges.selection]);
-		toggleDateRange();
-	  };
 	const prevPage = () => {
 		if (page > 1) ordersList(page - 1);
 	};
@@ -70,13 +46,11 @@ export const UserOrdersList = () => {
 	};
 	useEffect(() => {
 		ordersList(page);
-	}, [selectedDate, search, sort, status]);
+	}, [startDate, endDate, search, sort, status]);
 	return (
 		<Box>
 			<Heading>Your orders list</Heading>
-			<Box>
-
-			</Box>
+			<Box></Box>
 			<Flex mt={"20px"} justifyContent={"center"}>
 				<Input
 					borderRadius={"20px"}
@@ -118,23 +92,29 @@ export const UserOrdersList = () => {
 					<option value={"Received"}>Received</option>
 					<option value={"Cancelled"}>Cancelled</option>
 				</Select>
-			</Flex>
-				<Flex justifyContent={"center"}
-					// as={Input}
-					// borderRadius={"20px"}
-					// 	border="1px solid #373433"
-					// 	focusBorderColor="#373433"
+				<Input
+					borderRadius={"20px"}
+					border="1px solid #373433"
+					focusBorderColor="#373433"
 					ml={"10px"}
-					// placeholder="Date"
-				>
-					<DateRange
-						editableDateInputs={true}
-						moveRangeOnFirstSelection={false}
-						ranges={selectedDate}
-						onChange={handleDateRangeSelect}
-						rangeColors={["black"]}
-					/>
-				</Flex>
+					w={"150px"}
+					placeholder="Date"
+					type="date"
+					value={startDate}
+					onChange={(e) => setStartDate(e.target.value)}
+				/>
+				<Input
+					borderRadius={"20px"}
+					border="1px solid #373433"
+					focusBorderColor="#373433"
+					ml={"10px"}
+					w={"150px"}
+					placeholder="Date"
+					type="date"
+					value={endDate}
+					onChange={(e) => setEndDate(e.target.value)}
+				/>
+			</Flex>
 			{list && list.length > 0 ? (
 				list?.map((item) => {
 					return (

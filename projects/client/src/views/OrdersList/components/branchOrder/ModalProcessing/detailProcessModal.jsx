@@ -17,17 +17,10 @@ import {
 import { AiOutlineFileSearch } from "react-icons/ai";
 
 export const DetailProcessModal = ({
-	orderId,
 	etd,
 	status,
-	date,
 	created,
 	paymentProof,
-	productPhoto,
-	productName,
-	description,
-	price,
-	quantity,
 	shipment,
 	shipmentMethod,
 	subtotal,
@@ -99,9 +92,6 @@ export const DetailProcessModal = ({
 									</Flex>
 								)}
 								<Flex direction={"column"} justifyContent={"center"}>
-									<Text textAlign={"start"} ml={"12px"} fontWeight={"light"}>
-										Id #{orderId}
-									</Text>
 									<Text color={"balck"}>
 										{status === "Sent" || status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
@@ -124,7 +114,7 @@ export const DetailProcessModal = ({
 								</Flex>
 							</Flex>
 							<Flex mt={"5px"} justifyContent={"space-between"}>
-								<Text fontWeight={"semibold"}>Checkout</Text>
+								<Text fontWeight={"semibold"}>Checkout date & time</Text>
 								<Text fontFamily={"serif"} mt={"3px"} fontSize={"13px"} color={"balck"}>
 									{new Date(`${created}`)
 										.toLocaleDateString("us-us", {
@@ -207,6 +197,12 @@ export const DetailProcessModal = ({
 									<Text fontWeight={"semibold"}>Shipment</Text>
 									<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
 										{shipment}
+									</Text>
+								</Flex>
+								<Flex mt={"5px"} justifyContent={"space-between"}>
+									<Text fontWeight={"semibold"}>Estimate time</Text>
+									<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
+										{etd}
 									</Text>
 								</Flex>
 								<Flex mt={"5px"} justifyContent={"space-between"}>

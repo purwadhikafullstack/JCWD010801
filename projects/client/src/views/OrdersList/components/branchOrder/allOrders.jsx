@@ -1,9 +1,8 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { Badge, Box, Button, Flex, Image, Input, Select, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Flex, FormControl, FormLabel, Image, Input, Select, Text } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
-import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "react-icons/ai";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
 
 export const AllOrders = ({ reload, setReload }) => {
@@ -11,15 +10,12 @@ export const AllOrders = ({ reload, setReload }) => {
 	const [search, setSearch] = useState("");
 	const [searchName, setSearchName] = useState("");
 	const [status, setStatus] = useState("");
-	const [selectedDate, setSelectedDate] = useState("");
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
-	const [branches, setBranches] = useState([]);
-	const user = useSelector((state) => state?.user?.value);
 	const token = localStorage.getItem("token");
-	const currentBranchInfo = branches.find((branch) => branch.id === user.BranchId);
-	const currentBranchName = currentBranchInfo?.name;
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
@@ -31,25 +27,12 @@ export const AllOrders = ({ reload, setReload }) => {
 		});
 		return formatter.format(number);
 	};
-	const fetchBranchData = async () => {
-		try {
-			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
-			setBranches(branchResponse.data);
-		} catch (error) {
-			console.log(error);
-		}
-	};
 	const ordersList = async (pageNum) => {
 		try {
-			const queryParams = {};
-			if (selectedDate) {
-				queryParams.date = selectedDate;
-			}
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=${status}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=${status}&startDate=${startDate}&endDate=${endDate}`,
 				{
 					headers,
-					params: queryParams,
 				}
 			);
 			setList(response.data.result);
@@ -71,82 +54,126 @@ export const AllOrders = ({ reload, setReload }) => {
 	};
 	useEffect(() => {
 		ordersList();
-		fetchBranchData();
-	}, [selectedDate, search, searchName, sort, status, reload]);
+	}, [startDate, endDate, search, searchName, sort, status, reload]);
 	return (
 		<Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"10px"}>
-				<Flex ml={"20px"} mt={"3px"}>
-					<AiOutlineShopping color="blue" size={25} />
-					<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-						Alphamart {currentBranchName}
-					</Text>
-				</Flex>
-				<Flex mt={"5px"} justifyContent={"center"}>
-					<Input
-						borderRadius={"20px"}
-						pl={"12px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						w={"228px"}
-						placeholder="Search by Name or E-mail"
-						type="search"
-						value={searchName}
-						onChange={(e) => setSearchName(e.target.value)}
-					/>
-					<Input
-						borderRadius={"20px"}
-						pl={"12px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						w={"232px"}
-						placeholder="Search by Invoice Number"
-						type="search"
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-					/>
-					<Select
-						textAlign={"start"}
-						pl={"10px"}
-						w={"140px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={status}
-						onChange={(e) => setStatus(e.target.value)}
-					>
-						<option value={""}>Status</option>
-						<option value={"Waiting payment"}>Waiting for payment</option>
-						<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
-						<option value={"Processing"}>Processing</option>
-						<option value={"Sent"}>Sent</option>
-						<option value={"Received"}>Received</option>
-						<option value={"Cancelled"}>Cancelled</option>
-					</Select>
-					<Select
-						w={"105px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						value={sort}
-						onChange={(e) => setSort(e.target.value)}
-					>
-						<option value="DESC">Newest</option>
-						<option value="ASC">Oldest</option>
-					</Select>
-					<Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						ml={"10px"}
-						w={"150px"}
-						placeholder="Date"
-						type="date"
-						value={selectedDate}
-						onChange={(e) => setSelectedDate(e.target.value)}
-					/>
+				<Flex justifyContent={"center"}>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"10px"}>
+								Search by Name or Email
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								w={"200px"}
+								placeholder="Search"
+								type="search"
+								value={searchName}
+								onChange={(e) => setSearchName(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Search by Invoice Number
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								ml={"10px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								w={"200px"}
+								placeholder="Search"
+								type="search"
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Select by status
+							</FormLabel>
+							<Select
+								textAlign={"start"}
+								pl={"10px"}
+								w={"140px"}
+								border="1px solid #373433"
+								borderRadius={"20px"}
+								focusBorderColor="#373433"
+								value={status}
+								onChange={(e) => setStatus(e.target.value)}
+							>
+								<option value={""}>Status</option>
+								<option value={"Waiting payment"}>Waiting for payment</option>
+								<option value={"Pending payment confirmation"}>Pending payment confirmation</option>
+								<option value={"Processing"}>Processing</option>
+								<option value={"Sent"}>Sent</option>
+								<option value={"Received"}>Received</option>
+								<option value={"Cancelled"}>Cancelled</option>
+							</Select>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Sort by
+							</FormLabel>
+							<Select
+								w={"105px"}
+								ml={"10px"}
+								border="1px solid #373433"
+								borderRadius={"20px"}
+								focusBorderColor="#373433"
+								value={sort}
+								onChange={(e) => setSort(e.target.value)}
+							>
+								<option value="DESC">Newest</option>
+								<option value="ASC">Oldest</option>
+							</Select>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								Start Date
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								ml={"10px"}
+								w={"150px"}
+								placeholder="Date"
+								type="date"
+								value={startDate}
+								onChange={(e) => setStartDate(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
+					<Box>
+						<FormControl>
+							<FormLabel fontSize={"12px"} ml={"15px"}>
+								End Date
+							</FormLabel>
+							<Input
+								borderRadius={"20px"}
+								border="1px solid #373433"
+								focusBorderColor="#373433"
+								ml={"10px"}
+								w={"150px"}
+								placeholder="Date"
+								type="date"
+								value={endDate}
+								onChange={(e) => setEndDate(e.target.value)}
+							/>
+						</FormControl>
+					</Box>
 				</Flex>
 				<Box
 					w={"95%"}
@@ -244,7 +271,7 @@ export const AllOrders = ({ reload, setReload }) => {
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
 														{item.Address.city}, {item.Address.province}
-													</Text>{" "}
+													</Text>
 												</Box>
 											</Flex>
 										</Box>
@@ -255,6 +282,11 @@ export const AllOrders = ({ reload, setReload }) => {
 													{item.shipment} - {item.shipmentMethod}
 												</Text>
 											</Flex>
+											{item.status !== "Cancelled" ? (
+												<Text textAlign={"end"} ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+													Esitame time: {item.etd}
+												</Text>
+											) : null}
 											<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>
