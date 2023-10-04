@@ -125,7 +125,8 @@ const StockReport = () => {
 		"Product Created",
 		"Branch Stock Initialization",
 		"Manual Adjustment",
-		"Sales",
+		"Sale Cancellation",
+		"Successful Sale",
 		"Clear Selections (All Entries)",
 	];
 
@@ -460,7 +461,9 @@ const StockReport = () => {
 								? "Branch Stock Initialization"
 								: item.isAdjustment
 								? "Manual Adjustment"
-								: "Sales"
+								: item.isAddition && !item.isInitialization && !item.isBranchInitialization && !item.isAdjustment
+								? "Sale Cancellation"
+								: "Successful Sale"
 						)
 				  );
 
@@ -511,7 +514,9 @@ const StockReport = () => {
 								? "Branch Stock Initialization"
 								: item.isAdjustment
 								? "Manual Adjustment"
-								: "Sales"}
+								: item.isAddition && !item.isInitialization && !item.isBranchInitialization && !item.isAdjustment
+								? "Sale Cancellation"
+								: "Successful Sale"}
 						</Td>
 						<Td textAlign={"center"}>{item.oldValue} units</Td>
 						<Td textAlign={"center"}>{item.change} units</Td>
@@ -1396,7 +1401,9 @@ const StockReport = () => {
 												? "2 Selected"
 												: selectedEntryTypes.length === 3
 												? "3 Selected"
-												: "4 Selected"}
+												: selectedEntryTypes.length === 4
+												? "4 Selected"
+												: "5 Selected"}
 										</MenuButton>
 										<MenuList>
 											{entryTypeOptions.map((entryType) => (

@@ -295,6 +295,45 @@ module.exports = {
 			await Promise.all(orderDetailPromises);
 
 			const stocksPromises = orderedItems.map(async (item) => {
+				const product = await products.findOne({
+					where: {
+						id: item.ProductId,
+					},
+				});
+
+				await product.decrement(
+					{
+						aggregateStock: parseInt(item.quantity),
+					},
+					{
+						where: {
+							id: item.ProductId,
+						},
+					}
+				);
+
+				const oldBranchStock = await stocks.findOne({
+					where: {
+						ProductId: item.ProductId,
+						BranchId: cartCheckedOut.BranchId,
+					}
+				})
+
+				const newBranchStock = parseInt(oldBranchStock.currentStock) - parseInt(item.quantity);
+
+				await stockMovements.create({
+					ProductId: item.ProductId,
+					BranchId: cartCheckedOut.BranchId,
+					oldValue: oldBranchStock.currentStock,
+					newValue: parseInt(newBranchStock),
+					change: -parseInt(item.quantity),
+					isAddition: false,
+					isAdjustment: false,
+					isInitialization: false,
+					isBranchInitialization: false,
+					UserId: req.user.id,
+				});
+
 				await stocks.decrement(
 					{
 						currentStock: parseInt(item.quantity),
@@ -306,36 +345,6 @@ module.exports = {
 						},
 					}
 				);
-				
-				const product = await products.findOne({
-					where: {
-						id: item.ProductId,
-					},
-				});
-				await product.decrement(
-					{
-						aggregateStock: parseInt(item.quantity),
-					},
-					{
-						where: {
-							id: item.ProductId,
-						},
-					}
-				);
-				const newStock = parseInt(product.aggregateStock) - parseInt(item.quantity);
-
-				await stockMovements.create({
-					ProductId: item.ProductId,
-					BranchId: cartCheckedOut.BranchId,
-					oldValue: product.aggregateStock,
-					newValue: newStock,
-					change: -parseInt(item.quantity),
-					isAddition: false,
-					isAdjustment: false,
-					isInitialization: false,
-					isBranchInitialization: false,
-					UserId: req.user.id,
-				});
 			});
 			await Promise.all(stocksPromises);
 
