@@ -12,8 +12,8 @@ function App() {
 	const dispatch = useDispatch();
 	const userFromRedux = useSelector((state) => state.user.value.id);
 	const token = localStorage.getItem("token");
-	const userLat = parseFloat(localStorage.getItem("lat"));
-	const userLng = parseFloat(localStorage.getItem("lng"));
+	const [userLat, setUserLat] = useState(localStorage.getItem("lat") || null);
+	const [userLng, setUserLng] = useState(localStorage.getItem("lng") || null);
 	const [branches, setBranches] = useState([]);
 	const [address, setAddress] = useState([]);
 
@@ -42,24 +42,33 @@ function App() {
 			console.log("Error fetching branch data.");
 		}
 	};
-
-	if ("geolocation" in navigator) {
-		navigator.geolocation.getCurrentPosition(async function (position) {
-			try {
-				const latitude = position.coords.latitude;
-				const longitude = position.coords.longitude;
-				localStorage.setItem("lat", latitude);
-				localStorage.setItem("lng", longitude);
-			} catch (error) {
-				console.error("Error:", error);
-			}
-		});
-	} else {
-		console.log("Geolocation isn't supported in this device.");
-	}
+	
+	if (!userLat && !userLng) {
+		if ("geolocation" in navigator) {
+			navigator.geolocation.getCurrentPosition(
+				async function (position) {
+					try {
+						const latitude = position.coords.latitude;
+						const longitude = position.coords.longitude;
+						localStorage.setItem("lat", latitude);
+						localStorage.setItem("lng", longitude);
+						setUserLat(parseFloat(localStorage.getItem("lat")));
+						setUserLng(parseFloat(localStorage.getItem("lng")));
+					} catch (error) {
+						console.error("Error:", error);
+					}
+				},
+				function (error) {
+					console.log("Geolocation error:", error);
+				}
+			);
+		} else {
+			console.log("Geolocation isn't supported in this device.");
+		}
+	}	
 
 	useEffect(() => {
-		if (branches.length > 0) {
+		if (branches.length > 0 && userLat && userLng) {
 			const calculateDistance = (lat1, lon1, lat2, lon2) => {
 				const R = 6371;
 				const dLat = (lat2 - lat1) * (Math.PI / 180);
