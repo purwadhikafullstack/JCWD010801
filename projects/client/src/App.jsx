@@ -12,8 +12,8 @@ function App() {
 	const dispatch = useDispatch();
 	const userFromRedux = useSelector((state) => state.user.value.id);
 	const token = localStorage.getItem("token");
-	const [userLat, setUserLat] = useState(localStorage.getItem("lat") || null);
-	const [userLng, setUserLng] = useState(localStorage.getItem("lng") || null);
+	const [userLat, setUserLat] = useState(localStorage.getItem("lat"));
+	const [userLng, setUserLng] = useState(localStorage.getItem("lng"));
 	const [branches, setBranches] = useState([]);
 	const [address, setAddress] = useState([]);
 
@@ -42,7 +42,7 @@ function App() {
 			console.log("Error fetching branch data.");
 		}
 	};
-	
+
 	if (!userLat && !userLng) {
 		if ("geolocation" in navigator) {
 			navigator.geolocation.getCurrentPosition(
@@ -65,7 +65,7 @@ function App() {
 		} else {
 			console.log("Geolocation isn't supported in this device.");
 		}
-	}	
+	}
 
 	useEffect(() => {
 		if (branches.length > 0 && userLat && userLng) {
