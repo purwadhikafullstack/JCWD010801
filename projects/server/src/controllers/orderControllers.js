@@ -12,6 +12,7 @@ const { Sequelize } = require("sequelize");
 const schedule = require("node-schedule");
 const branches = db.Branches;
 const user_vouchers = db.User_vouchers;
+const vouchers = db.Vouchers;
 
 
 const cancelOrderScheduleJob = {}
@@ -330,32 +331,48 @@ module.exports = {
 				transaction
             }
             if (VoucherId) {
+				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } })
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) throw { status: false, message: "You are out of voucher" };
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
 			} 
 
 			// Auto cancel order
-			const autoCancelTime = new Date(Date.now() + 300000);
-			schedule.scheduleJob(autoCancelTime, async() => {
-				const ord = await orders.findOne({
-					where: { id: result.id },
-					include: { model: carts }
-				});
-				if (!ord.paymentProof) {
-					await orders.update({ status: "cancelled" }, { where: { id: result.id }, transaction });
-
-					const ord_details = await order_details.findAll({ where: { OrderId: result.id } });
-
-					for (const {ProductId, quantity} of ord_details) {
-						let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
-						await stocks.update({ currentStock: currentStock + quantity }, {
-							where: { ProductId, BranchId: ord.Cart.BranchId },
-							transaction
-						})
-					}
-				}
-			});
+			// const autoCancelTime = new Date(Date.now() + 60000);
+			// schedule.scheduleJob(autoCancelTime, async() => {
+			// 	const transaction = await db.sequelize.transaction();
+			// 	try {
+			// 		const ord = await orders.findOne({
+			// 			where: { id: result.id },
+			// 			include: { model: carts }
+			// 		});
+					
+			// 		if (!ord.paymentProof) {
+			// 			await orders.update({ status: "cancelled" }, { where: { id: result.id }, transaction });
+			
+			// 			const result = await order_details.findAll({ where: { OrderId: result.id } });
+			
+			// 			for (const {ProductId, quantity} of result) {
+			// 				let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
+			// 				await stocks.update({ currentStock: currentStock + quantity }, {
+			// 					where: { ProductId, BranchId: ord.Cart.BranchId },
+			// 					transaction
+			// 				})
+			// 			}
+			
+			// 			await transaction.commit();
+			
+			// 			res.status(200).send({
+			// 				status: true,
+			// 				message: "Order cancelled"
+			// 			});
+			// 		}
+		
+			// 	} catch (err) {
+			// 		await transaction.rollback();
+			// 		res.status(400).send(err);
+			// 	}
+			// });
 
             await transaction.commit();
 
@@ -424,7 +441,7 @@ module.exports = {
         }
     },
     userAutoCancelOrder: async(req, res) => {
-		const autoCancelTime = new Date(Date.now() + 300000);
+		const autoCancelTime = new Date(Date.now() + 60000);
 		schedule.scheduleJob(autoCancelTime, async() => {
 			const transaction = await db.sequelize.transaction();
 			try {

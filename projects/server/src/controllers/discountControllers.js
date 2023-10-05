@@ -11,10 +11,10 @@ module.exports = {
             const { type, nominal, availableFrom, validUntil, PIDs } = req.body;
             const checkBranch = await users.findOne({ where: { id: req.user.id } });
 
-            for (const PID of PIDs) {
+            for (const { id } of PIDs) {
                 const checkProduct = await discounts.findOne({
                     where: {
-                        ProductId: PID,
+                        ProductId: id,
                         availableFrom: { [Op.lte]: new Date(Date.now()) },
                         validUntil: { [Op.gte]: new Date(Date.now()) },
                     },
@@ -29,7 +29,7 @@ module.exports = {
                     validUntil: new Date(`${validUntil}`),
                     isActive: true,
                     BranchId: checkBranch.BranchId,
-                    ProductId: PID
+                    ProductId: id
                 }, { transaction });
             };
 
@@ -45,87 +45,112 @@ module.exports = {
     },
     getHistory: async(req, res) => {
         try {
-            const limit = +req.params.limit || 10 ;
-            const page = +req.params.page || 1 ;
-            const branchId = +req.params.branchId || "" ;
-            const availableFrom = req.params.availableFrom || 1970 ;
-            const validUntil = req.params.validUntil || 2099 ;
-            const discountType = req.params.type || "" ;
+            const limit = +req.query.limit || 10 ;
+            const page = +req.query.page || 1 ;
+            const branchId = +req.query.branchId || "" ;
+            const startAvailableFrom = req.query.startAvailableFrom || 1970 ;
+            const endAvailableFrom = req.query.endAvailableFrom || 2099 ;
+            const startValidUntil = req.query.startValidUntil || 1970 ;
+            const endValidUntil = req.query.endValidUntil || 2099 ;
+            const discountType = req.query.type || "" ;
             const sortBy = req.query.sortBy || "id" ;
             const order = req.query.order || "DESC" ;
             const search = req.query.search || "" ;
 
             const checkRole = await users.findOne({ where: { id: req.user.id } });
-            if (checkRole.RoleId === 3 ) {
-                const filter = {
-                    where: {
-                        BranchId: { [Op.like]: `${branchId}%` },
-                        type: { [Op.like]: `%${discountType}%` },
-                        availableFrom: { [Op.gte]: new Date(`${availableFrom}`) },
-                        validUntil: { [Op.lte]: new Date(`${validUntil}`) },
+            filter = {
+                where: {
+                    BranchId: checkRole.RoleId === 3 ? { [Op.like]: `${branchId}%` } : checkRole.BranchId,
+                    type: { [Op.like]: `%${discountType}%` },
+                    availableFrom: {
+                        [Op.between]: [
+                            new Date(`${startAvailableFrom}`),
+                            new Date(`${endAvailableFrom}`)
+                        ]
                     },
-                    limit,
-                    offset: (page - 1) * limit,
-                    order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
-                    include: [
-                        {
-                            model: products,
-                            where: {
-                                productName: { [Op.like]: `${search}%` }
-                            }
-                        }
-                    ]
-                };
-
-                const result = await discounts.findAll(filter);
-                const total = await discounts.count(filter);
-                const totalPages = Math.ceil(total / limit);
-
-                res.status(200).send({
-                    status: true,
-                    limit,
-                    total,
-                    totalPages,
-                    page,
-                    result
-                });
-            } else {
-                filter = {
-                    where: {
-                        BranchId: checkRole.BranchId,
-                        type: { [Op.like]: `%${discountType}%` },
-                        availableFrom: { [Op.gte]: new Date(`${availableFrom}`) },
-                        validUntil: { [Op.lte]: new Date(`${validUntil}`) },
+                    validUntil: {
+                        [Op.between]: [
+                            new Date(`${startValidUntil}`),
+                            new Date(`${endValidUntil}`)
+                        ]
                     },
-                    limit,
-                    offset: (page - 1) * limit,
-                    order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
-                    include: [
-                        {
-                            model: products,
-                            where: {
-                                productName: { [Op.like]: `${search}%` }
-                            }
+                },
+                limit,
+                offset: (page - 1) * limit,
+                order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
+                include: [
+                    {
+                        model: products,
+                        where: {
+                            productName: { [Op.like]: `${search}%` }
                         }
-                    ]
-                }
-                
-                const result = await discounts.findAll(filter);
-                const total = await discounts.count(filter);
-                const totalPages = Math.ceil(total / limit);
-
-                res.status(200).send({
-                    status: true,
-                    limit,
-                    total,
-                    totalPages,
-                    page,
-                    result
-                });
+                    }
+                ]
             }
+            
+            const result = await discounts.findAll(filter);
+            const total = await discounts.count(filter);
+            const totalPages = Math.ceil(total / limit);
+
+            res.status(200).send({
+                status: true,
+                limit,
+                total,
+                totalPages,
+                page,
+                result
+            });
 
         } catch (err) {
-            console.log(err)
+            res.status(404).send(err);
+        }
+    },
+    getOngoingDiscount: async(req, res) => {
+        try {
+            const limit = +req.query.limit || 10 ;
+            const page = +req.query.page || 1 ;
+            const branchId = +req.query.branchId || "" ;
+            const discountType = req.query.type || "" ;
+            const sortBy = req.query.sortBy || "id" ;
+            const order = req.query.order || "DESC" ;
+            const search = req.query.search || "" ;
+
+            const checkRole = await users.findOne({ where: { id: req.user.id } });
+            filter = {
+                where: {
+                    BranchId: checkRole.RoleId === 3 ? { [Op.like]: `${branchId}%` } : checkRole.BranchId,
+                    type: { [Op.like]: `%${discountType}%` },
+                    availableFrom: { [Op.lte]: new Date(Date.now()) },
+                    validUntil: { [Op.gte]: new Date(Date.now()) },
+                    isActive: true
+                },
+                limit,
+                offset: (page - 1) * limit,
+                order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
+                include: [
+                    {
+                        model: products,
+                        where: {
+                            productName: { [Op.like]: `${search}%` }
+                        }
+                    }
+                ]
+            }
+            
+            const result = await discounts.findAll(filter);
+            const total = await discounts.count(filter);
+            const totalPages = Math.ceil(total / limit);
+
+            res.status(200).send({
+                status: true,
+                limit,
+                total,
+                totalPages,
+                page,
+                result
+            });
+
+        } catch (err) {
             res.status(404).send(err);
         }
     },
@@ -157,14 +182,11 @@ module.exports = {
             res.status(400).send(err);
         }
     },
-    getBranchOngoingDiscount: async(req, res) => {
+    deactivateDiscount: async(req, res) => {
         try {
-            const checkBranch = await users.findOne({ where: { id: req.user.id } });
-            const result = await discounts.findAll({
+            await discounts.update({
                 where: { 
-                    BranchId: checkBranch.BranchId,
-                    availableFrom: { [Op.lte]: new Date(Date.now()) },
-                    validUntil: { [Op.gte]: new Date(Date.now()) },
+                    isActive: false
                 }
             })
 

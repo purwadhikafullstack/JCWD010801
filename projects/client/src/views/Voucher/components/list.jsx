@@ -38,7 +38,7 @@ export const VoucherList = () => {
                             key={idx}
                             VoucherId={VoucherId}
                             name={Voucher?.name}
-                            description={Voucher?.description}
+                            imgURL={Voucher?.Product?.imgURL}
                             amount={amount}
                             isPercentage={Voucher?.isPercentage}
                             nominal={Voucher?.nominal}

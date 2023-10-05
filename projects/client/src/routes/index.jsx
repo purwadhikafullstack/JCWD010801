@@ -18,12 +18,15 @@ const ProductManagement = lazy(() => import("../pages/productManagement"));
 const CartPage = lazy(() => import("../pages/cart"));
 const CheckoutPage = lazy(() => import("../pages/checkOut"));
 const OrdersList = lazy(() => import("../pages/orderList"));
+const ReportPage = lazy(() => import("../pages/report"));
 const ReportPrelim = lazy(() => import("../pages/reportPrelim"));
 const ReportOverview = lazy(() => import("../pages/reportOverview"));
 const CategoriesCharts = lazy(() => import("../pages/categoriesCharts"));
 const StockReport = lazy(() => import("../pages/stockReport"));
 const VoucherPage = lazy(() => import("../pages/voucher"));
+const DiscountOverview = lazy(() => import("../pages/discountOverview"));
 const DiscountManagementPage = lazy(() => import("../pages/discountManagement"));
+const VoucherManagementPage = lazy(() => import("../pages/voucherManagement"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -121,10 +124,26 @@ export const AppRouter = createBrowserRouter([
 		),
 	},
 	{
+		path: "/dashboard/discount-overview",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<DiscountOverview />
+			</Suspense>
+		),
+	},
+	{
 		path: "/dashboard/discount-management",
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<DiscountManagementPage />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/voucher-management",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<VoucherManagementPage />
 			</Suspense>
 		),
 	},
@@ -157,6 +176,14 @@ export const AppRouter = createBrowserRouter([
 		element: (
 			<Suspense fallback={<Spinner />}>
 				<StockReport />
+			</Suspense>
+		),
+	},
+	{
+		path: "/dashboard/report/sales",
+		element: (
+			<Suspense fallback={<Spinner />}>
+				<ReportPage />
 			</Suspense>
 		),
 	},

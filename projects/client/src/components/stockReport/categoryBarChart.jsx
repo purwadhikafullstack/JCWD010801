@@ -49,7 +49,7 @@ const CategoryBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "All AlphaMart Products",
+				text: "All AlphaMart Product Distribution",
 			},
 		},
 	};

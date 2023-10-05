@@ -78,7 +78,7 @@ export const ResetPasswordFields = () => {
 										focusBorderColor="gray.300"
 									/>
 									<InputRightElement>
-										<Button right={"25px"} variant={"unstyled"} onClick={() => setShowPassword(!showPassword)}>
+										<Button variant={"unstyled"} onClick={() => setShowPassword(!showPassword)}>
 											{showPassword ? <FiEye /> : <FiEyeOff />}
 										</Button>
 									</InputRightElement>
@@ -99,7 +99,7 @@ export const ResetPasswordFields = () => {
 										focusBorderColor="gray.300"
 									/>
 									<InputRightElement>
-										<Button right={"25px"} variant={"unstyled"} onClick={() => setShowConfirmPassword(!showPassword)}>
+										<Button variant={"unstyled"} onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
 											{showConfirmPassword ? <FiEye /> : <FiEyeOff />}
 										</Button>
 									</InputRightElement>

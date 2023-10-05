@@ -12,7 +12,7 @@ module.exports = {
 	addToCart: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
-			const { ProductId, quantity, BranchId } = req.body;
+			let { ProductId, quantity, BranchId } = req.body;
 
 			const checkBranch = await carts.findOne({
 				where: {
@@ -23,6 +23,13 @@ module.exports = {
 
 			if (checkBranch?.BranchId !== +BranchId && checkBranch) return res.status(200).send({ status: "Switched" });
 
+			const checkStock = await stocks.findOne({
+				where: {
+					BranchId,
+					ProductId
+				}
+			})
+			
 			const [result] = await carts.findOrCreate({
 				where: {
 					UserId: req.user.id,
@@ -38,8 +45,29 @@ module.exports = {
 					ProductId,
 				},
 			});
-
-			if (cart_item)
+			
+			if (!cart_item) {
+				if (quantity > checkStock.currentStock) quantity = checkStock.currentStock
+				await cartItems.create(
+					{
+						CartId: result.id,
+						ProductId,
+						quantity,
+					},
+					{ transaction }
+				)
+			} else if (cart_item.quantity > checkStock.currentStock) {
+				await cartItems.update(
+					{ quantity: checkStock.currentStock },
+					{
+						where: {
+							CartId: result.id,
+							ProductId,
+						},
+						transaction,
+					}
+				)
+			} else if (cart_item) {
 				await cartItems.update(
 					{ quantity: cart_item.quantity + quantity },
 					{
@@ -49,16 +77,18 @@ module.exports = {
 						},
 						transaction,
 					}
-				);
-			else
-				await cartItems.create(
-					{
-						CartId: result.id,
-						ProductId,
-						quantity,
-					},
-					{ transaction }
-				);
+				)
+			}
+			// else {
+			// 	await cartItems.create(
+			// 		{
+			// 			CartId: result.id,
+			// 			ProductId,
+			// 			quantity,
+			// 		},
+			// 		{ transaction }
+			// 	);
+			// }
 
 			await transaction.commit();
 
@@ -107,6 +137,14 @@ module.exports = {
 				};
 	
 				const cart_items = await cartItems.findAll(filter);
+				for ( const { Product, CartId, ProductId, quantity } of cart_items ) {
+					if ( quantity > Product.Stocks[0]?.currentStock ) await cartItems.update({ quantity: Product.Stocks[0]?.currentStock }, {
+						where: {
+							CartId,
+							ProductId
+						}
+					})
+				}
 				const total = await cartItems.count(filter);
 				const subtotal = await cartItems.findAll({
 					where: { CartId: result.id },
@@ -137,6 +175,7 @@ module.exports = {
 			}
 
 		} catch (err) {
+			console.log(err)
 			res.status(500).send({
 				status: false,
 				message: "Internal server error"

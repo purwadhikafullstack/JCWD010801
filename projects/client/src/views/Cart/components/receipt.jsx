@@ -50,7 +50,7 @@ export const Receipt = ({ subtotal, promo = true }) => {
                     Shopping Discount
                 </Text>
                 <Text>
-                    {voucher.VoucherId ? `Rp. ${convertToRp(discount)}` : "-"}
+                    {voucher.VoucherId && voucher.type !== "Shipment" ? `Rp. ${convertToRp(discount)}` : "-"}
                 </Text>
             </Flex>
             <Flex borderBottom={'2px solid lightgray'} pb={5} w={'100%'} justifyContent={'space-between'}>

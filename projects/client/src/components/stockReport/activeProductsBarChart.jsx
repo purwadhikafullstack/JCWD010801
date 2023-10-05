@@ -49,7 +49,7 @@ const ActiveProductsBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "Active Products",
+				text: "Active Products Mean Comparison",
 			},
 		},
 	};

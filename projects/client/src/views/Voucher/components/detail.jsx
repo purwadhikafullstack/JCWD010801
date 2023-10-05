@@ -37,8 +37,6 @@ export const VoucherDetails = ({ name, description, type, isPercentage, nominal,
         setTerms()
     }, [])
 
-    console.log(productName)
-
     return (
         <>
         <Text cursor={"pointer"} onClick={onOpen} fontWeight={"light"}>

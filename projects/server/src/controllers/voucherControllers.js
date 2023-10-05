@@ -4,13 +4,13 @@ const vouchers = db.Vouchers;
 const users = db.Users;
 const user_vouchers = db.User_vouchers;
 const orders = db.Orders;
+const products = db.Products;
 
 module.exports = {
     createVoucher: async(req, res) => {
         try {
             let { 
                 name, 
-                description, 
                 code, 
                 type, 
                 isPercentage, 
@@ -25,12 +25,11 @@ module.exports = {
 
             if (type === "Single item" && !ProductId) throw { status: false, message: "Please enter the product id to create single item vouchers" };
             if (!isPercentage) maximumDiscount = nominal;
-            if (type === "Total purchase") ProductId = null;
+            if (type === "Total purchase" || type === "Shipment") ProductId = null;
             const adminInfo = await users.findOne({ where: { id: req.user.id } });
 
             await vouchers.create({
                 name, 
-                description,
                 code,
                 type,
                 isPercentage,
@@ -53,7 +52,7 @@ module.exports = {
             res.status(400).send(err);
         }
     },
-    getAllVoucher: async(req, res) => {
+    getAllVouchers: async(req, res) => {
         try {
             const search = req.query.search || "";
             const limit = +req.query.limit || 8;
@@ -61,19 +60,89 @@ module.exports = {
             const sortBy = req.query.sortBy || "updatedAt";
             const order = req.query.order || "DESC";
             const voucherType = req.query.type || "";
-            const startDate = req.query.startDate || "1970";
-            const endDate = req.query.endDate || "2099";
+            const startAvailableFrom = req.query.startAvailableFrom || 1970 ;
+            const endAvailableFrom = req.query.endAvailableFrom || 2099 ;
+            const startValidUntil = req.query.startValidUntil || 1970 ;
+            const endValidUntil = req.query.endValidUntil || 2099 ;
 
             const filter = {
                 where: { 
                     name: { [Op.like] : `${search}%` },
                     type: { [Op.like] : `${voucherType}%` },
-                    availableFrom: { [Op.gte] : new Date(startDate) },
-                    validUntil: { [Op.lte] : new Date(endDate) }
+                    availableFrom: {
+                        [Op.between]: [
+                            new Date(`${startAvailableFrom}`),
+                            new Date(`${endAvailableFrom}`)
+                        ]
+                    },
+                    validUntil: {
+                        [Op.between]: [
+                            new Date(`${startValidUntil}`),
+                            new Date(`${endValidUntil}`)
+                        ]
+                    },
                 },
                 limit,
                 offset: limit * ( page - 1 ),
                 order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
+            }
+
+            const result = await vouchers.findAll(filter);
+            const totalVouchers = await vouchers.count(filter);
+            const totalPages = Math.ceil(totalVouchers / limit);
+
+            res.status(200).send({
+                status: true,
+                totalVouchers,
+                totalPages,
+                page,
+                result
+            });
+        } catch (err) {
+            res.status(404).send(err);
+        }
+    },
+    getBranchVouchers: async(req, res) => {
+        try {
+            const search = req.query.search || "";
+            const limit = +req.query.limit || 8;
+            const page = +req.query.page || 1;
+            const sortBy = req.query.sortBy || "updatedAt";
+            const order = req.query.order || "DESC";
+            const voucherType = req.query.type || "";
+            const startAvailableFrom = req.query.startAvailableFrom || 1970 ;
+            const endAvailableFrom = req.query.endAvailableFrom || 2099 ;
+            const startValidUntil = req.query.startValidUntil || 1970 ;
+            const endValidUntil = req.query.endValidUntil || 2099 ;
+
+            const checkBranch = await users.findOne({ where: { id: req.user.id } });
+
+            const filter = {
+                where: { 
+                    name: { [Op.like] : `${search}%` },
+                    type: { [Op.like] : `${voucherType}%` },
+                    availableFrom: {
+                        [Op.between]: [
+                            new Date(`${startAvailableFrom}`),
+                            new Date(`${endAvailableFrom}`)
+                        ]
+                    },
+                    validUntil: {
+                        [Op.between]: [
+                            new Date(`${startValidUntil}`),
+                            new Date(`${endValidUntil}`)
+                        ]
+                    },
+                    BranchId: checkBranch.BranchId
+                },
+                limit,
+                offset: limit * ( page - 1 ),
+                order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
+                include: [
+                    {
+                        model: products
+                    }
+                ]
             }
 
             const result = await vouchers.findAll(filter);
@@ -114,7 +183,12 @@ module.exports = {
                         limit,
                         offset: limit * ( page - 1 ),
                         order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
-                        separate: false
+                        separate: false,
+                        include: [
+                            {
+                                model: products
+                            }
+                        ]
                     }
                 ]
             };
@@ -182,10 +256,17 @@ module.exports = {
                     status: "Processing"
                 }
             });
+            const freeShipmentVoucher = await vouchers.findOne({
+                where: {
+                    name: { [Op.like]: `Free Shipment%` },
+                    availableFrom: { [Op.lte]: new Date(Date.now()) },
+                    validUntil: { [Op.gte]: new Date(Date.now()) }
+                }
+            })
             const freeShipmentVoucherCheck = await user_vouchers.findOne({
                 where: {
                     UserId: req.user.id,
-                    VoucherId: 1
+                    VoucherId: freeShipmentVoucher.id
                 }
             });
             if ( countOrder % 3 === 0 && !freeShipmentVoucherCheck ) {

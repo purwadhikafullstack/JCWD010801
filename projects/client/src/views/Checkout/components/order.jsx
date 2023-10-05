@@ -169,11 +169,11 @@ function Order() {
 			// 	},
 			// });
 
-			// const result = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/latest-id`, {
-			// 	headers: {
-			// 		Authorization: `Bearer ${token}`,
-			// 	},
-			// });
+			const result = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/latest-id`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 
 			toast.success(response.data.message, {
 				position: "top-right",
@@ -189,11 +189,11 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile");
 
-			// await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`, {}, {
-			// 	headers: {
-			// 		Authorization: `Bearer ${token}`,
-			// 	},
-			// });
+			await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`, {}, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
