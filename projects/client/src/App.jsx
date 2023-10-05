@@ -60,6 +60,7 @@ function App() {
 				},
 				function (error) {
 					console.log("Geolocation error:", error);
+					console.log("Please allow location");
 				}
 			);
 		} else {
@@ -68,7 +69,7 @@ function App() {
 	}
 
 	useEffect(() => {
-		if (branches.length > 0) {
+		if (branches.length > 0 && userLat && userLng) {
 			const calculateDistance = (lat1, lon1, lat2, lon2) => {
 				const R = 6371;
 				const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -118,6 +119,17 @@ function App() {
 				closestBranch !== null
 					? localStorage.setItem("BranchId", parseInt(closestBranch?.id))
 					: localStorage.setItem("BranchId", 1);
+			}
+		} else if (branches.length > 0 && address.length > 0 && !userLat && !userLng) {
+			const filteredBranch = branches.filter(
+				(item) =>
+					address[0].lat <= item.northeast_lat &&
+					address[0].lat >= item.southwest_lat &&
+					address[0].lng <= item.northeast_lng &&
+					address[0].lng >= item.southwest_lng
+			);
+			if (filteredBranch.length > 0) {
+				localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
 			}
 		}
 	}, [userLat, userLng, address, branches]);
