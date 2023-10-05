@@ -71,7 +71,7 @@ module.exports = {
 	ordersList: async (req, res) => {
 		try {
 			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 4;
+			const limit = +req.query.limit || 8;
 			const search = req.query.search;
 			const startDate = req.query.startDate;
 			const endDate = req.query.endDate;
@@ -84,7 +84,7 @@ module.exports = {
 				whereCondition[Op.or] = [
 					{
 						invoice: {
-							[Op.like]: `${search}`,
+							[Op.like]: `%${search}%`,
 						},
 					},
 				];
@@ -164,22 +164,47 @@ module.exports = {
 	superAdminOrdersList: async (req, res) => {
 		try {
 			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 4;
+			const limit = +req.query.limit || 8;
 			const search = req.query.search;
+			const branchId = req.query.branchId;
+			const searchName = req.query.searchName;
 			const startDate = req.query.startDate;
 			const endDate = req.query.endDate;
-			const branchId = req.query.branchId;
 			const status = req.query.status;
 			const sort = req.query.sort || "DESC";
 			const offset = (page - 1) * limit;
-			const condition = {};
+			const searchCondition = {};
 			const whereCondition = {};
 			const branchCondition = {};
 			if (search) {
 				whereCondition[Op.or] = [
 					{
 						invoice: {
-							[Op.like]: `${search}`,
+							[Op.like]: `%${search}%`,
+						},
+					},
+				];
+			}
+			if (searchName) {
+				searchCondition[Op.or] = [
+					{
+						username: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+					{
+						email: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+					{
+						firstName: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+					{
+						lastName: {
+							[Op.like]: `%${searchName}%`,
 						},
 					},
 				];
@@ -208,13 +233,13 @@ module.exports = {
 			}
 			if (branchId) branchCondition["BranchId"] = branchId;
 			const result = await orders.findAll({
+				where: whereCondition,
 				include: [
 					{
 						model: order_details,
 						include: [
 							{
 								model: products,
-								where: condition,
 							},
 						],
 					},
@@ -224,17 +249,49 @@ module.exports = {
 							{
 								model: branches,
 							},
+							{
+								model: users,
+								where: searchCondition,
+							},
 						],
-						where: branchCondition,
+						where: branchCondition
+					},
+					{
+						model: addresses,
 					},
 				],
 				limit,
 				offset,
 				order: [["updatedAt", sort]],
-				where: whereCondition,
 			});
 			const countOrders = await orders.count({
-				where: condition,
+				where: whereCondition,
+				include: [
+					{
+						model: order_details,
+						include: [
+							{
+								model: products,
+							},
+						],
+					},
+					{
+						model: carts,
+						include: [
+							{
+								model: branches,
+							},
+							{
+								model: users,
+								where: searchCondition,
+							},
+						],
+						where: branchCondition
+					},
+					{
+						model: addresses,
+					},
+				],
 			});
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
@@ -243,6 +300,7 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -253,7 +311,7 @@ module.exports = {
 	branchAdminOrdersList: async (req, res) => {
 		try {
 			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 4;
+			const limit = +req.query.limit || 8;
 			const search = req.query.search;
 			const searchName = req.query.searchName;
 			const startDate = req.query.startDate;
@@ -319,6 +377,7 @@ module.exports = {
 					[Op.lte]: endOfDay,
 				};
 			}
+			const branchAdmin = await users.findOne({ where: req.user.id });
 			const result = await orders.findAll({
 				where: whereCondition,
 				include: [
@@ -341,6 +400,9 @@ module.exports = {
 								where: condition,
 							},
 						],
+						where: {
+							BranchId: branchAdmin.BranchId,
+						},
 					},
 					{
 						model: addresses,
@@ -351,39 +413,79 @@ module.exports = {
 				order: [["updatedAt", sort]],
 			});
 			const countOrders = await orders.count({
-				where: whereCondition,
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
 			const waitingOrders = await orders.count({
 				where: {
 					status: "Waiting Payment",
+				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
 				},
 			});
 			const pendingOrders = await orders.count({
 				where: {
 					status: "Pending payment confirmation",
 				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
 			const processingOrders = await orders.count({
 				where: {
 					status: "Processing",
+				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
 				},
 			});
 			const sentOrders = await orders.count({
 				where: {
 					status: "Sent",
 				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
 			const receivedOrders = await orders.count({
 				where: {
 					status: "Received",
+				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
 				},
 			});
 			const cancelledOrders = await orders.count({
 				where: {
 					status: "Cancelled",
 				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
-			// const filteredResult = result.filter((item) => item.Cart.BranchId === req.user.BranchId);
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
 				currentPage: page,
@@ -394,10 +496,9 @@ module.exports = {
 				sentOrders,
 				receivedOrders,
 				cancelledOrders,
-				result,
+				result: result,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -419,10 +520,38 @@ module.exports = {
 					message: "Order cannot be updated to 'Processing'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Processing" }, { where: { id: orderId } });
+			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Processing' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	rejectPaymentProof: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({ where: { id: orderId } });
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Pending payment confirmation") {
+				return res.status(400).send({
+					message:
+						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+				});
+			}
+			await orders.update({ status: "Waiting payment" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Rejected' successfully",
 			});
 		} catch (error) {
 			return res.status(500).send({

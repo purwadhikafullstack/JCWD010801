@@ -10,17 +10,17 @@ import { EmptyList } from "../OrdersList/components/emptyList";
 
 export const AdminListPage = () => {
 	const navigate = useNavigate();
-	const token = localStorage.getItem("token");
-	const user = useSelector((state) => state?.user?.value);
+	const [branch, setBranch] = useState();
 	const [data, setData] = useState();
-	const [reload, setReload] = useState(false);
+	const [countAdmins, setCountAdmins] = useState();
 	const [search, setSearch] = useState("");
+	const [branchId, setBranchId] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
-	const [countAdmins, setCountAdmins] = useState();
-	const [branch, setBranch] = useState();
-	const [branchId, setBranchId] = useState("");
+	const [reload, setReload] = useState(false);
+	const token = localStorage.getItem("token");
 	const [sort, setSort] = useState(["firstName", "ASC"]);
+	const user = useSelector((state) => state?.user?.value);
 
 	const getEmployee = async (pageNum) => {
 		try {

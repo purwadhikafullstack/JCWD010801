@@ -10,6 +10,7 @@ import { SentOrders } from "./branchOrder/sent";
 import { ConfirmedOrders } from "./branchOrder/received";
 import { CanceledOrders } from "./branchOrder/cancelByAdmin";
 import { AllOrders } from "./branchOrder/allOrders";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const BranchAdminOrdersList = () => {
 	const [totalOrders, setTotalOrders] = useState("");
@@ -21,6 +22,9 @@ export const BranchAdminOrdersList = () => {
 	const [cancelledOrders, setCancelledOrders] = useState("");
 	const [reload, setReload] = useState(false);
 	const token = localStorage.getItem("token");
+	const navigate = useNavigate();
+	const location = useLocation();
+	const { hash } = location;
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
@@ -41,6 +45,25 @@ export const BranchAdminOrdersList = () => {
 			console.log(error);
 		}
 	};
+	const getTabFromHash = (hash) => {
+		switch (hash) {
+			case "#waiting-for-payment":
+				return 1;
+			case "#pending-payment-confirmation":
+				return 2;
+			case "#processing":
+				return 3;
+			case "#sent":
+				return 4;
+			case "#received":
+				return 5;
+			case "#cancelled":
+				return 6;
+			default:
+				return 0;
+		}
+	};
+	const activeTab = getTabFromHash(hash);
 	useEffect(() => {
 		ordersList();
 	}, [reload]);
@@ -50,9 +73,9 @@ export const BranchAdminOrdersList = () => {
 			<Box w={"full"}>
 				<NavbarAdmin />
 				<Box w={"full"}>
-					<Tabs align="center" position="relative" variant="unstyled">
+					<Tabs align="center" position="relative" variant="unstyled" index={activeTab}>
 						<TabList>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list")}>
 								<Flex>
 									All orders
 									{totalOrders > 0 && (
@@ -75,7 +98,7 @@ export const BranchAdminOrdersList = () => {
 									)}
 								</Flex>
 							</Tab>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list#waiting-for-payment")}>
 								<Flex>
 									Waiting for Payment
 									{waitingOrders > 0 && (
@@ -98,7 +121,7 @@ export const BranchAdminOrdersList = () => {
 									)}
 								</Flex>
 							</Tab>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list#pending-payment-confirmation")}>
 								<Flex>
 									Pending payment confirmation
 									{pendingOrders > 0 && (
@@ -121,7 +144,7 @@ export const BranchAdminOrdersList = () => {
 									)}
 								</Flex>
 							</Tab>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list#processing")}>
 								<Flex>
 									Processing
 									{processingOrders > 0 && (
@@ -144,7 +167,7 @@ export const BranchAdminOrdersList = () => {
 									)}
 								</Flex>
 							</Tab>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list#sent")}>
 								<Flex>
 									Sent
 									{sentOrders > 0 && (
@@ -167,7 +190,7 @@ export const BranchAdminOrdersList = () => {
 									)}
 								</Flex>
 							</Tab>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list#received")}>
 								<Flex>
 									Received
 									{receivedOrders > 0 && (
@@ -190,7 +213,7 @@ export const BranchAdminOrdersList = () => {
 									)}
 								</Flex>
 							</Tab>
-							<Tab>
+							<Tab onClick={() => navigate("/dashboard/orders-list#cancelled")}>
 								<Flex>
 									Cancelled
 									{cancelledOrders > 0 && (
