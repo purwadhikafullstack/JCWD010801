@@ -63,12 +63,14 @@ module.exports = {
 		try {
 			const { username, firstName, lastName, email, phone, password } = req.body;
 			const isAccountExist = await users.findOne({
-				where: { [Op.or]: { username, email } },
+				where: { [Op.or]: { username, email, phone } },
 			});
 			if (isAccountExist && isAccountExist.email === email) {
 				throw { message: "E-mail has been used." };
 			} else if (isAccountExist && isAccountExist.username === username) {
 				throw { message: "Username has been used." };
+			} else if (isAccountExist && isAccountExist.phone === phone) {
+				throw { message: "Phone number has been used." };
 			}
 
 			const salt = await bcrypt.genSalt(10);
@@ -84,10 +86,10 @@ module.exports = {
 			});
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
-			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
-			const tempCompile = await handlebars.compile(data);
+			const data = fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ username, token });
-			await transporter.sendMail({
+			transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: email,
 				subject: "Verify Your AlphaMart Account",
@@ -316,7 +318,7 @@ module.exports = {
 			});
 		}
 	},
-	resendVerificationEmail: async(req, res) => {
+	resendVerificationEmail: async (req, res) => {
 		try {
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
 			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");

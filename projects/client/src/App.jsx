@@ -12,8 +12,8 @@ function App() {
 	const dispatch = useDispatch();
 	const userFromRedux = useSelector((state) => state.user.value.id);
 	const token = localStorage.getItem("token");
-	const userLat = parseFloat(localStorage.getItem("lat"));
-	const userLng = parseFloat(localStorage.getItem("lng"));
+	const [userLat, setUserLat] = useState(localStorage.getItem("lat"));
+	const [userLng, setUserLng] = useState(localStorage.getItem("lng"));
 	const [branches, setBranches] = useState([]);
 	const [address, setAddress] = useState([]);
 
@@ -43,23 +43,33 @@ function App() {
 		}
 	};
 
-	if ("geolocation" in navigator) {
-		navigator.geolocation.getCurrentPosition(async function (position) {
-			try {
-				const latitude = position.coords.latitude;
-				const longitude = position.coords.longitude;
-				localStorage.setItem("lat", latitude);
-				localStorage.setItem("lng", longitude);
-			} catch (error) {
-				console.error("Error:", error);
-			}
-		});
-	} else {
-		console.log("Geolocation isn't supported in this device.");
+	if (!userLat && !userLng) {
+		if ("geolocation" in navigator) {
+			navigator.geolocation.getCurrentPosition(
+				async function (position) {
+					try {
+						const latitude = position.coords.latitude;
+						const longitude = position.coords.longitude;
+						localStorage.setItem("lat", latitude);
+						localStorage.setItem("lng", longitude);
+						setUserLat(parseFloat(localStorage.getItem("lat")));
+						setUserLng(parseFloat(localStorage.getItem("lng")));
+					} catch (error) {
+						console.error("Error:", error);
+					}
+				},
+				function (error) {
+					console.log("Geolocation error:", error);
+					console.log("Please allow location");
+				}
+			);
+		} else {
+			console.log("Geolocation isn't supported in this device.");
+		}
 	}
 
 	useEffect(() => {
-		if (branches.length > 0) {
+		if (branches.length > 0 && userLat && userLng) {
 			const calculateDistance = (lat1, lon1, lat2, lon2) => {
 				const R = 6371;
 				const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -109,6 +119,17 @@ function App() {
 				closestBranch !== null
 					? localStorage.setItem("BranchId", parseInt(closestBranch?.id))
 					: localStorage.setItem("BranchId", 1);
+			}
+		} else if (branches.length > 0 && address.length > 0 && !userLat && !userLng) {
+			const filteredBranch = branches.filter(
+				(item) =>
+					address[0].lat <= item.northeast_lat &&
+					address[0].lat >= item.southwest_lat &&
+					address[0].lng <= item.northeast_lng &&
+					address[0].lng >= item.southwest_lng
+			);
+			if (filteredBranch.length > 0) {
+				localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
 			}
 		}
 	}, [userLat, userLng, address, branches]);
