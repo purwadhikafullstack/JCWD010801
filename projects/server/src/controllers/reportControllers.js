@@ -24,7 +24,7 @@ module.exports = {
 			const searchBranch = req.query.searchBranch;
 
 			if (search) {
-				condition[Op.or] = [{ id: { [Op.like]: `%${search}%` } }];
+				condition[Op.or] = [{ invoice: { [Op.like]: `%${search}%` } }];
 			}
 			const userCondition = {};
 			if (searchUser) {
