@@ -14,7 +14,8 @@ export const Report = () => {
 	const reduxStore = useSelector((state) => state?.user);
 	const roleId = reduxStore?.value?.RoleId;
 	const branchId = reduxStore?.value?.BranchId;
-
+	const token = localStorage.getItem("token");
+	
 	const initialQueryObj = {
 		page: 0,
 		limit: 10,
@@ -35,7 +36,12 @@ export const Report = () => {
 					query.endDate
 				}&sort=${query.sort}&limit=${query.limit}&searchUser=${query.searchUser}&page=${query.page + 1}&searchProduct=${
 					query.searchProduct
-				}&searchBranch=${query.searchBranch}`
+				}&searchBranch=${query.searchBranch}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
 			);
 
 			setData(response.data);

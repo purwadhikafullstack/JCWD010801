@@ -88,7 +88,7 @@ module.exports = {
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
 			const data = fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
 			const tempCompile = handlebars.compile(data);
-			const tempResult = tempCompile({ username, token });
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username, token });
 			transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: email,
@@ -156,7 +156,7 @@ module.exports = {
 
 			const data = await fs.readFileSync("./src/templates/resetPassword.html", "utf-8");
 			const tempCompile = await handlebars.compile(data);
-			const tempResult = tempCompile({ username: result.username, token });
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: result.username, token });
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: req.body.email,
@@ -234,10 +234,14 @@ module.exports = {
 			const result = await users.update({ email, isVerified: false }, { where: { id: isAccountExist.id } });
 			const payload = { id: req.user.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
-			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
-			const tempCompile = await handlebars.compile(data);
-			const tempResult = tempCompile({ username: isAccountExist.username, token });
-			await transporter.sendMail({
+			const data = fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({
+				link: process.env.REACT_APP_BASE_URL,
+				username: isAccountExist.username,
+				token,
+			});
+			transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: email,
 				subject: "Re-Verify Your AlphaMart Account",
@@ -323,7 +327,7 @@ module.exports = {
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
 			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
 			const tempCompile = await handlebars.compile(data);
-			const tempResult = tempCompile({ username: req.user.id, token });
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: req.user.id, token });
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
 				to: email,
