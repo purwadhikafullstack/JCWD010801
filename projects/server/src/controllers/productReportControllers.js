@@ -4,6 +4,7 @@ const products = db.Products;
 const stocks = db.Stocks;
 const stockMovements = db.StockMovements;
 const changelogs = db.Changelogs;
+const branches = db.Branches;
 const { Sequelize, Op } = require("sequelize");
 
 module.exports = {
@@ -556,14 +557,7 @@ module.exports = {
 	},
 	getAllStocks: async (req, res) => {
 		try {
-			const {
-				search = "",
-				CategoryId,
-				page = 1,
-				sortBy = "productName",
-				sortOrder = "ASC",
-				BranchId,
-			} = req.query;
+			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId } = req.query;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 30;
 
 			const whereCondition = {
@@ -578,14 +572,21 @@ module.exports = {
 				where: whereCondition,
 			});
 
+			if (queriedCount === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: `No matches found for "${search}".`,
+				});
+			}
+
 			let orderCriteria = [];
 
 			if (sortBy === "productName") {
 				orderCriteria.push(["productName", sortOrder]);
 			} else if (sortBy === "aggregateStock") {
 				orderCriteria.push(["aggregateStock", sortOrder]);
-			} else if (sortBy === "createdAt") {
-				orderCriteria.push(["createdAt", sortOrder]);
+			} else if (sortBy === "viewCount") {
+				orderCriteria.push(["viewCount", sortOrder]);
 			} else if (sortBy === "CategoryId") {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "branchStock") {
@@ -687,6 +688,114 @@ module.exports = {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
+			});
+		}
+	},
+	getBranchesProductCount: async (req, res) => {
+		try {
+			const branchesData = await branches.findAll({
+				include: [products],
+			});
+
+			const result = branchesData.map((branch) => {
+				const productsData = branch.Products;
+
+				const sortedProducts = {
+					byAggregateStock: productsData.slice().sort((a, b) => b.aggregateStock - a.aggregateStock),
+					byLowAggregateStock: productsData.slice().sort((a, b) => a.aggregateStock - b.aggregateStock),
+					byViews: productsData.slice().sort((a, b) => b.viewCount - a.viewCount),
+					byLowViews: productsData.slice().sort((a, b) => a.viewCount - b.viewCount),
+				};
+
+				const branchesProducts = {
+					topAggregateStock: sortedProducts.byAggregateStock.slice(0, 3),
+					lowAggregateStock: sortedProducts.byLowAggregateStock.slice(0, 3),
+					topViews: sortedProducts.byViews.slice(0, 3),
+					lowViews: sortedProducts.byLowViews.slice(0, 3),
+				};
+
+				return {
+					id: branch.id,
+					branch: branch.name,
+					address: branch.address,
+					lng: branch.lng,
+					lat: branch.lat,
+					imgURL: branch.imgURL,
+					productCount: productsData.length,
+					products: branchesProducts,
+				};
+			});
+
+			res.status(200).send({
+				status: 200,
+				result: result,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	getBranchesTransactionCount: async (req, res) => {
+		try {
+			const branchTransactionCountData = await branches.findAll({
+				attributes: ["id", "name", "address", "lng", "lat", "imgURL"],
+				include: [
+					{
+						model: stockMovements,
+						required: false,
+						attributes: [
+							[
+								Sequelize.literal(
+									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.BranchId = branches.id AND
+								stockMovements.isAddition = false AND
+								stockMovements.isAdjustment = false AND
+								stockMovements.isInitialization = false AND
+								stockMovements.isBranchInitialization = false)`
+								),
+								"txCount",
+							],
+						],
+					},
+					{
+						model: stockMovements,
+						required: false,
+						attributes: [
+							[
+								Sequelize.literal(
+									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.BranchId = branches.id AND
+								stockMovements.isAddition = true AND
+								stockMovements.isAdjustment = false AND
+								stockMovements.isInitialization = false AND
+								stockMovements.isBranchInitialization = false)`
+								),
+								"failedTxCount",
+							],
+						],
+					},
+				],
+			});
+
+			const result = branchTransactionCountData.map((branch) => {
+				return {
+					...branch.toJSON(),
+					transactions: branch.StockMovements[0],
+				};
+			});
+
+			res.status(200).send({
+				status: 200,
+				result: result,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
 			});
 		}
 	},

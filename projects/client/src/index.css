@@ -141,6 +141,7 @@ canvas {
   font-style: normal;
   font-size: 25px;
   letter-spacing: 20px;
+  transition: all 3s ease-in-out;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -160,4 +161,26 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.left-content {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+}
+
+.statistics {
+  transition: all 3s ease-in-out;
+}
+
+.statistics::-webkit-scrollbar {
+  width: 3px;
+}
+
+.t-head {
+  transition: all 3s ease-in-out;
+}
+
+.t-head::-webkit-scrollbar {
+  width: 3px;
 }
