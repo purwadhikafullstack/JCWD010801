@@ -10,6 +10,7 @@ import NoProductThumb from "../assets/public/404_thumb.gif";
 import React, { useEffect, useState } from "react";
 import CategoryBarChart from "../components/stockReport/categoryBarChart";
 import CategoryDoughnutChart from "../components/stockReport/categoryDoughnutChart";
+import BranchDoughnutChart from "../components/stockReport/branchDoughnutChart";
 import ActiveProductsBarChart from "../components/stockReport/activeProductsBarChart";
 import DeactivatedProductsBarChart from "../components/stockReport/deactivatedProductsBarChart";
 import DeletedProductsBarChart from "../components/stockReport/deletedProductsBarChart";
@@ -44,16 +45,15 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
-	TableCaption,
-	Tfoot,
 	Button,
+	Badge,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { Pagination } from "../components/navigation/pagination";
-import { BiSolidChevronsDown, BiSort, BiCategoryAlt } from "react-icons/bi";
+import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { sidebarEvent } from "../events/sidebarEvent";
@@ -61,14 +61,13 @@ import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
-import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
-import { RiScalesLine, RiScalesFill } from "react-icons/ri";
-import { TbCategory2 } from "react-icons/tb";
+import { LuPackagePlus, LuPackageMinus, LuPackageX, LuPackageCheck } from "react-icons/lu";
+import { IconEyeMinus, IconEyePlus } from "@tabler/icons-react";
 
 const StockReport = () => {
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
-	const { id, username, lastName, gender, RoleId } = useSelector((state) => state?.user?.value);
+	const { username, lastName, gender, RoleId } = useSelector((state) => state?.user?.value);
 	const adminBranchId = useSelector((state) => state?.user?.value?.BranchId);
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
@@ -88,18 +87,12 @@ const StockReport = () => {
 	const [itemLimit, setItemLimit] = useState(15);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-	const [BranchId, setBranchId] = useState(null);
 	const [selectedBranch, setSelectedBranch] = useState("");
 	const [sortedData, setSortedData] = useState([]);
 	const [administrators, setAdministrators] = useState([]);
 	const [users, setUsers] = useState([]);
 	const [selectedEntryTypes, setSelectedEntryTypes] = useState([]);
 	const [multipleSelectToggled, setMultipleSelectToggled] = useState(false);
-	//? Changelogs States
-	const [changelogsHistory, setChangelogsHistory] = useState([]);
-	//? Stock Levels States
-	const [levelsSearch, setLevelsSearch] = useState("");
-
 	const [dateRange, setDateRange] = useState([
 		{
 			startDate: null,
@@ -107,6 +100,31 @@ const StockReport = () => {
 			key: "selection",
 		},
 	]);
+	//? Changelogs States
+	const [changelogsHistory, setChangelogsHistory] = useState([]);
+	//? Stock Levels States
+	const [levelsSearch, setLevelsSearch] = useState("");
+	const [isLevelSearchEmpty, setIsLevelSearchEmpty] = useState(true);
+	const [sortLevelBy, setSortLevelBy] = useState("productName");
+	const [levelSortOrder, setLevelSortOrder] = useState("ASC");
+	const [levelEntries, setLevelEntries] = useState([]);
+	const levelItemLimits = [15, 30, 45, 60, 100];
+	const [levelItemLimit, setLevelItemLimit] = useState(30);
+	const [branchSortId, setBranchSortId] = useState(null);
+	//? Key Metrics States
+	const [selectedHighLevelOption, setSelectedHighLevelOption] = useState("");
+	const [selectedSubOption, setSelectedSubOption] = useState("clear");
+
+	const handleHighLevelOptionChange = (e) => {
+		const highLevelOption = e.target.value;
+		setSelectedHighLevelOption(highLevelOption);
+		setSelectedSubOption("clear");
+	};
+
+	const handleSubOptionChange = (e) => {
+		const subOption = e.target.value;
+		setSelectedSubOption(subOption);
+	};
 
 	const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -137,11 +155,9 @@ const StockReport = () => {
 			setMultipleSelectToggled(false);
 		} else {
 			if (selectedEntryTypes.includes(entryType)) {
-				setItemLimit(100);
 				setMultipleSelectToggled(true);
 				setSelectedEntryTypes((prev) => prev.filter((selected) => selected !== entryType));
 			} else {
-				setItemLimit(100);
 				setMultipleSelectToggled(true);
 				setSelectedEntryTypes((prev) => [...prev, entryType]);
 			}
@@ -162,13 +178,6 @@ const StockReport = () => {
 			setMultipleSelectToggled(true);
 		}
 	}, [selectedEntryTypes, activeTab]);
-
-	useEffect(() => {
-		if (activeTab === 0) {
-			setSortBy("productName");
-			setSortOrder("ASC");
-		}
-	}, [activeTab]);
 
 	let user = "";
 	if (gender !== null) {
@@ -239,6 +248,7 @@ const StockReport = () => {
 			.catch((error) => {
 				console.error("Error fetching categories info:", error);
 			});
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -258,15 +268,23 @@ const StockReport = () => {
 	useEffect(() => {
 		const handleSidebarSizeChange = (newSize) => {
 			setMarginStyles((prevState) => {
-				const newMarginLeftContainer = newSize === "small" ? "100px" : "168px";
-				const newMarginLeftHeading = newSize === "small" ? "48px" : "13px";
-				const newMarginLeftDescription = newSize === "small" ? "50px" : "15px";
+				const newMarginLeftMainContainer = newSize === "small" ? "100px" : "168px";
+				const newMarginLeftHeading = newSize === "small" ? "10px" : "13px";
+				const newMarginLeftDescription = newSize === "small" ? "12px" : "15px";
+				const newContentContainerWidth = newSize === "small" ? "1325px" : "1250px";
+				const newSecondaryContainerWidth = newSize === "small" ? "1300px" : "1225px";
+				const newProductOverviewWidth = newSize === "small" ? "1298px" : "1224px";
+				const newSkeletonWidth = newSize === "small" ? "1293px" : "1220px";
 
 				return {
 					...prevState,
-					marginLeftContainer: newMarginLeftContainer,
+					marginLeftMainContainer: newMarginLeftMainContainer,
 					marginLeftHeading: newMarginLeftHeading,
 					marginLeftDescription: newMarginLeftDescription,
+					contentContainerWidth: newContentContainerWidth,
+					secondaryContainerWidth: newSecondaryContainerWidth,
+					productOverviewWidth: newProductOverviewWidth,
+					skeletonWidth: newSkeletonWidth,
 				};
 			});
 		};
@@ -279,16 +297,65 @@ const StockReport = () => {
 	}, []);
 
 	useEffect(() => {
+		if (activeTab === 0) {
+			fetchStockLevelsData(page);
+		}
+		// eslint-disable-next-line
+	}, [levelsSearch, reload, levelItemLimit, sortLevelBy, levelSortOrder, branchSortId, activeTab]);
+
+	useEffect(() => {
 		if (activeTab === 1) {
 			fetchMovementData(page);
 		}
+		// eslint-disable-next-line
 	}, [search, reload, dateRange, selectedEntryTypes, itemLimit, selectedBranch, sortBy, sortOrder]);
 
 	useEffect(() => {
 		if (activeTab === 2) {
 			fetchChangelogsData(page);
 		}
+		// eslint-disable-next-line
 	}, [search, reload, dateRange, itemLimit, selectedBranch, sortBy, sortOrder]);
+
+	const fetchStockLevelsData = async (pageNum) => {
+		try {
+			setIsLoading(true);
+			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product-report/levels/?search=${levelsSearch}&page=${pageNum}&sortBy=${sortLevelBy}&sortOrder=${levelSortOrder}`;
+
+			if (selectedCategory) {
+				apiURL += `&CategoryId=${selectedCategory}`;
+			}
+			if (branchSortId) {
+				apiURL += `&BranchId=${branchSortId}`;
+			}
+			if (levelItemLimit) {
+				apiURL += `&itemLimit=${levelItemLimit}`;
+			}
+
+			const levelsResponse = await Axios.get(apiURL);
+			const { result, currentPage, totalPages } = levelsResponse.data;
+			setLevelEntries(result);
+			setPage(currentPage);
+			setTotalPages(totalPages);
+			setIsLevelSearchEmpty(false);
+
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 500);
+		} catch (error) {
+			setIsLevelSearchEmpty(true);
+			toast.warn(`No matches found for "${levelsSearch}"`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		}
+	};
 
 	const fetchMovementData = async (pageNum) => {
 		try {
@@ -438,6 +505,16 @@ const StockReport = () => {
 		setPage(1);
 	}, 2000);
 
+	const handleLevelsSearchChange = (e) => {
+		const query = e.target.value;
+		handleLevelsSearchDebounced(query);
+	};
+
+	const handleLevelsSearchDebounced = debounce((query) => {
+		setLevelsSearch(query);
+		setPage(1);
+	}, 2000);
+
 	const findAdminNameById = (UID) => {
 		const admin = administrators.find((admin) => admin.id === UID);
 		const user = users.find((user) => user.id === UID);
@@ -447,6 +524,79 @@ const StockReport = () => {
 	const findBranchNameById = (BID) => {
 		const branch = branches.find((branch) => branch.value === BID);
 		return branch ? branch.label : "Unknown";
+	};
+
+	const renderLevelsEntries = (isLoading) => {
+		if (isLoading) {
+			return levelEntries.map((item, index) => {
+				const isEvenIndex = index % 2 === 0;
+				return (
+					<Tr key={item.id}>
+						<Td>
+							<div
+								style={{
+									width: "10px",
+									marginLeft: "-13px",
+								}}
+							>
+								<Skeleton
+									count={1}
+									width={"1310px"}
+									containerClassName="flex-1"
+									height={"32px"}
+									highlightColor="#141415"
+									direction={isEvenIndex ? "rtl" : "ltr"}
+								/>
+							</div>
+						</Td>
+					</Tr>
+				);
+			});
+		} else {
+			return levelEntries.map((item, index) => {
+				return (
+					<Tr key={item.id}>
+						<Td textAlign={"center"}>{index + 1}</Td>
+						<Td textAlign={"left"}>{item.productName}</Td>
+						<Td textAlign={"center"}>{item.aggregateStock} units</Td>
+						<Td textAlign={"center"}>{getCategoryLabel(item.CategoryId)}</Td>
+						<Td textAlign={"center"}>
+							{item.Stocks.find((stock) => stock.BranchId === 1)
+								? item.Stocks.find((stock) => stock.BranchId === 1).currentStock
+								: 0}
+							‎ Units
+						</Td>
+						<Td textAlign={"center"}>
+							{item.Stocks.find((stock) => stock.BranchId === 2)
+								? item.Stocks.find((stock) => stock.BranchId === 2).currentStock
+								: 0}
+							‎ Units
+						</Td>
+						<Td textAlign={"center"}>
+							{item.Stocks.find((stock) => stock.BranchId === 3)
+								? item.Stocks.find((stock) => stock.BranchId === 3).currentStock
+								: 0}
+							‎ Units
+						</Td>
+						<Td textAlign={"center"}>
+							{item.Stocks.find((stock) => stock.BranchId === 4)
+								? item.Stocks.find((stock) => stock.BranchId === 4).currentStock
+								: 0}
+							‎ Units
+						</Td>
+						<Td textAlign={"center"}>
+							{item.Stocks.find((stock) => stock.BranchId === 5)
+								? item.Stocks.find((stock) => stock.BranchId === 5).currentStock
+								: 0}
+							‎ Units
+						</Td>
+						<Td textAlign={"center"}>{item.StockMovements.txCount} Sent</Td>
+						<Td textAlign={"center"}>{item.StockMovements.failedTxCount} Cancellations</Td>
+						<Td textAlign={"center"}>{item.viewCount} x</Td>
+					</Tr>
+				);
+			});
+		}
 	};
 
 	const renderTableEntries = (data, isLoading) => {
@@ -481,9 +631,9 @@ const StockReport = () => {
 							>
 								<Skeleton
 									count={1}
-									width={"1220px"}
+									width={marginStyles.skeletonWidth}
 									containerClassName="flex-1"
-									height={"35px"}
+									height={"32px"}
 									highlightColor="#141415"
 									direction={isEvenIndex ? "rtl" : "ltr"}
 								/>
@@ -506,8 +656,8 @@ const StockReport = () => {
 
 				return (
 					<Tr key={item.id}>
-						<Td textAlign={"left"}>{index + 1}</Td>
-						<Td textAlign={"center"}>
+						<Td textAlign={"center"}>{index + 1}</Td>
+						<Td textAlign={"left"}>
 							{item.isInitialization
 								? "Product Created"
 								: item.isBranchInitialization
@@ -524,7 +674,7 @@ const StockReport = () => {
 						<Td textAlign={"center"}>{findBranchNameById(item.BranchId)}</Td>
 						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
 						<Td textAlign={"center"}>{formattedDate}</Td>
-						<Td isNumeric>{formattedTime}</Td>
+						<Td textAlign={"center"}>{formattedTime}</Td>
 					</Tr>
 				);
 			});
@@ -546,9 +696,9 @@ const StockReport = () => {
 							>
 								<Skeleton
 									count={1}
-									width={"1220px"}
+									width={marginStyles.skeletonWidth}
 									containerClassName="flex-1"
-									height={"35px"}
+									height={"32px"}
 									highlightColor="#141415"
 									direction={isEvenIndex ? "rtl" : "ltr"}
 								/>
@@ -574,8 +724,8 @@ const StockReport = () => {
 
 				return (
 					<Tr key={item.id}>
-						<Td textAlign={"left"}>{index + 1}</Td>
-						<Td textAlign={"center"}>
+						<Td textAlign={"center"}>{index + 1}</Td>
+						<Td textAlign={"left"}>
 							{item.field === "productName"
 								? "Product Name Change"
 								: item.field === "price"
@@ -672,7 +822,7 @@ const StockReport = () => {
 						</Td>
 						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
 						<Td textAlign={"center"}>{formattedDate}</Td>
-						<Td isNumeric>{formattedTime}</Td>
+						<Td textAlign={"center"}>{formattedTime}</Td>
 					</Tr>
 				);
 			});
@@ -701,6 +851,7 @@ const StockReport = () => {
 
 	useEffect(() => {
 		updateSortedData();
+		// eslint-disable-next-line
 	}, [movementHistory, sortBy, sortOrder]);
 
 	const getCategoryLabel = (catId) => {
@@ -728,9 +879,13 @@ const StockReport = () => {
 	};
 
 	const [marginStyles, setMarginStyles] = useState({
-		marginLeftContainer: "168px",
+		marginLeftMainContainer: "168px",
 		marginLeftHeading: "13px",
 		marginLeftDescription: "15px",
+		contentContainerWidth: "1250px",
+		secondaryContainerWidth: "1225px",
+		productOverviewWidth: "1224px",
+		skeletonWidth: "1220px",
 	});
 
 	const customInputStyle = {
@@ -791,7 +946,7 @@ const StockReport = () => {
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
 			<AdminSidebar navSizeProp="large" navPosProp="fixed" />
 			<NavbarAdmin />
-			<Box className="transition-element" ml={marginStyles.marginLeftContainer} h={"200vh"}>
+			<Box className="transition-element" ml={marginStyles.marginLeftMainContainer} h={"200vh"}>
 				<Flex h={"100px"} alignItems={"center"} justifyContent={"space-between"}>
 					<Text
 						className="pm-h"
@@ -829,7 +984,8 @@ const StockReport = () => {
 					</Text>
 				</Flex>
 				<Box
-					w={"1250px"}
+					className="transition-element"
+					w={marginStyles.contentContainerWidth}
 					h={"160vh"}
 					m={"5px"}
 					py={"5px"}
@@ -838,12 +994,22 @@ const StockReport = () => {
 					position={"relative"}
 				>
 					<Tabs
+						className="transition-element"
+						w={marginStyles.secondaryContainerWidth}
+						align="left"
 						value={activeTab}
 						onChange={(index) => {
 							setActiveTab(index);
 							setSortBy("createdAt");
 							setSortOrder("ASC");
+							setSortLevelBy("productName");
+							setLevelSortOrder("ASC");
 							setPage(1);
+							setSelectedBranch("");
+							setSelectedCategory("");
+							setSearch("");
+							setLevelsSearch("");
+							setSelectedEntryTypes([]);
 							setDateRange([
 								{
 									startDate: null,
@@ -851,10 +1017,7 @@ const StockReport = () => {
 									key: "selection",
 								},
 							]);
-							setSearch("");
 						}}
-						w="1225px"
-						align="left"
 					>
 						<TabList>
 							<Tab
@@ -926,9 +1089,11 @@ const StockReport = () => {
 						{/* //! Stock Levels Tab */}
 						{activeTab === 0 ? (
 							<Flex
-								w={"1225px"}
+								className="transition-element"
+								w={marginStyles.secondaryContainerWidth}
 								h={"45px"}
-								align="center"
+								align={"center"}
+								justify="space-between"
 								fontWeight="bold"
 								mb={"2px"}
 								borderBottom={"1px solid #39393C"}
@@ -936,7 +1101,7 @@ const StockReport = () => {
 								<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
 									<Input
 										type="search"
-										value={levelsSearch}
+										defaultValue={levelsSearch}
 										mr={"5px"}
 										w={"200px"}
 										h={"30px"}
@@ -944,10 +1109,7 @@ const StockReport = () => {
 										bgColor={"white"}
 										placeholder="Enter a Product Name"
 										{...customInputStyle}
-										onChange={(e) => {
-											setPage(1);
-											setLevelsSearch(e.target.value);
-										}}
+										onChange={handleLevelsSearchChange}
 									/>
 									<FaSearch
 										size={20}
@@ -958,8 +1120,9 @@ const StockReport = () => {
 										style={{ cursor: "pointer" }}
 									/>
 								</Flex>
-								<Flex w={"210px"} h={"45px"} justify="left" align={"center"} fontWeight="bold" ml={"10px"}>
+								<Flex w={"280px"} h={"45px"} justify="left" align={"center"} fontWeight="bold" ml={"5px"}>
 									<Select
+										fontSize={"13px"}
 										placeholder="All Categories"
 										value={selectedCategory.toString()}
 										onChange={(e) => {
@@ -968,11 +1131,12 @@ const StockReport = () => {
 											setPage(1);
 											setReload(!reload);
 										}}
-										w={"200px"}
+										w={"130px"}
 										h={"30px"}
 										border={"1px solid gray"}
 										bgColor={"white"}
 										{...customSelectStyle}
+										mr={"5px"}
 									>
 										{categories.map((category) => (
 											<option
@@ -982,11 +1146,43 @@ const StockReport = () => {
 													backgroundColor: selectedCategory === category.value ? "#F0F0F0" : "#FFFFFF",
 													color: selectedCategory === category.value ? "#18181A" : "#535256",
 													fontWeight: selectedCategory === category.value ? "bold" : "normal",
-													fontSize: "16px",
+													fontSize: "13px",
 													cursor: "pointer",
 												}}
 											>
 												{category.label}
+											</option>
+										))}
+									</Select>
+									<Select
+										placeholder="Select Number of IPP"
+										value={levelItemLimit}
+										onChange={(e) => {
+											setLevelItemLimit(parseInt(e.target.value));
+											setPage(1);
+											setReload(!reload);
+										}}
+										w={"150px"}
+										h={"30px"}
+										border={"1px solid gray"}
+										bgColor={"white"}
+										{...customSelectStyle}
+										fontSize={"13px"}
+										ml={"2px"}
+									>
+										{levelItemLimits.map((limit) => (
+											<option
+												key={limit}
+												value={limit}
+												style={{
+													backgroundColor: itemLimit === limit ? "#F0F0F0" : "#FFFFFF",
+													color: itemLimit === limit ? "#18181A" : "#535256",
+													fontWeight: itemLimit === limit ? "bold" : "normal",
+													fontSize: "14px",
+													cursor: "pointer",
+												}}
+											>
+												{limit} Items Per Page
 											</option>
 										))}
 									</Select>
@@ -997,119 +1193,154 @@ const StockReport = () => {
 									justify="space-evenly"
 									align="center"
 									fontWeight="bold"
-									ml={"10px"}
+									ml={"2px"}
 									border={"1px solid black"}
 									borderRadius={"10px"}
 								>
 									<Radio
 										size="sm"
-										isChecked={sortBy === "productName"}
+										isChecked={sortLevelBy === "productName"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("productName");
+											setSortLevelBy("productName");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Alphabetical
+										<Text ml={"-6px"}>Alphabetical</Text>
 									</Radio>
 									<Radio
 										size="sm"
-										ml={"7px"}
-										isChecked={sortBy === "price"}
+										isChecked={sortLevelBy === "aggregateStock"}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("price");
+											setSortLevelBy("aggregateStock");
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Price
+										<Text ml={"-6px"}>Nationwide</Text>
 									</Radio>
 									<Radio
 										size="sm"
-										ml={"7px"}
-										isChecked={sortBy === "weight"}
+										isChecked={sortLevelBy === "branchStock" && branchSortId === 1}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("weight");
+											setSortLevelBy("branchStock");
+											setBranchSortId(1);
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Weight
+										<Text ml={"-6px"}>JKT</Text>
 									</Radio>
 									<Radio
 										size="sm"
-										ml={"7px"}
-										isChecked={sortBy === "CategoryId"}
+										isChecked={sortLevelBy === "branchStock" && branchSortId === 2}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("CategoryId");
+											setSortLevelBy("branchStock");
+											setBranchSortId(2);
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Categories
+										<Text ml={"-6px"}>BDG</Text>
 									</Radio>
 									<Radio
 										size="sm"
-										ml={"7px"}
-										isChecked={sortBy === "aggregateStock"}
+										isChecked={sortLevelBy === "branchStock" && branchSortId === 3}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("aggregateStock");
+											setSortLevelBy("branchStock");
+											setBranchSortId(3);
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										N.Stock
+										<Text ml={"-6px"}>YGY</Text>
 									</Radio>
 									<Radio
 										size="sm"
-										ml={"7px"}
-										isChecked={sortBy === "branchStock"}
+										isChecked={sortLevelBy === "branchStock" && branchSortId === 4}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("branchStock");
+											setSortLevelBy("branchStock");
+											setBranchSortId(4);
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										B.Stock
+										<Text ml={"-6px"}>SBY</Text>
 									</Radio>
 									<Radio
 										size="sm"
-										ml={"7px"}
-										isChecked={sortBy === "createdAt"}
+										isChecked={sortLevelBy === "branchStock" && branchSortId === 5}
 										borderColor={"gray"}
 										onChange={() => {
-											setSortBy("createdAt");
+											setSortLevelBy("branchStock");
+											setBranchSortId(5);
 											setPage(1);
 										}}
 										{...customRadioStyle}
 									>
-										Listing Time
+										<Text ml={"-6px"}>BTM</Text>
+									</Radio>
+									<Radio
+										size="sm"
+										isChecked={sortLevelBy === "txCount"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortLevelBy("txCount");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										<Text ml={"-6px"}>#TX</Text>
+									</Radio>
+									<Radio
+										size="sm"
+										isChecked={sortLevelBy === "failedTxCount"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortLevelBy("failedTxCount");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										<Text ml={"-6px"}>#Failed</Text>
+									</Radio>
+									<Radio
+										size="sm"
+										isChecked={sortLevelBy === "viewCount"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortLevelBy("viewCount");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										<Text ml={"-6px"}>Views</Text>
 									</Radio>
 								</Flex>
 								<Flex
 									justifyContent={"space-around"}
 									w={"122px"}
 									h={"31px"}
-									ml={"8px"}
+									ml={"2px"}
 									justify="center"
 									align="center"
 									fontWeight="bold"
 									border={"1px solid black"}
 									borderRadius={"10px"}
 								>
-									{sortBy === "productName" && (
+									{sortLevelBy === "productName" && (
 										<>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
+												isChecked={levelSortOrder === "ASC"}
 												onChange={() => {
-													setSortOrder("ASC");
+													setLevelSortOrder("ASC");
 												}}
 												{...customRadioStyle}
 											>
@@ -1117,9 +1348,9 @@ const StockReport = () => {
 											</Radio>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
+												isChecked={levelSortOrder === "DESC"}
 												onChange={() => {
-													setSortOrder("DESC");
+													setLevelSortOrder("DESC");
 												}}
 												{...customRadioStyle}
 											>
@@ -1127,85 +1358,13 @@ const StockReport = () => {
 											</Radio>
 										</>
 									)}
-									{sortBy === "price" && (
+									{sortLevelBy === "aggregateStock" && (
 										<>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
+												isChecked={levelSortOrder === "ASC"}
 												onChange={() => {
-													setSortOrder("ASC");
-												}}
-												{...customRadioStyle}
-											>
-												<BsSortNumericDown size={28} />
-											</Radio>
-											<Radio
-												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
-												onChange={() => {
-													setSortOrder("DESC");
-												}}
-												{...customRadioStyle}
-											>
-												<BsSortNumericUp size={28} />
-											</Radio>
-										</>
-									)}
-									{sortBy === "weight" && (
-										<>
-											<Radio
-												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
-												onChange={() => {
-													setSortOrder("ASC");
-												}}
-												{...customRadioStyle}
-											>
-												<RiScalesLine size={25} />
-											</Radio>
-											<Radio
-												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
-												onChange={() => {
-													setSortOrder("DESC");
-												}}
-												{...customRadioStyle}
-											>
-												<RiScalesFill size={25} />
-											</Radio>
-										</>
-									)}
-									{sortBy === "CategoryId" && (
-										<>
-											<Radio
-												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
-												onChange={() => {
-													setSortOrder("ASC");
-												}}
-												{...customRadioStyle}
-											>
-												<BiCategoryAlt size={25} />
-											</Radio>
-											<Radio
-												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
-												onChange={() => {
-													setSortOrder("DESC");
-												}}
-												{...customRadioStyle}
-											>
-												<TbCategory2 size={25} />
-											</Radio>
-										</>
-									)}
-									{sortBy === "aggregateStock" && (
-										<>
-											<Radio
-												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
-												onChange={() => {
-													setSortOrder("ASC");
+													setLevelSortOrder("ASC");
 												}}
 												{...customRadioStyle}
 											>
@@ -1213,9 +1372,9 @@ const StockReport = () => {
 											</Radio>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
+												isChecked={levelSortOrder === "DESC"}
 												onChange={() => {
-													setSortOrder("DESC");
+													setLevelSortOrder("DESC");
 												}}
 												{...customRadioStyle}
 											>
@@ -1223,13 +1382,13 @@ const StockReport = () => {
 											</Radio>
 										</>
 									)}
-									{sortBy === "branchStock" && (
+									{sortLevelBy === "branchStock" && branchSortId === 1 && (
 										<>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
+												isChecked={levelSortOrder === "ASC"}
 												onChange={() => {
-													setSortOrder("ASC");
+													setLevelSortOrder("ASC");
 												}}
 												{...customRadioStyle}
 											>
@@ -1237,9 +1396,9 @@ const StockReport = () => {
 											</Radio>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
+												isChecked={levelSortOrder === "DESC"}
 												onChange={() => {
-													setSortOrder("DESC");
+													setLevelSortOrder("DESC");
 												}}
 												{...customRadioStyle}
 											>
@@ -1247,27 +1406,171 @@ const StockReport = () => {
 											</Radio>
 										</>
 									)}
-									{sortBy === "createdAt" && (
+									{sortLevelBy === "branchStock" && branchSortId === 2 && (
 										<>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "ASC"}
+												isChecked={levelSortOrder === "ASC"}
 												onChange={() => {
-													setSortOrder("ASC");
+													setLevelSortOrder("ASC");
 												}}
 												{...customRadioStyle}
 											>
-												<IoCalendarNumberOutline size={26} />
+												<PiChartLineDown size={25} />
 											</Radio>
 											<Radio
 												borderColor={"gray"}
-												isChecked={sortOrder === "DESC"}
+												isChecked={levelSortOrder === "DESC"}
 												onChange={() => {
-													setSortOrder("DESC");
+													setLevelSortOrder("DESC");
 												}}
 												{...customRadioStyle}
 											>
-												<CiCalendarDate size={32} />
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "branchStock" && branchSortId === 3 && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "branchStock" && branchSortId === 4 && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "branchStock" && branchSortId === 5 && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineDown size={25} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<PiChartLineUp size={25} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "txCount" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<LuPackageMinus size={23} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<LuPackagePlus size={23} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "failedTxCount" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<LuPackageCheck size={23} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<LuPackageX size={23} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "viewCount" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<IconEyeMinus size={23} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<IconEyePlus size={23} />
 											</Radio>
 										</>
 									)}
@@ -1275,9 +1578,11 @@ const StockReport = () => {
 							</Flex>
 						) : activeTab === 1 ? (
 							<Flex
-								w={"1225px"}
+								className="transition-element"
+								w={marginStyles.secondaryContainerWidth}
 								h={"45px"}
 								align="center"
+								justify={"space-between"}
 								fontWeight="bold"
 								mb={"2px"}
 								borderBottom={"1px solid #39393C"}
@@ -1357,7 +1662,6 @@ const StockReport = () => {
 										bgColor={"white"}
 										{...customSelectStyle}
 										fontSize={"13px"}
-										isDisabled={multipleSelectToggled}
 									>
 										{itemLimits.map((limit) => (
 											<option
@@ -1552,7 +1856,9 @@ const StockReport = () => {
 							</Flex>
 						) : activeTab === 2 ? (
 							<Flex
-								w={"1225px"}
+								className="transition-element"
+								w={marginStyles.secondaryContainerWidth}
+								justify={"space-between"}
 								h={"45px"}
 								align="center"
 								fontWeight="bold"
@@ -1583,7 +1889,7 @@ const StockReport = () => {
 								</Flex>
 								<Flex w={"530px"} h={"45px"} justify="left" align={"center"} fontWeight="bold">
 									<Select
-										ml={"164px"}
+										ml={"165px"}
 										placeholder="Select Number of IPP"
 										value={itemLimit}
 										onChange={(e) => {
@@ -1591,7 +1897,7 @@ const StockReport = () => {
 											setPage(1);
 											setReload(!reload);
 										}}
-										w={"156px"}
+										w={"157px"}
 										h={"30px"}
 										border={"1px solid gray"}
 										bgColor={"white"}
@@ -1617,7 +1923,8 @@ const StockReport = () => {
 									</Select>
 								</Flex>
 								<Flex
-									w={"325px"}
+									ml={"205px"}
+									w={"120px"}
 									h={"31px"}
 									justify="space-evenly"
 									align="center"
@@ -1627,7 +1934,6 @@ const StockReport = () => {
 								>
 									<Radio
 										size="sm"
-										ml={"7px"}
 										isChecked={sortBy === "createdAt"}
 										borderColor={"gray"}
 										onChange={() => {
@@ -1679,12 +1985,214 @@ const StockReport = () => {
 						{/* //? End of Content Headers */}
 						{/* //? Start of Tab Content */}
 						<TabPanels ml={"-15px"}>
-							{/* //? Stock Analysis Tab Content */}
-							<TabPanel key="stock-analysis">Stock Analysis</TabPanel>
+							{/* //? Stock Levels Tab Content */}
+							<TabPanel key="stock-levels">
+								<Stack
+									className="transition-element"
+									h={"1065px"}
+									w={marginStyles.secondaryContainerWidth}
+									borderRadius={"15px"}
+								>
+									{!isLevelSearchEmpty ? (
+										<TableContainer className="scrollbar-3px" overflowY={"auto"} h={"inherit"} w={"inherit"}>
+											<Table size="sm" variant={!isLoading ? "striped" : "unstyled"}>
+												<Thead
+													style={{
+														position: "sticky",
+														top: 0,
+														zIndex: 1,
+														backgroundColor: "#FFFFFF",
+													}}
+												>
+													<Tr>
+														<Th textAlign={"left"}>No.</Th>
+														<Th>
+															<div className="left-content">
+																Product Name
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("productName");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Aggregate Stock
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("aggregateStock");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">Category</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Jakarta
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("branchStock");
+																		setBranchSortId(1);
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Bandung
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("branchStock");
+																		setBranchSortId(2);
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Jogjakarta
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("branchStock");
+																		setBranchSortId(3);
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Surabaya
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("branchStock");
+																		setBranchSortId(4);
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Batam
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("branchStock");
+																		setBranchSortId(5);
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Tx Count
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("txCount");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Failed Tx
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("failedTxCount");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Views
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("viewCount");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+													</Tr>
+												</Thead>
+												<Tbody>{renderLevelsEntries(isLoading)}</Tbody>
+											</Table>
+										</TableContainer>
+									) : (
+										<Flex
+											w={"1225px"}
+											h={"300px"}
+											align={"center"}
+											borderTop={"1px ridge grey"}
+											borderBottom={"1px ridge grey"}
+											borderRadius={"10px"}
+										>
+											<Image src={NoProduct} alt="404ProductNotFound" objectFit="cover" borderRadius={"5px"} />
+										</Flex>
+									)}
+								</Stack>
+							</TabPanel>
 							{/* //? Stock Movement Tab Content */}
 							<TabPanel key="stock-movement">
-								<Stack h={"1000px"} w={"1225px"} borderRadius={"15px"}>
-									<Flex>
+								<Stack
+									className="transition-element"
+									h={"1065px"}
+									align={"center"}
+									w={marginStyles.secondaryContainerWidth}
+									borderRadius={"15px"}
+								>
+									<Flex className="transition-element" justify={"center"} align={"center"}>
 										<DateRangePicker
 											ranges={dateRange}
 											onChange={(date) => {
@@ -1707,18 +2215,21 @@ const StockReport = () => {
 											page={page}
 											sortBy={sortBy}
 											sortOrder={sortOrder}
+											multipleSelectToggled={multipleSelectToggled}
+											activeTab={activeTab}
 										/>
 									</Flex>
 									<Stack
+										className="transition-element"
+										w={marginStyles.secondaryContainerWidth}
 										h={"155px"}
-										w={"1225px"}
 										border={"1px ridge grey"}
 										borderRadius={"15px"}
 										align={"space-between"}
 									>
 										<Text
 											className="p-overview-h"
-											w={"1224px"}
+											w={marginStyles.productOverviewWidth}
 											h={"35px"}
 											alignSelf={"top"}
 											justify={"center"}
@@ -1779,18 +2290,24 @@ const StockReport = () => {
 												</Text>
 												<Text overflow={"hidden"}>
 													ACTIVATION ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
-													{productDetails.isActive && !isSearchEmpty
-														? "ACTIVE"
-														: !productDetails.isActive && !isSearchEmpty
-														? "DEACTIVATED"
-														: "No Match"}
+													{productDetails.isActive && !isSearchEmpty ? (
+														<Badge colorScheme="green" fontSize={"14px"} textAlign={"center"}>
+															ACTIVE
+														</Badge>
+													) : !productDetails.isActive && !isSearchEmpty ? (
+														<Badge colorScheme="red" fontSize={"14px"} textAlign={"center"}>
+															DEACTIVATED
+														</Badge>
+													) : (
+														"No Match"
+													)}
 												</Text>
 											</Stack>
 											<Stack ml={"5px"} w={"375px"} h={"115px"} fontSize={"15px"} justify={"center"}>
 												<Text overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} maxWidth={"375px"}>
 													DESCRIPTION ‎: ‎
 													{!isSearchEmpty
-														? productDetails?.description && productDetails.description.length > 35
+														? productDetails?.description && productDetails.description.length > 75
 															? productDetails.description.substring(0, 35) + "..."
 															: productDetails.description
 														: "Please check your search query."}
@@ -1806,11 +2323,17 @@ const StockReport = () => {
 												</Text>
 												<Text overflow={"hidden"}>
 													DELETED ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
-													{!isSearchEmpty && productDetails.isDeleted
-														? "YES"
-														: !isSearchEmpty && !productDetails.isDeleted
-														? "NO"
-														: "to product management."}
+													{!isSearchEmpty && productDetails.isDeleted ? (
+														<Badge colorScheme="red" fontSize={"14px"} textAlign={"center"}>
+															YES
+														</Badge>
+													) : !isSearchEmpty && !productDetails.isDeleted ? (
+														<Badge colorScheme="green" fontSize={"14px"} textAlign={"center"}>
+															NO
+														</Badge>
+													) : (
+														"to product management."
+													)}
 												</Text>
 											</Stack>
 										</Flex>
@@ -1818,7 +2341,7 @@ const StockReport = () => {
 									{!isSearchEmpty && (
 										<>
 											{isDateFound ? (
-												<TableContainer className="scrollbar-3px" overflowY={"auto"}>
+												<TableContainer className="t-head" overflowY={"auto"} w={marginStyles.secondaryContainerWidth}>
 													<Table size="sm" variant={!isLoading ? "striped" : "unstyled"}>
 														<Thead
 															style={{
@@ -1829,8 +2352,8 @@ const StockReport = () => {
 															}}
 														>
 															<Tr>
-																<Th textAlign={"left"}>No.</Th>
-																<Th textAlign={"center"}>Type</Th>
+																<Th textAlign={"center"}>No.</Th>
+																<Th textAlign={"left"}>Type</Th>
 																<Th textAlign={"center"}>Old Value</Th>
 																<Th
 																	style={{
@@ -1891,7 +2414,7 @@ const StockReport = () => {
 																		}}
 																	/>
 																</Th>
-																<Th isNumeric>Time</Th>
+																<Th textAlign={"center"}>Time</Th>
 															</Tr>
 														</Thead>
 														<Tbody>{renderTableEntries(sortedData, isLoading)}</Tbody>
@@ -1899,7 +2422,7 @@ const StockReport = () => {
 												</TableContainer>
 											) : (
 												<Flex
-													w={"1225px"}
+													w={marginStyles.secondaryContainerWidth}
 													h={"300px"}
 													align={"center"}
 													borderTop={"1px ridge grey"}
@@ -1913,7 +2436,7 @@ const StockReport = () => {
 									)}
 									{isSearchEmpty && (
 										<Flex
-											w={"1225px"}
+											w={marginStyles.secondaryContainerWidth}
 											h={"300px"}
 											align={"center"}
 											borderTop={"1px ridge grey"}
@@ -1927,8 +2450,14 @@ const StockReport = () => {
 							</TabPanel>
 							{/* //? Changelogs Tab Content */}
 							<TabPanel key="changelogs">
-								<Stack h={"1000px"} w={"1225px"} borderRadius={"15px"}>
-									<Flex justify={"center"} align={"center"}>
+								<Stack
+									className="transition-element"
+									h={"1065px"}
+									align={"center"}
+									w={marginStyles.secondaryContainerWidth}
+									borderRadius={"15px"}
+								>
+									<Flex className="transition-element" justify={"center"} align={"center"}>
 										<DateRangePicker
 											ranges={dateRange}
 											onChange={(date) => {
@@ -1941,15 +2470,16 @@ const StockReport = () => {
 										/>
 									</Flex>
 									<Stack
+										className="transition-element"
+										w={marginStyles.secondaryContainerWidth}
 										h={"155px"}
-										w={"1225px"}
 										border={"1px ridge grey"}
 										borderRadius={"15px"}
 										align={"space-between"}
 									>
 										<Text
 											className="p-overview-h"
-											w={"1224px"}
+											w={marginStyles.productOverviewWidth}
 											h={"35px"}
 											alignSelf={"top"}
 											justify={"center"}
@@ -2010,18 +2540,24 @@ const StockReport = () => {
 												</Text>
 												<Text overflow={"hidden"}>
 													ACTIVATION ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
-													{productDetails.isActive && !isSearchEmpty
-														? "ACTIVE"
-														: !productDetails.isActive && !isSearchEmpty
-														? "DEACTIVATED"
-														: "No Match"}
+													{productDetails.isActive && !isSearchEmpty ? (
+														<Badge colorScheme="green" fontSize={"14px"} textAlign={"center"}>
+															ACTIVE
+														</Badge>
+													) : !productDetails.isActive && !isSearchEmpty ? (
+														<Badge colorScheme="red" fontSize={"14px"} textAlign={"center"}>
+															DEACTIVATED
+														</Badge>
+													) : (
+														"No Match"
+													)}
 												</Text>
 											</Stack>
 											<Stack ml={"5px"} w={"375px"} h={"115px"} fontSize={"15px"} justify={"center"}>
 												<Text overflow={"hidden"} textOverflow={"ellipsis"} whiteSpace={"nowrap"} maxWidth={"375px"}>
 													DESCRIPTION ‎: ‎
 													{!isSearchEmpty
-														? productDetails?.description && productDetails.description.length > 35
+														? productDetails?.description && productDetails.description.length > 75
 															? productDetails.description.substring(0, 35) + "..."
 															: productDetails.description
 														: "Please check your search query."}
@@ -2037,11 +2573,17 @@ const StockReport = () => {
 												</Text>
 												<Text overflow={"hidden"}>
 													DELETED ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ : ‎
-													{!isSearchEmpty && productDetails.isDeleted
-														? "YES"
-														: !isSearchEmpty && !productDetails.isDeleted
-														? "NO"
-														: "to product management."}
+													{!isSearchEmpty && productDetails.isDeleted ? (
+														<Badge colorScheme="red" fontSize={"14px"} textAlign={"center"}>
+															YES
+														</Badge>
+													) : !isSearchEmpty && !productDetails.isDeleted ? (
+														<Badge colorScheme="green" fontSize={"14px"} textAlign={"center"}>
+															NO
+														</Badge>
+													) : (
+														"to product management."
+													)}
 												</Text>
 											</Stack>
 										</Flex>
@@ -2049,7 +2591,7 @@ const StockReport = () => {
 									{!isSearchEmpty && (
 										<>
 											{isDateFound ? (
-												<TableContainer className="scrollbar-3px" overflowY={"auto"}>
+												<TableContainer className="t-head" overflowY={"auto"} w={marginStyles.secondaryContainerWidth}>
 													<Table size="sm" variant={!isLoading ? "striped" : "unstyled"}>
 														<Thead
 															style={{
@@ -2060,8 +2602,8 @@ const StockReport = () => {
 															}}
 														>
 															<Tr>
-																<Th textAlign={"left"}>No.</Th>
-																<Th textAlign={"center"}>Field</Th>
+																<Th textAlign={"center"}>No.</Th>
+																<Th textAlign={"left"}>Field</Th>
 																<Th textAlign={"center"}>Old Value</Th>
 																<Th textAlign={"center"}>New Value</Th>
 																<Th textAlign={"center"}>User</Th>
@@ -2084,7 +2626,7 @@ const StockReport = () => {
 																		}}
 																	/>
 																</Th>
-																<Th isNumeric>Time</Th>
+																<Th textAlign={"center"}>Time</Th>
 															</Tr>
 														</Thead>
 														<Tbody>{renderChangelogsTableEntries(isLoading)}</Tbody>
@@ -2119,18 +2661,110 @@ const StockReport = () => {
 								</Stack>
 							</TabPanel>
 							{/* //? Key Metrics Tab Content */}
-							<TabPanel key="key-metrics">Key Metrics</TabPanel>
+							<TabPanel key="key-metrics">
+								<Stack
+									className="statistics"
+									h={"1110px"}
+									w={marginStyles.secondaryContainerWidth}
+									align={"center"}
+									overflowY={"auto"}
+									borderRadius={"10px"}
+								>
+									<>
+										<Select
+											placeholder="Choose a Metric"
+											value={selectedHighLevelOption}
+											onChange={handleHighLevelOptionChange}
+											w="225px"
+											h="30px"
+											border="1px solid gray"
+											bgColor="white"
+											isDisabled={selectedSubOption !== "clear"}
+										>
+											<option value="category" style={{ fontSize: "16px", fontWeight: "normal", cursor: "pointer" }}>
+												Category
+											</option>
+											<option value="branch" style={{ fontSize: "16px", fontWeight: "normal", cursor: "pointer" }}>
+												Branch
+											</option>
+										</Select>
+										{selectedHighLevelOption === "category" && (
+											<Select
+												placeholder="Select a Category"
+												value={selectedSubOption || ""}
+												onChange={handleSubOptionChange}
+												w="225px"
+												h="30px"
+												border="1px solid gray"
+												bgColor="white"
+											>
+												{categories.map((category) => (
+													<React.Fragment key={category.value}>
+														<option
+															value={parseInt(category.value, 10)}
+															style={{
+																backgroundColor: selectedSubOption === category.value ? "#F0F0F0" : "#FFFFFF",
+																color: selectedSubOption === category.value ? "#18181A" : "#535256",
+																fontWeight: selectedSubOption === category.value ? "bold" : "normal",
+																fontSize: "16px",
+																cursor: "pointer",
+															}}
+														>
+															{category.label}
+														</option>
+													</React.Fragment>
+												))}
+												<option key={"clear-category-sub"} value={"clear"}>
+													Clear Selection
+												</option>
+											</Select>
+										)}
+										{selectedHighLevelOption === "branch" && (
+											<Select
+												placeholder="Select a Branch"
+												value={selectedSubOption || ""}
+												onChange={handleSubOptionChange}
+												w="225px"
+												h="30px"
+												border="1px solid gray"
+												bgColor="white"
+											>
+												{branches.map((branch) => (
+													<React.Fragment key={branch.value}>
+														<option
+															value={parseInt(branch.value, 10)}
+															style={{
+																backgroundColor: selectedSubOption === branch.value ? "#F0F0F0" : "#FFFFFF",
+																color: selectedSubOption === branch.value ? "#18181A" : "#535256",
+																fontWeight: selectedSubOption === branch.value ? "bold" : "normal",
+																fontSize: "16px",
+																cursor: "pointer",
+															}}
+														>
+															{branch.label}
+														</option>
+													</React.Fragment>
+												))}
+												<option key={"clear-branch-sub"} value={"clear"}>
+													Clear Selection
+												</option>
+											</Select>
+										)}
+									</>
+								</Stack>
+							</TabPanel>
 							{/* //? Statistics Tab Content */}
 							<TabPanel key="statistics">
 								<Stack
-									className="scrollbar-4px"
+									className="statistics"
+									h={"1110px"}
+									w={marginStyles.secondaryContainerWidth}
 									align={"center"}
 									overflowY={"auto"}
-									width={"1225px"}
-									height={"1040px"}
 									borderRadius={"10px"}
 								>
 									<CategoryDoughnutChart />
+									<BranchDoughnutChart />
 									<ViewCountBarChart />
 									<CategoryBarChart />
 									<StatusStackedBarChart />
@@ -2139,6 +2773,7 @@ const StockReport = () => {
 									<DeletedProductsBarChart />
 								</Stack>
 							</TabPanel>
+							{/* //? End of Tab Content */}
 						</TabPanels>
 					</Tabs>
 					<Box position="absolute" bottom="-20" left="50%" transform="translateX(-50%)">

@@ -3,7 +3,6 @@ import Axios from "axios";
 import { toast } from "react-toastify";
 import {
 	Box,
-	Button,
 	Flex,
 	IconButton,
 	Image,
@@ -30,7 +29,31 @@ const ProductDetail = () => {
 	const [category, setCategory] = useState("");
 	const [quantity, setQuantity] = useState(1);
 	const [stock, setStock] = useState(0);
-	const BranchId = localStorage.getItem("BranchId");
+	const [BranchId, setBranchId] = useState(localStorage.getItem("BranchId"));
+	const [UAL, setUAL] = useState(localStorage.getItem("UAL") === "true");
+	// eslint-disable-next-line
+	const [userLat, setUserLat] = useState(localStorage.getItem("lat"));
+
+	useEffect(() => {
+		if (!UAL) {
+			setBranchId(1);
+			toast.info(
+				"Please allow location access so that we can show accurate stock availability that is accurate to your location. Currently showing available stock in our Jakarta HQ branch.",
+				{
+					position: "top-right",
+					autoClose: 4000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				}
+			);
+		} else if (userLat) {
+			setUAL(true);
+		}
+	}, [UAL, userLat]);
 
 	useEffect(() => {
 		fetchBranchData();
