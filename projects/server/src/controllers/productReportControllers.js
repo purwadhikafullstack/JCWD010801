@@ -716,7 +716,7 @@ module.exports = {
 
 				return {
 					id: branch.id,
-					branch: branch.name,
+					name: branch.name,
 					address: branch.address,
 					lng: branch.lng,
 					lat: branch.lat,
@@ -782,16 +782,97 @@ module.exports = {
 			const result = branchTransactionCountData.map((branch) => {
 				return {
 					...branch.toJSON(),
-					transactions: branch.StockMovements[0],
+					StockMovements: branch.StockMovements[0],
 				};
 			});
 
 			res.status(200).send({
 				status: 200,
+				message: "Branch transactions fetched successfully",
 				result: result,
 			});
 		} catch (error) {
 			console.log(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
+	bestAndWorstProductsForBranch: async (req, res) => {
+		try {
+			const { BranchId } = req.params;
+
+			const branch = await branches.findOne({
+				where: {
+					id: BranchId,
+				},
+			});
+
+			if (!branch) {
+				return res.status(404).send({
+					status: 404,
+					message: "Branch not found.",
+					error,
+				});
+			}
+
+			const deliveredTransactions = await products.findAll({
+				include: [
+					{
+						model: stockMovements,
+						where: {
+							isAddition: false,
+							isAdjustment: false,
+							isInitialization: false,
+							isBranchInitialization: false,
+							BranchId: BranchId,
+						},
+						attributes: ["id"],
+					},
+				],
+			});
+
+			const cancelledTransactions = await products.findAll({
+				include: [
+					{
+						model: stockMovements,
+						where: {
+							isAddition: true,
+							isAdjustment: false,
+							isInitialization: false,
+							isBranchInitialization: false,
+							BranchId: BranchId,
+						},
+						attributes: ["id"],
+					},
+				],
+			});
+
+			deliveredTransactions.sort((a, b) => b.StockMovements.length - a.StockMovements.length);
+			cancelledTransactions.sort((a, b) => b.StockMovements.length - a.StockMovements.length);
+
+			const bestProducts = deliveredTransactions.slice(0, 3).map((product) => ({
+				...product.toJSON(),
+				txCount: product.dataValues.StockMovements.length,
+			}));
+
+			const worstProducts = cancelledTransactions.slice(0, 3).map((product) => ({
+				...product.toJSON(),
+				failedTxCount: product.dataValues.StockMovements.length,
+			}));
+
+			res.status(200).send({
+				status: 200,
+				message: "Best and least performing products fetched successfully",
+				branchInfo: branch,
+				totalTxCount: deliveredTransactions.length,
+				totalFailedTxCount: cancelledTransactions.length,
+				bestProducts,
+				worstProducts,
+			});
+		} catch (error) {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",

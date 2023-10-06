@@ -43,7 +43,6 @@ function App() {
 		}
 	};
 
-	// if (!userLat && !userLng) {
 	if ("geolocation" in navigator) {
 		navigator.geolocation.getCurrentPosition(
 			async function (position) {
@@ -78,7 +77,6 @@ function App() {
 		localStorage.setItem("BranchId", 1);
 		console.log("Geolocation isn't supported in this device.");
 	}
-	// }
 
 	useEffect(() => {
 		if (branches.length > 0 && userLat && userLng) {

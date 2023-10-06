@@ -11,6 +11,7 @@ router.get("/categories/mostandleast", productReportControllers.mostAndLeast);
 router.get("/categories/statuscounts", productReportControllers.getProductStatusCountsByCategory);
 router.get("/categories/statusaverages", productReportControllers.getProductStatusAverages);
 router.get("/branches/mostandleast", productReportControllers.getBranchesProductCount);
+router.get("/branches/bestandworst/:BranchId", productReportControllers.bestAndWorstProductsForBranch);
 router.get("/branches/tx", productReportControllers.getBranchesTransactionCount);
 router.get("/levels", productReportControllers.getAllStocks);
 
