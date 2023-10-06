@@ -126,9 +126,6 @@ const StockReport = () => {
 		setSelectedSubOption(subOption);
 	};
 
-	console.log("highlevel", selectedHighLevelOption);
-	console.log("suboption", selectedSubOption);
-
 	const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 	const formatDate = (timestamp) => {
