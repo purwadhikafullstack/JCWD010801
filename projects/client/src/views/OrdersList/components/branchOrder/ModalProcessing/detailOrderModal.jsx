@@ -52,7 +52,6 @@ export const DetailProcessModal = ({
 			<Button
 				my={"auto"}
 				mr={"10px"}
-				boxShadow={"0px 0px 2px gray"}
 				backgroundColor={"blackAlpha.700"}
 				color={"white"}
 				_hover={{
@@ -67,7 +66,7 @@ export const DetailProcessModal = ({
 				}}
 				onClick={onOpen}
 			>
-				<AiOutlineFileSearch color="white" size={20} />‎ Detail Order
+				<AiOutlineFileSearch color="white" size={20} />‎ Detail order
 			</Button>
 
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>

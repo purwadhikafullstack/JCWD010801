@@ -25,10 +25,10 @@ export const SuperAdminOrdersList = () => {
 	const [countOrders, setcountOrders] = useState();
 	const [search, setSearch] = useState("");
 	const [status, setStatus] = useState("");
+	const [branchId, setBranchId] = useState("");
+	const [searchName, setSearchName] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
-	const [searchName, setSearchName] = useState("");
-	const [branchId, setBranchId] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
@@ -56,7 +56,6 @@ export const SuperAdminOrdersList = () => {
 					headers,
 				}
 			);
-			console.log(response.data);
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);

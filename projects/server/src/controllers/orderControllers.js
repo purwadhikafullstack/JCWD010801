@@ -73,6 +73,7 @@ module.exports = {
 			const page = +req.query.page || 1;
 			const limit = +req.query.limit || 8;
 			const search = req.query.search;
+			const branchId = req.query.branchId;
 			const startDate = req.query.startDate;
 			const endDate = req.query.endDate;
 			const status = req.query.status;
@@ -80,6 +81,7 @@ module.exports = {
 			const offset = (page - 1) * limit;
 			const condition = {};
 			const whereCondition = {};
+			const branchCondition = {};
 			if (search) {
 				whereCondition[Op.or] = [
 					{
@@ -111,14 +113,15 @@ module.exports = {
 					[Op.lte]: endOfDay,
 				};
 			}
+			if (branchId) branchCondition["BranchId"] = branchId;
 			const result = await orders.findAll({
+				where: whereCondition,
 				include: [
 					{
 						model: order_details,
 						include: [
 							{
 								model: products,
-								where: condition,
 							},
 						],
 					},
@@ -129,31 +132,49 @@ module.exports = {
 								model: branches,
 							},
 						],
-						where: { UserId: req.user.id },
+						where: { UserId: req.user.id, ...branchCondition },
+					},
+					{
+						model: addresses,
 					},
 				],
 				limit,
 				offset,
 				order: [["updatedAt", sort]],
-				where: whereCondition,
 			});
 			const countOrders = await orders.count({
+				where: whereCondition,
 				include: [
 					{
+						model: order_details,
+						include: [
+							{
+								model: products,
+							},
+						],
+					},
+					{
 						model: carts,
-						where: { UserId: req.user.id },
+						include: [
+							{
+								model: branches,
+							},
+						],
+						where: { UserId: req.user.id, ...branchCondition },
+					},
+					{
+						model: addresses,
 					},
 				],
-				where: whereCondition,
 			});
-			const filteredResult = result.filter((item) => item.Cart.UserId === req.user.id);
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
 				currentPage: page,
 				countOrders,
-				result: filteredResult,
+				result,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -254,7 +275,7 @@ module.exports = {
 								where: searchCondition,
 							},
 						],
-						where: branchCondition
+						where: branchCondition,
 					},
 					{
 						model: addresses,
@@ -286,7 +307,7 @@ module.exports = {
 								where: searchCondition,
 							},
 						],
-						where: branchCondition
+						where: branchCondition,
 					},
 					{
 						model: addresses,
@@ -524,6 +545,33 @@ module.exports = {
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Processing' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	receiveConfirmation: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({ where: { id: orderId } });
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Sent") {
+				return res.status(400).send({
+					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+				});
+			}
+			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Received' successfully",
 			});
 		} catch (error) {
 			return res.status(500).send({
