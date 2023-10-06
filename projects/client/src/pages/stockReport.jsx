@@ -590,7 +590,7 @@ const StockReport = () => {
 								: 0}
 							‎ Units
 						</Td>
-						<Td textAlign={"center"}>{item.StockMovements.txCount} Deliveries</Td>
+						<Td textAlign={"center"}>{item.StockMovements.txCount} Sent</Td>
 						<Td textAlign={"center"}>{item.StockMovements.failedTxCount} Cancellations</Td>
 						<Td textAlign={"center"}>{item.viewCount} x</Td>
 					</Tr>
