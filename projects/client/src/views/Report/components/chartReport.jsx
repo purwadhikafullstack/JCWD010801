@@ -39,11 +39,15 @@ function ChartReport({ roleId, branchId }) {
 	const currentYear = new Date().getFullYear();
 	const [selectedYear, setSelectedYear] = useState(currentYear.toString());
 	const [monthlyTotals, setMonthlyTotals] = useState([]);
+	const token = localStorage.getItem("token");
 	const fetchReport = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/report/`, {
 				params: {
 					searchBranch,
+				},
+				headers: {
+					Authorization: `Bearer ${token}`,
 				},
 			});
 

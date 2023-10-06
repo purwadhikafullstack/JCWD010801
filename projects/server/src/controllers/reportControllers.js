@@ -22,9 +22,13 @@ module.exports = {
 			const searchUser = req.query.searchUser;
 			const searchProduct = req.query.searchProduct;
 			const searchBranch = req.query.searchBranch;
+			const isAccountExist = await users.findOne({
+				where: { id: req.user.id },
+			});
+			if (isAccountExist.RoleId === 1) throw { message: "You are not administrator" };
 
 			if (search) {
-				condition[Op.or] = [{ id: { [Op.like]: `%${search}%` } }];
+				condition[Op.or] = [{ invoice: { [Op.like]: `%${search}%` } }];
 			}
 			const userCondition = {};
 			if (searchUser) {

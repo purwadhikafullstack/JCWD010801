@@ -40,6 +40,7 @@ const AddressesTab = () => {
 			);
 			setData(response.data.result);
 			setTotalPage(response.data.totalPage);
+			console.log(totalPage);
 		} catch (error) {}
 	};
 
@@ -116,7 +117,7 @@ const AddressesTab = () => {
 		<Box maxW="600px" mx="auto" p={4} w={{ md: "80%", base: "100%" }}>
 			<Flex>
 				<AddAddress reload={reload} setReload={setReload} province={province} city={city} />
-				{data.length !== 0 ? (
+				
 					<Input
 						placeholder="Search"
 						value={search}
@@ -126,7 +127,7 @@ const AddressesTab = () => {
 						border={"1px"}
 						focusBorderColor="#373433"
 					/>
-				) : null}
+				
 			</Flex>
 			{data?.map((value, index) => (
 				<Box key={index} borderWidth="1px" borderRadius="md" p={4} boxShadow="md" mb={4}>
@@ -177,7 +178,10 @@ const AddressesTab = () => {
 					<Flex mt={"1"}></Flex>
 				</Box>
 			))}
-			{totalPage > 1 ? (
+			{data?.length === 0 && (
+      <Text>No address found.</Text>
+    )}
+			
 				<Box mt={4} display="flex" justifyContent="center" alignItems={"center"}>
 					<Button
 						backgroundColor="#000000"
@@ -211,7 +215,6 @@ const AddressesTab = () => {
 								bg: "inherit",
 							},
 						}}
-						disabled
 					>
 						{page}
 					</Button>
@@ -229,13 +232,13 @@ const AddressesTab = () => {
 							},
 						}}
 						onClick={() => handlePageChange(page + 1)}
-						isDisabled={page === totalPage}
+						isDisabled={page === totalPage || totalPage === 0}
 						ml={2}
 					>
 						Next
 					</Button>
 				</Box>
-			) : null}
+			
 		</Box>
 	);
 };
