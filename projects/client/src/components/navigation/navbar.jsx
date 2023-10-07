@@ -50,7 +50,24 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const [reload, setReload] = useState(false);
 	const [isSearchFocused, setSearchFocused] = useState(false);
 	const [totalCartItems, setTotalCartItems] = useState(0);
+	const [address, setAddress] = useState([]);
+	const userFromRedux = useSelector((state) => state.user.value.id);
 
+	const fetchAddress = async () => {
+		try {
+			if (userFromRedux) {
+				const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address?sort=asc`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				setAddress(response.data.result);
+			} else {
+				setAddress([]);
+			}
+		} catch (error) {}
+	};
+	console.log(address);
 	const fetchData = async () => {
 		try {
 			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/all?page=1&sortBy=productName&sortOrder=ASC&itemLimit=3&search=${search}`;
@@ -99,6 +116,10 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		fetchCart();
 		// eslint-disable-next-line
 	}, [refresh]);
+
+	useEffect(() => {
+		fetchAddress();
+	}, [userFromRedux]);
 
 	const logout = () => {
 		localStorage.removeItem("token");
@@ -164,20 +185,18 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							display={{ base: "none", lg: "flex" }}
 							justifyContent={"space-between"}
 						>
-							<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-								<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-								<Stack gap={0}>
-									<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
-									<Text
-										onClick={() => navigate("/")}
-										cursor={"pointer"}
-										fontSize={{ base: "sm", lg: "md" }}
-										fontWeight={"medium"}
-									>
-										Address
-									</Text>
-								</Stack>
-							</Flex>
+							{address.length > 0 ? (
+								<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
+									<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
+									<Stack gap={0}>
+										<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
+										<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
+											{address[0].label}
+										</Text>
+										;
+									</Stack>
+								</Flex>
+							) : null}
 							<Text
 								onClick={() => navigate("/search")}
 								fontSize={{ base: "sm", lg: "md" }}

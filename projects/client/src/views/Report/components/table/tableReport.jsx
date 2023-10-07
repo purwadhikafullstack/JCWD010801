@@ -36,7 +36,7 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 				disableSortBy: true,
 			},
 			{
-				Header: "Items",
+				Header: "Products",
 				accessor: "items",
 				disableSortBy: true,
 				Cell: ({ value }) => {
