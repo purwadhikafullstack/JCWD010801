@@ -146,9 +146,10 @@ export const PendingOrders = ({ reload, setReload }) => {
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
-						list?.map((item) => {
+						list?.map((item, index) => {
 							return (
 								<Box
+									key={index}
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
@@ -231,10 +232,10 @@ export const PendingOrders = ({ reload, setReload }) => {
 														{item.Cart.User.phone}
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
-														{item.Address.address}
+														{item.Address?.address}
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
-														{item.Address.city}, {item.Address.province}
+														{item.Address?.city}, {item.Address?.province}
 													</Text>
 												</Box>
 											</Flex>

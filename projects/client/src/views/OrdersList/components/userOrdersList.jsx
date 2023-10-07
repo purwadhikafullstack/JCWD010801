@@ -213,9 +213,10 @@ export const UserOrdersList = () => {
 				</Box>
 			</Flex>
 			{list && list.length > 0 ? (
-				list?.map((item) => {
+				list?.map((item, index) => {
 					return (
 						<Box
+							key={index}
 							pl={"20px"}
 							w={"full"}
 							pb={"10px"}

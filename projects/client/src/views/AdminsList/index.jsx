@@ -123,12 +123,16 @@ export const AdminListPage = () => {
 					</Flex>
 					<Flex my={"20px"} mx={"10px"} maxW={"1400px"} flexWrap={"wrap"} justifyContent={"center"}>
 						{data && data.length > 0 ? (
-							data?.map((item) => {
+							data?.map((item, index) => {
 								return (
 									<>
-										<Box w={"240px"} ml={"25px"} my={"10px"} bg={"#f7f7f9"} borderRadius={"8px"}>
+										<Box key={index} w={"240px"} ml={"25px"} my={"10px"} bg={"#f7f7f9"} borderRadius={"8px"}>
 											<Flex pt={"10px"} pl={"20px"}>
-												<Avatar  src={`${process.env.REACT_APP_BASE_URL}/avatars/${item?.avatar ? item?.avatar : "default_not_set.png"}`} />
+												<Avatar
+													src={`${process.env.REACT_APP_BASE_URL}/avatars/${
+														item?.avatar ? item?.avatar : "default_not_set.png"
+													}`}
+												/>
 												<Box mt={"5px"}>
 													<Text ml={"10px"} fontWeight={"bold"}>
 														{item.firstName} {item?.lastName}

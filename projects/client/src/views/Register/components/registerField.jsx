@@ -10,6 +10,7 @@ import {
 	FormControl,
 	InputRightElement,
 	InputGroup,
+	FormLabel,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -105,6 +106,7 @@ export const RegisterFields = () => {
 						<Field name="username">
 							{({ field }) => (
 								<FormControl mb="3">
+									<FormLabel>qqqqqq</FormLabel>
 									<Input
 										{...field}
 										id="username"

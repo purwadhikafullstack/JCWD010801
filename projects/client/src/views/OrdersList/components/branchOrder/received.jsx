@@ -165,9 +165,10 @@ export const ConfirmedOrders = () => {
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
-						list?.map((item) => {
+						list?.map((item, index) => {
 							return (
 								<Box
+									key={index}
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
@@ -249,11 +250,11 @@ export const ConfirmedOrders = () => {
 														{item.Cart.User.phone}
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
-														{item.Address.address}
+														{item.Address?.address}
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
-														{item.Address.city}, {item.Address.province}
-													</Text>{" "}
+														{item.Address?.city}, {item.Address?.province}
+													</Text>
 													<Flex mt={"5px"}>
 														<DetailProcessModal
 															reload={reload}
