@@ -7,7 +7,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const StatusStackedBarChart = () => {
 	const [status, setStatus] = useState([]);
-	const [averages, setAverages] = useState(0);
 
 	const fetchData = async () => {
 		try {
@@ -15,10 +14,6 @@ const StatusStackedBarChart = () => {
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusCounts`
 			);
 			setStatus(deletedResponse.data.productCountsByCategory);
-			const averages = await axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusAverages`
-			);
-			// setAverages(averages.data.averageAverages);
 		} catch (error) {
 			console.log("Error fetching data:", error);
 		}
