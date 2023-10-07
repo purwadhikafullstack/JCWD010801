@@ -5,17 +5,15 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const StatusStackedBarChart = () => {
-	const [status, setStatus] = useState([]);
+const BranchTxStackedBarChart = () => {
+	const [tx, setTx] = useState([]);
 
 	const fetchData = async () => {
 		try {
-			const statusResponse = await axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusCounts`
-			);
-			setStatus(statusResponse.data.productCountsByCategory);
+			const txResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/tx`);
+			setTx(txResponse.data.result);
 		} catch (error) {
-			console.log("Error fetching data:", error);
+			console.log("Error fetching branch tx data:", error);
 		}
 	};
 
@@ -24,22 +22,17 @@ const StatusStackedBarChart = () => {
 	}, []);
 
 	const data = {
-		labels: status.map((category) => category.categoryName),
+		labels: tx.map((branch) => branch.name),
 		datasets: [
 			{
-				label: "Active",
-				data: status.map((category) => category.activeProductsCount),
+				label: "Sent Orders",
+				data: tx.map((branch) => branch?.StockMovements?.txCount),
 				backgroundColor: "#357B14",
 			},
 			{
-				label: "Deactivated",
-				data: status.map((category) => category.deactivatedProductsCount),
+				label: "Returned Orders",
+				data: tx.map((branch) => branch?.StockMovements?.failedTxCount),
 				backgroundColor: "#C41E3A",
-			},
-			{
-				label: "Deleted",
-				data: status.map((category) => category.deletedProductsCount),
-				backgroundColor: "#7A0000",
 			},
 		],
 	};
@@ -48,7 +41,7 @@ const StatusStackedBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "Categories' Product Status Distribution",
+				text: "Branches' Transaction Status Distribution",
 			},
 		},
 		responsive: true,
@@ -71,4 +64,4 @@ const StatusStackedBarChart = () => {
 	);
 };
 
-export default StatusStackedBarChart;
+export default BranchTxStackedBarChart;

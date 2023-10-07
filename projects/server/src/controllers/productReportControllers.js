@@ -234,6 +234,28 @@ module.exports = {
 			});
 		}
 	},
+	getAverageProductsPerBranch: async (req, res) => {
+		try {
+			const branchData = await branches.findAll({
+				include: [products],
+			});
+
+			const totalProductCount = branchData.reduce((total, branch) => total + branch.Products.length, 0);
+
+			const averageProductCount = Math.round(totalProductCount / branchData.length);
+
+			res.status(200).send({
+				status: 200,
+				result: averageProductCount,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
 	getProductStatusCountsByCategory: async (req, res) => {
 		try {
 			const categoriesData = await categories.findAll({

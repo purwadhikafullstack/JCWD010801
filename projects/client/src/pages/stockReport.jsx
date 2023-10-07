@@ -9,6 +9,7 @@ import NoDate from "../assets/public/404_calendar.jpeg";
 import NoProductThumb from "../assets/public/404_thumb.gif";
 import React, { useEffect, useState } from "react";
 import CategoryBarChart from "../components/stockReport/categoryBarChart";
+import BranchBarChart from "../components/stockReport/branchBarChart";
 import CategoryDoughnutChart from "../components/stockReport/categoryDoughnutChart";
 import BranchDoughnutChart from "../components/stockReport/branchDoughnutChart";
 import ActiveProductsBarChart from "../components/stockReport/activeProductsBarChart";
@@ -16,6 +17,7 @@ import DeactivatedProductsBarChart from "../components/stockReport/deactivatedPr
 import DeletedProductsBarChart from "../components/stockReport/deletedProductsBarChart";
 import ViewCountBarChart from "../components/stockReport/viewCountBarChart";
 import StatusStackedBarChart from "../components/stockReport/statusStackedBarChart";
+import BranchTxStackedBarChart from "../components/stockReport/branchTxStackedBarChart";
 import StockMovementLineChart from "../components/stockReport/stockMovementLineChart";
 import { debounce } from "lodash";
 import { DateRangePicker } from "react-date-range";
@@ -2763,14 +2765,64 @@ const StockReport = () => {
 									overflowY={"auto"}
 									borderRadius={"10px"}
 								>
-									<CategoryDoughnutChart />
-									<BranchDoughnutChart />
-									<ViewCountBarChart />
-									<CategoryBarChart />
-									<StatusStackedBarChart />
-									<ActiveProductsBarChart />
-									<DeactivatedProductsBarChart />
-									<DeletedProductsBarChart />
+									<Stack
+										w={marginStyles.secondaryContainerWidth}
+										h={"1000px"}
+										alignItems={"center"}
+										mt={"25px"}
+										mb={"25px"}
+									>
+										<Stack>
+											<Text fontSize={"35px"} fontWeight={"semibold"}>
+												BRANCH STATISTICS
+											</Text>
+										</Stack>
+										<Flex
+											className="statistics-content"
+											width={marginStyles.secondaryContainerWidth}
+											height={"460px"}
+											px={"50px"}
+										>
+											<BranchDoughnutChart />
+											<BranchBarChart />
+											<BranchTxStackedBarChart />
+										</Flex>
+									</Stack>
+									<Stack w={marginStyles.secondaryContainerWidth} h={"1000px"} alignItems={"center"} mb={"25px"}>
+										<Stack>
+											<Text fontSize={"35px"} fontWeight={"semibold"}>
+												CATEGORY STATISTICS
+											</Text>
+										</Stack>
+										<Flex
+											className="statistics-content"
+											width={marginStyles.secondaryContainerWidth}
+											height={"460px"}
+											px={"50px"}
+										>
+											<CategoryDoughnutChart />
+											<CategoryBarChart />
+											<StatusStackedBarChart />
+											<ActiveProductsBarChart />
+											<DeactivatedProductsBarChart />
+											<DeletedProductsBarChart />
+										</Flex>
+									</Stack>
+									<Stack w={marginStyles.secondaryContainerWidth} h={"1000px"} alignItems={"center"}>
+										<Stack>
+											<Text fontSize={"35px"} fontWeight={"semibold"}>
+												GENERAL STATISTICS
+											</Text>
+										</Stack>
+										<Flex
+											className="statistics-content"
+											width={marginStyles.secondaryContainerWidth}
+											height={"400px"}
+											px={"50px"}
+										>
+											<ViewCountBarChart />
+										</Flex>
+									</Stack>
 								</Stack>
 							</TabPanel>
 							{/* //? End of Tab Content */}
