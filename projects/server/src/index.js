@@ -27,7 +27,7 @@ app.get("/api", (req, res) => {
 
 app.get("/api/greetings", (req, res, next) => {
   res.status(200).json({
-    message: "Hello, Student !",
+    message: "Hello, Student Purwadhika!",
   });
 });
 
