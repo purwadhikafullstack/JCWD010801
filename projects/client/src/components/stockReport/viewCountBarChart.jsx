@@ -55,7 +55,7 @@ const ViewCountBarChart = () => {
 	};
 
 	return (
-		<Flex align={"center"} justify={"center"} w={"500px"} h={"300px"}>
+		<Flex align={"center"} justify={"center"} w={"500px"} h={"300px"} mt={"50px"}>
 			<Flex w={"500px"} h={"300px"}>
 				<Bar data={data} options={options} />
 			</Flex>

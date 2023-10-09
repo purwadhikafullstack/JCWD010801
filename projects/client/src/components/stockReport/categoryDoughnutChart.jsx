@@ -44,22 +44,30 @@ const CategoryDoughnutChart = () => {
 		],
 	};
 
-    const options = {
-        cutoutPercentage: 50,
-        animation: {
-          animateRotate: true,
-          render: true,
-        },
-        plugins: {
-          title: {
-            display: true,
-            text: 'Products Per Category',
-          },
-        },
-      };
+	const options = {
+		cutoutPercentage: 50,
+		animation: {
+			animateRotate: true,
+			render: true,
+		},
+		plugins: {
+			title: {
+				display: true,
+				text: "Products Per Category",
+			},
+		},
+	};
 
 	return (
-		<Flex alignContent={"center"} alignItems={'center'} justifyItems={"center"} justifyContent={'center'} w={"500px"} h={"450px"}>
+		<Flex
+			alignContent={"center"}
+			alignItems={"center"}
+			justifyItems={"center"}
+			justifyContent={"center"}
+			w={"500px"}
+			h={"450px"}
+			ml={"1915px"}
+		>
 			<Flex w={"400px"} h={"400px"}>
 				<Doughnut data={data} options={options} />
 			</Flex>

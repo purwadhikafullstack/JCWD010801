@@ -7,18 +7,13 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const StatusStackedBarChart = () => {
 	const [status, setStatus] = useState([]);
-	const [averages, setAverages] = useState(0);
 
 	const fetchData = async () => {
 		try {
-			const deletedResponse = await axios.get(
+			const statusResponse = await axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusCounts`
 			);
-			setStatus(deletedResponse.data.productCountsByCategory);
-			const averages = await axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusAverages`
-			);
-			// setAverages(averages.data.averageAverages);
+			setStatus(statusResponse.data.productCountsByCategory);
 		} catch (error) {
 			console.log("Error fetching data:", error);
 		}
@@ -68,7 +63,7 @@ const StatusStackedBarChart = () => {
 	};
 
 	return (
-		<Flex align={"center"} justify={"center"} w={"500px"} h={"300px"}>
+		<Flex align={"center"} justify={"center"} w={"500px"} h={"300px"} ml={"50px"} mt={"50px"}>
 			<Flex w={"500px"} h={"300px"}>
 				<Bar data={data} options={options} />
 			</Flex>

@@ -49,13 +49,13 @@ const CategoryBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "All AlphaMart Product Distribution",
+				text: "All AlphaMart Product Distribution Across Categories",
 			},
 		},
 	};
 
 	return (
-		<Flex align={"center"} justify={"center"} w={"500px"} h={"300px"}>
+		<Flex align={"center"} justify={"center"} w={"500px"} h={"300px"} ml={"50px"} mt={"50px"}>
 			<Flex w={"500px"} h={"300px"}>
 				<Bar data={data} options={options} />
 			</Flex>

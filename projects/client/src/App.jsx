@@ -43,29 +43,39 @@ function App() {
 		}
 	};
 
-	if (!userLat && !userLng) {
-		if ("geolocation" in navigator) {
-			navigator.geolocation.getCurrentPosition(
-				async function (position) {
-					try {
-						const latitude = position.coords.latitude;
-						const longitude = position.coords.longitude;
-						localStorage.setItem("lat", latitude);
-						localStorage.setItem("lng", longitude);
-						setUserLat(parseFloat(localStorage.getItem("lat")));
-						setUserLng(parseFloat(localStorage.getItem("lng")));
-					} catch (error) {
-						console.error("Error:", error);
-					}
-				},
-				function (error) {
-					console.log("Geolocation error:", error);
-					console.log("Please allow location");
+	if ("geolocation" in navigator) {
+		navigator.geolocation.getCurrentPosition(
+			async function (position) {
+				try {
+					const latitude = position.coords.latitude;
+					const longitude = position.coords.longitude;
+					localStorage.setItem("lat", latitude);
+					localStorage.setItem("lng", longitude);
+					setUserLat(position.coords.latitude);
+					setUserLng(position.coords.longitude);
+					localStorage.setItem("UAL", true);
+				} catch (error) {
+					localStorage.setItem("UAL", false);
+					localStorage.removeItem("lat");
+					localStorage.removeItem("lng");
+					localStorage.setItem("BranchId", 1);
+					console.error("Error:", error);
 				}
-			);
-		} else {
-			console.log("Geolocation isn't supported in this device.");
-		}
+			},
+			function (error) {
+				localStorage.setItem("UAL", false);
+				localStorage.removeItem("lat");
+				localStorage.removeItem("lng");
+				localStorage.setItem("BranchId", 1);
+				console.log("Geolocation error:", error);
+			}
+		);
+	} else {
+		localStorage.setItem("UAL", false);
+		localStorage.removeItem("lat");
+		localStorage.removeItem("lng");
+		localStorage.setItem("BranchId", 1);
+		console.log("Geolocation isn't supported in this device.");
 	}
 
 	useEffect(() => {
@@ -140,6 +150,7 @@ function App() {
 
 	useEffect(() => {
 		fetchAddress();
+		// eslint-disable-next-line
 	}, [userFromRedux]);
 
 	useEffect(() => {
