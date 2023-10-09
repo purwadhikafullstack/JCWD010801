@@ -40,7 +40,6 @@ const AddressesTab = () => {
 			);
 			setData(response.data.result);
 			setTotalPage(response.data.totalPage);
-			console.log(totalPage);
 		} catch (error) {}
 	};
 
