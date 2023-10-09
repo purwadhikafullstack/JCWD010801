@@ -31,16 +31,18 @@ export const BranchAdminDashboardButton = () => {
 
 	return (
 		<Flex>
-			<LayoutSidebar />
+			<Flex mt={"10px"}>
+				<LayoutSidebar />
+			</Flex>
 			<Flex justifyContent={"center"} direction={"column"} w={"full"}>
-				<Flex ml={"80px"} justifyContent={"space-between"}>
-					<Box>
-						<Text fontSize={"30px"} fontWeight={"bold"}>
+				<Flex ml={["30px", "80px"]} justifyContent={"space-between"}>
+					<Box mt={"10px"}>
+						<Text fontSize={["10px", "30px"]} fontWeight={"bold"}>
 							Dashboard Overview
 						</Text>
 						<Text fontWeight={"light"}>{currentBranchName} Branch Admin </Text>
 					</Box>
-					<Flex mt={"10px"} as={Link} to={"/profile"} mr={"85px"}>
+					<Flex mt={"10px"} as={Link} to={"/profile"} mr={["10px", "85px"]}>
 						<Box mr={"7px"} mt={"5px"}>
 							<Text textAlign={"end"} fontWeight={"bold"} fontSize={"15px"}>
 								{user.firstName} {user.lastName}

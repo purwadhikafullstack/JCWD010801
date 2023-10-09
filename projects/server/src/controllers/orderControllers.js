@@ -2,7 +2,10 @@ const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Axios = require("axios");
 const db = require("../models");
+const transporter = require("../middlewares/transporter");
+const fs = require("fs");
 const qs = require("qs");
+const handlebars = require("handlebars");
 const schedule = require("node-schedule");
 const orders = db.Orders;
 const order_details = db.Order_details;
@@ -584,7 +587,22 @@ module.exports = {
 	rejectPaymentProof: async (req, res) => {
 		try {
 			const orderId = req.params.id;
-			const order = await orders.findOne({ where: { id: orderId } });
+			const emailId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+								attributes: ["email"],
+								where: { email: emailId },
+							},
+						],
+					},
+				],
+			});
 			if (!order) {
 				return res.status(404).send({
 					message: "Order not found",
@@ -597,11 +615,35 @@ module.exports = {
 				});
 			}
 			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: await orders.findOne({
+					where: { id: orderId },
+					include: [
+						{
+							model: carts,
+							include: [
+								{
+									model: users,
+									attributes: ["email"],
+									where: { email: emailId },
+								},
+							],
+						},
+					],
+				}),
+				subject: "Please Reupload Your Payment Proof",
+				html: tempResult,
+			});
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Rejected' successfully",
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,

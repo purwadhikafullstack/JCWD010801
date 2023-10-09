@@ -23,7 +23,7 @@ export const MenuOrder = ({ reload, setReload, orderId, imgURL, date, branch, am
 				)}
 				{status === "Waiting payment" && (
 					<MenuItem>
-						<UploadProof id={orderId} date={date} branch={branch} amount={amount} />
+						<UploadProof invoice={invoice} reload={reload} setReload={setReload} id={orderId} date={date} branch={branch} amount={amount} />
 					</MenuItem>
 				)}
 				{!imgURL && (
