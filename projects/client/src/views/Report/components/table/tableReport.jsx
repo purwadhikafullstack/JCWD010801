@@ -8,8 +8,8 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 	const columns = React.useMemo(
 		() => [
 			{
-				Header: "ID",
-				accessor: "id",
+				Header: "Invoice",
+				accessor: "invoice",
 				disableSortBy: true,
 			},
 			{
@@ -63,7 +63,7 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 	const data = React.useMemo(() => {
 		return dataReport.result.map((order) => {
 			return {
-				id: order.id,
+				invoice: order.invoice,
 				username: order.Address.User.username,
 				total: order.total,
 				purchaseDate: new Date(order.createdAt).toLocaleDateString(),

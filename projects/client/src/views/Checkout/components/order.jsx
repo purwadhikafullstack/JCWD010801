@@ -266,7 +266,7 @@ function Order() {
 											<MenuButton as={Button} pl="10px" pr="22px" py="0px">
 												<Text fontSize="xs">Select Address</Text>
 											</MenuButton>
-											<MenuList>
+											<MenuList maxH="500px" overflowY="auto">
 												{address?.map((item, index) => (
 													<Box key={index}>
 														<MenuItem onClick={() => setSelectedAddress(item)}>
