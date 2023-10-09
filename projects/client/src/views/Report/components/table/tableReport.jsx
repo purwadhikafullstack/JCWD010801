@@ -1,26 +1,23 @@
 import React from "react";
-import { usePagination, useTable, useSortBy } from "react-table";
+import { usePagination, useTable } from "react-table";
 import { Box } from "@chakra-ui/react";
 import TableContent from "./tableContent";
 import Pagination from "./pagination";
 
-function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, totalPage }) {
+function TableReport({ dataReport, havePagination, queryObj, updateQueryObj, totalPage }) {
 	const columns = React.useMemo(
 		() => [
 			{
 				Header: "Invoice",
 				accessor: "invoice",
-				disableSortBy: true,
 			},
 			{
 				Header: "Username",
 				accessor: "username",
-				disableSortBy: true,
 			},
 			{
 				Header: "Total",
 				accessor: "total",
-				disableSortBy: true,
 				Cell: ({ value }) => {
 					const formattedTotal = new Intl.NumberFormat("id-ID", {
 						style: "currency",
@@ -33,12 +30,10 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 			{
 				Header: "Purchase Date",
 				accessor: "purchaseDate",
-				disableSortBy: true,
 			},
 			{
 				Header: "Products",
 				accessor: "items",
-				disableSortBy: true,
 				Cell: ({ value }) => {
 					return (
 						<Box>
@@ -54,7 +49,6 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 			{
 				Header: "Branch",
 				accessor: "branch",
-				disableSortBy: true,
 			},
 		],
 		[]
@@ -79,14 +73,12 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 		{
 			columns,
 			data,
-			manualSortBy: true,
 			manualPagination: true, 
 			initialState: {
 				pageIndex: queryObj.page,
 				pageSize: queryObj.limit,
 			},
 		},
-		useSortBy,
 		usePagination
 	);
 
@@ -96,7 +88,7 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 	const handlePageSizeChange = (pageSize) => {
 		updateQueryObj({ ...queryObj, limit: pageSize, page: 0 });
 	};
-
+	
 	return (
 		<>
 			<Box p={8}>
@@ -120,4 +112,4 @@ function TableReport2({ dataReport, havePagination, queryObj, updateQueryObj, to
 	);
 }
 
-export default TableReport2;
+export default TableReport;
