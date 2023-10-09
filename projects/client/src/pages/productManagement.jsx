@@ -577,7 +577,23 @@ const ProductManagement = () => {
 									borderRadius: "3px",
 								}}
 							>
-								All Products ({totalProductsAll})
+								All Products
+								<Flex
+									w={7}
+									h={7}
+									ml={"209px"}
+									bg={activeTab === 0 ? "#519074" : "rgba(51, 50, 52, 1)"}
+									border={"1px solid white"}
+									rounded={"full"}
+									justifyContent={"center"}
+									alignItems={"center"}
+									pos={"absolute"}
+									top={0}
+								>
+									<Text fontSize={"12px"} color={activeTab === 0 ? "#EEB244" : "white"} textAlign={"center"}>
+										{totalProductsAll}
+									</Text>
+								</Flex>
 							</Tab>
 							<Tab
 								width="19%"
@@ -590,7 +606,23 @@ const ProductManagement = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Active Products ({totalProductsActive})
+								Active Products
+								<Flex
+									w={7}
+									h={7}
+									ml={"209px"}
+									bg={activeTab === 1 ? "#519074" : "rgba(51, 50, 52, 1)"}
+									border={"1px solid white"}
+									rounded={"full"}
+									justifyContent={"center"}
+									alignItems={"center"}
+									pos={"absolute"}
+									top={0}
+								>
+									<Text fontSize={"12px"} color={activeTab === 1 ? "#EEB244" : "white"} textAlign={"center"}>
+										{totalProductsActive}
+									</Text>
+								</Flex>
 							</Tab>
 							<Tab
 								width="19%"
@@ -603,7 +635,23 @@ const ProductManagement = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Deactivated Products ({totalProductsDeactivated})
+								Deactivated Products
+								<Flex
+									w={7}
+									h={7}
+									ml={"209px"}
+									bg={activeTab === 2 ? "#519074" : "rgba(51, 50, 52, 1)"}
+									border={"1px solid white"}
+									rounded={"full"}
+									justifyContent={"center"}
+									alignItems={"center"}
+									pos={"absolute"}
+									top={0}
+								>
+									<Text fontSize={"12px"} color={activeTab === 2 ? "#EEB244" : "white"} textAlign={"center"}>
+										{totalProductsDeactivated}
+									</Text>
+								</Flex>
 							</Tab>
 							<Tab
 								width="19%"
@@ -616,7 +664,23 @@ const ProductManagement = () => {
 									borderRadius: "3px",
 								}}
 							>
-								Deleted Products ({totalProductsDeleted})
+								Deleted Products
+								<Flex
+									w={7}
+									h={7}
+									ml={"209px"}
+									bg={activeTab === 3 ? "#519074" : "rgba(51, 50, 52, 1)"}
+									border={"1px solid white"}
+									rounded={"full"}
+									justifyContent={"center"}
+									alignItems={"center"}
+									pos={"absolute"}
+									top={0}
+								>
+									<Text fontSize={"12px"} color={activeTab === 3 ? "#EEB244" : "white"} textAlign={"center"}>
+										{totalProductsDeleted}
+									</Text>
+								</Flex>
 							</Tab>
 						</TabList>
 						<Flex

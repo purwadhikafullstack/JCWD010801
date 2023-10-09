@@ -51,8 +51,8 @@ function App() {
 					const longitude = position.coords.longitude;
 					localStorage.setItem("lat", latitude);
 					localStorage.setItem("lng", longitude);
-					setUserLat(parseFloat(localStorage.getItem("lat")));
-					setUserLng(parseFloat(localStorage.getItem("lng")));
+					setUserLat(position.coords.latitude);
+					setUserLng(position.coords.longitude);
 					localStorage.setItem("UAL", true);
 				} catch (error) {
 					localStorage.setItem("UAL", false);

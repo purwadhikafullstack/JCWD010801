@@ -19,7 +19,7 @@ code {
     monospace;
 }
 
-/* SCROLLBAR */
+/* MAIN SCROLLBAR */
 ::-webkit-scrollbar {
   width: 8px;
   height: 2px;
@@ -49,7 +49,7 @@ code {
 ::-webkit-scrollbar-corner {
   background-color: #333;
 }
-/* END OF SCROLLBAR CSS */
+/* END OF MAIN SCROLLBAR CSS */
 
 .transition-element {
   transition: all 3s ease-in-out;
@@ -177,10 +177,82 @@ canvas {
   width: 3px;
 }
 
+.statistics-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  transition: all 3s ease-in-out;
+  overflow-x: scroll;
+}
+
+.statistics-content::-webkit-scrollbar {
+  height: 4px;
+}
+
+.statistics-content::-webkit-scrollbar-thumb {
+  background-color: #7CB69D;
+  border-radius: 25px;
+  min-width: 1100px;
+  max-width: 1100px;
+}
+
+.statistics-content::-webkit-scrollbar-track:hover {
+  background-color: #aaa;
+}
+
+.statistics-content::-webkit-scrollbar-thumb:hover {
+  background-color: #BE8112;
+}
+
+.statistics-content::-webkit-scrollbar-corner {
+  background-color: #333;
+}
+
 .t-head {
   transition: all 3s ease-in-out;
 }
 
 .t-head::-webkit-scrollbar {
   width: 3px;
+}
+
+.coin {
+  animation: spin 2.2s cubic-bezier(0.12, 0.47, 0.19, 1.35);
+  transform-origin: center;
+  transform: rotateY(0deg) perspective(1px);
+  opacity: 1;
+}
+
+.coin:hover {
+  opacity: 0.8;
+}
+
+.coin-img {
+  animation: spin 2.2s cubic-bezier(0.12, 0.47, 0.19, 1.35);
+  transform-origin: center;
+  transform: rotateY(0deg) perspective(1px);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 1);
+  opacity: 1;
+}
+
+.coin-img:hover {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 1);
+  opacity: 0.7;
+}
+
+.filter-change {
+  animation: none;
+  transform-origin: center;
+  transform: rotateY(0deg) perspective(1px);
+  opacity: 1;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotateY(0deg) rotateZ(3deg) perspective(1px);
+  }
+  100% {
+    transform: rotateY(360deg) rotateZ(-3deg) perspective(1px);
+  }
 }
