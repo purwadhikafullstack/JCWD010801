@@ -134,6 +134,7 @@ const StockReport = () => {
 	const [selectedSubOption, setSelectedSubOption] = useState("clear");
 	const [keyMetricsBranch, setKeyMetricsBranch] = useState([]);
 	const [keyMetricsTxBranch, setKeyMetricsTxBranch] = useState([]);
+	const [keyMetricsTxBranchId, setKeyMetricsTxBranchId] = useState(1);
 	const [keyMetricsCategory, setKeyMetricsCategory] = useState([]);
 	const [isFilterChanged, setIsFilterChanged] = useState(false);
 	const [isResetting, resetWithDelay] = useDelayedReset(2200);
@@ -148,6 +149,15 @@ const StockReport = () => {
 		const subOption = e.target.value;
 		setIsFilterChanged(true);
 		setSelectedSubOption(subOption);
+		if (
+			selectedHighLevelOption === "branch" &&
+			subOption !== "clear" &&
+			subOption !== "" &&
+			subOption > 0 &&
+			subOption < 6
+		) {
+			setKeyMetricsTxBranchId(subOption);
+		}
 		resetWithDelay();
 	};
 
@@ -544,12 +554,10 @@ const StockReport = () => {
 			const baseMetrics = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`);
 			setKeyMetricsBranch(baseMetrics.data.result);
 
-			// if (selectedSubOption !== "clear") {
-				const txMetrics = await Axios.get(
-					`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/bestandworst/1`
-				);
-				setKeyMetricsTxBranch(txMetrics.data);
-			// }
+			const txMetrics = await Axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/bestandworst/${keyMetricsTxBranchId}`
+			);
+			setKeyMetricsTxBranch(txMetrics.data);
 		} catch (error) {
 			console.log("Error fetching branch key metrics data", error);
 		}
@@ -3636,15 +3644,25 @@ const StockReport = () => {
 																zIndex={"2"}
 																ml={"-27px"}
 																top={"-5px"}
-																cursor={"pointer"}
-																onClick={() =>
-																	navigate(
-																		`/product/${
-																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
-																				?.id
-																		}`
-																	)
+																cursor={
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																		?.id !== undefined
+																		? "pointer"
+																		: "not-allowed"
 																}
+																onClick={() => {
+																	if (
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																			?.id !== undefined
+																	) {
+																		navigate(
+																			`/product/${
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
+																					?.topBranchStock[1]?.id
+																			}`
+																		);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -3665,15 +3683,25 @@ const StockReport = () => {
 																zIndex={"2"}
 																top={"-5px"}
 																ml={"335px"}
-																cursor={"pointer"}
-																onClick={() =>
-																	navigate(
-																		`/product/${
-																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
-																				?.id
-																		}`
-																	)
+																cursor={
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																		?.id !== undefined
+																		? "pointer"
+																		: "not-allowed"
 																}
+																onClick={() => {
+																	if (
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																			?.id !== undefined
+																	) {
+																		navigate(
+																			`/product/${
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
+																					?.topBranchStock[0]?.id
+																			}`
+																		);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -3695,15 +3723,25 @@ const StockReport = () => {
 																position={"absolute"}
 																zIndex={"2"}
 																ml={"730px"}
-																cursor={"pointer"}
-																onClick={() =>
-																	navigate(
-																		`/product/${
-																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
-																				?.id
-																		}`
-																	)
+																cursor={
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																		?.id !== undefined
+																		? "pointer"
+																		: "not-allowed"
 																}
+																onClick={() => {
+																	if (
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																			?.id !== undefined
+																	) {
+																		navigate(
+																			`/product/${
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
+																					?.topBranchStock[2]?.id
+																			}`
+																		);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -3819,15 +3857,25 @@ const StockReport = () => {
 																zIndex={"2"}
 																ml={"-27px"}
 																top={"-5px"}
-																cursor={"pointer"}
-																onClick={() =>
-																	navigate(
-																		`/product/${
-																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
-																				?.id
-																		}`
-																	)
+																cursor={
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																		?.id !== undefined
+																		? "pointer"
+																		: "not-allowed"
 																}
+																onClick={() => {
+																	if (
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																			?.id !== undefined
+																	) {
+																		navigate(
+																			`/product/${
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
+																					?.lowBranchStock[1]?.id
+																			}`
+																		);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -3848,15 +3896,25 @@ const StockReport = () => {
 																zIndex={"2"}
 																top={"-5px"}
 																ml={"335px"}
-																cursor={"pointer"}
-																onClick={() =>
-																	navigate(
-																		`/product/${
-																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
-																				?.id
-																		}`
-																	)
+																cursor={
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																		?.id !== undefined
+																		? "pointer"
+																		: "not-allowed"
 																}
+																onClick={() => {
+																	if (
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																			?.id !== undefined
+																	) {
+																		navigate(
+																			`/product/${
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
+																					?.lowBranchStock[0]?.id
+																			}`
+																		);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -3878,15 +3936,25 @@ const StockReport = () => {
 																position={"absolute"}
 																zIndex={"2"}
 																ml={"730px"}
-																cursor={"pointer"}
-																onClick={() =>
-																	navigate(
-																		`/product/${
-																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
-																				?.id
-																		}`
-																	)
+																cursor={
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																		?.id !== undefined
+																		? "pointer"
+																		: "not-allowed"
 																}
+																onClick={() => {
+																	if (
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																			?.id !== undefined
+																	) {
+																		navigate(
+																			`/product/${
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
+																					?.lowBranchStock[2]?.id
+																			}`
+																		);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -3991,7 +4059,7 @@ const StockReport = () => {
 														mb={"25px"}
 													>
 														<Text fontSize={"30px"} fontWeight={"semibold"}>
-															BEST SELLING PRODUCTS IN {getBranchLabel(selectedSubOption)}
+															BEST SELLING PRODUCTS IN {getBranchLabel(selectedSubOption)} (Non-Zero Orders)
 														</Text>
 														<Flex position={"relative"} align={"center"} mb={"30px"}>
 															<Image
@@ -4002,8 +4070,14 @@ const StockReport = () => {
 																zIndex={"2"}
 																ml={"-27px"}
 																top={"-5px"}
-																cursor={"pointer"}
-																onClick={() => navigate(`/product/${keyMetricsTxBranch?.bestProducts[1]?.id}`)}
+																cursor={
+																	keyMetricsTxBranch?.bestProducts[1]?.id !== undefined ? "pointer" : "not-allowed"
+																}
+																onClick={() => {
+																	if (keyMetricsTxBranch?.bestProducts[1]?.id !== undefined) {
+																		navigate(`/product/${keyMetricsTxBranch?.bestProducts[1]?.id}`);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -4021,8 +4095,14 @@ const StockReport = () => {
 																zIndex={"2"}
 																top={"-5px"}
 																ml={"335px"}
-																cursor={"pointer"}
-																onClick={() => navigate(`/product/${keyMetricsTxBranch?.bestProducts[0]?.id}`)}
+																cursor={
+																	keyMetricsTxBranch?.bestProducts[0]?.id !== undefined ? "pointer" : "not-allowed"
+																}
+																onClick={() => {
+																	if (keyMetricsTxBranch?.bestProducts[0]?.id !== undefined) {
+																		navigate(`/product/${keyMetricsTxBranch?.bestProducts[0]?.id}`);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -4041,8 +4121,14 @@ const StockReport = () => {
 																position={"absolute"}
 																zIndex={"2"}
 																ml={"730px"}
-																cursor={"pointer"}
-																onClick={() => navigate(`/product/${keyMetricsTxBranch?.bestProducts[2]?.id}`)}
+																cursor={
+																	keyMetricsTxBranch?.bestProducts[2]?.id !== undefined ? "pointer" : "not-allowed"
+																}
+																onClick={() => {
+																	if (keyMetricsTxBranch?.bestProducts[2]?.id !== undefined) {
+																		navigate(`/product/${keyMetricsTxBranch?.bestProducts[2]?.id}`);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -4135,7 +4221,7 @@ const StockReport = () => {
 														mb={"25px"}
 													>
 														<Text fontSize={"30px"} fontWeight={"semibold"}>
-															WEAK SELLING PRODUCTS IN {getBranchLabel(selectedSubOption)} (Non-Zero)
+															WEAKEST SELLING PRODUCTS IN {getBranchLabel(selectedSubOption)} (Non-Zero Orders)
 														</Text>
 														<Flex position={"relative"} align={"center"} mb={"30px"}>
 															<Image
@@ -4146,8 +4232,14 @@ const StockReport = () => {
 																zIndex={"2"}
 																ml={"-27px"}
 																top={"-5px"}
-																cursor={"pointer"}
-																onClick={() => navigate(`/product/${keyMetricsTxBranch?.worstProducts[1]?.id}`)}
+																cursor={
+																	keyMetricsTxBranch?.worstProducts[1]?.id !== undefined ? "pointer" : "not-allowed"
+																}
+																onClick={() => {
+																	if (keyMetricsTxBranch?.worstProducts[1]?.id !== undefined) {
+																		navigate(`/product/${keyMetricsTxBranch?.worstProducts[1]?.id}`);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -4165,8 +4257,14 @@ const StockReport = () => {
 																zIndex={"2"}
 																top={"-5px"}
 																ml={"335px"}
-																cursor={"pointer"}
-																onClick={() => navigate(`/product/${keyMetricsTxBranch?.worstProducts[0]?.id}`)}
+																cursor={
+																	keyMetricsTxBranch?.worstProducts[0]?.id !== undefined ? "pointer" : "not-allowed"
+																}
+																onClick={() => {
+																	if (keyMetricsTxBranch?.worstProducts[0]?.id !== undefined) {
+																		navigate(`/product/${keyMetricsTxBranch?.worstProducts[0]?.id}`);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
@@ -4185,8 +4283,14 @@ const StockReport = () => {
 																position={"absolute"}
 																zIndex={"2"}
 																ml={"730px"}
-																cursor={"pointer"}
-																onClick={() => navigate(`/product/${keyMetricsTxBranch?.worstProducts[2]?.id}`)}
+																cursor={
+																	keyMetricsTxBranch?.worstProducts[2]?.id !== undefined ? "pointer" : "not-allowed"
+																}
+																onClick={() => {
+																	if (keyMetricsTxBranch?.worstProducts[2]?.id !== undefined) {
+																		navigate(`/product/${keyMetricsTxBranch?.worstProducts[2]?.id}`);
+																	}
+																}}
 															/>
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
