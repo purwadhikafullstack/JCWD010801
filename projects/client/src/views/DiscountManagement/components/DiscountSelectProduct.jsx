@@ -28,6 +28,14 @@ export const DiscountSelectProduct = ({ setSelectedProduct, isVoucher = true }) 
 		}
 	};
 
+    const fetchCategory = async() => {
+        try {
+            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/category/$`)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
 	const handleDrawerClose = () => {
         setSearch("")
 		setSearchResults([]);
@@ -89,6 +97,7 @@ export const DiscountSelectProduct = ({ setSelectedProduct, isVoucher = true }) 
                                     cursor="pointer"
                                     alignItems={"center"}
                                     bgColor={"gray.100"}
+                                    _hover={{ bgColor: "gray.200" }}
                                     p={3}
                                     borderRadius={"7px"}
                                     >
@@ -101,10 +110,10 @@ export const DiscountSelectProduct = ({ setSelectedProduct, isVoucher = true }) 
                                             mr={3}
                                         />
                                         <Stack justifyContent={"center"}>
-                                            <Text fontWeight={"normal"} color={"gray"} fontSize={"sm"} >{item.CategoryId}</Text>
                                             <Text fontWeight={"medium"} fontSize={"lg"}>
                                                 {item.productName}
                                             </Text>
+                                            <Text fontWeight={"normal"} color={"gray"} fontSize={"sm"} >{`Rp. ${item.price?.toLocaleString("id-ID")}`}</Text>
                                         </Stack>
                                         <Spacer/>
                                         <Icon as={AiOutlinePlus} w={8} h={8} />

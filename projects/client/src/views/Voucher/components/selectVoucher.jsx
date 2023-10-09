@@ -1,26 +1,61 @@
 import { Flex, Text, Icon, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, Stack, Heading } from "@chakra-ui/react"
 import { TbDiscount2 } from "react-icons/tb";
 import { MdKeyboardArrowRight } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { VoucherList } from "./list";
 import { FiArrowLeft } from "react-icons/fi";
+import { RxCrossCircled } from "react-icons/rx";
 import { RedeemCode } from "./redeemCode";
+import { setVoucherInfo } from "../../../redux/voucherSlice";
 
-export const SelectVoucher = () => {
+export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
     const voucher = useSelector((state) => state.voucher.value);
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const dispatch = useDispatch();
+
+    const removeVoucher = () => {
+        onClose()
+        dispatch(setVoucherInfo({}))
+    }
+    
+    const checkMissingRequirementType = () => {
+        if (voucher.minPay && voucher.minPay > subtotal) return `Minimum subtotal: Rp. ${voucher.minPay?.toLocaleString("id-ID")} `;
+        else if (voucher.type === "Single item") {
+            let booleanCheck = false
+            items?.map(({ ProductId }) => {
+                if (ProductId === voucher.ProductId) {
+                    booleanCheck = true
+                }
+            });
+            if (!booleanCheck) return `You need to have ${voucher.Product.productName} in your cart in order to use this voucher`
+        }
+        return
+    }
 
     return (
         <>
-        <Flex onClick={onOpen} cursor={'pointer'} border={'2px solid lightgray'} borderRadius={'10px'} p={1} w={'100%'} justifyContent={'space-between'} alignItems={'center'}>
+        <Flex onClick={onOpen} border={'2px solid lightgray'} borderColor={checkRequirements ? "red.500" : "lightgray"} cursor={'pointer'} borderRadius={'10px'} p={1} w={'100%'} justifyContent={'space-between'} alignItems={'center'}>
             <Flex ml={2} gap={3} alignItems={'center'}>
                 <Icon as={TbDiscount2} w='7' h='7' color={'black'} />
-                <Text>
-                    {voucher.name ? voucher.name : 'Save more using promos'}
-                </Text>
+                <Stack gap={0} h={"100%"} justifyContent={"center"}>
+                    <Text fontWeight={"medium"}>
+                        {voucher.name ? voucher.name : 'Save more using promos'}
+                    </Text>
+                    {/* {voucher.minPay && ( */}
+                        <Text fontWeight={"light"} fontSize={"sm"}>
+                            {checkMissingRequirementType()}
+                        </Text>
+                    {/* )} */}
+                </Stack>
             </Flex>
             <Flex justifyContent={'center'} alignItems={'center'} p={2} borderLeft={'2px solid lightgray'}>
-                <Icon as={MdKeyboardArrowRight} w='8' h='8' color={'lightgray'}/>
+                <Icon 
+                _hover={{color: "red.400"}} 
+                zIndex={10} 
+                onClick={voucher.name ? removeVoucher : null} 
+                as={voucher.name ? RxCrossCircled : MdKeyboardArrowRight} 
+                w='8' h='8' 
+                color={checkRequirements ? 'red.600' : 'lightgray'}/>
             </Flex>
         </Flex>
         <Drawer placement="bottom" isOpen={isOpen} onClose={onClose}>

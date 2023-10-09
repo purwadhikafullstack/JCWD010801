@@ -38,7 +38,7 @@ export const OngoingDiscount = () => {
         try {
             const search = searchRef.current.value
             const type = typeRef.current.value
-            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/discount/ongoing?limit=10&page=${page}&search=${search}&type=${type}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`, {
+            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/discount/ongoing-admin?limit=10&page=${page}&search=${search}&type=${type}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`, {
                 headers: {
                     authorization: `Bearer ${token}`
                 }
@@ -76,7 +76,7 @@ export const OngoingDiscount = () => {
                             <ButtonTemp onClick={fetchData} size={"sm"} content={"Search"} />
                         </InputRightElement>
                     </InputGroup>
-                    <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" defaultValue={""} ref={typeRef} onClick={fetchData}>
+                    <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" defaultValue={""} ref={typeRef} onChange={fetchData}>
                         <option value={""}>All Types</option>
                         <option value={"Numeric"}>Fixed Amount</option>
                         <option value={"Percentage"}>Percentage</option>

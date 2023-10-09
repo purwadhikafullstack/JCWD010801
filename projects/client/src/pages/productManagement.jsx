@@ -256,7 +256,7 @@ const ProductManagement = () => {
 			console.log(error);
 		}
 	};
-	const currentBranchInfo = branches.find((branch) => branch.id === BranchId);
+	const currentBranchInfo = branches.find((branch) => branch.id === parseInt(BranchId));
 	const currentBranchName = currentBranchInfo?.name;
 
 	const productCount = async () => {

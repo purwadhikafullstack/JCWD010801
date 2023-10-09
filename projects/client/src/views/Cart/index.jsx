@@ -54,7 +54,7 @@ export const CartPageView = () => {
                             <CartList list={list}/>
                         </GridItem>
                         <GridItem display={{ base: 'none', md: 'block' }} colSpan={1}>
-                            <Receipt subtotal={totalSubtotalValue}/>
+                            <Receipt items={list} subtotal={totalSubtotalValue}/>
                         </GridItem>
                         </>
                     ) : (
@@ -64,7 +64,7 @@ export const CartPageView = () => {
                     )}
                 </Grid>
             </Stack>
-            <ReceiptMobile subtotal={totalSubtotalValue} />
+            <ReceiptMobile items={list} subtotal={totalSubtotalValue} />
             </>
         ) : (
             <ErrorPageLayout title={"404 - Page not found"} timer={5000}/>

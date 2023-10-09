@@ -25,8 +25,8 @@ export const VoucherList = () => {
     return (
         <Tabs defaultIndex={0} variant={{ base: "solid-rounded", md: "soft-rounded" }} size={{ base: "sm", md: "md" }}>
             <TabList minW={"454px"} overflow={"auto"} mb={5} justifyContent={"space-evenly"}>
-                <Tab border={"2px solid black"} color={"gray"} onClick={() => fetchData("")}  _hover={{ bgColor: "gray", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>All types</Tab>
-                <Tab border={"2px solid black"} color={"black"} onClick={() => fetchData("Single item")} _hover={{ bgColor: "blackAlpha.800", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>Single item</Tab>
+                <Tab border={"2px solid black"} color={"gray"} onClick={() => fetchData("")}  _hover={{ bgColor: "black", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>All types</Tab>
+                <Tab border={"2px solid black"} color={"black"} onClick={() => fetchData("Single item")} _hover={{ bgColor: "blackAlpha.500", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>Single item</Tab>
                 <Tab border={"2px solid black"} color={"red"} onClick={() => fetchData("Total purchase")} _hover={{ bgColor: "red.600", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>Total purchase</Tab>
                 <Tab border={"2px solid black"} color={"yellow"} onClick={() => fetchData("Shipment")} _hover={{ bgColor: "yellow.500", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>Shipment</Tab>
             </TabList>
@@ -47,7 +47,7 @@ export const VoucherList = () => {
                             maxDisc={Voucher?.maximumDiscount}
                             availableFrom={Voucher?.availableFrom}
                             validUntil={Voucher?.validUntil}
-                            ProductId={Voucher?.ProductId}
+                            Product={Voucher?.Product}
                             />
                         )
                     })}

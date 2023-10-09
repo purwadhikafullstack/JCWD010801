@@ -15,6 +15,7 @@ import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
 import { sidebarEvent } from "../../events/sidebarEvent";
+import { MdOutlineDiscount } from "react-icons/md";
 
 export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 	const navigate = useNavigate();
@@ -25,7 +26,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 
 	const logout = () => {
 		localStorage.removeItem("token");
-		toast.error("You have successfully logged out.", {
+		toast.success("You have successfully logged out.", {
 			position: "top-right",
 			autoClose: 4000,
 			hideProgressBar: false,
@@ -208,6 +209,30 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 					</Flex>
 					<Flex
 						as={Link}
+						to={"/dashboard/discount-overview"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.5s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<MdOutlineDiscount size={30} />
+						{navSize === "large" ? (
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"11px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
+								Discounts
+							</Text>
+						) : null}
+					</Flex>
+					<Flex
+						as={Link}
 						to={"/dashboard"}
 						mb={"20px"}
 						color={"white"}
@@ -232,7 +257,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 					</Flex>
 					<Flex
 						as={Link}
-						to={"/dashboard"}
+						to={"/dashboard/report/overview"}
 						mb={"20px"}
 						color={"white"}
 						transition="transform 0.5s ease-in-out"

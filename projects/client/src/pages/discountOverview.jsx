@@ -38,7 +38,7 @@ const DiscountOverview = () => {
 					</Flex>
 				</Flex>
 
-				<Stack justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}>
+				<Flex gap={10} justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}>
 					<Flex
 						as={Link}
 						to={"/dashboard/discount-management"}
@@ -62,7 +62,6 @@ const DiscountOverview = () => {
 						</Flex>
 					</Flex>
 					<Flex
-						mt={"10px"}
 						as={Link}
 						to={"/dashboard/voucher-management"}
 						w={"400px"}
@@ -84,7 +83,7 @@ const DiscountOverview = () => {
 							<Text fontSize={"20px"}>Voucher Management</Text>
 						</Flex>
 					</Flex>
-				</Stack>
+				</Flex>
 			</Box>
 		</Flex>
 	) : (

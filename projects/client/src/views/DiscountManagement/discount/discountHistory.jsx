@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { Pagination } from "../../../components/navigation/pagination";
 import { ButtonTemp } from "../../../components/button";
 import { BiSort, BiSortDown, BiSortUp } from "react-icons/bi";
+import { useSelector } from "react-redux";
 
 export const DiscountHistory = () => {
     const [ discount, setDiscount ] = useState([]);
+    const [ branches, setBranches ] = useState([]);
     const [ totalPages, setTotalPages ] = useState(1);
     const [page, setPage] = useState(1);
     const [ total, setTotal ] = useState(1);
@@ -21,6 +23,9 @@ export const DiscountHistory = () => {
     const endAvailableFromRef = useRef();
     const startValidUntilRef = useRef();
     const endValidUntilRef = useRef();
+    const branchIdRef = useRef();
+
+    const RoleId = useSelector((state) => state.user.value.RoleId);
 
     const nextPage = () => {
 		if (page < totalPages) {
@@ -38,16 +43,34 @@ export const DiscountHistory = () => {
 		setPage(page);
 	};
 
+    const fetchBranches = async() => {
+        try {
+            const { data } = await axios.get(
+                `${process.env.REACT_APP_API_BASE_URL}/branch`
+                , {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
+            setBranches(data.result);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const fetchData = async() => {
         try {
+            let branchId
+            console.log(typeRef.current.value)
             const search = searchRef.current.value
             const type = typeRef.current.value
             const startAvailableFrom = startAvailableFromRef.current.value
             const endAvailableFrom = endAvailableFromRef.current.value
             const startValidUntil = startValidUntilRef.current.value
             const endValidUntil = endValidUntilRef.current.value
+            if (RoleId === 3) branchId = branchIdRef.current.value
             const { data } = await axios.get(
-                `${process.env.REACT_APP_API_BASE_URL}/discount?limit=8&page=${page}&search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`
+                `${process.env.REACT_APP_API_BASE_URL}/discount?limit=8&type=${type}&page=${page}&branchId=${branchId}&search=${search}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`
                 , {
                 headers: {
                     authorization: `Bearer ${token}`
@@ -60,6 +83,10 @@ export const DiscountHistory = () => {
             console.log(err);
         }
     }
+
+    useEffect(() => {
+        fetchBranches();
+    }, []);
 
     useEffect(() => {
         fetchData()
@@ -104,12 +131,22 @@ export const DiscountHistory = () => {
                             <ButtonTemp onClick={fetchData} size={"sm"} content={"Search"} />
                         </InputRightElement>
                     </InputGroup>
-                    <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" defaultValue={""} ref={typeRef} onClick={fetchData}>
+                    <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" defaultValue={""} ref={typeRef} onChange={fetchData}>
                         <option value={""}>All Types</option>
                         <option value={"Numeric"}>Fixed Amount</option>
                         <option value={"Percentage"}>Percentage</option>
                         <option value={"Extra"}>Extra</option>
                     </Select>
+                    {RoleId === 3 && (
+                        <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" defaultValue={""} ref={branchIdRef} onChange={fetchData}>
+                            <option value={""}>All Branches</option>
+                            {branches.map(( { name, id } ) => {
+                                return (
+                                    <option value={id}>{name}</option>
+                                )
+                            })}
+                        </Select>
+                    )}
                 </Flex>
             </Stack>
             {discount.length > 0 ? (
@@ -179,6 +216,7 @@ export const DiscountHistory = () => {
                             </Flex>
                         </Th>
                         <Th textAlign={"center"}>Discounted Price</Th>
+                        {RoleId === 3 && (<Th textAlign={"center"}>Branch</Th>)}
                         <Th
                         cursor={"pointer"}
                         onClick={() => {
@@ -219,7 +257,7 @@ export const DiscountHistory = () => {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {discount.map(({ Product, type, nominal, availableFrom, validUntil, isActive, id }, idx) => {
+                    {discount.map(({ Product, type, nominal, availableFrom, validUntil, isActive, id, Branch }, idx) => {
                         const countDiscount = () => {
                             if (type === "Percentage") {
                                 const deductedPrice = nominal / 100 * Product.price
@@ -269,6 +307,11 @@ export const DiscountHistory = () => {
                                         <Text> {countDiscount()} </Text>
                                     )}
                                 </Td>
+                                {RoleId === 3 && (
+                                    <Td>
+                                        <Text>{Branch?.name}</Text>
+                                    </Td>
+                                )}
                                 <Td>
                                     <Text>
                                         {new Date(availableFrom).toLocaleString("en-EN", {

@@ -1,4 +1,6 @@
+import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
+import { toast } from "react-toastify";
 import {
 	Box,
 	Button,
@@ -23,15 +25,33 @@ import { AddToCartButton } from "../components/cart/add";
 
 const ProductDetail = () => {
 	const { id } = useParams();
-	// const isAdmin = useSelector((state) => state.user.value.isAdmin);
+	const [branches, setBranches] = useState([]);
 	const [product, setProduct] = useState([]);
 	const [category, setCategory] = useState("");
 	const [quantity, setQuantity] = useState(1);
+	const [stock, setStock] = useState(0);
+	const BranchId = localStorage.getItem("BranchId");
+
+	useEffect(() => {
+		fetchBranchData();
+	}, []);
+
+	useEffect(() => {
+		fetchData();
+		// eslint-disable-next-line
+	}, [id, BranchId]);
 
 	const fetchData = async () => {
 		try {
-			const productResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/${id}`);
+			const productResponse = await Axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/product/${id}?BranchId=${BranchId}`
+			);
 			setProduct(productResponse.data.result);
+			if (productResponse.data.result.Stocks[0]) {
+				setStock(productResponse.data.result.Stocks[0].currentStock);
+			} else {
+				setStock(0);
+			}
 			const categoryResponse = await Axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/category/${productResponse.data.result.CategoryId}`
 			);
@@ -41,10 +61,16 @@ const ProductDetail = () => {
 		}
 	};
 
-	useEffect(() => {
-		fetchData();
-		// eslint-disable-next-line
-	}, [id]);
+	const fetchBranchData = async () => {
+		try {
+			const branchResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(branchResponse.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	const currentBranchInfo = branches.find((branch) => branch.id === parseInt(BranchId));
+	const currentBranchName = currentBranchInfo?.name;
 
 	const decreaseQuantity = () => {
 		if (quantity > 1) {
@@ -53,18 +79,30 @@ const ProductDetail = () => {
 	};
 
 	const increaseQuantity = () => {
-		setQuantity(quantity + 1);
+		if (quantity >= stock) {
+			toast.error(`Currently there are only ${stock} units available.`, {
+				position: "top-right",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			return;
+		} else {
+			setQuantity(quantity + 1);
+		}
 	};
 
-	const tabStyles = useColorModeValue(
-		{
-			_selected: {
-				color: "gray.900",
-				borderColor: "gray.900",
-				bg: "transparent",
-			},
+	const tabStyles = useColorModeValue({
+		_selected: {
+			color: "gray.900",
+			borderColor: "gray.900",
+			bg: "transparent",
 		},
-	);
+	});
 
 	const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
@@ -132,12 +170,14 @@ const ProductDetail = () => {
 									py={3}
 									borderBottom={"1px solid #D3D3D3"}
 									fontFamily={"sans-serif"}
+									align={"center"}
+									justify={"space-between"}
 								>
 									<Box fontWeight={"bold"} fontSize={"16px"}>
-										In Stock :
+										In Stock ({currentBranchName}) :
 									</Box>
 									<Box ml={"5px"} fontSize={"16px"}>
-										{product.stock} Units
+										{stock} Units
 									</Box>
 								</Flex>
 								<Flex
@@ -146,9 +186,10 @@ const ProductDetail = () => {
 									py={3}
 									borderBottom={"1px solid #D3D3D3"}
 									fontFamily={"sans-serif"}
+									justify={"space-between"}
 								>
 									<Box fontWeight={"bold"} fontSize={"16px"}>
-										Weight ‎ ‎ :
+										Weight :
 									</Box>
 									<Box ml={"5px"} fontSize={"16px"}>
 										{(product.weight / 1000).toFixed(2)} Kilograms
@@ -188,7 +229,12 @@ const ProductDetail = () => {
 												bg="transparent"
 											/>
 										</Flex>
-										<AddToCartButton ProductId={product.id} quantity={quantity} name={product.productName} isText={true} /> 
+										<AddToCartButton
+											ProductId={product.id}
+											quantity={quantity}
+											name={product.productName}
+											isText={true}
+										/>
 									</Flex>
 								</Box>
 							</Box>
@@ -294,12 +340,14 @@ const ProductDetail = () => {
 									py={3}
 									borderBottom={"1px solid #D3D3D3"}
 									fontFamily={"sans-serif"}
+									align={"center"}
+									justify={"space-between"}
 								>
 									<Box fontWeight={"bold"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-										In Stock :
+										In Stock ({currentBranchName}) :
 									</Box>
 									<Box ml={"5px"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-										{product.stock} Units
+										{stock} Units
 									</Box>
 								</Flex>
 								<Flex
@@ -308,12 +356,13 @@ const ProductDetail = () => {
 									py={3}
 									borderBottom={"1px solid #D3D3D3"}
 									fontFamily={"sans-serif"}
+									justify={"space-between"}
 								>
 									<Box fontWeight={"bold"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-										Weight ‎ ‎ :
+										Weight :
 									</Box>
-									<Box ml={"5px"} fontSize={{ base: "15px", sm: "17px", md: "24px" }}>
-										{(product.weight / 1000).toFixed(2)} Kilograms
+									<Box ml={"5px"} fontSize={{ base: "15px", sm: "17px", md: "24px" }} alignSelf={"flex-end"}>
+										{(product.weight / 1000).toFixed(2)} Kg
 									</Box>
 								</Flex>
 								<Box
@@ -351,7 +400,13 @@ const ProductDetail = () => {
 												bg="transparent"
 											/>
 										</Flex>
-										<AddToCartButton ml={'25px'} ProductId={product.id} quantity={quantity} name={product.productName} isText={true} /> 
+										<AddToCartButton
+											ml={"25px"}
+											ProductId={product.id}
+											quantity={quantity}
+											name={product.productName}
+											isText={true}
+										/>
 									</Flex>
 								</Box>
 							</Box>

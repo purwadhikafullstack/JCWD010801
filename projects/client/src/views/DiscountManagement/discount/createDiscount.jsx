@@ -15,7 +15,7 @@ export const CreateDiscount = () => {
     const typeRef = useRef();
 
     const discountSchema = Yup.object().shape({
-        nominal: Yup.number().min(0).required("This field is required"),
+        nominal: Yup.number().min(1).required("This field is required"),
         availableFrom: Yup.string().required("This field is required"),
         validUntil: Yup.string().required("This field is required")
     });
@@ -174,7 +174,7 @@ export const CreateDiscount = () => {
                             </Stack>
                             <Stack borderRadius={"10px"} p={6} gap={4}  boxShadow={"xl"}>
                                 <Flex alignItems={"center"} justifyContent={"space-between"}>
-                                    <Text fontWeight={"semibold"} fontSize={"2xl"} mb={3}>Apply Voucher to</Text>
+                                    <Text fontWeight={"semibold"} fontSize={"2xl"} mb={3}>Apply Discount to</Text>
                                     <DiscountSelectProduct selectedProduct={selectedProduct} isVoucher={false} setSelectedProduct={setSelectedProduct} />
                                 </Flex>
                                 {selectedProduct?.length > 0 ? (
@@ -229,7 +229,7 @@ export const CreateDiscount = () => {
                             </Stack>
                             <Flex borderRadius={"10px"} p={3} gap={3} boxShadow={"xl"} justifyContent={"end"} alignItems={"center"}>
                                 <Button border={"1px solid black"} bgColor={"white"} _hover={{ bgColor: "white", color: "red.500", borderColor: "red.500" }} onClick={handleReset} type="reset">Reset</Button>
-                                <ButtonTemp type="submit" content={"Create Voucher"} />
+                                <ButtonTemp isDisabled={selectedProduct.length > 0 ? false : true} type="submit" content={"Create Discount"} />
                             </Flex>
                         </Stack>
                     </Form>

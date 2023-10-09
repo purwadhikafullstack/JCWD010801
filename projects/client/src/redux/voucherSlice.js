@@ -10,12 +10,9 @@ const voucherSlice = createSlice({
     reducers: {
         setVoucherInfo: (state, action) => {
             state.value = action.payload
-        },
-        useLater: (state, action) => {
-            state.value = {}
         }
     }
 });
 
-export const { setVoucherInfo, useLater } = voucherSlice.actions;
+export const { setVoucherInfo } = voucherSlice.actions;
 export default voucherSlice.reducer;

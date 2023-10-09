@@ -18,6 +18,7 @@ import {
 	MenuDivider,
 	Icon,
 	FormControl,
+	Spinner,
 } from "@chakra-ui/react";
 import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,26 +35,23 @@ function Order() {
 	const [address, setAddress] = useState([]);
 	const [branch, setBranch] = useState({});
 	const [selectedAddress, setSelectedAddress] = useState({});
-	const [dataOngkir, setDataOngkir] = useState({});
+	const [dataOngkir, setDataOngkir] = useState(null);
 	const [item, setItem] = useState([]);
 	const [subTotalItem, setSubTotalItem] = useState([]);
 	const [shipmentFee, setShipmentFee] = useState();
 	const [etd, setEtd] = useState("");
-	const [filteredAddress, setFilteredAddress] = useState([]);
 	const [shipmentMethods, setShipmentMethods] = useState("");
 	const [shipments, setShipments] = useState("");
+	const [voucherDiscount, setVoucherDiscount] = useState(0);
 	const [discount, setDiscount] = useState(0);
 	const reduxStore = useSelector((state) => state?.user);
+	const voucher = useSelector((state) => state.voucher.value);
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
 	const phone = reduxStore?.value?.phone;
 	const token = localStorage.getItem("token");
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-
-	const getFilterAddress = (address) => address.filter((item) => item.city_id === branch?.city_id);
-
-	const voucher = useSelector((state) => state.voucher.value);
 
 	const getCartItems = async () => {
 		try {
@@ -62,21 +60,46 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
+			if (response.data.cart_items.length === 0) {
+				toast.warn("Cart is empty", {
+					position: "top-right",
+					autoClose: 5000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+				navigate("/search");
+			}
 			setBranch(response.data.cart.Branch);
 			setItem(response.data.cart_items);
 			setSubTotalItem(response.data.subtotal);
-		} catch (error) {}
+		} catch (error) {
+			toast.warn("Cart is empty", {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			navigate("/search");
+		}
 	};
 
 	const getAddress = async () => {
 		try {
-			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address/`, {
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/address/`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (response.data.total_addresses === 0) {
-				navigate("/profile");
+			if (response.data.result.length === 0) {
+				navigate("/profile#addresses");
 				toast.warn("You must add your address first, before continue your order", {
 					position: "top-right",
 					autoClose: 5000,
@@ -92,10 +115,6 @@ function Order() {
 			setSelectedAddress(response.data.result[0]);
 		} catch (error) {}
 	};
-
-	useEffect(() => {
-		setFilteredAddress(getFilterAddress(address));
-	}, [address]);
 
 	const totalWeight = item.reduce((total, item) => {
 		return total + item.Product.weight * item.quantity;
@@ -124,20 +143,33 @@ function Order() {
 		return formatter.format(value);
 	};
 
-	const countDiscount = (shipmentFeeDiscount) => {
-        if ( voucher.isPercentage && voucher.type === "Shipment" ) return setDiscount((shipmentFeeDiscount * voucher.nominal / 100))
+	const countDiscount = () => {
+		let totalDiscount = 0
+		item.map(({ Product }) => {
+			if (Product?.Discounts[0]?.type === "Numeric") {
+				totalDiscount = totalDiscount + Product?.Discounts[0]?.nominal
+			} else if (Product?.Discounts[0]?.type === "Percentage") {
+				totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100 * Product?.price)
+			}
+			console.log(totalDiscount)
+		})
+		return setDiscount(totalDiscount)
+	}
+
+	const voucherDeduction = (shipmentFeeDiscount) => {
+        if ( voucher.isPercentage && voucher.type === "Shipment" ) return setVoucherDiscount((shipmentFeeDiscount * voucher.nominal / 100))
         else if ( voucher.isPercentage && voucher.type === "Total purchase" ) {
-			if ((totalSubtotalItem * voucher.nominal / 100) > voucher.maxDisc) return setDiscount(voucher.maxDisc)
-			else return setDiscount(totalSubtotalItem * voucher.nominal / 100)
+			if ((totalSubtotalItem * voucher.nominal / 100) > voucher.maxDisc) return setVoucherDiscount(voucher.maxDisc)
+			else return setVoucherDiscount(totalSubtotalItem * voucher.nominal / 100)
 		} 
-		else setDiscount(voucher.nominal)
+		else setVoucherDiscount(voucher.nominal)
     }
 	const totalSubtotalItem = subTotalItem.reduce((total, item) => {
 		const subtotalValue = parseInt(item.subtotal, 10);
 		return total + subtotalValue;
 	}, 0);
-	const tax = voucher.VoucherId ? (totalSubtotalItem + shipmentFee - discount) / 10 : (totalSubtotalItem + shipmentFee) / 10;
-	const total = voucher.VoucherId ? tax + (totalSubtotalItem + shipmentFee - discount) : tax + (totalSubtotalItem + shipmentFee) ;
+	const tax = voucher.VoucherId ? (totalSubtotalItem + shipmentFee - discount - voucherDiscount) / 10 : (totalSubtotalItem + shipmentFee - discount) / 10;
+	const total = voucher.VoucherId ? tax + (totalSubtotalItem + shipmentFee - discount - voucherDiscount) : tax + (totalSubtotalItem + shipmentFee - discount) ;
 	const subtotal = totalSubtotalItem + shipmentFee;
 	const validationSchema = Yup.object({
 		shipmentMethod: Yup.string().required("Shipping method is required"),
@@ -153,23 +185,11 @@ function Order() {
 				tax: tax,
 				total: total,
 				subtotal: subtotal,
-				discount: discount,
+				discount: discount + voucherDiscount,
 				AddressId: selectedAddress.id,
 				VoucherId: voucher.VoucherId
 			};
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/order/`, data, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			// voucher.VoucherId && await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/voucher/${voucher.VoucherId}`, {}, {
-			// 	headers: {
-			// 		Authorization: `Bearer ${token}`,
-			// 	},
-			// });
-
-			const result = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/latest-id`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -187,13 +207,7 @@ function Order() {
 			});
 
 			dispatch(refreshCart());
-			navigate("/profile");
-
-			await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`, {}, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
+			navigate("/profile#orders");
 
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
@@ -253,7 +267,7 @@ function Order() {
 												<Text fontSize="xs">Select Address</Text>
 											</MenuButton>
 											<MenuList>
-												{filteredAddress?.map((item, index) => (
+												{address?.map((item, index) => (
 													<Box key={index}>
 														<MenuItem onClick={() => setSelectedAddress(item)}>
 															<Box>
@@ -348,6 +362,7 @@ function Order() {
 													props.setFieldValue("shipment", e.target.value);
 													setShipments(e.target.value);
 													setShipmentMethods("");
+													setDataOngkir(null);
 												}}
 											>
 												<option value="jne">JNE</option>
@@ -358,7 +373,12 @@ function Order() {
 										</FormControl>
 									)}
 								</Field>
-								{shipments ? (
+
+								{shipments && !dataOngkir ? (
+									<Flex justify={"center"}>
+										<Spinner size="lg" color="black" mt={6} />
+									</Flex>
+								) : shipments && dataOngkir ? (
 									<Field name="shipmentMethod">
 										{({ field }) => (
 											<FormControl>
@@ -373,7 +393,8 @@ function Order() {
 														const objGetCost = dataOngkir?.costs?.find((item) => item.service === e.target.value);
 														setShipmentFee(objGetCost.cost[0].value);
 														setEtd(objGetCost.cost[0].etd);
-														countDiscount(objGetCost.cost[0].value);
+														countDiscount();
+														voucherDeduction(objGetCost.cost[0].value);
 													}}
 												>
 													{dataOngkir?.costs?.map((item, index) => (
@@ -401,10 +422,14 @@ function Order() {
 											<Text fontWeight={"bold"}>Subtotal</Text>
 											<Text>{formatToRupiah(subtotal)}</Text>
 										</Flex>
+										<Flex justify={"space-between"}>
+											<Text fontWeight={"bold"}>Promos</Text>
+											<Text>{formatToRupiah(discount)}</Text>
+										</Flex>
 										{voucher.VoucherId && (
 											<Flex justify={"space-between"}>
 												<Text fontWeight={"bold"}>{voucher.type === "Shipment" ? "Shipment" : "Shopping"} Discount</Text>
-												<Text>{formatToRupiah(discount)}</Text>
+												<Text>{formatToRupiah(voucherDiscount)}</Text>
 											</Flex>
 										)}
 										<Flex justify={"space-between"}>

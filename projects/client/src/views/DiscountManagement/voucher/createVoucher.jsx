@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Flex, FormLabel, Icon, Image, Input, InputGroup, InputLeftAddon, InputRightAddon, Radio, RadioGroup, Select, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ButtonTemp } from "../../../components/button";
 import { DiscountSelectProduct } from "../components/DiscountSelectProduct";
 import { BsTrash } from "react-icons/bs";
@@ -72,9 +72,6 @@ export const CreateVoucher = () => {
 			});
         }
     }
-    useEffect(() => {
-        console.log(selectedProduct)
-    }, [selectedProduct])
 
     const handleReset = () => {
         setSelectedProduct({})

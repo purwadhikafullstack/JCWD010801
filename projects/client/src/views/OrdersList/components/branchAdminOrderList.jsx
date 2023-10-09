@@ -1,253 +1,246 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
-import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
-import { AiOutlineShopping } from "react-icons/ai";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator, Flex, Box, Text } from "@chakra-ui/react";
 import { AdminSidebar } from "../../../components/navigation/adminSidebar";
+import { NavbarAdmin } from "../../../components/navigation/navbarAdmin";
+import { WaitingOrders } from "./branchOrder/waiting";
+import { ProcessingOrders } from "./branchOrder/processing";
+import { PendingOrders } from "./branchOrder/pending";
+import { SentOrders } from "./branchOrder/sent";
+import { ConfirmedOrders } from "./branchOrder/received";
+import { CanceledOrders } from "./branchOrder/cancelByAdmin";
+import { AllOrders } from "./branchOrder/allOrders";
 
 export const BranchAdminOrdersList = () => {
-	const [list, setList] = useState();
-	const [search, setSearch] = useState("");
-	const [page, setPage] = useState(1);
-	const [totalPage, setTotalPage] = useState(1);
-	const [selectedDate, setSelectedDate] = useState("");
+	const [totalOrders, setTotalOrders] = useState("");
+	const [waitingOrders, setWaitingOrders] = useState("");
+	const [pendingOrders, setPendingOrders] = useState("");
+	const [processingOrders, setProcessingOrders] = useState("");
+	const [sentOrders, setSentOrders] = useState("");
+	const [receivedOrders, setReceivedOrders] = useState("");
+	const [cancelledOrders, setCancelledOrders] = useState("");
+	const [reload, setReload] = useState(false);
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
-	const ordersList = async (pageNum) => {
+	const ordersList = async () => {
 		try {
-			const queryParams = {};
-			if (selectedDate) {
-				queryParams.date = selectedDate;
-			}
-			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&page=${pageNum}&limit=4`,
-				{
-					headers,
-					params: queryParams,
-				}
-			);
-			setList(response.data.result);
-			setPage(response.data.currentPage);
-			setTotalPage(response.data.totalPage);
+			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin`, {
+				headers,
+			});
+			setTotalOrders(response.data.countOrders);
+			setWaitingOrders(response.data.waitingOrders);
+			setPendingOrders(response.data.pendingOrders);
+			setProcessingOrders(response.data.processingOrders);
+			setSentOrders(response.data.sentOrders);
+			setReceivedOrders(response.data.receivedOrders);
+			setCancelledOrders(response.data.cancelledOrders);
+			setReload(true);
 		} catch (error) {
 			console.log(error);
 		}
 	};
-
-	const prevPage = () => {
-		if (page > 1) ordersList(page - 1);
-	};
-	const nextPage = () => {
-		if (page < totalPage) {
-			ordersList(page + 1);
-		}
-	};
 	useEffect(() => {
-		ordersList(page);
-	}, [selectedDate, search]);
+		ordersList();
+	}, [reload]);
 	return (
 		<Flex>
 			<AdminSidebar />
-			<Flex justifyContent={"center"} direction={"column"} w={"full"} ml={"20px"}>
-				<Heading>Admin orders list</Heading>
-				<Flex mt={"20px"} justifyContent={"center"}>
-					<Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						w={"250px"}
-						placeholder="Search"
-						type="search"
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-					/>
-					<Select
-						w={"105px"}
-						ml={"10px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						placeholder="Sort"
-					>
-						<option>All</option>
-					</Select>
-					<Select
-						textAlign={"start"}
-						pl={"10px"}
-						w={"140px"}
-						border="1px solid #373433"
-						borderRadius={"20px"}
-						focusBorderColor="#373433"
-						placeholder="Status"
-					>
-						Status
-						<option>Waiting for payment</option>
-					</Select>
-					<Input
-						borderRadius={"20px"}
-						border="1px solid #373433"
-						focusBorderColor="#373433"
-						ml={"10px"}
-						w={"150px"}
-						placeholder="Date"
-						type="date"
-						value={selectedDate}
-						onChange={(e) => setSelectedDate(e.target.value)}
-					/>
-				</Flex>
-				{list?.map((item) => {
-					return (
-						<Box
-							pl={"20px"}
-							w={"98%"}
-							pb={"10px"}
-							bg={"white"}
-							mt={"20px"}
-							borderRadius={"8px"}
-							boxShadow="0px 0px 3px gray"
-						>
-							<Flex pt={"5px"}>
-								<Text fontSize={"15px"} fontWeight={"bold"}>
-									Shop
-								</Text>
-								<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-									{new Date(`${item.Order.createdAt}`).toLocaleDateString("us-us", {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-									})}
-								</Text>
-								<Badge ml={"10px"} mt={"2px"} colorScheme="green">
-									{item.Order.status}
-								</Badge>
-								<Text mt={"2px"} ml={"10px"} fontFamily={"monospace"} fontSize={"13px"}>
-									INV/20230813/MPL/3400120239
-								</Text>
-							</Flex>
-							<Flex mt={"3px"}>
-								<AiOutlineShopping color="blue" size={25} />
-								<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-									Alphamart {item.Order.Cart.Branch.name}
-								</Text>
-							</Flex>
-							<Flex justifyContent={"space-between"}>
-								<Box>
-									<Flex mt={"10px"}>
-										<Box
-											as={Image}
-											w={"100px"}
-											bg={"gray.100"}
-											src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
-										></Box>
-										<Box>
-											<Text ml={"15px"} fontWeight={"bold"}>
-												{item.Product.productName}
+			<Box w={"full"}>
+				<NavbarAdmin />
+				<Box w={"full"}>
+					<Tabs align="center" position="relative" variant="unstyled">
+						<TabList>
+							<Tab>
+								<Flex>
+									All orders
+									{totalOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"60px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{totalOrders}
 											</Text>
-											<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-												{item.quantity} Items X {item.Product.price}{" "}
+										</Flex>
+									)}
+								</Flex>
+							</Tab>
+							<Tab>
+								<Flex>
+									Waiting for Payment
+									{waitingOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"140px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{waitingOrders}
 											</Text>
-										</Box>
-									</Flex>
-								</Box>
-								<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
-									<Text color={"gray.500"} fontSize={"15px"}>
-										Total amount
-									</Text>
-									<Text color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-										Rp. {item.Order.subtotal},00
-									</Text>
+										</Flex>
+									)}
 								</Flex>
-							</Flex>
-							<Flex mt={"10px"} justifyContent={"end"}>
-								<Button
-									my={"auto"}
-									backgroundColor={"#000000"}
-									color={"white"}
-									mr={"10px"}
-									_hover={{
-										textColor: "#0A0A0B",
-										bg: "#F0F0F0",
-										_before: {
-											bg: "inherit",
-										},
-										_after: {
-											bg: "inherit",
-										},
-									}}
-								>
-									Review
-								</Button>
-								<Flex mr={"10px"} alignItems={"center"}>
-									<BsThreeDotsVertical size={25} />
+							</Tab>
+							<Tab>
+								<Flex>
+									Pending payment confirmation
+									{pendingOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"212px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{pendingOrders}
+											</Text>
+										</Flex>
+									)}
 								</Flex>
-							</Flex>
-						</Box>
-					);
-				})}
-				<Flex mt={"20px"} justifyContent={"center"}>
-					<Button
-						backgroundColor={"#000000"}
-						color={"white"}
-						mr={"5px"}
-						_hover={{
-							textColor: "#0A0A0B",
-							bg: "#F0F0F0",
-							_before: {
-								bg: "inherit",
-							},
-							_after: {
-								bg: "inherit",
-							},
-						}}
-						transition="transform 0.3s ease-in-out"
-						onClick={prevPage}
-						disabled={page === 1}
-					>
-						<AiOutlineArrowLeft />
-					</Button>
-					<Button
-						backgroundColor={"#000000"}
-						color={"white"}
-						_hover={{
-							textColor: "#0A0A0B",
-							bg: "#F0F0F0",
-							_before: {
-								bg: "inherit",
-							},
-							_after: {
-								bg: "inherit",
-							},
-						}}
-						transition="transform 0.3s ease-in-out"
-						disabled
-					>
-						{page}
-					</Button>
-					<Button
-						backgroundColor={"#000000"}
-						color={"white"}
-						ml={"5px"}
-						_hover={{
-							textColor: "#0A0A0B",
-							bg: "#F0F0F0",
-							_before: {
-								bg: "inherit",
-							},
-							_after: {
-								bg: "inherit",
-							},
-						}}
-						transition="transform 0.3s ease-in-out"
-						onClick={nextPage}
-						disabled={page === totalPage}
-					>
-						<AiOutlineArrowRight />
-					</Button>
-				</Flex>
-			</Flex>
+							</Tab>
+							<Tab>
+								<Flex>
+									Processing
+									{processingOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"68px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{processingOrders}
+											</Text>
+										</Flex>
+									)}
+								</Flex>
+							</Tab>
+							<Tab>
+								<Flex>
+									Sent
+									{sentOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"26px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{sentOrders}
+											</Text>
+										</Flex>
+									)}
+								</Flex>
+							</Tab>
+							<Tab>
+								<Flex>
+									Received
+									{receivedOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"58px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{receivedOrders}
+											</Text>
+										</Flex>
+									)}
+								</Flex>
+							</Tab>
+							<Tab>
+								<Flex>
+									Cancelled
+									{cancelledOrders > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											ml={"63px"}
+											bg={"blackAlpha.600"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{cancelledOrders}
+											</Text>
+										</Flex>
+									)}
+								</Flex>
+							</Tab>
+						</TabList>
+						<TabIndicator mt="-1.5px" height="2px" bg="black" borderRadius="1px" />
+						<TabPanels>
+							<TabPanel>
+								<AllOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+							<TabPanel>
+								<WaitingOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+							<TabPanel>
+								<PendingOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+							<TabPanel>
+								<ProcessingOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+							<TabPanel>
+								<SentOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+							<TabPanel>
+								<ConfirmedOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+							<TabPanel>
+								<CanceledOrders reload={reload} setReload={setReload} />
+							</TabPanel>
+						</TabPanels>
+					</Tabs>
+				</Box>
+			</Box>
 		</Flex>
 	);
 };

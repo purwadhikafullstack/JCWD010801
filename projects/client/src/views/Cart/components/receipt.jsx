@@ -5,21 +5,15 @@ import { Promo } from "./promo";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
-export const Receipt = ({ subtotal, promo = true }) => {
+export const Receipt = ({ subtotal, promo = true, items }) => {
     const navigate = useNavigate();
     const convertToRp = (number) => number?.toLocaleString("id-ID");
     const [ discount, setDiscount ] = useState(0);
-    // let discount;
 
     const voucher = useSelector((state) => state.voucher.value);
-    // const discountedPrice = () => {
-    //     if ( voucher.isPercentage ) {
-	// 		if ((subtotal * voucher.nominal / 100) > voucher.maxDisc) return discount = (voucher.maxDisc)
-	// 		else return discount = (subtotal * voucher.nominal / 100)
-	// 	} 
-	// 	else discount = (voucher.nominal)
-    // };
-    const discountedPrice = () => {
+    
+    const checkVoucherRequirements = () => {
+        if (voucher.minPay && voucher.minPay > subtotal) return setDiscount(0)
         if ( voucher.isPercentage ) {
 			if ((subtotal * voucher.nominal / 100) > voucher.maxDisc) return setDiscount(voucher.maxDisc)
 			else return setDiscount(subtotal * voucher.nominal / 100)
@@ -30,13 +24,27 @@ export const Receipt = ({ subtotal, promo = true }) => {
     const tax = voucher.VoucherId ? (subtotal - discount) / 10 : (subtotal) / 10;
 	const total = voucher.VoucherId ? tax + (subtotal - discount) : tax + (subtotal) ;
 
+    const checkDisableCheckout = () => {
+        if (voucher.minPay && voucher.minPay > subtotal) return true;
+        if (voucher.type === "Single item") {
+            let booleanCheck = true
+            items.map(({ ProductId }) => {
+                if (ProductId === voucher.ProductId) {
+                    booleanCheck = false
+                }
+            });
+            return booleanCheck
+        }
+        return false
+    }
+
     useEffect(() => {
-        discountedPrice();
-    }, [voucher])
+        checkVoucherRequirements();
+    }, [voucher, items])
 
     return (
         <Stack display={subtotal === 0 ? 'none' : 'flex'}  p={5} w={'100%'} borderRadius={'10px'} boxShadow={promo ? 'md' : null} gap={3}>
-            { promo && (<Promo/>) }
+            { promo && (<Promo items={items} checkRequirements={checkDisableCheckout()} subtotal={subtotal}/>) }
             <Flex w={'100%'} justifyContent={'space-between'}>
                 <Text>
                     Subtotal
@@ -50,7 +58,7 @@ export const Receipt = ({ subtotal, promo = true }) => {
                     Shopping Discount
                 </Text>
                 <Text>
-                    {voucher.VoucherId && voucher.type !== "Shipment" ? `Rp. ${convertToRp(discount)}` : "-"}
+                    {voucher.VoucherId && voucher.type !== "Shipment" && discount !== 0 ? discount !== 0 ? `Rp. ${convertToRp(discount)}` : "-" : "-"}
                 </Text>
             </Flex>
             <Flex borderBottom={'2px solid lightgray'} pb={5} w={'100%'} justifyContent={'space-between'}>
@@ -69,7 +77,7 @@ export const Receipt = ({ subtotal, promo = true }) => {
                     { `Rp. ${convertToRp(total)}`}
                 </Text>
             </Flex>
-            <ButtonTemp w={'100%'} content={"CHECK OUT"} onClick={() => navigate("/checkout")} />
+            <ButtonTemp isDisabled={checkDisableCheckout()} w={'100%'} content={"CHECK OUT"} onClick={() => navigate("/checkout")} />
         </Stack>
     )
 }

@@ -8,7 +8,7 @@ export const VoucherPageView = () => {
 			<Heading fontWeight={"semibold"}>
                 My Vouchers
             </Heading>
-            <Text mb={2} fontWeight={'semibold'} fontSize={'sm'}>
+            <Text fontWeight={'semibold'} fontSize={'20px'}>
                 Enter Promo Code
             </Text>
             <RedeemCode/>

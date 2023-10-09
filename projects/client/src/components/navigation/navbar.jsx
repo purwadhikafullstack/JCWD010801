@@ -6,7 +6,6 @@ import {
 	Flex,
 	Stack,
 	Text,
-	Box,
 	Image,
 	Avatar,
 	Button,
@@ -14,17 +13,11 @@ import {
 	Input,
 	InputGroup,
 	InputLeftElement,
-	Popover,
-	PopoverTrigger,
-	PopoverContent,
-	PopoverHeader,
-	PopoverBody,
 	Menu,
 	MenuList,
 	MenuItem,
 	MenuButton,
 	MenuDivider,
-	Divider,
 	Spacer,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,7 +26,6 @@ import { BsCart, BsPerson } from "react-icons/bs";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdLogout, MdLogin, MdAppRegistration } from "react-icons/md";
 import { LuSearch } from "react-icons/lu";
-import { BsChevronDown } from "react-icons/bs";
 import { CiLocationOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { NavbarMobile } from "./navbarMobile";
@@ -44,7 +36,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const token = localStorage.getItem("token");
-	const branches = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya"];
 	const reduxStore = useSelector((state) => state?.user);
 	const username = reduxStore?.value?.username;
 	const email = reduxStore?.value?.email;
@@ -79,8 +70,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 				},
 			});
 			setTotalCartItems(data?.total);
-		} catch (err) {
-			console.log(err);
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
@@ -106,7 +97,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	useEffect(() => {
 		fetchCart();
-		//! Ini dibenerin raf useEffectnya, nge fetch seperlunya aja nih trigger nya diperbaiki
 		// eslint-disable-next-line
 	}, [refresh]);
 
@@ -149,7 +139,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 					justifyContent={"space-between"}
 					position={"sticky"}
 					top={0}
-					zIndex={10}
+					zIndex={20}
 					w={"100%"}
 					bgColor={"white"}
 				>
@@ -204,52 +194,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							>
 								Voucher
 							</Text>
-							<Popover>
-								<PopoverTrigger>
-									<Flex gap={3} alignItems={"center"}>
-										<Text fontSize={{ base: "sm", lg: "md" }} cursor={"pointer"} fontWeight={"medium"}>
-											Select Branch
-										</Text>
-										<Icon as={BsChevronDown} w={4} h={4} color={"black"} />
-									</Flex>
-								</PopoverTrigger>
-								<PopoverContent>
-									<PopoverHeader justifyContent={"center"} w="100%">
-										<Text textAlign={"center"} fontWeight={"medium"} fontSize={"lg"}>
-											Select Branch Location
-										</Text>
-									</PopoverHeader>
-									<PopoverBody>
-										{branches.map((item, index) => {
-											return (
-												<React.Fragment key={index}>
-													<Text
-														textAlign={"center"}
-														as={Box}
-														key={index}
-														role={"group"}
-														borderRadius={"md"}
-														p={2}
-														fontWeight={400}
-														color={"gray.500"}
-														_hover={{
-															bgColor: "blackAlpha.100",
-															color: "black",
-															fontWeight: 500,
-														}}
-														onClick={() => {
-															localStorage.setItem("BranchId", index + 1);
-														}}
-													>
-														{item}
-													</Text>
-													{index + 1 !== branches.length && <Divider size={"xl"} colorScheme="gray" />}
-												</React.Fragment>
-											);
-										})}
-									</PopoverBody>
-								</PopoverContent>
-							</Popover>
 						</Flex>
 						<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
 							<SearchMobile />

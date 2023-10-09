@@ -1,23 +1,22 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
 import { Badge, Box, Button, Flex, Heading, Image, Input, Select, Text } from "@chakra-ui/react";
-import { AiOutlineShopping } from "react-icons/ai";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { HiOutlineTruck } from "react-icons/hi";
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
-import { AdminSidebar } from "../../../components/navigation/adminSidebar";
+import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "react-icons/ai";
 import { EmptyList } from "./emptyList";
+import { AdminSidebar } from "../../../components/navigation/adminSidebar";
 
 export const SuperAdminOrdersList = () => {
 	const [list, setList] = useState();
+	const [branch, setBranch] = useState();
 	const [search, setSearch] = useState("");
+	const [status, setStatus] = useState("");
+	const [branchId, setBranchId] = useState("");
+	const [selectedDate, setSelectedDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
-	const [selectedDate, setSelectedDate] = useState("");
 	const [sort, setSort] = useState("DESC");
-	const [branch, setBranch] = useState();
-	const [branchId, setBranchId] = useState("");
-	const [status, setStatus] = useState("");
+	// const [reload, setReload] = useState(false);
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -35,9 +34,11 @@ export const SuperAdminOrdersList = () => {
 					params: queryParams,
 				}
 			);
+			console.log(response.data);
 			setList(response.data.result);
 			setPage(response.data.currentPage);
 			setTotalPage(response.data.totalPage);
+			// setReload(true);
 		} catch (error) {
 			console.log(error);
 		}
@@ -170,92 +171,79 @@ export const SuperAdminOrdersList = () => {
 											Shop
 										</Text>
 										<Text mt={"2px"} ml={"10px"} fontSize={"13px"}>
-											{new Date(`${item.Order.createdAt}`).toLocaleDateString("us-us", {
+											{new Date(`${item.updatedAt}`).toLocaleDateString("us-us", {
 												year: "numeric",
 												month: "long",
 												day: "numeric",
 											})}
 										</Text>
-										{item.Order.status === "Sent" || "Received" ? (
+										{item.status === "Sent" || item.status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
-												{item.Order.status}
+												{item.status}
 											</Badge>
-										) : item.Order.status === "Waiting for payment" ||
-										  "Pending payment confirmation" ||
-										  "Processing" ? (
+										) : item.status === "Waiting for payment" || item.status === "Pending payment confirmation" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="yellow">
-												{item.Order.status}
+												{item.status}
+											</Badge>
+										) : item.status === "Processing" ? (
+											<Badge ml={"10px"} mt={"2px"} colorScheme="blue">
+												{item.status}
 											</Badge>
 										) : (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="red">
-												{item.Order.status}
+												{item.status}
 											</Badge>
 										)}
 										<Text mt={"2px"} ml={"10px"} fontFamily={"monospace"} fontSize={"13px"}>
-											INV/20230813/MPL/3400120239
+											{item.invoice}
 										</Text>
 									</Flex>
 									<Flex mt={"3px"}>
 										<AiOutlineShopping color="blue" size={25} />
 										<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-											Alphamart {item.Order.Cart.Branch.name}
+											Alphamart {item?.Cart?.Branch?.name}
 										</Text>
 									</Flex>
 									<Flex justifyContent={"space-between"}>
 										<Box>
-											<Flex mt={"10px"}>
-												<Box
-													as={Image}
-													w={"100px"}
-													bg={"gray.100"}
-													src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
-												></Box>
-												<Box>
-													<Text ml={"15px"} fontWeight={"bold"}>
-														{item.Product.productName}
-													</Text>
-													<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-														{item.quantity} Items X Rp. {item.Product.price},00
-													</Text>
-													<Flex ml={"15px"}>
-														<HiOutlineTruck size={21} />
-														<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
-															{item.Order.shipment}
+											{item.Order_details.map((item) => (
+												<Flex mt={"10px"}>
+													<Box
+														as={Image}
+														w={"100px"}
+														bg={"gray.100"}
+														src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
+													></Box>
+													<Box>
+														<Text ml={"15px"} fontWeight={"bold"}>
+															{item.Product.productName}
 														</Text>
-													</Flex>
-												</Box>
-											</Flex>
+														<Text ml={"15px"} color={"balck"} fontSize={"11px"}>
+															{item.Product.description}
+														</Text>
+														<Text ml={"15px"} color={"gray.500"} fontSize={"11px"}>
+															{item.quantity} Items X Rp. {item.Product.price},00
+														</Text>
+													</Box>
+												</Flex>
+											))}
 										</Box>
 										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
-											<Text color={"gray.500"} fontSize={"15px"}>
+											<Flex textAlign={"end"} ml={"15px"}>
+												<HiOutlineTruck size={21} />
+												<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+													{item.shipment} - {item.shipmentMethod}
+												</Text>
+											</Flex>
+											<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>
-											<Text color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												Rp. {item.Order.subtotal},00
+											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
+												Rp. {item.subtotal},00 - {item.discount}%
 											</Text>
-										</Flex>
-									</Flex>
-									<Flex mt={"10px"} justifyContent={"end"}>
-										<Button
-											my={"auto"}
-											backgroundColor={"#000000"}
-											color={"white"}
-											mr={"10px"}
-											_hover={{
-												textColor: "#0A0A0B",
-												bg: "#F0F0F0",
-												_before: {
-													bg: "inherit",
-												},
-												_after: {
-													bg: "inherit",
-												},
-											}}
-										>
-											Review
-										</Button>
-										<Flex mr={"10px"} alignItems={"center"}>
-											<BsThreeDotsVertical size={25} />
+											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
+												Rp. {item.total},00
+											</Text>
 										</Flex>
 									</Flex>
 								</Box>
@@ -263,7 +251,7 @@ export const SuperAdminOrdersList = () => {
 						})
 					) : (
 						<Flex justifyContent={"center"}>
-						<EmptyList/>
+							<EmptyList />
 						</Flex>
 					)}
 				</Box>

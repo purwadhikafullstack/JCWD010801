@@ -3,6 +3,7 @@ const db = require("../models");
 const discounts = db.Discounts;
 const users = db.Users;
 const products = db.Products;
+const branches = db.Branches;
 
 module.exports = {
     createBranchDiscount: async(req, res) => {
@@ -84,6 +85,10 @@ module.exports = {
                         where: {
                             productName: { [Op.like]: `${search}%` }
                         }
+                    },
+                    {
+                        model: branches,
+                        attributes: ['name']
                     }
                 ]
             }
@@ -105,7 +110,7 @@ module.exports = {
             res.status(404).send(err);
         }
     },
-    getOngoingDiscount: async(req, res) => {
+    getOngoingDiscountAdmin: async(req, res) => {
         try {
             const limit = +req.query.limit || 10 ;
             const page = +req.query.page || 1 ;
@@ -154,6 +159,35 @@ module.exports = {
             res.status(404).send(err);
         }
     },
+    getOngoingDiscount: async(req, res) => {
+        try {
+            const branchId = +req.query.branchId || "" ;
+            filter = {
+                where: {
+                    BranchId: { [Op.like]: `${branchId}%` },
+                    availableFrom: { [Op.lte]: new Date(Date.now()) },
+                    validUntil: { [Op.gte]: new Date(Date.now()) },
+                    isActive: true
+                },
+                order: [ [ Sequelize.col("validUntil"), "DESC"] ],
+                include: [
+                    {
+                        model: products
+                    }
+                ]
+            }
+            
+            const result = await discounts.findAll(filter);
+
+            res.status(200).send({
+                status: true,
+                result
+            });
+
+        } catch (err) {
+            res.status(404).send(err);
+        }
+    },
     updateBranchDiscount: async(req, res) => {
         const transaction = await db.sequelize.transaction();
         try {
@@ -177,25 +211,38 @@ module.exports = {
                 message: "New discount applied"
             });
         } catch (err) {
-            console.log(err)
             await transaction.rollback();
             res.status(400).send(err);
         }
     },
     deactivateDiscount: async(req, res) => {
         try {
-            await discounts.update({
-                where: { 
-                    isActive: false
-                }
-            })
+            await discounts.update({ isActive: false }, { where: { id: req.params.id } })
 
             res.status(200).send({
                 status: true,
-                result
-            })
+                message: "Discount deactivated"
+            });
         } catch (err) {
-            res.status(404).send(err);
+            res.status(500).send({
+                status: false,
+                message: "Internal server error"
+            });
+        }
+    },
+    activateDiscount: async(req, res) => {
+        try {
+            await discounts.update({ isActive: true }, { where: { id: req.params.id } });
+
+            res.status(200).send({
+                status: true,
+                message: "Discount activated"
+            });
+        } catch (err) {
+            res.status(500).send({
+                status: false,
+                message: "Internal server error"
+            });
         }
     },
 }

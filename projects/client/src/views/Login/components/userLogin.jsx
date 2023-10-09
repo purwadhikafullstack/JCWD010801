@@ -130,7 +130,7 @@ export const UserLogin = () => {
 							<Flex justifyContent={"space-between"}>
 								<Text
 									as={Link}
-									to="/"
+									to="/forgot-password"
 									mt={"5px"}
 									ml={["0px", "25px", "80px"]}
 									fontSize={"9px"}
