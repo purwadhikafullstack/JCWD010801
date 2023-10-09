@@ -596,7 +596,7 @@ module.exports = {
 						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Waiting payment" }, { where: { id: orderId } });
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Rejected' successfully",

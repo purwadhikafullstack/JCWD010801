@@ -21,11 +21,11 @@ export const MenuOrder = ({ reload, setReload, orderId, imgURL, date, branch, am
 						<ViewProof imgURL={imgURL} />
 					</MenuItem>
 				)}
-				{status === "Waiting Payment" ? (
+				{status === "Waiting payment" && (
 					<MenuItem>
 						<UploadProof id={orderId} date={date} branch={branch} amount={amount} />
 					</MenuItem>
-				) : null}
+				)}
 				{!imgURL && (
 					<MenuItem>
 						<CancelOrder id={orderId} />

@@ -34,7 +34,7 @@ export const ConfirmedOrders = () => {
 	const ordersList = async (pageNum) => {
 		try {
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName${searchName}&page=${pageNum}&limit=5&sort=${sort}&status=Received&startDate=${startDate}&endDate=${endDate}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName=${searchName}&page=${pageNum}&limit=5&sort=${sort}&status=Received&startDate=${startDate}&endDate=${endDate}`,
 				{
 					headers,
 				}
