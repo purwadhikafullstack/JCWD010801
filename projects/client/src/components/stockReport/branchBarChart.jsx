@@ -5,22 +5,20 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const CategoryBarChart = () => {
-	const [categoryData, setCategoryData] = useState([]);
+const BranchBarChart = () => {
+	const [branchData, setBranchData] = useState([]);
 	const [averageCount, setAverageCount] = useState(0);
 
 	const fetchData = async () => {
 		try {
-			const categoryResponse = await axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/mostandleast`
+			const branchResponse = await axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`
 			);
-			setCategoryData(categoryResponse.data.result);
-			const averageResponse = await axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/average`
-			);
+			setBranchData(branchResponse.data.result);
+			const averageResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/average`);
 			setAverageCount(averageResponse.data.result);
 		} catch (error) {
-			console.log("Error fetching data:", error);
+			console.log("Error fetching branch data:", error);
 		}
 	};
 
@@ -29,16 +27,16 @@ const CategoryBarChart = () => {
 	}, []);
 
 	const data = {
-		labels: categoryData.map((category) => category.category),
+		labels: branchData.map((branch) => branch.name),
 		datasets: [
 			{
-				label: "PPC",
-				data: categoryData.map((category) => category.productCount),
+				label: "PPB",
+				data: branchData.map((branch) => branch.productCount),
 				backgroundColor: "#C3C1C1",
 			},
 			{
-				label: "Avg. PPC Across All Categories",
-				data: Array(categoryData.length).fill(averageCount),
+				label: "Avg. PPB Across All Branches",
+				data: Array(branchData.length).fill(averageCount),
 				backgroundColor: "#000000",
 			},
 		],
@@ -49,7 +47,7 @@ const CategoryBarChart = () => {
 		plugins: {
 			title: {
 				display: true,
-				text: "All AlphaMart Product Distribution Across Categories",
+				text: "All AlphaMart Product Distribution Across Branches",
 			},
 		},
 	};
@@ -63,4 +61,4 @@ const CategoryBarChart = () => {
 	);
 };
 
-export default CategoryBarChart;
+export default BranchBarChart;

@@ -234,6 +234,28 @@ module.exports = {
 			});
 		}
 	},
+	getAverageProductsPerBranch: async (req, res) => {
+		try {
+			const branchData = await branches.findAll({
+				include: [products],
+			});
+
+			const totalProductCount = branchData.reduce((total, branch) => total + branch.Products.length, 0);
+
+			const averageProductCount = Math.round(totalProductCount / branchData.length);
+
+			res.status(200).send({
+				status: 200,
+				result: averageProductCount,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error,
+			});
+		}
+	},
 	getProductStatusCountsByCategory: async (req, res) => {
 		try {
 			const categoriesData = await categories.findAll({
@@ -700,17 +722,13 @@ module.exports = {
 				const productsData = branch.Products;
 
 				const sortedProducts = {
-					byAggregateStock: productsData.slice().sort((a, b) => b.aggregateStock - a.aggregateStock),
-					byLowAggregateStock: productsData.slice().sort((a, b) => a.aggregateStock - b.aggregateStock),
-					byViews: productsData.slice().sort((a, b) => b.viewCount - a.viewCount),
-					byLowViews: productsData.slice().sort((a, b) => a.viewCount - b.viewCount),
+					byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
+					byLowBranchStock: productsData.slice().sort((a, b) => a.Stocks.currentStock - b.Stocks.currentStock),
 				};
 
 				const branchesProducts = {
-					topAggregateStock: sortedProducts.byAggregateStock.slice(0, 3),
-					lowAggregateStock: sortedProducts.byLowAggregateStock.slice(0, 3),
-					topViews: sortedProducts.byViews.slice(0, 3),
-					lowViews: sortedProducts.byLowViews.slice(0, 3),
+					topBranchStock: sortedProducts.byBranchStock.slice(0, 3),
+					lowBranchStock: sortedProducts.byLowBranchStock.slice(0, 3),
 				};
 
 				return {
