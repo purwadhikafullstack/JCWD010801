@@ -7,6 +7,9 @@ import Skeleton from "react-loading-skeleton";
 import NoProduct from "../assets/public/404.png";
 import NoDate from "../assets/public/404_calendar.jpeg";
 import NoProductThumb from "../assets/public/404_thumb.gif";
+import FirstPlace from "../assets/public/key_metrics_assets/1st_place.png";
+import SecondPlace from "../assets/public/key_metrics_assets/2nd_place.png";
+import ThirdPlace from "../assets/public/key_metrics_assets/3rd_place.png";
 import React, { useEffect, useState } from "react";
 import CategoryBarChart from "../components/stockReport/categoryBarChart";
 import BranchBarChart from "../components/stockReport/branchBarChart";
@@ -66,6 +69,19 @@ import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai"
 import { LuPackagePlus, LuPackageMinus, LuPackageX, LuPackageCheck } from "react-icons/lu";
 import { IconEyeMinus, IconEyePlus } from "@tabler/icons-react";
 
+const useDelayedReset = (delay) => {
+	const [isResetting, setIsResetting] = useState(false);
+
+	const resetWithDelay = () => {
+		setIsResetting(true);
+		setTimeout(() => {
+			setIsResetting(false);
+		}, delay);
+	};
+
+	return [isResetting, resetWithDelay];
+};
+
 const StockReport = () => {
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
@@ -116,6 +132,11 @@ const StockReport = () => {
 	//? Key Metrics States
 	const [selectedHighLevelOption, setSelectedHighLevelOption] = useState("");
 	const [selectedSubOption, setSelectedSubOption] = useState("clear");
+	const [keyMetricsBranch, setKeyMetricsBranch] = useState([]);
+	const [keyMetricsTxBranch, setKeyMetricsTxBranch] = useState([]);
+	const [keyMetricsCategory, setKeyMetricsCategory] = useState([]);
+	const [isFilterChanged, setIsFilterChanged] = useState(false);
+	const [isResetting, resetWithDelay] = useDelayedReset(2200);
 
 	const handleHighLevelOptionChange = (e) => {
 		const highLevelOption = e.target.value;
@@ -125,8 +146,16 @@ const StockReport = () => {
 
 	const handleSubOptionChange = (e) => {
 		const subOption = e.target.value;
+		setIsFilterChanged(true);
 		setSelectedSubOption(subOption);
+		resetWithDelay();
 	};
+
+	useEffect(() => {
+		if (isResetting) {
+			setIsFilterChanged(false);
+		}
+	}, [isResetting]);
 
 	const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -145,8 +174,8 @@ const StockReport = () => {
 		"Product Created",
 		"Branch Stock Initialization",
 		"Manual Adjustment",
-		"Sale Cancellation",
-		"Successful Sale",
+		"Order Cancellation",
+		"Customer Order",
 		"Clear Selections (All Entries)",
 	];
 
@@ -158,9 +187,11 @@ const StockReport = () => {
 		} else {
 			if (selectedEntryTypes.includes(entryType)) {
 				setMultipleSelectToggled(true);
+				setItemLimit(100);
 				setSelectedEntryTypes((prev) => prev.filter((selected) => selected !== entryType));
 			} else {
 				setMultipleSelectToggled(true);
+				setItemLimit(100);
 				setSelectedEntryTypes((prev) => [...prev, entryType]);
 			}
 		}
@@ -169,15 +200,18 @@ const StockReport = () => {
 	useEffect(() => {
 		if (selectedEntryTypes.length === 0) {
 			setMultipleSelectToggled(false);
+			setItemLimit(15);
 		}
 		if (activeTab !== 1) {
 			setMultipleSelectToggled(false);
+			setItemLimit(15);
 		}
 	}, [selectedEntryTypes, activeTab]);
 
 	useEffect(() => {
 		if (activeTab === 1 && selectedEntryTypes.length > 0) {
 			setMultipleSelectToggled(true);
+			setItemLimit(100);
 		}
 	}, [selectedEntryTypes, activeTab]);
 
@@ -318,6 +352,14 @@ const StockReport = () => {
 		}
 		// eslint-disable-next-line
 	}, [search, reload, dateRange, itemLimit, selectedBranch, sortBy, sortOrder]);
+
+	useEffect(() => {
+		if (activeTab === 3) {
+			fetchBranchKeyMetricsData();
+			fetchCategoriesKeyMetricsData();
+		}
+		// eslint-disable-next-line
+	}, [reload, selectedHighLevelOption, selectedSubOption]);
 
 	const fetchStockLevelsData = async (pageNum) => {
 		try {
@@ -497,6 +539,33 @@ const StockReport = () => {
 		}
 	};
 
+	const fetchBranchKeyMetricsData = async () => {
+		try {
+			const baseMetrics = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`);
+			setKeyMetricsBranch(baseMetrics.data.result);
+
+			// if (selectedSubOption !== "clear") {
+				const txMetrics = await Axios.get(
+					`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/bestandworst/1`
+				);
+				setKeyMetricsTxBranch(txMetrics.data);
+			// }
+		} catch (error) {
+			console.log("Error fetching branch key metrics data", error);
+		}
+	};
+
+	const fetchCategoriesKeyMetricsData = async () => {
+		try {
+			const baseMetrics = await Axios.get(
+				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/mostandleast`
+			);
+			setKeyMetricsCategory(baseMetrics.data.result);
+		} catch (error) {
+			console.log("Error fetching categories key metrics data", error);
+		}
+	};
+
 	const handleSearchChange = (e) => {
 		const query = e.target.value;
 		handleSearchDebounced(query);
@@ -592,7 +661,7 @@ const StockReport = () => {
 								: 0}
 							‎ Units
 						</Td>
-						<Td textAlign={"center"}>{item.StockMovements.txCount} Sent</Td>
+						<Td textAlign={"center"}>{item.StockMovements.txCount} Orders</Td>
 						<Td textAlign={"center"}>{item.StockMovements.failedTxCount} Cancellations</Td>
 						<Td textAlign={"center"}>{item.viewCount} x</Td>
 					</Tr>
@@ -614,8 +683,8 @@ const StockReport = () => {
 								: item.isAdjustment
 								? "Manual Adjustment"
 								: item.isAddition && !item.isInitialization && !item.isBranchInitialization && !item.isAdjustment
-								? "Sale Cancellation"
-								: "Successful Sale"
+								? "Order Cancellation"
+								: "Customer Order"
 						)
 				  );
 
@@ -645,6 +714,22 @@ const StockReport = () => {
 				);
 			});
 		} else {
+			if (filteredData.length === 0) {
+				return (
+					<Tr>
+						<Td textAlign={"center"}>-</Td>
+						<Td textAlign={"left"}>Entry Not Found</Td>
+						<Td textAlign={"center"}>Please Refine</Td>
+						<Td textAlign={"center"}>Your Search Filters</Td>
+						<Td textAlign={"center"}>-</Td>
+						<Td textAlign={"center"}>-</Td>
+						<Td textAlign={"center"}>-</Td>
+						<Td textAlign={"center"}>-</Td>
+						<Td textAlign={"center"}>-</Td>
+					</Tr>
+				);
+			}
+
 			return filteredData.map((item, index) => {
 				const createdAtDate = new Date(item.createdAt);
 				const formattedDate = `${createdAtDate.getDate()} ${months[createdAtDate.getMonth()]} ${createdAtDate
@@ -667,8 +752,8 @@ const StockReport = () => {
 								: item.isAdjustment
 								? "Manual Adjustment"
 								: item.isAddition && !item.isInitialization && !item.isBranchInitialization && !item.isAdjustment
-								? "Sale Cancellation"
-								: "Successful Sale"}
+								? "Order Cancellation"
+								: "Customer Order"}
 						</Td>
 						<Td textAlign={"center"}>{item.oldValue} units</Td>
 						<Td textAlign={"center"}>{item.change} units</Td>
@@ -861,6 +946,11 @@ const StockReport = () => {
 		return category ? category.label : "Category Missing!";
 	};
 
+	const getBranchLabel = (branchId) => {
+		const branch = branches.find((branch) => branch.value === parseInt(branchId));
+		return branch ? branch.label : "Branch Missing!";
+	};
+
 	const nextPage = () => {
 		if (page < totalPages) {
 			setPage((prevPage) => +prevPage + 1);
@@ -1019,6 +1109,8 @@ const StockReport = () => {
 									key: "selection",
 								},
 							]);
+							setSelectedHighLevelOption("");
+							setSelectedSubOption("clear");
 						}}
 					>
 						<TabList>
@@ -1171,6 +1263,7 @@ const StockReport = () => {
 										{...customSelectStyle}
 										fontSize={"13px"}
 										ml={"2px"}
+										isDisabled={multipleSelectToggled}
 									>
 										{levelItemLimits.map((limit) => (
 											<option
@@ -1664,6 +1757,7 @@ const StockReport = () => {
 										bgColor={"white"}
 										{...customSelectStyle}
 										fontSize={"13px"}
+										isDisabled={multipleSelectToggled}
 									>
 										{itemLimits.map((limit) => (
 											<option
@@ -1905,7 +1999,6 @@ const StockReport = () => {
 										bgColor={"white"}
 										{...customSelectStyle}
 										fontSize={"13px"}
-										isDisabled={multipleSelectToggled}
 									>
 										{itemLimits.map((limit) => (
 											<option
@@ -2185,6 +2278,7 @@ const StockReport = () => {
 									)}
 								</Stack>
 							</TabPanel>
+							{/* //? End Of Stock Levels Tab Content */}
 							{/* //? Stock Movement Tab Content */}
 							<TabPanel key="stock-movement">
 								<Stack
@@ -2450,6 +2544,7 @@ const StockReport = () => {
 									)}
 								</Stack>
 							</TabPanel>
+							{/* //? End Of Stock Movement Tab Content */}
 							{/* //? Changelogs Tab Content */}
 							<TabPanel key="changelogs">
 								<Stack
@@ -2662,6 +2757,7 @@ const StockReport = () => {
 									)}
 								</Stack>
 							</TabPanel>
+							{/* //? End Of Changelogs Tab Content */}
 							{/* //? Key Metrics Tab Content */}
 							<TabPanel key="key-metrics">
 								<Stack
@@ -2672,7 +2768,22 @@ const StockReport = () => {
 									overflowY={"auto"}
 									borderRadius={"10px"}
 								>
-									<>
+									<Stack
+										className="statistics"
+										h={"1110px"}
+										w={marginStyles.secondaryContainerWidth}
+										align={"center"}
+										borderRadius={"10px"}
+									>
+										{selectedHighLevelOption !== null && selectedSubOption === "clear" ? (
+											<Text fontSize={"30px"} fontWeight={"thin"}>
+												Please Select A Metric To Get Started.
+											</Text>
+										) : selectedSubOption === "" ? (
+											<Text fontSize={"30px"} fontWeight={"thin"}>
+												Please Select A Metric To Get Started.
+											</Text>
+										) : null}
 										<Select
 											placeholder="Choose a Metric"
 											value={selectedHighLevelOption}
@@ -2752,9 +2863,1420 @@ const StockReport = () => {
 												</option>
 											</Select>
 										)}
-									</>
+										{selectedHighLevelOption === "category" &&
+										selectedSubOption !== "clear" &&
+										selectedSubOption !== "" ? (
+											<>
+												{/* //? Start Of Category Metrics Conditional Render */}
+												<Stack
+													className="statistics"
+													h={"1110px"}
+													w={marginStyles.secondaryContainerWidth}
+													align={"center"}
+													overflowY={"auto"}
+													borderRadius={"10px"}
+												>
+													{/* //? Most Aggregate Stock Cat */}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mt={"15px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"30px"} fontWeight={"semibold"}>
+															PRODUCTS WITH THE HIGHEST NATIONWIDE STOCK IN {getCategoryLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																				?.topAggregateStock[1]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[1]?.imgURL
+																}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																				?.topAggregateStock[0]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[0]?.imgURL
+																}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																				?.topAggregateStock[2]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[2]?.imgURL
+																}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[1]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[1]?.aggregateStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[0]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[0]?.aggregateStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[2]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.topAggregateStock[2]?.aggregateStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+													{/* //? Least Aggregate Stock Cat */}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"30px"} fontWeight={"semibold"}>
+															PRODUCTS WITH THE LOWEST NATIONWIDE STOCK IN {getCategoryLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																				?.lowAggregateStock[1]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[1]?.imgURL
+																}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																				?.lowAggregateStock[0]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[0]?.imgURL
+																}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																				?.lowAggregateStock[2]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[2]?.imgURL
+																}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[1]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[1]?.aggregateStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[0]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[0]?.aggregateStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[2]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products
+																		?.lowAggregateStock[2]?.aggregateStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+													{/* //? Most Views Cat */}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"33px"} fontWeight={"semibold"}>
+															MOST VIEWED PRODUCTS IN {getCategoryLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[1]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[1]?.imgURL
+																}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[0]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[0]?.imgURL
+																}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[2]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[2]?.imgURL
+																}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B8A89"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎: ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[1]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>View Count:</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[1]
+																		?.viewCount || 0}{" "}
+																	x
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎: ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[0]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>View Count:</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[0]
+																		?.viewCount || 0}{" "}
+																	x
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎: ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[2]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>View Count:</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.topViews[2]
+																		?.viewCount || 0}{" "}
+																	x
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+													{/* //? Least Views Cat */}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"33px"} fontWeight={"semibold"}>
+															LEAST VIEWED PRODUCTS IN {getCategoryLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[1]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[1]?.imgURL
+																}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[0]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[0]?.imgURL
+																}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[2]?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[2]?.imgURL
+																}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎: ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[1]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>View Count:</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[1]
+																		?.viewCount || 0}{" "}
+																	x
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎: ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[0]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>View Count:</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[0]
+																		?.viewCount || 0}{" "}
+																	x
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎: ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[2]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>View Count:</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsCategory[parseInt(selectedSubOption - 1, 10)]?.products?.lowViews[2]
+																		?.viewCount || 0}{" "}
+																	x
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+												</Stack>
+											</>
+										) : null}
+										{/* //? End Of Category Metrics Conditional Render */}
+										{selectedHighLevelOption === "branch" &&
+										selectedSubOption !== "clear" &&
+										selectedSubOption !== "" ? (
+											<>
+												{/* //? Start Of Branch Metrics Conditional Render */}
+												<Stack
+													className="statistics"
+													h={"1110px"}
+													w={marginStyles.secondaryContainerWidth}
+													align={"center"}
+													overflowY={"auto"}
+													borderRadius={"10px"}
+												>
+													{/* //? Most Branch Stock */}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mt={"15px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"30px"} fontWeight={"semibold"}>
+															PRODUCTS WITH THE HIGHEST STOCK IN {getBranchLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																				?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																		?.imgURL
+																}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																				?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																		?.imgURL
+																}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																				?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																		?.imgURL
+																}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																		?.Stocks?.currentStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																		?.Stocks?.currentStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																		?.Stocks?.currentStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+													{/* //? Least Branch Stock*/}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"30px"} fontWeight={"semibold"}>
+															PRODUCTS WITH THE LOWEST STOCK IN {getBranchLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																				?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																		?.imgURL
+																}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																				?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																		?.imgURL
+																}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() =>
+																	navigate(
+																		`/product/${
+																			keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																				?.id
+																		}`
+																	)
+																}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																		?.imgURL
+																}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																		?.Stocks?.currentStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																		?.Stocks?.currentStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																		?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Stock ‎ ‎ :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																		?.Stocks?.currentStock || 0}{" "}
+																	Units
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+													{/* //? Most Branch Orders*/}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"30px"} fontWeight={"semibold"}>
+															BEST SELLING PRODUCTS IN {getBranchLabel(selectedSubOption)}
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() => navigate(`/product/${keyMetricsTxBranch?.bestProducts[1]?.id}`)}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${keyMetricsTxBranch?.bestProducts[1]?.imgURL}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() => navigate(`/product/${keyMetricsTxBranch?.bestProducts[0]?.id}`)}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${keyMetricsTxBranch?.bestProducts[0]?.imgURL}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() => navigate(`/product/${keyMetricsTxBranch?.bestProducts[2]?.id}`)}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${keyMetricsTxBranch?.bestProducts[2]?.imgURL}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.bestProducts[1]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Customer Orders :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.bestProducts[1]?.txCount || 0} Orders
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.bestProducts[0]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Customer Orders :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.bestProducts[0]?.txCount || 0} Orders
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.bestProducts[2]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Customer Orders :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.bestProducts[2]?.txCount || 0} Orders
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+													{/* //? Least Branch Orders*/}
+													<Stack
+														className="statistics"
+														h={"450px"}
+														w={marginStyles.secondaryContainerWidth}
+														align={"center"}
+														borderRadius={"10px"}
+														mb={"25px"}
+													>
+														<Text fontSize={"30px"} fontWeight={"semibold"}>
+															WEAK SELLING PRODUCTS IN {getBranchLabel(selectedSubOption)} (Non-Zero)
+														</Text>
+														<Flex position={"relative"} align={"center"} mb={"30px"}>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={SecondPlace}
+																boxSize={"285px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"-27px"}
+																top={"-5px"}
+																cursor={"pointer"}
+																onClick={() => navigate(`/product/${keyMetricsTxBranch?.worstProducts[1]?.id}`)}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${keyMetricsTxBranch?.worstProducts[1]?.imgURL}`}
+																boxSize={"231px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={FirstPlace}
+																boxSize={"296px"}
+																position={"absolute"}
+																zIndex={"2"}
+																top={"-5px"}
+																ml={"335px"}
+																cursor={"pointer"}
+																onClick={() => navigate(`/product/${keyMetricsTxBranch?.worstProducts[0]?.id}`)}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${keyMetricsTxBranch?.worstProducts[0]?.imgURL}`}
+																boxSize={"265px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+																mx={"120px"}
+															/>
+															<Image
+																className={`coin ${isFilterChanged ? "filter-change" : ""}`}
+																src={ThirdPlace}
+																boxSize={"240px"}
+																top={"10px"}
+																position={"absolute"}
+																zIndex={"2"}
+																ml={"730px"}
+																cursor={"pointer"}
+																onClick={() => navigate(`/product/${keyMetricsTxBranch?.worstProducts[2]?.id}`)}
+															/>
+															<Image
+																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
+																src={`${process.env.REACT_APP_BASE_URL}/products/${keyMetricsTxBranch?.worstProducts[2]?.imgURL}`}
+																boxSize={"210px"}
+																rounded={"full"}
+																position={"relative"}
+																zIndex={"1"}
+															/>
+														</Flex>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															ml={"-725px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.worstProducts[1]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Returned Orders :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.worstProducts[1]?.failedTxCount || 0} Orders
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #8B6010"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"26px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.worstProducts[0]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Returned Orders :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.worstProducts[0]?.failedTxCount || 0} Orders
+																</Text>
+															</Flex>
+														</Stack>
+														<Stack
+															position={"relative"}
+															w={"250px"}
+															h={"70px"}
+															justify={"center"}
+															border={"2px ridge #4B4418"}
+															borderRadius={"15px"}
+															mt={"-78px"}
+															ml={"750px"}
+															px={"7px"}
+														>
+															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
+																<Text>Name ‎ : ‎</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.worstProducts[2]?.productName || "Product Does Not Exist"}
+																</Text>
+															</Flex>
+															<Flex justify={"space-between"}>
+																<Text>Returned Orders :</Text>
+																<Text overflow="hidden" textOverflow="ellipsis">
+																	{keyMetricsTxBranch?.worstProducts[2]?.failedTxCount || 0} Orders
+																</Text>
+															</Flex>
+														</Stack>
+													</Stack>
+												</Stack>
+											</>
+										) : null}
+										{/* //? End Of Branch Metrics Conditional Render */}
+									</Stack>
 								</Stack>
 							</TabPanel>
+							{/* //? End Of Key Metrics Tab Content */}
 							{/* //? Statistics Tab Content */}
 							<TabPanel key="statistics">
 								<Stack
@@ -2825,6 +4347,7 @@ const StockReport = () => {
 									</Stack>
 								</Stack>
 							</TabPanel>
+							{/* //? End Of Statistics Tab Content */}
 							{/* //? End of Tab Content */}
 						</TabPanels>
 					</Tabs>

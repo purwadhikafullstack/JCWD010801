@@ -25,7 +25,7 @@ const BranchTxStackedBarChart = () => {
 		labels: tx.map((branch) => branch.name),
 		datasets: [
 			{
-				label: "Sent Orders",
+				label: "Customer Orders",
 				data: tx.map((branch) => branch?.StockMovements?.txCount),
 				backgroundColor: "#357B14",
 			},

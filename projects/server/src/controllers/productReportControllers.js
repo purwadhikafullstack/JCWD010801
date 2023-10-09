@@ -722,17 +722,13 @@ module.exports = {
 				const productsData = branch.Products;
 
 				const sortedProducts = {
-					byAggregateStock: productsData.slice().sort((a, b) => b.aggregateStock - a.aggregateStock),
-					byLowAggregateStock: productsData.slice().sort((a, b) => a.aggregateStock - b.aggregateStock),
-					byViews: productsData.slice().sort((a, b) => b.viewCount - a.viewCount),
-					byLowViews: productsData.slice().sort((a, b) => a.viewCount - b.viewCount),
+					byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
+					byLowBranchStock: productsData.slice().sort((a, b) => a.Stocks.currentStock - b.Stocks.currentStock),
 				};
 
 				const branchesProducts = {
-					topAggregateStock: sortedProducts.byAggregateStock.slice(0, 3),
-					lowAggregateStock: sortedProducts.byLowAggregateStock.slice(0, 3),
-					topViews: sortedProducts.byViews.slice(0, 3),
-					lowViews: sortedProducts.byLowViews.slice(0, 3),
+					topBranchStock: sortedProducts.byBranchStock.slice(0, 3),
+					lowBranchStock: sortedProducts.byLowBranchStock.slice(0, 3),
 				};
 
 				return {
