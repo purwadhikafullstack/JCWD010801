@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
 				through: models.Stocks,
 				foreignKey: "BranchId",
 			});
+			Branches.hasMany(models.Discounts);
+			Branches.hasMany(models.Vouchers);
 		}
 	}
 	Branches.init(

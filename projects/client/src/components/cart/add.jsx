@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { BsCartPlus } from "react-icons/bs";
 import { ButtonTemp } from "../button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { refreshCart } from "../../redux/cartSlice";
 
 export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml = 0 }) => {
@@ -26,6 +26,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 	const BranchId = localStorage.getItem("BranchId");
 	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { RoleId } = useSelector((state) => state.user.value);
 
 	const handleAdd = async () => {
 		try {
@@ -121,9 +122,9 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 	return (
 		<>
 			{isText ? (
-				<ButtonTemp ml={ml} content={"Add to cart"} onClick={handleAdd} cursor={"pointer"} />
+				<ButtonTemp isDisabled={RoleId === 1 ? false : true} ml={ml} content={"Add to cart"} onClick={handleAdd} cursor={"pointer"} />
 			) : (
-				<Button onClick={handleAdd} bgColor={"white"} rounded={"full"} cursor={"pointer"}>
+				<Button isDisabled={RoleId === 1 ? false : true} onClick={handleAdd} bgColor={"white"} rounded={"full"} cursor={"pointer"}>
 					<Icon as={BsCartPlus} w="5" h="5" color={"black"} />
 				</Button>
 			)}

@@ -21,10 +21,12 @@ export const CartList = ({ list }) => {
                     key={idx}
                     id={Product?.id}
                     name={Product?.productName} 
-                    price={Product?.price?.toLocaleString("id-ID")}
+                    price={Product?.price}
                     imgURL={Product?.imgURL}
                     weight={Product?.weight}
                     stock={Product?.Stocks[0].currentStock}
+                    type={Product?.Discounts[0]?.type}
+                    nominal={Product?.Discounts[0]?.nominal}
                     quantity={quantity}
                     lastCard={ list.length - 1 === idx ? true : false }
                     />

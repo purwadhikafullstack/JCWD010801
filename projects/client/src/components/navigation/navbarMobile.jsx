@@ -74,7 +74,7 @@ export const NavbarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => navigate("/voucher")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>

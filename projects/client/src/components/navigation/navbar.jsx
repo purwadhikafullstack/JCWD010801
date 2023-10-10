@@ -141,7 +141,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 					justifyContent={"space-between"}
 					position={"sticky"}
 					top={0}
-					zIndex={10}
+					zIndex={20}
 					w={"100%"}
 					bgColor={"white"}
 				>
@@ -188,7 +188,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								Shop
 							</Text>
 							<Text
-								onClick={() => navigate("/")}
+								onClick={() => navigate("/voucher")}
 								fontSize={{ base: "sm", lg: "md" }}
 								cursor={"pointer"}
 								fontWeight={"medium"}
@@ -335,10 +335,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 											</Text>
 										</Stack>
 										<MenuDivider />
-										<MenuItem onClick={() => navigate("/dashboard")} gap="3">
-											<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
-											<Text>Dashboard</Text>
-										</MenuItem>
+										{RoleId > 1 ? (
+											<MenuItem onClick={() => navigate("/dashboard")} gap="3">
+												<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
+												<Text>Dashboard</Text>
+											</MenuItem>
+										) : null}
 										<MenuItem onClick={() => navigate("/profile")} gap="3">
 											<Icon as={BsPerson} w="5" h="5" color="black" />
 											<Text>Profile</Text>
