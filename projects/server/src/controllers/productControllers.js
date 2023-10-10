@@ -4,6 +4,7 @@ const products = db.Products;
 const changelogs = db.Changelogs;
 const stocks = db.Stocks;
 const stockMovements = db.StockMovements;
+const discounts = db.Discounts;
 const { Sequelize, Op } = require("sequelize");
 
 module.exports = {
@@ -549,17 +550,28 @@ module.exports = {
 			const { id } = req.params;
 			const { BranchId } = req.query;
 
-			const joinCondition = {
-				model: stocks,
-				where: { BranchId: parseInt(BranchId) || 1 },
-				required: false,
-			};
-
 			const result = await products.findOne({
 				where: {
 					id: id,
 				},
-				include: [joinCondition],
+				include: [
+					{
+						model: stocks,
+						where: { BranchId: parseInt(BranchId) || 1 },
+						required: false,
+					},
+					{
+						model: discounts,
+						where: {
+							BranchId: parseInt(BranchId) || 1,
+							availableFrom: { [Op.lte]: new Date(Date.now()) },
+							validUntil: { [Op.gte]: new Date(Date.now()) },
+							isActive: true
+						},
+						separate: true,
+						required: false
+					}
+				],
 			});
 
 			if (!id) {

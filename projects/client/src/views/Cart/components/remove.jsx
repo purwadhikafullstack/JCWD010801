@@ -58,7 +58,7 @@ export const RemoveItem = ({ name, ProductId, ...props }) => {
                 <ModalBody p={5}>
                     <Stack p={3} gap={5} w='100%' h='100%' justifyContent={'center'} alignItems={'center'}>
                         <Icon as={BsCartDash} w='14' h='14' />
-                        <Heading mt={0}>
+                        <Heading textAlign={"center"} mt={0}>
                             Remove {name}?
                         </Heading>
                         <Text textAlign={'center'} fontWeight={'light'}>

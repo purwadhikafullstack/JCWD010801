@@ -14,8 +14,8 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
         display={'flex'}
         flexWrap={'wrap'}
         borderRadius={'lg'}
-        minW={{ base: '120px', sm: '180px', md: '240px' }}
-        minH={{ base: '120px', sm: '180px', md: '240px' }}
+        minW={{ base: '150px', sm: '180px', md: '240px' }}
+        minH={{ base: '150px', sm: '180px', md: '240px' }}
         bgImage={categoryImage}
         bgSize={'cover'}
         bgPosition={'center'}
@@ -25,7 +25,7 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
         >
             <Stack
             w={'100%'}
-            h={'100%'}
+            h={'inherit'}
             bgColor={isDeleted ? null : 'blackAlpha.500'}
             borderRadius={'lg'}
             justifyContent={RoleId > 1 ? 'space-between' : 'flex-end'}
@@ -41,7 +41,7 @@ export const CategoryCard = ({ id, isDeleted, categoryImage, category, to }) => 
                 alignItems={'center'}
                 p={{ base: '6px', sm: '10px', md: '14px' }}
                 cursor={isDeleted ? null : 'pointer'}
-                onClick={isDeleted ? null : () => navigate(to)}
+                onClick={isDeleted ? null : () => navigate(`/search?cat=${id}`)}
                 color={'blackAlpha.700'}
                 _hover={isDeleted ? null : { color: 'black' }}
                 >

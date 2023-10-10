@@ -1,5 +1,6 @@
 const db = require("../models");
 const users = db.Users;
+const user_vouchers = db.User_vouchers;
 const orders = db.Orders;
 const order_details = db.Order_details;
 const products = db.Products;
@@ -60,8 +61,9 @@ module.exports = {
 		}
 	},
 	register: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
-			const { username, firstName, lastName, email, phone, password } = req.body;
+			const { username, firstName, lastName, email, phone, password, referralCode } = req.body;
 			const isAccountExist = await users.findOne({
 				where: { [Op.or]: { username, email, phone } },
 			});
@@ -75,6 +77,7 @@ module.exports = {
 
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(password, salt);
+			const newReferralCode = (await bcrypt.hash("REFERRALCODE", salt)).slice(8, 16);
 			const result = await users.create({
 				username,
 				firstName,
@@ -83,7 +86,15 @@ module.exports = {
 				phone,
 				password: hashPassword,
 				RoleId: 1,
-			});
+				referralCode: newReferralCode
+			}, { transaction });
+
+			const checkReferrer = await users.findOne({ where: { referralCode } });
+			if (checkReferrer) {
+				await user_vouchers.create({ VoucherId: 5, UserId: checkReferrer.id, amount: 2 }, { transaction });
+				await user_vouchers.create({ VoucherId: 5, UserId: result.id, amount: 1 }, { transaction });
+			};
+
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
 			const data = fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
