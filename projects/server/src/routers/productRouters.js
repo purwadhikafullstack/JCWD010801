@@ -13,6 +13,7 @@ router.patch("/view/:PID", productControllers.addOneUserView);
 router.patch("/:PID", multerUpload(`./src/public/products`, "P-IMG").single("image"), productControllers.updateProduct);
 router.get("/all", productControllers.getAllProducts);
 router.get("/random", productControllers.getRandomProductName);
+router.get("/suggestions", productControllers.getProductSuggestions);
 router.get("/alladmin", productControllers.getAllProductsAdmin);
 router.get("/active", productControllers.getActiveProducts);
 router.get("/deactivated", productControllers.getDeactivatedProducts);

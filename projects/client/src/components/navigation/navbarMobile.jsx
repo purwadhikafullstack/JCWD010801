@@ -23,13 +23,17 @@ import { CiLocationOn } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
 import { MdOutlineDiscount } from "react-icons/md";
 import { LuHome } from "react-icons/lu";
-import { BranchModal } from "./branchModal";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 import Alpha from "../../assets/public/AM_logo_only_trans.png";
 
 export const NavbarMobile = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const navigate = useNavigate();
+
+	const handleNavigate = (to) => {
+		navigate(to);
+		onClose();
+	}
 
 	return (
 		<>
@@ -50,11 +54,11 @@ export const NavbarMobile = () => {
 					<DrawerContent bgColor={"white"}>
 						<DrawerCloseButton />
 						<DrawerHeader alignItems={"center"} justifySelf={"center"}>
-							<Image cursor={"pointer"} onClick={() => navigate("/")} src={AlphaMartLogo} w={"200px"} />
+							<Image cursor={"pointer"} onClick={() => handleNavigate("/")} src={AlphaMartLogo} w={"200px"} />
 						</DrawerHeader>
 						<DrawerBody>
 							<List spacing={3}>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={LuHome} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
@@ -62,7 +66,7 @@ export const NavbarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/search")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/search")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={AiOutlineShopping} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
@@ -70,7 +74,7 @@ export const NavbarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/voucher")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
@@ -82,17 +86,14 @@ export const NavbarMobile = () => {
 						</DrawerBody>
 						<DrawerFooter>
 							<Stack>
-								<Flex w="100%" justifyContent={"space-between"} alignItems={"center"}>
-									<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-										<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-										<Stack gap={0}>
-											<Text fontSize={"sm"}>Deliver to</Text>
-											<Text onClick={() => navigate("/")} cursor={"pointer"} fontSize={"lg"} fontWeight={"medium"}>
-												Address
-											</Text>
-										</Stack>
-									</Flex>
-									<BranchModal />
+								<Flex w={"100%"} gap="2" alignItems={"center"}>
+									<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
+									<Stack gap={0}>
+										<Text fontSize={"sm"}>Deliver to</Text>
+										<Text onClick={() => handleNavigate("/")} cursor={"pointer"} fontSize={"lg"} fontWeight={"medium"}>
+											Address
+										</Text>
+									</Stack>
 								</Flex>
 								<Divider />
 								<Text fontSize={"sm"} color={"gray.500"}>

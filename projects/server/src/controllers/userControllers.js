@@ -89,11 +89,29 @@ module.exports = {
 				referralCode: newReferralCode
 			}, { transaction });
 
-			const checkReferrer = await users.findOne({ where: { referralCode } });
-			if (checkReferrer) {
-				await user_vouchers.create({ VoucherId: 5, UserId: checkReferrer.id, amount: 2 }, { transaction });
-				await user_vouchers.create({ VoucherId: 5, UserId: result.id, amount: 1 }, { transaction });
-			};
+			if (referralCode) {
+				const checkReferrer = await users.findOne({ where: { referralCode } });
+				if (!checkReferrer) throw { message: "Referral code is not valid" };
+				
+				const checkVoucher = await user_vouchers.findOne({
+					where: {
+						VoucherId: 16,
+						UserId: checkReferrer.id
+					}
+				});
+				if (checkVoucher) await user_vouchers.update({
+					VoucherId: 16,
+					UserId: checkReferrer.id,
+					amount: checkVoucher.amount + 1
+				}, {transaction})
+				else await user_vouchers.create({
+					VoucherId: 16,
+					UserId: checkReferrer.id,
+					amount: 1
+				}, { transaction });
+
+				await user_vouchers.create({ VoucherId: 16, UserId: result.id, amount: 1 }, { transaction });
+			}
 
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
@@ -106,6 +124,7 @@ module.exports = {
 				subject: "Verify Your AlphaMart Account",
 				html: tempResult,
 			});
+			await transaction.commit();
 			res.status(200).send({
 				status: true,
 				message: "Register successful. Please check your e-mail to verify.",
@@ -113,6 +132,7 @@ module.exports = {
 				token,
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,

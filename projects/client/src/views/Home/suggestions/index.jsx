@@ -1,15 +1,15 @@
 import { Stack, Heading, Flex } from "@chakra-ui/react";
-import { DiscountCarousel } from "./components/carousel";
+import { SuggestionsCarousel } from "./components/carousel";
 
-export const HomePromos = () => {
+export const Suggestion = () => {
   return (
     <Stack gap={5} w="100%">
       <Flex w='100%' alignItems={'center'} >
         <Heading fontSize={"3xl"} fontWeight={"semibold"}>
-          On Sale
+          You Might Like
         </Heading>
       </Flex>
-      <DiscountCarousel />
+      <SuggestionsCarousel />
     </Stack>
   );
 };

@@ -1316,4 +1316,30 @@ module.exports = {
 			});
 		}
 	},
+	getProductSuggestions: async(req, res) => {
+		try {
+			const limit = +req.query.limit || 12
+
+			const result = await products.findAll({
+				order: Sequelize.literal('rand()'),
+				limit,
+				where: { isActive: true },
+				include: [
+					{
+						model: discounts
+					}
+				]
+			})
+
+			return res.status(200).send({
+				status: 200,
+				result
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	}
 };

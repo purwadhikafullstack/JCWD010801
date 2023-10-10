@@ -19,6 +19,8 @@ import "react-toastify/dist/ReactToastify.css";
 export const RegisterFields = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const queryParams = new URLSearchParams(location.search);
+	const referralCode = queryParams.get("r") || "";
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const registerSchema = Yup.object().shape({
@@ -45,6 +47,7 @@ export const RegisterFields = () => {
 	});
 	const handleSubmit = async (data) => {
 		try {
+			data.referralCode = referralCode
 			const response = await Axios.post(
 				`${process.env.REACT_APP_API_BASE_URL}/user/`,
 				data

@@ -199,7 +199,19 @@ module.exports = {
 					include: [
 						{
 							model: products,
-							attributes: [],
+							attributes: { exclude: ["isDeleted", "createdAt", "updatedAt"] },
+							include: [
+								{
+									model: discounts,
+									where: {
+										BranchId: result.BranchId,
+										availableFrom: { [Op.lte]: new Date(Date.now()) },
+										validUntil: { [Op.gte]: new Date(Date.now()) },
+										isActive: true
+									},
+									separate: true
+								}
+							]
 						},
 					],
 					attributes: [

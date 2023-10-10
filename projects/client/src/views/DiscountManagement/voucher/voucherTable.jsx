@@ -1,4 +1,4 @@
-import { Stack, Table, Thead, Tr, Th, Td, Badge, Flex, Image, Text, Tbody, Input, Select, InputGroup, InputRightElement } from "@chakra-ui/react";
+import { Stack, Table, Thead, Tr, Th, Td, Flex, Image, Text, Tbody, Input, Select, InputGroup, InputRightElement } from "@chakra-ui/react";
 import axios from "axios"
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,12 +6,14 @@ import { Pagination } from "../../../components/navigation/pagination";
 import { ButtonTemp } from "../../../components/button";
 import { VoucherManagementDetails } from "./voucherDetails";
 import { BiSort, BiSortDown, BiSortUp } from "react-icons/bi";
+import { useSelector } from "react-redux";
 
 export const VoucherTable = () => {
     const [ vouchers, setVouchers ] = useState([]);
     const [ totalPages, setTotalPages ] = useState(1);
     const [page, setPage] = useState(1);
     const [ total, setTotal ] = useState(1);
+    const [ branches, setBranches ] = useState([]);
     const [ sortBy, setSortBy ] = useState("id");
     const [ order, setOrder ] = useState("ASC");
     const token = localStorage.getItem("token");
@@ -22,6 +24,9 @@ export const VoucherTable = () => {
     const endAvailableFromRef = useRef();
     const startValidUntilRef = useRef();
     const endValidUntilRef = useRef();
+    const branchIdRef = useRef();
+
+    const RoleId = useSelector((state) => state.user.value.RoleId);
 
     const nextPage = () => {
 		if (page < totalPages) {
@@ -39,6 +44,21 @@ export const VoucherTable = () => {
 		setPage(page);
 	};
 
+    const fetchBranches = async() => {
+        try {
+            const { data } = await axios.get(
+                `${process.env.REACT_APP_API_BASE_URL}/branch`
+                , {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
+            setBranches(data.result);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const fetchData = async() => {
         try {
             const search = searchRef.current.value
@@ -47,11 +67,12 @@ export const VoucherTable = () => {
             const endAvailableFrom = endAvailableFromRef.current.value
             const startValidUntil = startValidUntilRef.current.value
             const endValidUntil = endValidUntilRef.current.value
-            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/voucher/branch?limit=8&page=${page}search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`, {
+            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/voucher?limit=8&page=${page}search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`, {
                 headers: {
                     authorization: `Bearer ${token}`
                 }
             });
+            console.log(data.result)
             setVouchers(data.result);
             setTotal(data.total);
             setTotalPages(data.totalPages);
@@ -59,6 +80,10 @@ export const VoucherTable = () => {
             console.log(err);
         }
     }
+
+    useEffect(() => {
+        fetchBranches()
+    }, [])
 
     useEffect(() => {
         fetchData()
@@ -109,6 +134,16 @@ export const VoucherTable = () => {
                         <option value={"Total purchase"}>Total Purchase</option>
                         <option value={"Shipment"}>Shipment</option>
                     </Select>
+                    {RoleId === 3 && (
+                        <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" defaultValue={""} ref={branchIdRef} onChange={fetchData}>
+                            <option value={""}>All Branches</option>
+                            {branches.map(( { name, id } ) => {
+                                return (
+                                    <option value={id}>{name}</option>
+                                )
+                            })}
+                        </Select>
+                    )}
                 </Flex>
             </Stack>
             <Table size="sm" variant={"striped"}>
@@ -160,6 +195,7 @@ export const VoucherTable = () => {
                         <Th textAlign={"center"}>Type</Th>
                         <Th textAlign={"center"}>Nominal</Th>
                         <Th textAlign={"center"}>Product</Th>
+                        {RoleId === 3 && (<Th textAlign={"center"}>Branch</Th>)}
                         <Th
                         cursor={"pointer"}
                         onClick={() => {
@@ -200,7 +236,7 @@ export const VoucherTable = () => {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {vouchers.map(({ id, Product, type, nominal, availableFrom, validUntil, name, code, isPercentage, minimumPayment, maximumDiscount, BranchId, amountPerRedeem }, idx) => {
+                    {vouchers.map(({ id, Product, type, nominal, availableFrom, validUntil, name, code, isPercentage, minimumPayment, maximumDiscount, BranchId, Branch, amountPerRedeem }, idx) => {
                         return (
                             <Tr key={idx}>
                                 <Td py={8}>{id}.</Td>
@@ -239,9 +275,14 @@ export const VoucherTable = () => {
                                         </Text>
                                     </Flex>
                                     ) : (
-                                        <Text fontWeight={"semibold"} textAlign={"center"}>---</Text>
+                                        <Text fontWeight={"bold"} textAlign={"center"}>---</Text>
                                     )}
                                 </Td>
+                                {RoleId === 3 && (
+                                    <Td>
+                                        <Text>{Branch?.name}</Text>
+                                    </Td>
+                                )}
                                 <Td>
                                     <Text>
                                         {new Date(availableFrom)?.toLocaleString("en-EN", {
@@ -269,6 +310,8 @@ export const VoucherTable = () => {
                                     amountPerRedeem={amountPerRedeem}
                                     BranchId={BranchId}
                                     isPercentage={isPercentage}
+                                    validUntil={validUntil}
+                                    availableFrom={availableFrom}
                                     />
                                 </Td>
                             </Tr>

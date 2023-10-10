@@ -93,7 +93,6 @@ server.get("*", (req, res) => {
 });
 
 //#endregion
-// userAutoCancelOrder();
 server.listen(PORT, (err) => {
 	if (err) {
 		console.log(`ERROR: ${err}`);

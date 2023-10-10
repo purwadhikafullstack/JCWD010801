@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { ButtonTemp } from "../../../components/button";
 import { DiscountSelectProduct } from "../components/DiscountSelectProduct";
 import { BsTrash } from "react-icons/bs";
+import { AiFillEye } from "react-icons/ai";
 
 export const CreateVoucher = () => {
     const token = localStorage.getItem("token");
@@ -332,7 +333,10 @@ export const CreateVoucher = () => {
                                                         <Text>{selectedProduct?.aggregateStock}</Text>
                                                     </Td>
                                                     <Td>
-                                                        <Text>See Report</Text>
+                                                        <Flex alignItems={"center"} gap={1}>
+                                                            <Text>{selectedProduct?.viewCount}</Text>
+                                                            <Icon as={AiFillEye} w={4} h={4} />
+                                                        </Flex>
                                                     </Td>
                                                     <Td>
                                                         <Button bgColor={"white"} p={0} borderRadius={"full"} onClick={() => setSelectedProduct({})}>
