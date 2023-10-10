@@ -49,7 +49,8 @@ module.exports = (sequelize, DataTypes) => {
 					"Processing",
 					"Sent",
 					"Confirmed",
-					"Cancelled"
+					"Cancelled",
+					"Received"
 				),
 				allowNull: false,
 			},
