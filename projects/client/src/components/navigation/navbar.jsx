@@ -19,6 +19,7 @@ import {
 	MenuButton,
 	MenuDivider,
 	Spacer,
+	Box,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
@@ -67,7 +68,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 			}
 		} catch (error) {}
 	};
-	
+
 	const fetchData = async () => {
 		try {
 			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/all?page=1&sortBy=productName&sortOrder=ASC&itemLimit=3&search=${search}`;
@@ -189,11 +190,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
 									<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
 									<Stack gap={0}>
+										<Box onClick={() => navigate("/profile#addresses")}>
 										<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
 										<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
 											{address[0].label}
 										</Text>
-										;
+										</Box>
 									</Stack>
 								</Flex>
 							) : null}
