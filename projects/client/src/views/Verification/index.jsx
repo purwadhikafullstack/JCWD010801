@@ -11,37 +11,35 @@ export const VerificationPageView = () => {
 		Authorization: `Bearer ${token}`,
 	};
 
-  const handleSubmit = async () => {
-    try {
-      const response = await Axios.patch(
-        `${process.env.REACT_APP_API_BASE_URL}/user/verification`,
-        {},
-        { headers }
-      );
-      navigate("/login");
-      toast.success(response.data.message, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-    } catch (error) {
-        toast.error(error?.response.data.error.message, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-        });
-    }
-  };
+	const handleSubmit = async () => {
+		try {
+			const response = await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/user/verification`, {}, { headers });
+			navigate("/login");
+			toast.success(response.data.message, {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		} catch (error) {
+			if (error) {
+				toast.error(error.response?.data?.error?.message || "Verification link is expired", {
+					position: "top-right",
+					autoClose: 5000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+			}
+		}
+	};
 
 	return (
 		<Center height="100vh">
