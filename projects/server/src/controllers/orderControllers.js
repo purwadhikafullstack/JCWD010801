@@ -11,6 +11,8 @@ const cartItems = db.Cart_items;
 const products = db.Products;
 const stocks = db.Stocks;
 const branches = db.Branches;
+const user_vouchers = db.User_vouchers;
+const vouchers = db.Vouchers;
 const addresses = db.Addresses;
 const users = db.Users;
 const stockMovements = db.StockMovements;
@@ -562,8 +564,26 @@ module.exports = {
 		}
 	},
 	order: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
-			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId } = req.body;
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } = req.body;
+			
+			// Use voucher
+			const filter = {
+                where: {
+                    UserId: req.user.id,
+                    VoucherId
+                },
+				transaction
+            }
+            if (VoucherId) {
+				const voucherCheck = await user_vouchers.findOne(filter);
+				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
+				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
+				if ( voucherTypeCheck.minimumPayment > subtotal ) return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
+				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
+			} 
+
 			const cartCheckedOut = await carts.findOne({
 				where: {
 					UserId: req.user.id,
@@ -589,14 +609,13 @@ module.exports = {
 				status: "Waiting payment",
 				CartId: cartCheckedOut.id,
 				AddressId: AddressId,
-			});
-
+			}, transaction);
 			const orderDetailPromises = orderedItems.map(async (item) => {
 				await order_details.create({
 					OrderId: result.id,
 					ProductId: item.ProductId,
 					quantity: item.quantity,
-				});
+				}, { transaction });
 			});
 			await Promise.all(orderDetailPromises);
 
@@ -615,6 +634,7 @@ module.exports = {
 						where: {
 							id: item.ProductId,
 						},
+						transaction
 					}
 				);
 
@@ -638,7 +658,7 @@ module.exports = {
 					isInitialization: false,
 					isBranchInitialization: false,
 					UserId: req.user.id,
-				});
+				}, { transaction });
 
 				await stocks.decrement(
 					{
@@ -649,6 +669,7 @@ module.exports = {
 							ProductId: item.ProductId,
 							BranchId: cartCheckedOut.BranchId,
 						},
+						transaction
 					}
 				);
 			});
@@ -662,8 +683,41 @@ module.exports = {
 					where: {
 						id: cartCheckedOut.id,
 					},
+					transaction
 				}
 			);
+
+			// Auto cancel order 5 minutes
+			const autoCancelTime = new Date(Date.now() + 300000);
+			schedule.scheduleJob(autoCancelTime, async() => {
+				const transaction = await db.sequelize.transaction();
+				try {
+					const ord = await orders.findOne({
+						where: { id: result.id },
+						include: { model: carts }
+					}, { transaction });
+					
+					if (!ord.paymentProof) {
+						await orders.update({ status: "Cancelled" }, { where: { id: ord.id }, transaction });
+			
+						const result = await order_details.findAll({ where: { OrderId: ord.id } });
+			
+						for (const {ProductId, quantity} of result) {
+							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
+							await stocks.update({ currentStock: currentStock + quantity }, {
+								where: { ProductId, BranchId: ord.Cart.BranchId },
+								transaction
+							})
+						}
+			
+					}
+					await transaction.commit();
+				} catch (err) {
+					await transaction.rollback();
+				}
+			});
+
+            await transaction.commit();
 
 			res.status(200).send({
 				status: true,
@@ -672,6 +726,7 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -730,66 +785,6 @@ module.exports = {
 			});
 		} catch (err) {
 			await transaction.rollback();
-			return res.status(500).send({
-				err,
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
-	userAutoCancelOrder: async (req, res) => {
-		const autoCancelTime = new Date(Date.now() + 300000);
-		schedule.scheduleJob(autoCancelTime, async () => {
-			const transaction = await db.sequelize.transaction();
-			try {
-				const ord = await orders.findOne({
-					where: { id: req.params.id },
-					include: { model: carts },
-				});
-
-				if (!ord.paymentProof) {
-					await orders.update({ status: "cancelled" }, { where: { id: req.params.id }, transaction });
-
-					const result = await order_details.findAll({ where: { OrderId: req.params.id } });
-
-					for (const { ProductId, quantity } of result) {
-						let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
-						await stocks.update(
-							{ currentStock: currentStock + quantity },
-							{
-								where: { ProductId, BranchId: ord.Cart.BranchId },
-								transaction,
-							}
-						);
-					}
-
-					await transaction.commit();
-
-					res.status(200).send({
-						status: true,
-						message: "Order cancelled",
-					});
-				}
-			} catch (err) {
-				await transaction.rollback();
-				return res.status(500).send({
-					err,
-					status: 500,
-					message: "Internal server error.",
-				});
-			}
-		});
-	},
-	getLatestId: async (req, res) => {
-		try {
-			const { id } = await orders.findOne({
-				order: [[Sequelize.col("id"), "DESC"]],
-			});
-			res.status(200).send({
-				status: true,
-				latestId: id,
-			});
-		} catch (err) {
 			return res.status(500).send({
 				err,
 				status: 500,

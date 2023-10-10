@@ -15,7 +15,9 @@ const {
 	orderRouters,
 	productReportRouters,
 	branchRouters,
-	reportRouters
+	reportRouters,
+	discountRouters,
+	voucherRouters
 } = require("./routers");
 
 // server.use(
@@ -44,6 +46,8 @@ server.use("/api/order", orderRouters);
 server.use("/api/product-report", productReportRouters);
 server.use("/api/branch", branchRouters);
 server.use('/api/report', reportRouters);
+server.use('/api/discount', discountRouters);
+server.use('/api/voucher', voucherRouters);
 
 
 server.get("/api", (req, res) => {
@@ -89,11 +93,12 @@ server.get("*", (req, res) => {
 });
 
 //#endregion
+// userAutoCancelOrder();
 server.listen(PORT, (err) => {
 	if (err) {
 		console.log(`ERROR: ${err}`);
 	} else {
-		db.sequelize.sync({ alter: true });
+		// db.sequelize.sync({ alter: true });
 		console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
 	}
 });
