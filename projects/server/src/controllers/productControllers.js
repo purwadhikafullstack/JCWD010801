@@ -550,30 +550,6 @@ module.exports = {
 			const { id } = req.params;
 			const { BranchId } = req.query;
 
-			// const joinCondition = {
-			// 	model: stocks,
-			// 	where: { BranchId: parseInt(BranchId) || 1 },
-			// 	required: false,
-			// };
-
-			const joinCondition = [
-				{
-					model: stocks,
-					where: { BranchId: parseInt(BranchId) || 1 },
-					required: false,
-				},
-				{
-					model: discounts,
-					where: {
-						BranchId: parseInt(BranchId) || 1,
-						ProductId: id,
-						availableFrom: { [Op.lte]: new Date(Date.now()) },
-						validUntil: { [Op.gte]: new Date(Date.now()) },
-						isActive: true
-					}
-				}
-			]
-
 			const result = await products.findOne({
 				where: {
 					id: id,
@@ -592,7 +568,8 @@ module.exports = {
 							validUntil: { [Op.gte]: new Date(Date.now()) },
 							isActive: true
 						},
-						separate: true
+						separate: true,
+						required: false
 					}
 				],
 			});
@@ -616,7 +593,6 @@ module.exports = {
 				result: result,
 			});
 		} catch (error) {
-			console.log(error)
 			return res.status(500).send({
 				error,
 				status: 500,
