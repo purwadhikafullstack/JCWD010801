@@ -7,6 +7,7 @@ import { setValue } from "./redux/userSlice";
 import { AppRouter } from "./routes/index";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { setValueAddress } from "./redux/addressSlice";
 
 function App() {
 	const dispatch = useDispatch();
@@ -175,6 +176,9 @@ function App() {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				dispatch(setValue(response.data));
+				if (address.length > 0) {				
+					dispatch(setValueAddress(address[0]))
+				}
 			} catch (error) {
 				localStorage.removeItem("token");
 				toast.warn("Please login into your AlphaMart account for a better shopping experience.", {
@@ -190,7 +194,7 @@ function App() {
 			}
 		};
 		keepLogin();
-	}, [dispatch, token]);
+	}, [dispatch, token, address]);
 
 	return <RouterProvider router={AppRouter} />;
 }

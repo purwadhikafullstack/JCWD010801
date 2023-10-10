@@ -11,6 +11,7 @@ import { BsFillPersonFill, BsFillLockFill } from "react-icons/bs";
 import { Box, Button, Flex, Heading, Input, InputGroup, InputRightElement, Text, VStack } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import { setValue } from "../../../redux/userSlice";
+import { setValueAddress } from "../../../redux/addressSlice";
 
 export const UserLogin = () => {
 	const navigate = useNavigate();
@@ -25,7 +26,14 @@ export const UserLogin = () => {
 		try {
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/login`, dataLogin);
 			localStorage.setItem("token", response.data.token);
+			const token = localStorage.getItem("token");
+			const data = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/address`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 			dispatch(setValue(response.data.checkLogin));
+			dispatch(setValueAddress(data.data.result[0]))
 			navigate("/");
 			toast.success(`Welcome ${response.data.checkLogin.username}`, {
 				position: "top-right",

@@ -7,6 +7,7 @@ import UpdateAddress from "./address/updateAddress";
 import MainAddressButton from "./address/setMainAddress";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
 
 const AddressesTab = () => {
 	const [data, setData] = useState([]);
@@ -18,6 +19,7 @@ const AddressesTab = () => {
 	const [province, setProvince] = useState([]);
 	const [city, setCity] = useState([]);
 	const [branches, setBranches] = useState([]);
+	const dataMainAddress = useSelector((state) => state.address.value);
 
 	const fetchBranchData = async () => {
 		try {
@@ -75,31 +77,34 @@ const AddressesTab = () => {
 			});
 		}
 	};
+
 	useEffect(() => {
 		getProvince();
 		getCity();
+		fetchBranchData();
 	}, []);
 	useEffect(() => {
 		getAddress();
 		if (page > totalPage && totalPage !== 0) {
 			setPage(totalPage);
 		}
+		// eslint-disable-next-line
 	}, [reload, search, page, totalPage]);
 	useEffect(() => {
-		fetchBranchData();
-		if (data.length !== 0 && branches.length !== 0) {
+		if (dataMainAddress !== undefined && Object.keys(dataMainAddress).length > 0 && branches.length !== 0) {
 			const filteredBranch = branches.filter(
 				(item) =>
-					data[0].lat <= item.northeast_lat &&
-					data[0].lat >= item.southwest_lat &&
-					data[0].lng <= item.northeast_lng &&
-					data[0].lng >= item.southwest_lng
+					dataMainAddress.lat <= item.northeast_lat &&
+					dataMainAddress.lat >= item.southwest_lat &&
+					dataMainAddress.lng <= item.northeast_lng &&
+					dataMainAddress.lng >= item.southwest_lng
 			);
 
 			if (filteredBranch.length > 0) {
 				localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
 			}
 		}
+		// eslint-disable-next-line
 	}, [data]);
 
 	const handleSearchChange = (event) => {
