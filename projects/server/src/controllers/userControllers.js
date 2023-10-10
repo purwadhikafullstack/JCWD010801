@@ -100,10 +100,8 @@ module.exports = {
 					}
 				});
 				if (checkVoucher) await user_vouchers.update({
-					VoucherId: 16,
-					UserId: checkReferrer.id,
 					amount: checkVoucher.amount + 1
-				}, {transaction})
+				}, { where: { VoucherId: 16, UserId: checkReferrer.id }, transaction })
 				else await user_vouchers.create({
 					VoucherId: 16,
 					UserId: checkReferrer.id,

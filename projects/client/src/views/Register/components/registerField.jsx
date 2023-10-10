@@ -23,6 +23,13 @@ export const RegisterFields = () => {
 	const referralCode = queryParams.get("r") || "";
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+	const handleReferral = (e) => {
+		const newSearchParams = new URLSearchParams();
+		newSearchParams.set("r", e);
+		navigate(`?${newSearchParams.toString()}`);
+	}
+
 	const registerSchema = Yup.object().shape({
 		username: Yup.string().required("Username is required"),
 		firstName: Yup.string().required("First Name is required"),
@@ -261,6 +268,14 @@ export const RegisterFields = () => {
 								style={{
 									color: "red",
 								}}
+							/>
+						</FormControl>
+						<FormControl>
+							<Input
+								onChange={(e) => handleReferral(e.target.value)}
+								borderRadius="20px"
+								placeholder="Referral Code"
+								defaultValue={referralCode}
 							/>
 						</FormControl>
 						<Button
