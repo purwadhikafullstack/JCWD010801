@@ -69,7 +69,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 					<Flex justifyContent={"center"} cursor={"pointer"} onClick={toggleNavSize}>
 						<Image
 							w={navSize === "small" ? "60px" : "120px"}
-							mr={navSize === "small" ? "0px" : "15px"}
+							mr={navSize === "small" ? "10px" : "15px"}
 							src={navSize === "small" ? sourceLogo : source}
 							transition="transform 2s ease-in-out"
 							_hover={{ transform: "scale(1.1)" }}
@@ -79,16 +79,10 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						onClick={toggleNavSize}
 						_hover={{ transform: "scale(1.1)" }}
 						transition="transform 0.5s ease-in-out"
-						justifyContent={"center"}
+						ml={navSize === "large" ? "22px" : "2px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
 					>
-						<IconButton
-							mb={"7px"}
-							variant={"unstyled"}
-							icon={<FaBars size={25} />}
-							color={"white"}
-							ml={navSize === "large" ? "0px" : "8px"}
-							justifyContent={navSize === "large" ? "start" : "center"}
-						/>
+						<IconButton mb={"7px"} variant={"unstyled"} icon={<FaBars size={25} />} color={"white"} />
 						{navSize === "large" ? (
 							<Text
 								className={isTextVisible ? "text-visible" : "text-invisible"}
@@ -107,16 +101,10 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						to={"/dashboard"}
 						_hover={{ transform: "scale(1.1)" }}
 						transition="transform 0.5s ease-in-out"
-						justifyContent={"center"}
+						ml={navSize === "large" ? "20px" : "0px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
 					>
-						<IconButton
-							color={"white"}
-							variant={"unstyled"}
-							icon={<RiDashboardLine size={28} />}
-							ml={navSize === "large" ? "10px" : "4px"}
-							mr={navSize === "large" ? "1px" : "0px"}
-							justifyContent={navSize === "large" ? "start" : "center"}
-						/>
+						<IconButton color={"white"} variant={"unstyled"} icon={<RiDashboardLine size={28} />} />
 						{navSize === "large" ? (
 							<Text
 								className={isTextVisible ? "text-visible" : "text-invisible"}
@@ -139,7 +127,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						color={"white"}
 						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
-						ml={navSize === "large" ? "20px" : "0px"}
+						ml={navSize === "large" ? "18px" : "0px"}
 						mr={navSize === "large" ? "0px" : "3px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
@@ -164,7 +152,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 						color={"white"}
 						transition="transform 0.5s ease-in-out"
 						_hover={{ transform: "scale(1.2)" }}
-						ml={navSize === "large" ? "20px" : "0px"}
+						ml={navSize === "large" ? "18px" : "0px"}
 						mr={navSize === "large" ? "0px" : "3px"}
 						justifyContent={navSize === "large" ? "start" : "center"}
 					>
@@ -182,6 +170,31 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 							</Text>
 						) : null}
 					</Flex>
+					{/* <Flex
+						as={Link}
+						to={"/dashboard/product-management"}
+						mb={"20px"}
+						color={"white"}
+						transition="transform 0.5s ease-in-out"
+						_hover={{ transform: "scale(1.2)" }}
+						ml={navSize === "large" ? "18px" : "0px"}
+						mr={navSize === "large" ? "0px" : "3px"}
+						justifyContent={navSize === "large" ? "start" : "center"}
+					>
+						<BsPersonCircle size={30} />
+						{navSize === "large" ? (
+							<Text
+								className={isTextVisible ? "text-visible" : "text-invisible"}
+								cursor={"pointer"}
+								color={"white"}
+								ml={"11px"}
+								mt={"2px"}
+								fontSize={"16px"}
+							>
+								Profile
+							</Text>
+						) : null}
+					</Flex> */}
 					<Flex
 						as={Link}
 						to={"/dashboard/orders-list"}
@@ -226,7 +239,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 								mt={"2px"}
 								fontSize={"16px"}
 							>
-								Branches
+								Sales
 							</Text>
 						) : null}
 					</Flex>

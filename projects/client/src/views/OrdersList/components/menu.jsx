@@ -18,17 +18,25 @@ export const MenuOrder = ({ reload, setReload, orderId, imgURL, date, branch, am
 			<MenuList>
 				{imgURL && (
 					<MenuItem>
-						<ViewProof imgURL={imgURL} />
+						<ViewProof reload={reload} setReload={setReload} imgURL={imgURL} />
 					</MenuItem>
 				)}
 				{status === "Waiting payment" && (
 					<MenuItem>
-						<UploadProof invoice={invoice} reload={reload} setReload={setReload} id={orderId} date={date} branch={branch} amount={amount} />
+						<UploadProof
+							invoice={invoice}
+							reload={reload}
+							setReload={setReload}
+							id={orderId}
+							date={date}
+							branch={branch}
+							amount={amount}
+						/>
 					</MenuItem>
 				)}
 				{!imgURL && (
 					<MenuItem>
-						<CancelOrder id={orderId} />
+						<CancelOrder reload={reload} setReload={setReload} id={orderId} />
 					</MenuItem>
 				)}
 				{status === "Sent" && (

@@ -1,3 +1,6 @@
+import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
+import Alpha from "../../assets/public/AM_logo_only_trans.png";
+import "react-toastify/dist/ReactToastify.css";
 import {
 	List,
 	ListItem,
@@ -15,21 +18,41 @@ import {
 	Stack,
 	Text,
 	useDisclosure,
-	Divider,
 } from "@chakra-ui/react";
-import { RxHamburgerMenu } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
-import { CiLocationOn } from "react-icons/ci";
-import { AiOutlineShopping } from "react-icons/ai";
-import { MdOutlineDiscount } from "react-icons/md";
+import { setValue } from "../../redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { LuHome } from "react-icons/lu";
-import { BranchModal } from "./branchModal";
-import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
-import Alpha from "../../assets/public/AM_logo_only_trans.png";
+import { SlLogout } from "react-icons/sl";
+import { LiaBoxSolid } from "react-icons/lia";
+import { BsPersonGear } from "react-icons/bs";
+import { VscGraphLine } from "react-icons/vsc";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { AiOutlineShopping } from "react-icons/ai";
+import { RiDashboardLine, RiFileList3Line } from "react-icons/ri";
 
 export const SidebarMobile = () => {
+	const dispatch = useDispatch();
+	const user = useSelector((state) => state?.user?.value);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const navigate = useNavigate();
+
+	const logout = () => {
+		localStorage.removeItem("token");
+		toast.success("You have successfully logged out.", {
+			position: "top-right",
+			autoClose: 4000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			progress: undefined,
+			theme: "dark",
+		});
+		dispatch(setValue({}));
+		navigate("/login");
+	};
 
 	return (
 		<>
@@ -54,6 +77,14 @@ export const SidebarMobile = () => {
 						</DrawerHeader>
 						<DrawerBody>
 							<List spacing={3}>
+								<ListItem cursor={"pointer"} onClick={() => navigate("/dashboard")} p={2} borderRadius={"10px"}>
+									<Flex gap={7}>
+										<Icon as={RiDashboardLine} w="7" h="7" color={"black"} />
+										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+											Dashboard
+										</Text>
+									</Flex>
+								</ListItem>
 								<ListItem cursor={"pointer"} onClick={() => navigate("/")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={LuHome} w="7" h="7" color={"black"} />
@@ -62,42 +93,81 @@ export const SidebarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/search")} p={2} borderRadius={"10px"}>
+								<ListItem
+									cursor={"pointer"}
+									onClick={() => navigate("/dashboard/product-management")}
+									p={2}
+									borderRadius={"10px"}
+								>
+									<Flex gap={7}>
+										<Icon as={LiaBoxSolid} w="7" h="7" color={"black"} />
+										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+											Products
+										</Text>
+									</Flex>
+								</ListItem>
+								<ListItem
+									cursor={"pointer"}
+									onClick={() => navigate("/dashboard/orders-list")}
+									p={2}
+									borderRadius={"10px"}
+								>
 									<Flex gap={7}>
 										<Icon as={AiOutlineShopping} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
-											Shop
+											Orders
 										</Text>
 									</Flex>
 								</ListItem>
 								<ListItem cursor={"pointer"} onClick={() => navigate("/")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
-										<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
+										<Icon as={RiFileList3Line} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
-											Vouchers
+											Sales
 										</Text>
 									</Flex>
 								</ListItem>
+								<ListItem
+									cursor={"pointer"}
+									onClick={() => navigate("/dashboard/report/overview")}
+									p={2}
+									borderRadius={"10px"}
+								>
+									<Flex gap={7}>
+										<Icon as={VscGraphLine} w="7" h="7" color={"black"} />
+										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+											Report
+										</Text>
+									</Flex>
+								</ListItem>
+								{user.RoleId === 3 ? (
+									<ListItem
+										cursor={"pointer"}
+										onClick={() => navigate("/dashboard/admins-list")}
+										p={2}
+										borderRadius={"10px"}
+									>
+										<Flex gap={7}>
+											<Icon as={BsPersonGear} w="7" h="7" color={"black"} />
+											<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+												Admin Management
+											</Text>
+										</Flex>
+									</ListItem>
+								) : null}
 							</List>
 						</DrawerBody>
 						<DrawerFooter>
 							<Stack>
-								<Flex w="100%" justifyContent={"space-between"} alignItems={"center"}>
-									<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-										<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-										<Stack gap={0}>
-											<Text fontSize={"sm"}>Deliver to</Text>
-											<Text onClick={() => navigate("/")} cursor={"pointer"} fontSize={"lg"} fontWeight={"medium"}>
-												Address
-											</Text>
-										</Stack>
+								<Flex w="100%" justifyContent={"center"} alignItems={"center"}>
+									<Flex onClick={logout} gap="2" alignItems={"center"} justifyContent={"center"}>
+										<Icon as={SlLogout} color={"black"} w={"5"} h={"5"} />
+
+										<Text onClick={() => navigate("/")} cursor={"pointer"} fontSize={"lg"} fontWeight={"medium"}>
+											Logut
+										</Text>
 									</Flex>
-									<BranchModal />
 								</Flex>
-								<Divider />
-								<Text fontSize={"sm"} color={"gray.500"}>
-									Copyright © {new Date().getFullYear()} Alphamart. All rights reserved.
-								</Text>
 							</Stack>
 						</DrawerFooter>
 					</DrawerContent>

@@ -587,7 +587,6 @@ module.exports = {
 	rejectPaymentProof: async (req, res) => {
 		try {
 			const orderId = req.params.id;
-			const emailId = req.params.id;
 			const order = await orders.findOne({
 				where: { id: orderId },
 				include: [
@@ -596,8 +595,6 @@ module.exports = {
 						include: [
 							{
 								model: users,
-								attributes: ["email"],
-								where: { email: emailId },
 							},
 						],
 					},
@@ -620,21 +617,7 @@ module.exports = {
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
-				to: await orders.findOne({
-					where: { id: orderId },
-					include: [
-						{
-							model: carts,
-							include: [
-								{
-									model: users,
-									attributes: ["email"],
-									where: { email: emailId },
-								},
-							],
-						},
-					],
-				}),
+				to: order.Cart.User.email,
 				subject: "Please Reupload Your Payment Proof",
 				html: tempResult,
 			});
@@ -654,7 +637,19 @@ module.exports = {
 	processingToSent: async (req, res) => {
 		try {
 			const orderId = req.params.id;
-			const order = await orders.findOne({ where: { id: orderId } });
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
 			if (!order) {
 				return res.status(404).send({
 					message: "Order not found",
@@ -668,12 +663,26 @@ module.exports = {
 			const userId = req.user.id;
 			const invoiceNumber = generateInvoiceNumber(userId);
 			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/sentOrder.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({
+				link: process.env.REACT_APP_BASE_URL,
+				invoice: invoiceNumber,
+				username: order.Cart.User.username,
+			});
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "We have sent out your order for delivery.",
+				html: tempResult,
+			});
 			res.status(200).send({
 				status: true,
 				invoiceNumber: invoiceNumber,
 				message: "Order updated to 'Sent' successfully",
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -685,7 +694,19 @@ module.exports = {
 		try {
 			const orderId = req.params.id;
 			const { AID } = req.query;
-			const order = await orders.findOne({ where: { id: orderId } });
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
 
 			if (!order) {
 				return res.status(404).send({
@@ -700,6 +721,15 @@ module.exports = {
 			}
 
 			await orders.update({ status: "Cancelled" }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/cancelOrderAdmin.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Sorry, your order has been canceled by the admin.",
+				html: tempResult,
+			});
 
 			const cartCheckedOut = await carts.findOne({
 				where: {

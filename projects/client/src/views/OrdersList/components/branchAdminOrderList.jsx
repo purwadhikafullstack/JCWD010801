@@ -11,6 +11,7 @@ import { ConfirmedOrders } from "./branchOrder/received";
 import { CanceledOrders } from "./branchOrder/cancelByAdmin";
 import { AllOrders } from "./branchOrder/allOrders";
 import { useLocation, useNavigate } from "react-router-dom";
+import LayoutSidebar from "../../../pages/layoutSidebar";
 
 export const BranchAdminOrdersList = () => {
 	const [totalOrders, setTotalOrders] = useState("");
@@ -69,7 +70,7 @@ export const BranchAdminOrdersList = () => {
 	}, [reload]);
 	return (
 		<Flex>
-			<AdminSidebar />
+			<LayoutSidebar />
 			<Box w={"full"}>
 				<NavbarAdmin />
 				<Box w={"full"}>

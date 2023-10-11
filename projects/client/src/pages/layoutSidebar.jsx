@@ -13,16 +13,16 @@ const LayoutSidebar = () => {
 			{data.RoleId === 1 || !token ? (
 				<Error404PageView />
 			) : (
-			<>
-				<Box display={["none", "block"]}>
-					<AdminSidebar />
-					<Outlet />
-				</Box>
-				<Box display={["block", "none"]}>
-					<SidebarMobile />
-					<Outlet />
-				</Box>
-			</>
+				<>
+					<Box display={["none", "none", "block", "block"]}>
+						<AdminSidebar />
+						<Outlet />
+					</Box>
+					<Box display={["block", "block", "none", "none"]}>
+						<SidebarMobile />
+						<Outlet />
+					</Box>
+				</>
 			)}
 		</>
 	);

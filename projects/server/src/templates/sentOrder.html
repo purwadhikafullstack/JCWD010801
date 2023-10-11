@@ -1,33 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaMart Order Shipment Notification</title>
-</head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #373433; color: #ffffff;">
-    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; background-color: #ffffff; color: #373433;">
-        <tr>
-            <td style="padding: 50px 0; text-align: center; background-color: #ffffff;">
-                <img  src="https://i.postimg.cc/brCQjt9G/AM-logo-trans.png" alt="AlphaMart Logo" style="max-width: 300px;">
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 40px;">
-                <h2 style="color: #373433;">Order Shipment Notification</h2>
-                <p>Dear {{username}},</p>
-                <p>We are excited to inform you that your recent order with AlphaMart (Invoice #{{invoiceNumber}}) has been shipped to the following address:</p>
-                <p>{{shippingAddress}}</p>
-                <p>If you have any questions or need further assistance, please feel free to contact our customer support team at <a href="mailto:support@alphamart.com" style="color: #007bff;">support@alphamart.com</a>.</p>
-                <p>Thank you for choosing AlphaMart for your shopping needs. We hope you enjoy your purchase!</p>
-                <p>Best regards,<br>The AlphaMart Team</p>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 20px 0; text-align: center; background-color: #ffffff; color: #373433;">
-                &copy; 2023 AlphaMart. All rights reserved.
-            </td>
-        </tr>
-    </table>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>AlphaMart Order Shipment Notification</title>
+	</head>
+	<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #373433; color: #ffffff">
+		<table
+			align="center"
+			border="0"
+			cellpadding="0"
+			cellspacing="0"
+			width="600"
+			style="border-collapse: collapse; background-color: #ffffff; color: #373433"
+		>
+			<tr>
+				<td style="padding: 50px 0; text-align: center; background-color: #ffffff">
+					<img src="https://i.postimg.cc/brCQjt9G/AM-logo-trans.png" alt="AlphaMart Logo" style="max-width: 300px" />
+				</td>
+			</tr>
+			<tr>
+				<td style="padding: 40px">
+					<h2 style="color: #373433">Order Shipment Notification</h2>
+					<p>Dear {{username}},</p>
+					<p>We are excited to inform you that your recent order with AlphaMart
+					<br>(Invoice {{invoice}})</br>
+					has been shipped to the following address</p>
+					<p>{{shippingAddress}}</p>
+					<p>
+						If you have any questions or need further assistance, please feel free to contact our customer support team
+						at <a href="mailto:support@alphamart.com" style="color: #007bff">support@alphamart.com</a>.
+					</p>
+					<p>Thank you for choosing AlphaMart for your shopping needs. We hope you enjoy your purchase!</p>
+					<p>Best regards,<br />The AlphaMart Team</p>
+				</td>
+			</tr>
+			<tr>
+				<td style="padding: 20px 0; text-align: center; background-color: #ffffff; color: #373433">
+					&copy; 2023 AlphaMart. All rights reserved.
+				</td>
+			</tr>
+		</table>
+	</body>
 </html>
