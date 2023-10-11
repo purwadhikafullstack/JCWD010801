@@ -42,7 +42,10 @@ function Order() {
 	const [etd, setEtd] = useState("");
 	const [shipmentMethods, setShipmentMethods] = useState("");
 	const [shipments, setShipments] = useState("");
+	const [voucherDiscount, setVoucherDiscount] = useState(0);
+	const [discount, setDiscount] = useState(0);
 	const reduxStore = useSelector((state) => state?.user);
+	const voucher = useSelector((state) => state?.voucher?.value);
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
 	const phone = reduxStore?.value?.phone;
@@ -140,12 +143,33 @@ function Order() {
 		return formatter.format(value);
 	};
 
+	const countDiscount = () => {
+		let totalDiscount = 0
+		item.map(({ Product }) => {
+			if (Product?.Discounts[0]?.type === "Numeric") {
+				totalDiscount = totalDiscount + Product?.Discounts[0]?.nominal
+			} else if (Product?.Discounts[0]?.type === "Percentage") {
+				totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100 * Product?.price)
+			}
+			console.log(totalDiscount)
+		})
+		return setDiscount(totalDiscount)
+	}
+
+	const voucherDeduction = (shipmentFeeDiscount) => {
+        if ( voucher.isPercentage && voucher.type === "Shipment" ) return setVoucherDiscount((shipmentFeeDiscount * voucher.nominal / 100))
+        else if ( voucher.isPercentage && voucher.type === "Total purchase" ) {
+			if ((totalSubtotalItem * voucher.nominal / 100) > voucher.maxDisc) return setVoucherDiscount(voucher.maxDisc)
+			else return setVoucherDiscount(totalSubtotalItem * voucher.nominal / 100)
+		} 
+		else setVoucherDiscount(voucher.nominal)
+    }
 	const totalSubtotalItem = subTotalItem.reduce((total, item) => {
 		const subtotalValue = parseInt(item.subtotal, 10);
 		return total + subtotalValue;
 	}, 0);
-	const tax = (totalSubtotalItem + shipmentFee) / 10;
-	const total = tax + (totalSubtotalItem + shipmentFee);
+	const tax = voucher.VoucherId ? (totalSubtotalItem + shipmentFee - discount - voucherDiscount) / 10 : (totalSubtotalItem + shipmentFee - discount) / 10;
+	const total = voucher.VoucherId ? tax + (totalSubtotalItem + shipmentFee - discount - voucherDiscount) : tax + (totalSubtotalItem + shipmentFee - discount) ;
 	const subtotal = totalSubtotalItem + shipmentFee;
 	const validationSchema = Yup.object({
 		shipmentMethod: Yup.string().required("Shipping method is required"),
@@ -161,16 +185,11 @@ function Order() {
 				tax: tax,
 				total: total,
 				subtotal: subtotal,
-				discount: 0,
+				discount: discount + voucherDiscount,
 				AddressId: selectedAddress.id,
+				VoucherId: voucher.VoucherId
 			};
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/order/`, data, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const result = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/latest-id`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -190,15 +209,6 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile#orders");
 
-			await Axios.patch(
-				`${process.env.REACT_APP_API_BASE_URL}/order/expire/${result.data.latestId}`,
-				{},
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
 				position: "top-right",
@@ -383,6 +393,8 @@ function Order() {
 														const objGetCost = dataOngkir?.costs?.find((item) => item.service === e.target.value);
 														setShipmentFee(objGetCost.cost[0].value);
 														setEtd(objGetCost.cost[0].etd);
+														countDiscount();
+														voucherDeduction(objGetCost.cost[0].value);
 													}}
 												>
 													{dataOngkir?.costs?.map((item, index) => (
@@ -410,6 +422,16 @@ function Order() {
 											<Text fontWeight={"bold"}>Subtotal</Text>
 											<Text>{formatToRupiah(subtotal)}</Text>
 										</Flex>
+										<Flex justify={"space-between"}>
+											<Text fontWeight={"bold"}>Promos</Text>
+											<Text>{formatToRupiah(discount)}</Text>
+										</Flex>
+										{voucher.VoucherId && (
+											<Flex justify={"space-between"}>
+												<Text fontWeight={"bold"}>{voucher.type === "Shipment" ? "Shipment" : "Shopping"} Discount</Text>
+												<Text>{formatToRupiah(voucherDiscount)}</Text>
+											</Flex>
+										)}
 										<Flex justify={"space-between"}>
 											<Text fontWeight={"bold"}>Tax</Text>
 											<Text>{formatToRupiah(tax)}</Text>

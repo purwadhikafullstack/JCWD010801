@@ -48,13 +48,13 @@ export const CartPageView = () => {
             <Stack overflowX={'hidden'} mx={{ base: "20px", md: "50px" }} my={{ base: "30px" }} gap={5}>
                 <CartHeader total={total} />
                 <Grid gap={5} templateColumns={{ base: '1fr', lg: '6fr 3fr'}}>
-                    {subtotal ? (
+                    {total ? (
                         <>
                         <GridItem colSpan={1}>
                             <CartList list={list}/>
                         </GridItem>
                         <GridItem display={{ base: 'none', md: 'block' }} colSpan={1}>
-                            <Receipt subtotal={totalSubtotalValue}/>
+                            <Receipt items={list} subtotal={totalSubtotalValue}/>
                         </GridItem>
                         </>
                     ) : (
@@ -64,7 +64,7 @@ export const CartPageView = () => {
                     )}
                 </Grid>
             </Stack>
-            <ReceiptMobile subtotal={totalSubtotalValue} />
+            <ReceiptMobile items={list} subtotal={totalSubtotalValue} />
             </>
         ) : (
             <ErrorPageLayout title={"404 - Page not found"} timer={5000}/>

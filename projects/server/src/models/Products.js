@@ -19,6 +19,15 @@ module.exports = (sequelize, DataTypes) => {
 			Products.hasMany(models.StockMovements, {
 				foreignKey: "ProductId",
 			});
+			Products.hasMany(models.Discounts, {
+				foreignKey: "ProductId",
+			});
+			Products.hasMany(models.Vouchers, {
+				foreignKey: {
+					name: "ProductId",
+					allowNull: true,
+				},
+			});
 		}
 	}
 	Products.init(
@@ -49,6 +58,10 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			viewCount: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
+			},
+			likeCount: {
 				type: DataTypes.INTEGER,
 				defaultValue: 0,
 			},

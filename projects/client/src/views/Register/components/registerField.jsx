@@ -14,13 +14,14 @@ import {
 	Heading,
 	Flex,
 } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const RegisterFields = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const registerSchema = Yup.object().shape({

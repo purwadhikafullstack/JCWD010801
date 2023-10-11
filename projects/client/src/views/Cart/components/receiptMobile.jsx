@@ -4,11 +4,27 @@ import { MdKeyboardArrowRight, MdKeyboardArrowUp } from "react-icons/md";
 import { Receipt } from "./receipt";
 import { TbDiscount2 } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
+import { SelectVoucher } from "../../Voucher/components/selectVoucher";
+import { useSelector } from "react-redux";
 
-export const ReceiptMobile = ({ subtotal }) => {
+export const ReceiptMobile = ({ subtotal, items }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const voucher = {};
+    const voucher = useSelector((state) => state?.voucher?.value);
     const navigate = useNavigate();
+
+    const checkDisableCheckout = () => {
+        if (voucher.minPay && voucher.minPay > subtotal) return true;
+        if (voucher.type === "Single item") {
+            let booleanCheck = true
+            items.map(({ ProductId }) => {
+                if (ProductId === voucher.ProductId) {
+                    booleanCheck = false
+                }
+            });
+            return booleanCheck
+        }
+        return false
+    };
 
     return (
         <>
@@ -22,17 +38,7 @@ export const ReceiptMobile = ({ subtotal }) => {
         p={3}
         pt={5}
         zIndex={10}>
-            <Flex cursor={'pointer'} border={'2px solid lightgray'} borderRadius={'10px'} p={1} w={'100%'} justifyContent={'space-between'} alignItems={'center'}>
-                <Flex ml={2} gap={3} alignItems={'center'}>
-                    <Icon as={TbDiscount2} w='7' h='7' color={'black'} />
-                    <Text>
-                        {voucher.id ? voucher.name : 'Save more using promos'}
-                    </Text>
-                </Flex>
-                <Flex justifyContent={'center'} alignItems={'center'} p={2} borderLeft={'2px solid lightgray'}>
-                    <Icon as={MdKeyboardArrowRight} w='8' h='8' color={'lightgray'}/>
-                </Flex>
-            </Flex>
+            <SelectVoucher items={items} subtotal={subtotal} checkRequirements={checkDisableCheckout()}/>
             <Flex w='100%' p={2} alignItems={'center'}>
                 <Stack onClick={onOpen} gap={0} w='50%'>
                     <Text fontSize={'sm'}>
@@ -45,7 +51,7 @@ export const ReceiptMobile = ({ subtotal }) => {
                         <Icon as={MdKeyboardArrowUp} w='5' h='5' />
                     </Flex>
                 </Stack>
-                <ButtonTemp onClick={() => navigate("/checkout")} w={'50%'} content={'CHECK OUT'} />
+                <ButtonTemp isDisabled={checkDisableCheckout()} onClick={() => navigate("/checkout")} w={'50%'} content={'CHECK OUT'} />
             </Flex>
         </Stack>
         <Drawer placement="bottom" isOpen={isOpen} onClose={onClose}>

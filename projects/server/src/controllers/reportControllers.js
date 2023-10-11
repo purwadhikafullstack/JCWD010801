@@ -1,7 +1,7 @@
 const db = require("../models");
 const orders = db.Orders;
 const order_details = db.Order_details;
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const carts = db.Carts;
 const products = db.Products;
 const branches = db.Branches;
@@ -36,12 +36,15 @@ module.exports = {
 					[Op.like]: `%${searchUser}%`,
 				};
 			}
-			const productCondition = {};
 			if (searchProduct) {
-				productCondition["$productName$"] = {
-					[Op.like]: `%${searchProduct}%`,
-				};
+				condition[Op.and] = [
+					{ status: "Received" },
+					Sequelize.literal(
+						`EXISTS (SELECT 1 FROM order_details INNER JOIN products ON order_details.ProductId = products.id WHERE order_details.OrderId = orders.id AND products.productName LIKE '%${searchProduct}%')`
+					),
+				];
 			}
+
 			const branchCondition = {};
 			if (searchBranch) {
 				branchCondition.BranchId = searchBranch;
@@ -73,7 +76,6 @@ module.exports = {
 						model: order_details,
 						include: {
 							model: products,
-							where: productCondition,
 						},
 					},
 					{
@@ -103,7 +105,6 @@ module.exports = {
 						model: order_details,
 						include: {
 							model: products,
-							where: productCondition,
 						},
 					},
 					{

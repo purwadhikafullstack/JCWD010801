@@ -3,7 +3,17 @@ import { UpdateCart } from "./update";
 import { RemoveItem } from "./remove";
 import { BsCircleFill } from "react-icons/bs";
 
-export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, lastCard }) => {
+export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, lastCard, type, nominal }) => {
+    const countDiscount = () => {
+        if (type === "Percentage") {
+            const deductedPrice = nominal / 100 * (price * quantity)
+            const postDiscount = (price * quantity) - deductedPrice
+            return `Rp. ${(postDiscount.toLocaleString("id-ID"))}`
+        } else if (type === "Numeric") {
+            const postDiscount = (price * quantity) - nominal
+            return ` Rp. ${(postDiscount.toLocaleString("id-ID"))}`   
+        }
+    };
     return (
         <>
         <Flex 
@@ -40,15 +50,27 @@ export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, las
                     justifyContent={'center'} 
                     gap={4} 
                     alignItems={'center'}>
-                        <UpdateCart qty={quantity} ProductId={id} stock={stock}/>
+                        <UpdateCart isExtra={type === "Extra" ? true : false} qty={quantity} ProductId={id} stock={stock}/>
                     </Flex>
                 </Flex>
-                <Stack pl={2} w='130px' justifyContent={'space-between'}>
+                <Stack w='150px' justifyContent={'space-between'}>
                     <RemoveItem ProductId={id} name={name} position={'absolute'}alignSelf={'end'} />
                     <Flex color={'gray.50'} >.</Flex>
-                    <Text fontSize={'xl'} fontWeight={'semibold'} mb={0}>
-                        {`Rp. ${price}`}
-                    </Text>
+                    {type === "Numeric" || type === "Percentage" ? (
+                        <Stack mr={3} gap={0} textAlign={"end"}>
+                            <Text fontSize={'xl'} fontWeight={'semibold'} mb={0}>
+                                {countDiscount()}
+                            </Text>
+                            <Text as={"s"} color={"gray"} fontSize={'sm'} fontWeight={'normal'} mb={0}>
+                                {`Rp. ${(price * quantity)?.toLocaleString("id-ID")}`}
+                            </Text>
+                        </Stack>
+
+                    ) : (
+                        <Text mr={3} textAlign={"end"} fontSize={'xl'} fontWeight={'semibold'} mb={0}>
+                            {`Rp. ${(price * quantity)?.toLocaleString("id-ID")}`}
+                        </Text>
+                    )}
                     <Flex color={'gray.50'} >.</Flex>
                 </Stack>
             </Flex>
@@ -87,16 +109,28 @@ export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, las
                             {stock} in stock
                         </Text>
                     </Flex>
-                    <UpdateCart qty={quantity} ProductId={id} stock={stock}/>
+                    <UpdateCart isExtra={type === "Extra" ? true : false} qty={quantity} ProductId={id} stock={stock}/>
                 </Stack>
             </Flex>
             <Flex bgColor={'gray.50'} p={2} w='100%' justifyContent={'space-between'} alignItems={'center'}>
                 <Text fontSize={'xl'} fontWeight={'semibold'} mb={0}>
                     {`Price`}
                 </Text>
-                <Text fontSize={'xl'} fontWeight={'semibold'} mb={0}>
-                    {`Rp. ${price}`}
-                </Text>
+                {type === "Numeric" || type === "Percentage" ? (
+                    <Stack mr={3} gap={0} textAlign={"end"}>
+                        <Text fontSize={'xl'} fontWeight={'semibold'} mb={0}>
+                            {countDiscount()}
+                        </Text>
+                        <Text as={"s"} color={"gray"} fontSize={'sm'} fontWeight={'normal'} mb={0}>
+                            {`Rp. ${(price * quantity)?.toLocaleString("id-ID")}`}
+                        </Text>
+                    </Stack>
+
+                ) : (
+                    <Text mr={3} textAlign={"end"} fontSize={'xl'} fontWeight={'semibold'} mb={0}>
+                        {`Rp. ${(price * quantity)?.toLocaleString("id-ID")}`}
+                    </Text>
+                )}
             </Flex>
         </Stack>
         </>

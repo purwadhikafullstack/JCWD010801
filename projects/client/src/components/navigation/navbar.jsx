@@ -19,6 +19,7 @@ import {
 	MenuButton,
 	MenuDivider,
 	Spacer,
+	Box,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
@@ -31,6 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
+import { setValueAddress } from "../../redux/addressSlice";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -50,6 +52,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const [reload, setReload] = useState(false);
 	const [isSearchFocused, setSearchFocused] = useState(false);
 	const [totalCartItems, setTotalCartItems] = useState(0);
+	const address = useSelector((state) => state?.address?.value);
 
 	const fetchData = async () => {
 		try {
@@ -112,7 +115,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 			progress: undefined,
 			theme: "dark",
 		});
-		dispatch(setValue({}));
+		dispatch(setValue({}));	
+		dispatch(setValueAddress({}))
 		navigate("/login");
 		setProducts([]);
 	};
@@ -139,7 +143,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 					justifyContent={"space-between"}
 					position={"sticky"}
 					top={0}
-					zIndex={10}
+					zIndex={20}
 					w={"100%"}
 					bgColor={"white"}
 				>
@@ -164,20 +168,19 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							display={{ base: "none", lg: "flex" }}
 							justifyContent={"space-between"}
 						>
-							<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-								<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-								<Stack gap={0}>
-									<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
-									<Text
-										onClick={() => navigate("/")}
-										cursor={"pointer"}
-										fontSize={{ base: "sm", lg: "md" }}
-										fontWeight={"medium"}
-									>
-										Address
-									</Text>
-								</Stack>
-							</Flex>
+							{token && address !== undefined && Object.keys(address).length > 0 ? (
+								<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
+									<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
+									<Stack gap={0}>
+										<Box onClick={() => navigate("/profile#addresses")}>
+											<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
+											<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
+												{address.label}
+											</Text>
+										</Box>
+									</Stack>
+								</Flex>
+							) : null}
 							<Text
 								onClick={() => navigate("/search")}
 								fontSize={{ base: "sm", lg: "md" }}
@@ -187,7 +190,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								Shop
 							</Text>
 							<Text
-								onClick={() => navigate("/")}
+								onClick={() => navigate("/voucher")}
 								fontSize={{ base: "sm", lg: "md" }}
 								cursor={"pointer"}
 								fontWeight={"medium"}
@@ -334,10 +337,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 											</Text>
 										</Stack>
 										<MenuDivider />
-										<MenuItem onClick={() => navigate("/dashboard")} gap="3">
-											<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
-											<Text>Dashboard</Text>
-										</MenuItem>
+										{RoleId > 1 ? (
+											<MenuItem onClick={() => navigate("/dashboard")} gap="3">
+												<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
+												<Text>Dashboard</Text>
+											</MenuItem>
+										) : null}
 										<MenuItem onClick={() => navigate("/profile")} gap="3">
 											<Icon as={BsPerson} w="5" h="5" color="black" />
 											<Text>Profile</Text>
