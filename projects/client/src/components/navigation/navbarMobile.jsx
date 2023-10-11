@@ -24,7 +24,6 @@ import { CiLocationOn } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
 import { MdOutlineDiscount } from "react-icons/md";
 import { LuHome } from "react-icons/lu";
-import { BranchModal } from "./branchModal";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 import Alpha from "../../assets/public/AM_logo_only_trans.png";
 import { useSelector } from "react-redux";
@@ -99,7 +98,6 @@ export const NavbarMobile = () => {
 												</Box>
 											</Stack>
 										</Flex>
-										<BranchModal />
 									</Flex>
 								) : null}
 								<Divider />
