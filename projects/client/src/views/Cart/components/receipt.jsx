@@ -10,7 +10,7 @@ export const Receipt = ({ subtotal, promo = true, items }) => {
     const convertToRp = (number) => number?.toLocaleString("id-ID");
     const [ discount, setDiscount ] = useState(0);
 
-    const voucher = useSelector((state) => state.voucher.value);
+    const voucher = useSelector((state) => state?.voucher?.value);
     
     const checkVoucherRequirements = () => {
         if (voucher.minPay && voucher.minPay > subtotal) return setDiscount(0)
