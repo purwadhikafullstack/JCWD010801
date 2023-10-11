@@ -47,23 +47,23 @@ const TableFilter = ({ queryObj, setQueryObj, branches, branchId }) => {
 	};
 
 	const handleSearchUserChange = (event) => {
-		setQueryObj({ ...queryObj, searchUser: event.target.value });
+		setQueryObj({ ...queryObj, searchUser: event.target.value, page: 0 });
 	};
 
 	const handleSearchChange = (event) => {
-		setQueryObj({ ...queryObj, search: event.target.value });
+		setQueryObj({ ...queryObj, search: event.target.value, page: 0 });
 	};
 
 	const handleSearchProductChange = (event) => {
-		setQueryObj({ ...queryObj, searchProduct: event.target.value });
+		setQueryObj({ ...queryObj, searchProduct: event.target.value, page: 0 });
 	};
 
 	const handleSearchBranchChange = (event) => {
-		setQueryObj({ ...queryObj, searchBranch: event.target.value });
+		setQueryObj({ ...queryObj, searchBranch: event.target.value, page: 0 });
 	};
 
 	const handleSort = (event) => {
-		setQueryObj({ ...queryObj, sort: event.target.value });
+		setQueryObj({ ...queryObj, sort: event.target.value, page: 0 });
 	};
 
 	return (
@@ -110,7 +110,7 @@ const TableFilter = ({ queryObj, setQueryObj, branches, branchId }) => {
 								focusBorderColor="#373433"
 								type="date"
 								value={queryObj.startDate}
-								onChange={(e) => setQueryObj({ ...queryObj, startDate: e.target.value })}
+								onChange={(e) => setQueryObj({ ...queryObj, startDate: e.target.value, page: 0 })}
 								borderColor="gray.300"
 							/>
 							<InputRightElement width="2rem">
@@ -137,7 +137,7 @@ const TableFilter = ({ queryObj, setQueryObj, branches, branchId }) => {
 								focusBorderColor="#373433"
 								type="date"
 								value={queryObj.endDate}
-								onChange={(e) => setQueryObj({ ...queryObj, endDate: e.target.value })}
+								onChange={(e) => setQueryObj({ ...queryObj, endDate: e.target.value, page: 0 })}
 								borderColor="gray.300"
 							/>
 							<InputRightElement width="2rem">

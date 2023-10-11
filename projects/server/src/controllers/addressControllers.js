@@ -67,10 +67,12 @@ module.exports = {
 						isMain: true,
 						UserId: req.user.id,
 					});
+					const isMainAddress = await addresses.findOne({ where: { isMain: true, UserId: req.user.id } });
 					res.status(200).send({
 						status: true,
 						message: "Add new address success",
 						result,
+						isMainAddress,
 					});
 				} else {
 					const result = await addresses.create({
@@ -88,10 +90,12 @@ module.exports = {
 						isMain: false,
 						UserId: req.user.id,
 					});
+					const isMainAddress = await addresses.findOne({ where: { isMain: true, UserId: req.user.id } });
 					res.status(200).send({
 						status: true,
 						message: "Add new address success",
 						result,
+						isMainAddress,
 					});
 				}
 			} else {
@@ -150,10 +154,12 @@ module.exports = {
 					},
 					{ where: { id, UserId: req.user.id } }
 				);
+				const isMainAddress = await addresses.findOne({ where: { isMain: true, UserId: req.user.id } });
 				res.status(200).send({
 					status: true,
 					message: "Your address has been updated",
 					result,
+					isMainAddress,
 				});
 			} else {
 				res.status(500).send({
@@ -162,7 +168,6 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			console.log(error);
 			res.status(500).send({
 				error,
 				status: 500,
@@ -196,9 +201,11 @@ module.exports = {
 						},
 					}
 				);
+				const isMainAddress = await addresses.findOne({ where: { isMain: true, UserId: req.user.id } });
 				res.status(200).send({
 					message: "Set to main address success",
 					result,
+					isMainAddress,
 				});
 			}
 		} catch (error) {
@@ -241,11 +248,11 @@ module.exports = {
 				];
 			}
 			const sort = req.query.sort || "asc";
-			let order = [["isMain", "DESC"]]; 
+			let order = [["isMain", "DESC"]];
 			if (sort === "asc") {
-				order.push(["createdAt", "ASC"]); 
+				order.push(["createdAt", "ASC"]);
 			} else {
-				order.push(["createdAt", "DESC"]); 
+				order.push(["createdAt", "DESC"]);
 			}
 			const total = await addresses.count({ where: condition });
 			result = await addresses.findAll({

@@ -12,7 +12,7 @@ export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay,
         console.log({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId })
         dispatch(setVoucherInfo({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }));
     };
-    const appliedVoucherCheck = useSelector((state) => state.voucher.value.VoucherId);
+    const appliedVoucherCheck = useSelector((state) => state?.voucher?.value?.VoucherId);
 
     return (
         <>
