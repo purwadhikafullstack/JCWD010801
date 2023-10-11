@@ -34,7 +34,7 @@ export const MenuOrder = ({ reload, setReload, orderId, imgURL, date, branch, am
 						/>
 					</MenuItem>
 				)}
-				{!imgURL && (
+				{status === "Waiting payment" && (
 					<MenuItem>
 						<CancelOrder reload={reload} setReload={setReload} id={orderId} />
 					</MenuItem>
