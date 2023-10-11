@@ -122,7 +122,7 @@ export const SidebarMobile = () => {
 								</ListItem>
 								<ListItem
 									cursor={"pointer"}
-									onClick={() => navigate("/dashboard/orders-list")}
+									onClick={() => navigate("/dashboard/discount-overview")}
 									p={2}
 									borderRadius={"10px"}
 								>
