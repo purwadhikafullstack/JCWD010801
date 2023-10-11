@@ -154,10 +154,12 @@ module.exports = {
 					},
 					{ where: { id, UserId: req.user.id } }
 				);
+				const isMainAddress = await addresses.findOne({ where: { isMain: true, UserId: req.user.id } });
 				res.status(200).send({
 					status: true,
 					message: "Your address has been updated",
 					result,
+					isMainAddress,
 				});
 			} else {
 				res.status(500).send({

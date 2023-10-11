@@ -32,6 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
+import { setValueAddress } from "../../redux/addressSlice";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -114,7 +115,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 			progress: undefined,
 			theme: "dark",
 		});
-		dispatch(setValue({}));
+		dispatch(setValue({}));	
+		dispatch(setValueAddress({}))
 		navigate("/login");
 		setProducts([]);
 	};
