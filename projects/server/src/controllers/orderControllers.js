@@ -848,13 +848,15 @@ module.exports = {
 					UserId: req.user.id,
 				},
 			});
-			const result = userAddress.filter(
-				(item) =>
-					item.lat <= cartCheckedOut.Branch.northeast_lat &&
-					item.lat >= cartCheckedOut.Branch.southwest_lat &&
-					item.lng <= cartCheckedOut.Branch.northeast_lng &&
-					item.lng >= cartCheckedOut.Branch.southwest_lng
-			);
+			const result = userAddress
+				.sort((a, b) => (a.isMain === b.isMain ? 0 : a.isMain ? -1 : 1))
+				.filter(
+					(item) =>
+						item.lat <= cartCheckedOut.Branch.northeast_lat &&
+						item.lat >= cartCheckedOut.Branch.southwest_lat &&
+						item.lng <= cartCheckedOut.Branch.northeast_lng &&
+						item.lng >= cartCheckedOut.Branch.southwest_lng
+				);
 
 			res.status(200).send({
 				status: true,
