@@ -329,9 +329,15 @@ function Order() {
 													/>
 													<Box>
 														<Text fontWeight={"bold"}>{item.Product.productName}</Text>
-														<Text>
-															{item.quantity} x {formatToRupiah(item.Product.price)}
-														</Text>
+														{item?.Product?.Discounts[0]?.type === "Extra" ? (
+															<Text>
+																{`(${item.quantity}+${item.quantity})`} x {formatToRupiah(item.Product.price)}
+															</Text>
+														) : (
+															<Text>
+																{item.quantity} x {formatToRupiah(item.Product.price)}
+															</Text>
+														)}
 														<Text>{item.Product.weight * item.quantity} gram(s)</Text>
 														<Text fontWeight={"bold"} fontSize={"lg"}>
 															{formatToRupiah(item.Product.price * item.quantity)}
