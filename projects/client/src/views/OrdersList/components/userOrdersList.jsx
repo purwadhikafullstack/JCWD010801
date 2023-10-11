@@ -343,14 +343,14 @@ export const UserOrdersList = () => {
 											</Flex>
 											{item.status !== "Cancelled" ? (
 												<Text textAlign={["start", "end"]} color={"gray.500"} fontSize={"14px"}>
-													Esitame time day(s): {item.etd}
+													ETA day(s): {item.etd}
 												</Text>
 											) : null}
 											<Text textAlign={["start", "end"]} color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>
 											<Text textAlign={["start", "end"]} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												{formatRupiah(item.subtotal)} - {item.discount}%
+												{formatRupiah(item.subtotal)} - {formatRupiah(item.discount)}
 											</Text>
 											<Text textAlign={["start", "end"]} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
 												{formatRupiah(item.total)}
