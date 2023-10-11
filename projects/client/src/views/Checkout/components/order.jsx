@@ -45,7 +45,7 @@ function Order() {
 	const [voucherDiscount, setVoucherDiscount] = useState(0);
 	const [discount, setDiscount] = useState(0);
 	const reduxStore = useSelector((state) => state?.user);
-	const voucher = useSelector((state) => state.voucher.value);
+	const voucher = useSelector((state) => state?.voucher?.value);
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
 	const phone = reduxStore?.value?.phone;

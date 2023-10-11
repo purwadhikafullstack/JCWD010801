@@ -13,10 +13,13 @@ import Axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ButtonTemp } from "../../../../components/button";
+import { useDispatch } from "react-redux";
+import { setValueAddress } from "../../../../redux/addressSlice";
 
 const MainAddressButton = ({ id, reload, setReload }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const token = localStorage.getItem("token");
+	const dispatch = useDispatch();
 
 	const handleSubmit = async (id) => {
 		try {
@@ -30,6 +33,8 @@ const MainAddressButton = ({ id, reload, setReload }) => {
 				}
 			);
 			setReload(!reload);
+			const updateAddress = response.data.isMainAddress;
+			dispatch(setValueAddress(updateAddress));
 			onClose();
 			toast.success(response.data.message, {
 				position: "top-right",

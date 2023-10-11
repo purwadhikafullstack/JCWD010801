@@ -20,6 +20,8 @@ import { ButtonTemp } from "../../../../components/button";
 import { EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
+import { setValueAddress } from "../../../../redux/addressSlice";
 
 const UpdateAddress = ({
 	reload,
@@ -38,6 +40,7 @@ const UpdateAddress = ({
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const token = localStorage.getItem("token");
+	const dispatch = useDispatch();
 	const validationSchema = Yup.object().shape({
 		label: Yup.string().required("Label is required"),
 		address: Yup.string().required("Address is required"),
@@ -57,6 +60,8 @@ const UpdateAddress = ({
 				},
 			});
 			setReload(!reload);
+			const updateAddress = response.data.isMainAddress
+			dispatch(setValueAddress(updateAddress));
 			onClose();
 			toast.success(response.data.message, {
 				position: "top-right",

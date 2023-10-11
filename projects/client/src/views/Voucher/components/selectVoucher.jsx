@@ -9,7 +9,7 @@ import { RedeemCode } from "./redeemCode";
 import { setVoucherInfo } from "../../../redux/voucherSlice";
 
 export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
-    const voucher = useSelector((state) => state.voucher.value);
+    const voucher = useSelector((state) => state?.voucher?.value);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const dispatch = useDispatch();
 

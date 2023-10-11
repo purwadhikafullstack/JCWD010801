@@ -566,23 +566,25 @@ module.exports = {
 	order: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
 		try {
-			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } = req.body;
-			
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } =
+				req.body;
+
 			// Use voucher
 			const filter = {
-                where: {
-                    UserId: req.user.id,
-                    VoucherId
-                },
-				transaction
-            }
-            if (VoucherId) {
+				where: {
+					UserId: req.user.id,
+					VoucherId,
+				},
+				transaction,
+			};
+			if (VoucherId) {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if ( voucherTypeCheck.minimumPayment > subtotal ) return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
+				if (voucherTypeCheck.minimumPayment > subtotal)
+					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
-			} 
+			}
 
 			const cartCheckedOut = await carts.findOne({
 				where: {
@@ -597,25 +599,31 @@ module.exports = {
 				},
 			});
 
-			const result = await orders.create({
-				shipment,
-				shipmentMethod,
-				etd,
-				shippingFee,
-				subtotal,
-				tax,
-				total,
-				discount,
-				status: "Waiting payment",
-				CartId: cartCheckedOut.id,
-				AddressId: AddressId,
-			}, transaction);
+			const result = await orders.create(
+				{
+					shipment,
+					shipmentMethod,
+					etd,
+					shippingFee,
+					subtotal,
+					tax,
+					total,
+					discount,
+					status: "Waiting payment",
+					CartId: cartCheckedOut.id,
+					AddressId: AddressId,
+				},
+				transaction
+			);
 			const orderDetailPromises = orderedItems.map(async (item) => {
-				await order_details.create({
-					OrderId: result.id,
-					ProductId: item.ProductId,
-					quantity: item.quantity,
-				}, { transaction });
+				await order_details.create(
+					{
+						OrderId: result.id,
+						ProductId: item.ProductId,
+						quantity: item.quantity,
+					},
+					{ transaction }
+				);
 			});
 			await Promise.all(orderDetailPromises);
 
@@ -628,13 +636,13 @@ module.exports = {
 
 				await product.decrement(
 					{
-						aggregateStock: parseInt(item.quantity),
+						aggregateStock: parseInt(item.quantity, 10),
 					},
 					{
 						where: {
 							id: item.ProductId,
 						},
-						transaction
+						transaction,
 					}
 				);
 
@@ -645,31 +653,34 @@ module.exports = {
 					},
 				});
 
-				const newBranchStock = parseInt(oldBranchStock.currentStock) - parseInt(item.quantity);
+				const newBranchStock = parseInt(oldBranchStock.currentStock, 10) - parseInt(item.quantity, 10);
 
-				await stockMovements.create({
-					ProductId: item.ProductId,
-					BranchId: cartCheckedOut.BranchId,
-					oldValue: oldBranchStock.currentStock,
-					newValue: parseInt(newBranchStock),
-					change: -parseInt(item.quantity),
-					isAddition: false,
-					isAdjustment: false,
-					isInitialization: false,
-					isBranchInitialization: false,
-					UserId: req.user.id,
-				}, { transaction });
+				await stockMovements.create(
+					{
+						ProductId: item.ProductId,
+						BranchId: cartCheckedOut.BranchId,
+						oldValue: oldBranchStock.currentStock,
+						newValue: parseInt(newBranchStock, 10),
+						change: -parseInt(item.quantity, 10),
+						isAddition: false,
+						isAdjustment: false,
+						isInitialization: false,
+						isBranchInitialization: false,
+						UserId: req.user.id,
+					},
+					{ transaction }
+				);
 
 				await stocks.decrement(
 					{
-						currentStock: parseInt(item.quantity),
+						currentStock: parseInt(item.quantity, 10),
 					},
 					{
 						where: {
 							ProductId: item.ProductId,
 							BranchId: cartCheckedOut.BranchId,
 						},
-						transaction
+						transaction,
 					}
 				);
 			});
@@ -683,33 +694,38 @@ module.exports = {
 					where: {
 						id: cartCheckedOut.id,
 					},
-					transaction
+					transaction,
 				}
 			);
 
 			// Auto cancel order 5 minutes
 			const autoCancelTime = new Date(Date.now() + 300000);
-			schedule.scheduleJob(autoCancelTime, async() => {
+			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
-					const ord = await orders.findOne({
-						where: { id: result.id },
-						include: { model: carts }
-					}, { transaction });
-					
+					const ord = await orders.findOne(
+						{
+							where: { id: result.id },
+							include: { model: carts },
+						},
+						{ transaction }
+					);
+
 					if (!ord.paymentProof) {
 						await orders.update({ status: "Cancelled" }, { where: { id: ord.id }, transaction });
-			
+
 						const result = await order_details.findAll({ where: { OrderId: ord.id } });
-			
-						for (const {ProductId, quantity} of result) {
-							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
-							await stocks.update({ currentStock: currentStock + quantity }, {
-								where: { ProductId, BranchId: ord.Cart.BranchId },
-								transaction
-							})
+
+						for (const { ProductId, quantity } of result) {
+							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
+							await stocks.update(
+								{ currentStock: currentStock + quantity },
+								{
+									where: { ProductId, BranchId: ord.Cart.BranchId },
+									transaction,
+								}
+							);
 						}
-			
 					}
 					await transaction.commit();
 				} catch (err) {
@@ -717,7 +733,7 @@ module.exports = {
 				}
 			});
 
-            await transaction.commit();
+			await transaction.commit();
 
 			res.status(200).send({
 				status: true,
@@ -768,10 +784,51 @@ module.exports = {
 
 			for (const { ProductId, quantity } of result) {
 				let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
-				await stocks.update(
-					{ currentStock: currentStock + quantity },
+				const product = await products.findOne({
+					where: {
+						id: ProductId,
+					},
+				});
+
+				await product.increment(
 					{
-						where: { ProductId, BranchId: ord.Cart.BranchId },
+						aggregateStock: parseInt(quantity, 10),
+					},
+					{
+						where: {
+							id: ProductId,
+						},
+						transaction,
+					}
+				);
+
+				const newBranchStock = parseInt(currentStock, 10) + parseInt(quantity, 10);
+
+				await stockMovements.create(
+					{
+						ProductId: ProductId,
+						BranchId: ord.Cart.BranchId,
+						oldValue: currentStock,
+						newValue: parseInt(newBranchStock, 10),
+						change: parseInt(quantity, 10),
+						isAddition: true,
+						isAdjustment: false,
+						isInitialization: false,
+						isBranchInitialization: false,
+						UserId: ord.Cart.UserId,
+					},
+					{ transaction }
+				);
+
+				await stocks.increment(
+					{
+						currentStock: parseInt(quantity, 10),
+					},
+					{
+						where: {
+							ProductId,
+							BranchId: ord.Cart.BranchId,
+						},
 						transaction,
 					}
 				);
@@ -848,13 +905,15 @@ module.exports = {
 					UserId: req.user.id,
 				},
 			});
-			const result = userAddress.filter(
-				(item) =>
-					item.lat <= cartCheckedOut.Branch.northeast_lat &&
-					item.lat >= cartCheckedOut.Branch.southwest_lat &&
-					item.lng <= cartCheckedOut.Branch.northeast_lng &&
-					item.lng >= cartCheckedOut.Branch.southwest_lng
-			);
+			const result = userAddress
+				.sort((a, b) => (a.isMain === b.isMain ? 0 : a.isMain ? -1 : 1))
+				.filter(
+					(item) =>
+						item.lat <= cartCheckedOut.Branch.northeast_lat &&
+						item.lat >= cartCheckedOut.Branch.southwest_lat &&
+						item.lng <= cartCheckedOut.Branch.northeast_lng &&
+						item.lng >= cartCheckedOut.Branch.southwest_lng
+				);
 
 			res.status(200).send({
 				status: true,
