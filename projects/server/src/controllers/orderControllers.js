@@ -179,7 +179,6 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -326,7 +325,6 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -628,7 +626,6 @@ module.exports = {
 				message: "Order updated to 'Rejected' successfully",
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -684,7 +681,6 @@ module.exports = {
 				message: "Order updated to 'Sent' successfully",
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
