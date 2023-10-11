@@ -20,13 +20,13 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: "ProductId",
 			});
 			Products.hasMany(models.Discounts, {
-				foreignKey: "ProductId"
+				foreignKey: "ProductId",
 			});
 			Products.hasMany(models.Vouchers, {
 				foreignKey: {
-                    name: "ProductId",
-                    allowNull: true
-                }
+					name: "ProductId",
+					allowNull: true,
+				},
 			});
 		}
 	}
@@ -58,6 +58,10 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			viewCount: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
+			},
+			likeCount: {
 				type: DataTypes.INTEGER,
 				defaultValue: 0,
 			},
