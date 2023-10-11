@@ -374,7 +374,7 @@ const ProductDetail = () => {
 											<TiHeartFullOutline
 												size={40}
 												color="red"
-												cursor={"pointer"}
+												cursor={RoleId === 1 ? "pointer" : "not-allowed"}
 												onClick={() => {
 													handleLike();
 													setReload(!reload);
@@ -384,7 +384,7 @@ const ProductDetail = () => {
 											<TiHeartOutline
 												size={40}
 												color="red"
-												cursor={"pointer"}
+												cursor={RoleId === 1 ? "pointer" : "not-allowed"}
 												onClick={() => {
 													handleLike();
 													setReload(!reload);
@@ -789,7 +789,7 @@ const ProductDetail = () => {
 											<TiHeartFullOutline
 												size={45}
 												color="red"
-												cursor={"pointer"}
+												cursor={RoleId === 1 ? "pointer" : "not-allowed"}
 												onClick={() => {
 													handleLike();
 													setReload(!reload);
@@ -799,7 +799,7 @@ const ProductDetail = () => {
 											<TiHeartOutline
 												size={45}
 												color="red"
-												cursor={"pointer"}
+												cursor={RoleId === 1 ? "pointer" : "not-allowed"}
 												onClick={() => {
 													handleLike();
 													setReload(!reload);
