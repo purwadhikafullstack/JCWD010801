@@ -186,7 +186,8 @@ export const AdminListPage = () => {
 													username={item.username}
 													email={item.email}
 													phone={item.phone}
-													gender={item.phone}
+													gender={item.gender}
+													joinDate={item.createdAt}
 													birthDate={item.birthDate}
 													branch={item?.Branch?.name}
 												/>

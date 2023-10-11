@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { FaBoxOpen } from "react-icons/fa";
+import { MdDiscount } from "react-icons/md";
+import { FaUsersGear } from "react-icons/fa6";
 import { VscGraphLine } from "react-icons/vsc";
 import { RiFileList3Fill } from "react-icons/ri";
 import { BsFillPersonFill } from "react-icons/bs";
-import { FaUsersGear, FaShop } from "react-icons/fa6";
 
 export const SuperAdminDashboardButton = () => {
 	const user = useSelector((state) => state?.user?.value);
@@ -66,7 +67,7 @@ export const SuperAdminDashboardButton = () => {
 								Your Profile
 							</Text>
 						</Flex>
-						<Flex mr={["0px", "10px"]} mt={["0px", "45px", "40px", "40px"]} justifyContent={"end"}>
+						<Flex mr={["0px", "10px"]} mt={["0px", "45px", "43px", "40px"]} justifyContent={"end"}>
 							<BsFillPersonFill size={90} />
 						</Flex>
 					</Box>
@@ -90,13 +91,13 @@ export const SuperAdminDashboardButton = () => {
 								Alphamart's products
 							</Text>
 						</Flex>
-						<Flex mr={["5px", "10px"]} mt={["10px", "52px", "48px", "50px"]} justifyContent={"end"}>
+						<Flex mr={["5px", "10px"]} mt={["10px", "52px", "50px", "50px"]} justifyContent={"end"}>
 							<FaBoxOpen size={90} />
 						</Flex>
 					</Box>
 					<Box
 						mt={["10px", "10px", "0px", "0px"]}
-						onClick={() => navigate("/dashboard/product-management")}
+						onClick={() => navigate("/dashboard/discount-overview")}
 						w={["full", "full", "28%", "28%"]}
 						ml={["0px", "0px", "15px", "15px"]}
 						h={["125px", "200px"]}
@@ -108,14 +109,14 @@ export const SuperAdminDashboardButton = () => {
 					>
 						<Flex mt={"5px"} ml={["8px", "8px", "8px", "15px"]} direction={"column"}>
 							<Text fontWeight={"bold"} fontFamily={"sans-serif"} fontSize={["20px", "30px", "25px", "30px"]}>
-								Sales
+								Discounts
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={["10px", "12px", "11px", "12px"]}>
 								AlphaMart Voucher & Discount
 							</Text>
 						</Flex>
-						<Flex mr={["8px", "10px"]} mt={["0px", "55px", "50px", "50px"]} justifyContent={"end"}>
-							<FaShop size={80} />
+						<Flex mr={["8px", "10px"]} mt={["5px", "60px", "60px", "55px"]} justifyContent={"end"}>
+							<MdDiscount size={70} />
 						</Flex>
 					</Box>
 				</Flex>
@@ -132,7 +133,7 @@ export const SuperAdminDashboardButton = () => {
 						transition="background-color 0.3s ease-in-out"
 						_hover={{ bg: "blackAlpha.500" }}
 					>
-						<Flex mt={"9px"} ml={["8px", "8px", "8px","15px"]} direction={"column"}>
+						<Flex mt={"9px"} ml={["8px", "8px", "8px", "15px"]} direction={"column"}>
 							<Text fontWeight={"bold"} fontFamily={"sans-serif"} fontSize={["20px", "30px", "23px", "22px", "30px"]}>
 								Admin Management
 							</Text>
@@ -156,7 +157,7 @@ export const SuperAdminDashboardButton = () => {
 						transition="background-color 0.3s ease-in-out"
 						_hover={{ bg: "blackAlpha.500" }}
 					>
-						<Flex mt={"5px"}  ml={["8px", "8px", "8px","15px"]} direction={"column"}>
+						<Flex mt={"5px"} ml={["8px", "8px", "8px", "15px"]} direction={"column"}>
 							<Text fontWeight={"bold"} fontFamily={"sans-serif"} fontSize={["20px", "30px", "25px", "30px"]}>
 								Order List
 							</Text>
@@ -164,7 +165,7 @@ export const SuperAdminDashboardButton = () => {
 								All branches orders
 							</Text>
 						</Flex>
-						<Flex mr={["4px","4px", "10px", "15px"]} mt={["0px", "95px", "95px", "88px"]} justifyContent={"end"}>
+						<Flex mr={["4px", "4px", "10px", "15px"]} mt={["0px", "95px", "95px", "88px"]} justifyContent={"end"}>
 							<RiFileList3Fill size={90} />
 						</Flex>
 					</Box>
@@ -180,7 +181,7 @@ export const SuperAdminDashboardButton = () => {
 						transition="background-color 0.3s ease-in-out"
 						_hover={{ bg: "blackAlpha.500" }}
 					>
-						<Flex mt={"5px"} ml={["8px", "8px", "8px","15px"]}  direction={"column"}>
+						<Flex mt={"5px"} ml={["8px", "8px", "8px", "15px"]} direction={"column"}>
 							<Text fontWeight={"bold"} fontFamily={"sans-serif"} fontSize={["20px", "30px", "25px", "30px"]}>
 								Report
 							</Text>

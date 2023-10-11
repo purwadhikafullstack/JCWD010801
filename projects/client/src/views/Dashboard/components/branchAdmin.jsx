@@ -3,8 +3,8 @@ import LayoutSidebar from "../../../pages/layoutSidebar";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
-import { FaShop } from "react-icons/fa6";
 import { FaBoxOpen } from "react-icons/fa";
+import { MdDiscount } from "react-icons/md";
 import { VscGraphLine } from "react-icons/vsc";
 import { RiFileList3Fill } from "react-icons/ri";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -115,7 +115,7 @@ export const BranchAdminDashboardButton = () => {
 					</Box>
 					<Box
 						mt={["10px", "10px", "0px", "0px"]}
-						onClick={() => navigate("/dashboard/product-management")}
+						onClick={() => navigate("/dashboard/discount-overview")}
 						w={["full", "full", "28%", "28%"]}
 						ml={["0px", "0px", "15px", "15px"]}
 						h={["125px", "200px"]}
@@ -127,14 +127,14 @@ export const BranchAdminDashboardButton = () => {
 					>
 						<Flex mt={"5px"} ml={["8px", "15px"]} direction={"column"}>
 							<Text fontWeight={"bold"} fontFamily={"sans-serif"} fontSize={["20px", "30px", "25px", "30px"]}>
-								Sales
+								Discounts
 							</Text>
 							<Text fontFamily={"sans-serif"} fontSize={["10px", "12px", "11px", "12px"]}>
 								AlphaMart {currentBranchName} Voucher & Discount
 							</Text>
 						</Flex>
 						<Flex mr={["8px", "10px"]} mt={["0px", "55px", "42px", "50px"]} justifyContent={"end"}>
-							<FaShop size={80} />
+							<MdDiscount size={80} />
 						</Flex>
 					</Box>
 				</Flex>

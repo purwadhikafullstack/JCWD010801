@@ -15,7 +15,7 @@ import {
 	Flex,
 } from "@chakra-ui/react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

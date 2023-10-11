@@ -244,7 +244,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 							</Text>
 						) : null}
 					</Flex>
-					<Flex
+					{/* <Flex
 						as={Link}
 						to={"/dashboard"}
 						mb={"20px"}
@@ -267,7 +267,7 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 								Sales
 							</Text>
 						) : null}
-					</Flex>
+					</Flex> */}
 					<Flex
 						as={Link}
 						to={"/dashboard/report/overview"}

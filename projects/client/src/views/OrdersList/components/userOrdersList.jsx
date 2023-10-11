@@ -16,6 +16,7 @@ import {
 	Text,
 } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
+// import { MdOutlineRateReview } from "react-icons/md";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
@@ -29,6 +30,7 @@ export const UserOrdersList = () => {
 	const [branchId, setBranchId] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
+	// const [showReviewButton, setShowReviewButton] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
@@ -214,6 +216,9 @@ export const UserOrdersList = () => {
 			</Flex>
 			{list && list.length > 0 ? (
 				list?.map((item, index) => {
+					// if (item.status === "Received") {
+					// 	setShowReviewButton(true);
+					// }
 					return (
 						<Box
 							key={index}
@@ -300,10 +305,11 @@ export const UserOrdersList = () => {
 							<Flex display={["block", "flex"]} justifyContent={"space-between"}>
 								<Box>
 									{item.Order_details.map((item) => (
+										<>
 										<Flex mt={"10px"}>
 											<Box
 												as={Image}
-												w={["80px", "100px"]}
+												w={"100px"}
 												bg={"gray.100"}
 												src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
 											></Box>
@@ -319,6 +325,11 @@ export const UserOrdersList = () => {
 												</Text>
 											</Box>
 										</Flex>
+										{/* {showReviewButton && (
+
+											<Button w={"full"}><MdOutlineRateReview/> Review</Button>
+										)} */}
+										</>
 									))}
 								</Box>
 								<Flex>
