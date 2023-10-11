@@ -16,7 +16,7 @@ export const VoucherDetails = ({ name, type, isPercentage, nominal, minPay, maxD
         console.log({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId })
         closeModal();
     };
-    const voucher = useSelector((state) => state.voucher.value);
+    const voucher = useSelector((state) => state?.voucher?.value);
 
     const initialTerms = [
         "Voucher cannot be used together with other vouchers",

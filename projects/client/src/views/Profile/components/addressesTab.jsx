@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Grid, Text, Badge, Input, Button, Flex } from "@chakra-ui/react";
+import { Box, Grid, Text, Badge, Input, Button, Flex, Stack, Heading } from "@chakra-ui/react";
 import Axios from "axios";
 import AddAddress from "./address/addAddress";
 import DeleteAddressButton from "./address/deleteAddress";
@@ -7,6 +7,7 @@ import UpdateAddress from "./address/updateAddress";
 import MainAddressButton from "./address/setMainAddress";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
 
 const AddressesTab = () => {
 	const [data, setData] = useState([]);
@@ -18,14 +19,13 @@ const AddressesTab = () => {
 	const [province, setProvince] = useState([]);
 	const [city, setCity] = useState([]);
 	const [branches, setBranches] = useState([]);
+	const dataMainAddress = useSelector((state) => state.address.value);
 
 	const fetchBranchData = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
 			setBranches(response.data);
-		} catch (error) {
-			console.log(error);
-		}
+		} catch (error) {}
 	};
 
 	const getAddress = async () => {
@@ -40,7 +40,6 @@ const AddressesTab = () => {
 			);
 			setData(response.data.result);
 			setTotalPage(response.data.totalPage);
-			console.log(totalPage);
 		} catch (error) {}
 	};
 
@@ -78,31 +77,34 @@ const AddressesTab = () => {
 			});
 		}
 	};
+
 	useEffect(() => {
 		getProvince();
 		getCity();
+		fetchBranchData();
 	}, []);
 	useEffect(() => {
 		getAddress();
 		if (page > totalPage && totalPage !== 0) {
 			setPage(totalPage);
 		}
+		// eslint-disable-next-line
 	}, [reload, search, page, totalPage]);
 	useEffect(() => {
-		fetchBranchData();
-		if (data.length !== 0 && branches.length !== 0) {
+		if (dataMainAddress !== undefined && Object.keys(dataMainAddress).length > 0 && branches.length !== 0) {
 			const filteredBranch = branches.filter(
 				(item) =>
-					data[0].lat <= item.northeast_lat &&
-					data[0].lat >= item.southwest_lat &&
-					data[0].lng <= item.northeast_lng &&
-					data[0].lng >= item.southwest_lng
+					dataMainAddress.lat <= item.northeast_lat &&
+					dataMainAddress.lat >= item.southwest_lat &&
+					dataMainAddress.lng <= item.northeast_lng &&
+					dataMainAddress.lng >= item.southwest_lng
 			);
 
 			if (filteredBranch.length > 0) {
 				localStorage.setItem("BranchId", parseInt(filteredBranch[0].id));
 			}
 		}
+		// eslint-disable-next-line
 	}, [data]);
 
 	const handleSearchChange = (event) => {
@@ -117,17 +119,16 @@ const AddressesTab = () => {
 		<Box maxW="600px" mx="auto" p={4} w={{ md: "80%", base: "100%" }}>
 			<Flex>
 				<AddAddress reload={reload} setReload={setReload} province={province} city={city} />
-				
-					<Input
-						placeholder="Search"
-						value={search}
-						onChange={handleSearchChange}
-						size="md"
-						ml={"4"}
-						border={"1px"}
-						focusBorderColor="#373433"
-					/>
-				
+
+				<Input
+					placeholder="Search"
+					value={search}
+					onChange={handleSearchChange}
+					size="md"
+					ml={"4"}
+					border={"1px"}
+					focusBorderColor="#373433"
+				/>
 			</Flex>
 			{data?.map((value, index) => (
 				<Box key={index} borderWidth="1px" borderRadius="md" p={4} boxShadow="md" mb={4}>
@@ -179,66 +180,70 @@ const AddressesTab = () => {
 				</Box>
 			))}
 			{data?.length === 0 && (
-      <Text>No address found.</Text>
-    )}
-			
-				<Box mt={4} display="flex" justifyContent="center" alignItems={"center"}>
-					<Button
-						backgroundColor="#000000"
-						color="white"
-						_hover={{
-							textColor: "#0A0A0B",
-							bg: "#F0F0F0",
-							_before: {
-								bg: "inherit",
-							},
-							_after: {
-								bg: "inherit",
-							},
-						}}
-						onClick={() => handlePageChange(page - 1)}
-						isDisabled={page === 1}
-						mr={2}
-					>
-						Prev.
-					</Button>
-					<Button
-						backgroundColor={"#000000"}
-						color={"white"}
-						_hover={{
-							textColor: "#0A0A0B",
-							bg: "#F0F0F0",
-							_before: {
-								bg: "inherit",
-							},
-							_after: {
-								bg: "inherit",
-							},
-						}}
-					>
-						{page}
-					</Button>
-					<Button
-						backgroundColor="#000000"
-						color="white"
-						_hover={{
-							textColor: "#0A0A0B",
-							bg: "#F0F0F0",
-							_before: {
-								bg: "inherit",
-							},
-							_after: {
-								bg: "inherit",
-							},
-						}}
-						onClick={() => handlePageChange(page + 1)}
-						isDisabled={page === totalPage || totalPage === 0}
-						ml={2}
-					>
-						Next
-					</Button>
-				</Box>
-			
+				<Stack w={"100%"} my={5} justifyContent={"center"} alignItems={"center"}>
+					<Heading fontSize={"70px"}>{":("}</Heading>
+					<Text mt={6} fontWeight={"semibold"} color={"gray"} fontSize={"xl"} textAlign={"center"}>
+						No address found
+					</Text>
+				</Stack>
+			)}
+
+			<Box mt={4} display="flex" justifyContent="center" alignItems={"center"}>
+				<Button
+					backgroundColor="#000000"
+					color="white"
+					_hover={{
+						textColor: "#0A0A0B",
+						bg: "#F0F0F0",
+						_before: {
+							bg: "inherit",
+						},
+						_after: {
+							bg: "inherit",
+						},
+					}}
+					onClick={() => handlePageChange(page - 1)}
+					isDisabled={page === 1}
+					mr={2}
+				>
+					Prev.
+				</Button>
+				<Button
+					backgroundColor={"#000000"}
+					color={"white"}
+					_hover={{
+						textColor: "#0A0A0B",
+						bg: "#F0F0F0",
+						_before: {
+							bg: "inherit",
+						},
+						_after: {
+							bg: "inherit",
+						},
+					}}
+				>
+					{page}
+				</Button>
+				<Button
+					backgroundColor="#000000"
+					color="white"
+					_hover={{
+						textColor: "#0A0A0B",
+						bg: "#F0F0F0",
+						_before: {
+							bg: "inherit",
+						},
+						_after: {
+							bg: "inherit",
+						},
+					}}
+					onClick={() => handlePageChange(page + 1)}
+					isDisabled={page === totalPage || totalPage === 0}
+					ml={2}
+				>
+					Next
+				</Button>
+			</Box>
 		</Box>
 	);
 };

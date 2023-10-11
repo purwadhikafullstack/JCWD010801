@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 
 export const ReceiptMobile = ({ subtotal, items }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const voucher = useSelector((state) => state.voucher.value);
+    const voucher = useSelector((state) => state?.voucher?.value);
     const navigate = useNavigate();
 
     const checkDisableCheckout = () => {
