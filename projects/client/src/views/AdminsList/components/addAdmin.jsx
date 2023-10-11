@@ -95,10 +95,8 @@ export default function AddAdmin({ reload, setReload }) {
 			<Button
 				onClick={onOpen}
 				my={"auto"}
-				mr={"40px"}
 				backgroundColor={"#000000"}
 				color={"white"}
-				ml={"25px"}
 				_hover={{
 					textColor: "#0A0A0B",
 					bg: "#F0F0F0",
@@ -109,6 +107,7 @@ export default function AddAdmin({ reload, setReload }) {
 						bg: "inherit",
 					},
 				}}
+				fontSize={["10px", "16px"]}
 			>
 				Add Admin
 			</Button>

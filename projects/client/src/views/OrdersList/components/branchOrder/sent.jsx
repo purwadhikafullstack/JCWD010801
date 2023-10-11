@@ -4,7 +4,7 @@ import { Badge, Box, Button, Flex, FormControl, FormLabel, Image, Input, Select,
 import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
-import { DetailProcessModal } from "./ModalProcessing/detailProcessModal";
+import { DetailProcessModal } from "./ModalProcessing/detailOrderModal";
 
 export const SentOrders = ({ reload, setReload }) => {
 	const [list, setList] = useState();
@@ -25,12 +25,15 @@ export const SentOrders = ({ reload, setReload }) => {
 			currency: "IDR",
 			minimumFractionDigits: 0,
 		});
-		return formatter.format(number);
+
+		let formatted = formatter.format(number);
+		formatted = formatted.replace("Rp", "Rp.");
+		return formatted;
 	};
 	const ordersList = async (pageNum) => {
 		try {
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=Sent&startDate=${startDate}&endDate=${endDate}`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?search=${search}&searchName=${searchName}&page=${pageNum}&limit=5&sort=${sort}&status=Sent&startDate=${startDate}&endDate=${endDate}`,
 				{
 					headers,
 				}
@@ -161,9 +164,10 @@ export const SentOrders = ({ reload, setReload }) => {
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
-						list?.map((item) => {
+						list?.map((item, index) => {
 							return (
 								<Box
+									key={index}
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
@@ -241,12 +245,15 @@ export const SentOrders = ({ reload, setReload }) => {
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"} fontFamily={"serif"}>
 														{item.Cart.User.email}
 													</Text>
-													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
-														{item.Address.address}
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"bold"} fontFamily={"serif"}>
+														{item.Cart.User.phone}
 													</Text>
 													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
-														{item.Address.city}, {item.Address.province}
-													</Text>{" "}
+														{item.Address?.address}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address?.city}, {item.Address?.province}
+													</Text>
 													<Flex mt={"5px"}>
 														<DetailProcessModal
 															reload={reload}
@@ -280,22 +287,22 @@ export const SentOrders = ({ reload, setReload }) => {
 											</Flex>
 										</Box>
 										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
-											<Flex textAlign={"end"} ml={"15px"}>
+											<Flex justifyContent={"end"}>
 												<HiOutlineTruck size={21} />
-												<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
+												<Text textAlign={"end"} ml={"5px"} color={"gray.500"} fontSize={"14px"}>
 													{item.shipment} - {item.shipmentMethod}
 												</Text>
 											</Flex>
 											{item.status !== "Cancelled" ? (
 												<Text textAlign={"end"} ml={"5px"} color={"gray.500"} fontSize={"14px"}>
-													Esitame time: {item.etd}
+													ETA day(s): {item.etd}
 												</Text>
 											) : null}
 											<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 												Total amount
 											</Text>
 											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												{formatRupiah(item.subtotal)} - {item.discount}%
+												{formatRupiah(item.subtotal)} - {formatRupiah(item.discount)}
 											</Text>
 											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
 												{formatRupiah(item.total)}

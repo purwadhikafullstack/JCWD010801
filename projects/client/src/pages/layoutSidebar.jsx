@@ -2,6 +2,8 @@ import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { Error404PageView } from "../views/Error404";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
+import { Box } from "@chakra-ui/react";
+import { SidebarMobile } from "../components/navigation/sidebarMobile";
 
 const LayoutSidebar = () => {
 	const token = localStorage.getItem("token");
@@ -12,8 +14,14 @@ const LayoutSidebar = () => {
 				<Error404PageView />
 			) : (
 				<>
-					<AdminSidebar />
-					<Outlet />
+					<Box display={["none", "none", "block", "block"]}>
+						<AdminSidebar />
+						<Outlet />
+					</Box>
+					<Box display={["block", "block", "none", "none"]}>
+						<SidebarMobile />
+						<Outlet />
+					</Box>
 				</>
 			)}
 		</>

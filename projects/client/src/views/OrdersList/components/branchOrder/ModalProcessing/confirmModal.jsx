@@ -25,7 +25,7 @@ export const ProcessOrder = ({ reload, setReload, orderId }) => {
 					"content-Type": "Multiple/form-data",
 				}
 			);
-			toast.success("Order confirmed", {
+			toast.success("Order Sent", {
 				position: "top-center",
 				autoClose: 4000,
 				hideProgressBar: false,

@@ -1,7 +1,6 @@
 import Axios from "axios";
 import { useEffect, useState } from "react";
 import { Badge, Box, Button, Flex, FormControl, FormLabel, Image, Input, Select, Text } from "@chakra-ui/react";
-import { HiOutlineTruck } from "react-icons/hi";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { EmptyList } from "../emptyList";
 
@@ -23,12 +22,15 @@ export const CanceledOrders = ({ reload, setReload }) => {
 			currency: "IDR",
 			minimumFractionDigits: 0,
 		});
-		return formatter.format(number);
+
+		let formatted = formatter.format(number);
+		formatted = formatted.replace("Rp", "Rp.");
+		return formatted;
 	};
 	const ordersList = async (pageNum) => {
 		try {
 			const response = await Axios.get(
-				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?searchName=${searchName}&page=${pageNum}&limit=4&sort=${sort}&status=Cancelled`,
+				`${process.env.REACT_APP_API_BASE_URL}/order/branchadmin?searchName=${searchName}&page=${pageNum}&limit=5&sort=${sort}&status=Cancelled&startDate=${startDate}&endDate=${endDate}`,
 				{
 					headers,
 				}
@@ -141,9 +143,10 @@ export const CanceledOrders = ({ reload, setReload }) => {
 					overflowY={"scroll"}
 				>
 					{list && list.length > 0 ? (
-						list?.map((item) => {
+						list?.map((item, index) => {
 							return (
 								<Box
+									key={index}
 									w={"98%"}
 									mt={"10px"}
 									ml={"10px"}
@@ -213,29 +216,26 @@ export const CanceledOrders = ({ reload, setReload }) => {
 													</Box>
 												</Flex>
 											))}
-										</Box>
-										<Flex direction={"column"} justifyContent={"end"} mt={"25px"} mr={"20px"}>
-											<Flex textAlign={"end"} ml={"15px"}>
-												<HiOutlineTruck size={21} />
-												<Text ml={"5px"} color={"gray.500"} fontSize={"14px"}>
-													{item.shipment} - {item.shipmentMethod}
-												</Text>
+											<Flex justifyContent={"start"}>
+												<Box>
+													<Text textAlign={"start"} fontSize={"15px"} fontWeight={"semibold"}>
+														{item.Cart.User.firstName} {item.Cart.User.lastName}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"} fontFamily={"serif"}>
+														{item.Cart.User.email}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"bold"} fontFamily={"serif"}>
+														{item.Cart.User.phone}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address?.address}
+													</Text>
+													<Text textAlign={"start"} fontSize={"12px"} fontWeight={"light"}>
+														{item.Address?.city}, {item.Address?.province}
+													</Text>
+												</Box>
 											</Flex>
-											{item.status !== "Cancelled" ? (
-												<Text textAlign={"end"} ml={"5px"} color={"gray.500"} fontSize={"14px"}>
-													Esitame time: {item.etd}
-												</Text>
-											) : null}
-											<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
-												Total amount
-											</Text>
-											<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												{formatRupiah(item.subtotal)} - {item.discount}%
-											</Text>
-											<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
-												{formatRupiah(item.total)}
-											</Text>
-										</Flex>
+										</Box>
 									</Flex>
 									<Flex mt={"10px"} mr={"10px"} justifyContent={"end"} alignItems={"center"}></Flex>
 								</Box>

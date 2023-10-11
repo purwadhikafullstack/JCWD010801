@@ -42,18 +42,21 @@ export const DetailProcessModal = ({
 			currency: "IDR",
 			minimumFractionDigits: 0,
 		});
-		return formatter.format(number);
+
+		let formatted = formatter.format(number);
+		formatted = formatted.replace("Rp", "Rp.");
+		return formatted;
 	};
 	return (
 		<>
 			<Button
 				my={"auto"}
 				mr={"10px"}
-				backgroundColor={"black"}
+				backgroundColor={"blue.900"}
 				color={"white"}
 				_hover={{
 					textColor: "white",
-					bg: "blue.800",
+					bg: "blue.600",
 					_before: {
 						bg: "inherit",
 					},
@@ -63,7 +66,7 @@ export const DetailProcessModal = ({
 				}}
 				onClick={onOpen}
 			>
-				<AiOutlineFileSearch color="white" size={25} />
+				<AiOutlineFileSearch color="white" size={20} />‎ Detail order
 			</Button>
 
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>
@@ -86,12 +89,11 @@ export const DetailProcessModal = ({
 								{!hasImage && (
 									<Flex direction={"column"} w={"90px"} justifyContent={"center"}>
 										<Text textAlign={"center"} fontSize={"10px"} w={"90px"}>
-											{" "}
 											No payment proof
 										</Text>
 									</Flex>
 								)}
-								<Flex direction={"column"} justifyContent={"center"}>
+								<Flex direction={"column"} justify={"center"}>
 									<Text color={"balck"}>
 										{status === "Sent" || status === "Received" ? (
 											<Badge ml={"10px"} mt={"2px"} colorScheme="green">
@@ -144,7 +146,7 @@ export const DetailProcessModal = ({
 							<Flex mt={"5px"} justifyContent={"space-between"}>
 								<Text fontWeight={"semibold"}>Tax</Text>
 								<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
-									{tax} %
+									{formatRupiah(tax)}
 								</Text>
 							</Flex>
 							<Flex mt={"5px"} justifyContent={"space-between"}>
@@ -188,13 +190,13 @@ export const DetailProcessModal = ({
 									</Text>
 								</Flex>
 								<Flex mt={"5px"} justifyContent={"space-between"}>
-									<Text fontWeight={"semibold"}>Postal Code</Text>
+									<Text fontWeight={"semibold"}>Postal code</Text>
 									<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
 										{postal_code}
 									</Text>
 								</Flex>
 								<Flex mt={"5px"} justifyContent={"space-between"}>
-									<Text fontWeight={"semibold"}>Shipment</Text>
+									<Text fontWeight={"semibold"}>Shipment service</Text>
 									<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
 										{shipment}
 									</Text>
@@ -206,8 +208,8 @@ export const DetailProcessModal = ({
 									</Text>
 								</Flex>
 								<Flex mt={"5px"} justifyContent={"space-between"}>
-									<Text fontWeight={"semibold"}>Shipment Method</Text>
-									<Text fontSize={"15px"} color={"balck"}>
+									<Text fontWeight={"semibold"}>Shipment method</Text>
+									<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
 										{shipmentMethod}
 									</Text>
 								</Flex>

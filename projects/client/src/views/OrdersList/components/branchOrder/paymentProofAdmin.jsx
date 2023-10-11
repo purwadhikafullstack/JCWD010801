@@ -46,6 +46,32 @@ export const PaymentProofAdmin = ({ imgURL, orderId, reload, setReload }) => {
 			console.log(error);
 		}
 	};
+	const rejectPayment = async (id) => {
+		try {
+			await Axios.patch(
+				`${process.env.REACT_APP_API_BASE_URL}/order/reject-payment/${id}`,
+				{},
+				{
+					headers: { Authorization: `Bearer ${token}` },
+					"content-Type": "Multiple/form-data",
+				}
+			);
+			setReload(!reload);
+			toast.success("Order rejected", {
+				position: "top-center",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+			onClose();
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	return (
 		<>
@@ -116,7 +142,7 @@ export const PaymentProofAdmin = ({ imgURL, orderId, reload, setReload }) => {
 									bg: "inherit",
 								},
 							}}
-							onClick={onClose}
+							onClick={() => rejectPayment(orderId)}
 						>
 							Reject Order
 						</Button>
