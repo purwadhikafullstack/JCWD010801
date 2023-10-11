@@ -1,26 +1,27 @@
 import Axios from "axios";
 import AddAdmin from "./components/addAdmin";
 import LayoutSidebar from "../../pages/layoutSidebar";
-import { Avatar, Box, Button, Flex, Input, Select, Text } from "@chakra-ui/react";
+import { Avatar, Badge, Box, Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { EmptyList } from "../OrdersList/components/emptyList";
+import DetailAdmin from "./components/detailAdminModal";
 
 export const AdminListPage = () => {
 	const navigate = useNavigate();
-	const token = localStorage.getItem("token");
-	const user = useSelector((state) => state?.user?.value);
+	const [branch, setBranch] = useState();
 	const [data, setData] = useState();
-	const [reload, setReload] = useState(false);
+	const [countAdmins, setCountAdmins] = useState();
 	const [search, setSearch] = useState("");
+	const [branchId, setBranchId] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
-	const [countAdmins, setCountAdmins] = useState();
-	const [branch, setBranch] = useState();
-	const [branchId, setBranchId] = useState("");
+	const [reload, setReload] = useState(false);
+	const token = localStorage.getItem("token");
 	const [sort, setSort] = useState(["firstName", "ASC"]);
+	const user = useSelector((state) => state?.user?.value);
 
 	const getEmployee = async (pageNum) => {
 		try {
@@ -65,12 +66,14 @@ export const AdminListPage = () => {
 	}, [search, branchId, sort, reload]);
 
 	return (
-		<Flex>
-			<LayoutSidebar />
-			<Flex w={"full"} pt={"10px"}>
-				<Box w={"full"} margin={"auto"}>
-					<Flex mx={"80px"} justifyContent={"space-between"}>
-						<Box>
+		<Flex display={["block", "block", "flex", "flex"]}>
+			<Flex mt={["10px", "10px", "0px", "0px"]}>
+				<LayoutSidebar />
+			</Flex>
+			<Flex justifyContent={"center"} w={"full"} pt={"10px"}>
+				<Box w={"f	ull"} margin={"auto"}>
+					<Flex mx={"10%"} justifyContent={"space-between"}>
+						<Box mr={"15px"}>
 							<Text fontSize={"30px"} fontWeight={"bold"}>
 								Admins ({countAdmins})
 							</Text>
@@ -78,12 +81,12 @@ export const AdminListPage = () => {
 						</Box>
 						<AddAdmin reload={reload} setReload={setReload} />
 					</Flex>
-					<Flex mt={"20px"} justifyContent={"center"}>
+					<Flex flexWrap={"wrap"} mt={"20px"} justifyContent={"center"}>
 						<Input
 							borderRadius={"20px"}
 							border="1px solid #373433"
 							focusBorderColor="#373433"
-							w={"250px"}
+							w={"280px"}
 							placeholder="Search"
 							type="search"
 							value={search}
@@ -91,7 +94,8 @@ export const AdminListPage = () => {
 						/>
 						<Select
 							w={"165px"}
-							ml={"10px"}
+							ml={["0px", "10px"]}
+							mt={["10px", "0px"]}
 							border="1px solid #373433"
 							borderRadius={"20px"}
 							focusBorderColor="#373433"
@@ -109,8 +113,9 @@ export const AdminListPage = () => {
 							})}
 						</Select>
 						<Select
-							w={"90px"}
+							w={"110px"}
 							ml={"10px"}
+							mt={["10px", "0px"]}
 							border="1px solid #373433"
 							borderRadius={"20px"}
 							focusBorderColor="#373433"
@@ -121,16 +126,28 @@ export const AdminListPage = () => {
 							<option value="firstName,DESC">Z-A</option>
 						</Select>
 					</Flex>
-					<Flex my={"20px"} mx={"10px"} maxW={"1400px"} flexWrap={"wrap"} justifyContent={"center"}>
+					<Flex mb={"10px"} mt={"10px"} maxW={"1400px"} flexWrap={"wrap"} justifyContent={"center"}>
 						{data && data.length > 0 ? (
-							data?.map((item) => {
+							data?.map((item, index) => {
 								return (
 									<>
-										<Box w={"240px"} ml={"25px"} my={"10px"} bg={"#f7f7f9"} borderRadius={"8px"}>
-											<Flex pt={"10px"} pl={"20px"}>
-												<Avatar  src={`${process.env.REACT_APP_BASE_URL}/avatars/${item?.avatar ? item?.avatar : "default_not_set.png"}`} />
+										<Box
+											key={index}
+											w={["170px", "200px", "240px"]}
+											m={"10px"}
+											bg={"#f7f7f9"}
+											boxShadow="0px 0px 2px gray"
+											borderRadius={"8px"}
+										>
+											<Flex pt={"8px"} pl={"20px"}>
+												<Avatar
+													mt={["7px", "7px", "4px"]}
+													src={`${process.env.REACT_APP_BASE_URL}/avatars/${
+														item?.avatar ? item?.avatar : "default_not_set.png"
+													}`}
+												/>
 												<Box mt={"5px"}>
-													<Text ml={"10px"} fontWeight={"bold"}>
+													<Text mr={"4px"} ml={"7px"} fontSize={["14px", "16px"]} fontWeight={"bold"}>
 														{item.firstName} {item?.lastName}
 													</Text>
 													<Text ml={"10px"} fontWeight={"light"} fontSize={"12px"}>
@@ -139,45 +156,41 @@ export const AdminListPage = () => {
 												</Box>
 											</Flex>
 											<Flex mt={"15px"} justifyContent={"center"}>
-												<Text
-													w={"80px"}
-													h={"25px"}
-													bg={"green.100"}
-													color={"green"}
-													borderRadius={"5px"}
-													lineHeight={"25px"}
-													textAlign={"center"}
-												>
-													Admin
-												</Text>
-												<Text
-													ml={"10px"}
-													w={"90px"}
-													h={"25px"}
-													bg={"green.100"}
-													color={"green"}
-													borderRadius={"5px"}
-													lineHeight={"25px"}
-													textAlign={"center"}
-												>
+												<Badge colorScheme="green">Admin</Badge>
+												<Badge ml={"10px"} colorScheme="yellow">
 													{item?.Branch?.name}
-												</Text>
+												</Badge>
 											</Flex>
-											<Flex mt={"15px"} ml={"8px"}>
-												<Text ml={"10px"} fontSize={"12px"} fontWeight={"bold"}>
+
+											<Box mt={"15px"} ml={["0px", "8px"]}>
+												<Text ml={"10px"} fontSize={"10px"} fontWeight={"bold"}>
 													Email:
 												</Text>
-												<Text fontWeight={"light"} fontSize={"12px"}>
+												<Text ml={"7px"} fontWeight={"light"} fontSize={"12px"}>
 													‎ {item?.email}
 												</Text>
-											</Flex>
-											<Flex mb={"5px"} ml={"8px"}>
-												<Text ml={"10px"} fontSize={"12px"} fontWeight={"bold"}>
-													Phone:
-												</Text>
-												<Text fontWeight={"light"} fontSize={"12px"}>
-													‎ {item?.phone}
-												</Text>
+											</Box>
+											<Flex justifyContent={"space-between"}>
+												<Box mb={"5px"} ml={["0px", "8px"]}>
+													<Text ml={"10px"} fontSize={"10px"} fontWeight={"bold"}>
+														Phone:
+													</Text>
+													<Text ml={"7px"} fontWeight={"light"} fontSize={"12px"}>
+														‎ {item?.phone}
+													</Text>
+												</Box>
+												<DetailAdmin
+													avatar={item.avatar}
+													firstName={item.firstName}
+													lastName={item.lastName}
+													username={item.username}
+													email={item.email}
+													phone={item.phone}
+													gender={item.gender}
+													joinDate={item.createdAt}
+													birthDate={item.birthDate}
+													branch={item?.Branch?.name}
+												/>
 											</Flex>
 										</Box>
 									</>
