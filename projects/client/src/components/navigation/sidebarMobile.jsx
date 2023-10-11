@@ -30,6 +30,7 @@ import { BsPersonGear } from "react-icons/bs";
 import { VscGraphLine } from "react-icons/vsc";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { AiOutlineShopping } from "react-icons/ai";
+import { MdOutlineDiscount } from "react-icons/md";
 import { RiDashboardLine, RiFileList3Line } from "react-icons/ri";
 
 export const SidebarMobile = () => {
@@ -116,6 +117,19 @@ export const SidebarMobile = () => {
 										<Icon as={AiOutlineShopping} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
 											Orders
+										</Text>
+									</Flex>
+								</ListItem>
+								<ListItem
+									cursor={"pointer"}
+									onClick={() => navigate("/dashboard/orders-list")}
+									p={2}
+									borderRadius={"10px"}
+								>
+									<Flex gap={7}>
+										<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
+										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+											Discount
 										</Text>
 									</Flex>
 								</ListItem>
