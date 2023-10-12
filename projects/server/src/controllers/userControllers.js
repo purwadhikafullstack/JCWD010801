@@ -1,6 +1,7 @@
 const db = require("../models");
 const users = db.Users;
 const user_vouchers = db.User_vouchers;
+const vouchers = db.Vouchers;
 const orders = db.Orders;
 const order_details = db.Order_details;
 const products = db.Products;
@@ -92,29 +93,47 @@ module.exports = {
 			if (referralCode) {
 				const checkReferrer = await users.findOne({ where: { referralCode } });
 				if (!checkReferrer) throw { message: "Referral code is not valid" };
+
+				const referralVoucher = await vouchers.findOne({
+					where: {
+						name: { [Op.like]: `%Referral%` },
+						availableFrom: { [Op.lte]: new Date(Date.now()) },
+						validUntil: { [Op.gte]: new Date(Date.now()) }
+					}
+				});
+				if (!referralVoucher) throw { message: "Referral voucher not found" }
 				
 				const checkVoucher = await user_vouchers.findOne({
 					where: {
-						VoucherId: 16,
+						VoucherId: referralVoucher.id,
 						UserId: checkReferrer.id
 					}
 				});
 				if (checkVoucher) await user_vouchers.update({
 					amount: checkVoucher.amount + 1
-				}, { where: { VoucherId: 16, UserId: checkReferrer.id }, transaction })
+				}, { where: { VoucherId: referralVoucher.id, UserId: checkReferrer.id }, transaction })
 				else await user_vouchers.create({
-					VoucherId: 16,
+					VoucherId: referralVoucher.id,
 					UserId: checkReferrer.id,
 					amount: 1
 				}, { transaction });
 
-				await user_vouchers.create({ VoucherId: 16, UserId: result.id, amount: 1 }, { transaction });
-				// await notifications.create({
-				// 	type: "Discount",
-				// 	name: "",
-				// 	description: ``
-				// 	UserId: order.Cart.UserId
-				// }, { transaction })
+				await user_vouchers.create({ VoucherId: referralVoucher.id, UserId: result.id, amount: 1 }, { transaction });
+				await notifications.create({
+					type: "Discount",
+					name: "Referral Gift",
+					description: `${username} has used your referral code to register.
+					You've received a free shopping voucher. Keep sharing to get more coupons!`,
+					UserId: checkReferrer.id
+				}, { transaction });
+
+				await notifications.create({
+					type: "Discount",
+					name: "Referral Gift",
+					description: `You have used ${checkReferrer.username}'s referral code.
+					You've received a free shopping voucher. Share your referral code to get more coupons!`,
+					UserId: result.id
+				}, { transaction })
 			}
 
 			const payload = { id: result.id };
@@ -204,7 +223,7 @@ module.exports = {
 				message: "Reset password link sent. Please check your e-mail.",
 				token,
 			});
-		} catch (err) {
+		} catch (error) {
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -222,7 +241,7 @@ module.exports = {
 				status: true,
 				message: "Reset password successful.",
 			});
-		} catch (err) {
+		} catch (error) {
 			return res.status(500).send({
 				error,
 				status: 500,

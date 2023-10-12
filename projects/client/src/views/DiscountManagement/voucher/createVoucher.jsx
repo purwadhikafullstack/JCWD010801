@@ -3,11 +3,12 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Flex, FormControl, FormLabel, Icon, Image, Input, InputGroup, InputLeftAddon, InputRightAddon, Radio, RadioGroup, Select, Stack, Switch, Table, Tbody, Td, Text, Textarea, Th, Thead, Tr } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ButtonTemp } from "../../../components/button";
 import { DiscountSelectProduct } from "../components/DiscountSelectProduct";
 import { BsTrash } from "react-icons/bs";
 import { AiFillEye } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 export const CreateVoucher = () => {
     const token = localStorage.getItem("token");
@@ -15,17 +16,20 @@ export const CreateVoucher = () => {
     const [ isPercentage, setIsPercentage ] = useState(false);
     const [ notifyUsers, setNotifyUsers ] = useState(false);
     const [ selectedProduct, setSelectedProduct ] = useState([]);
+    const [ branches, setBranches ] = useState([]);
     const useProductRef = useRef();
     const isPercentageRef = useRef();
     const descriptionRef = useRef();
+    const branchIdRef = useRef();
+    const { RoleId, BranchId } = useSelector((state) => state.user.value);
 
     const fixedAmountSchema = Yup.object().shape({
         name: Yup.string().required("This field is required"),
         code: Yup.string().required("This field is required"),
         nominal: Yup.number().min(1).required("This field is required"),
         minimumPayment: Yup.number().min(0).required("This field is required"),
-        maximumDiscount: Yup.number().min(0).required("This field is required"),
-        amountPerRedeem: Yup.number().min(0).required("This field is required"),
+        maximumDiscount: Yup.number().min(1).required("This field is required"),
+        amountPerRedeem: Yup.number().min(1).required("This field is required"),
         availableFrom: Yup.string().required("This field is required"),
         validUntil: Yup.string().required("This field is required")
     });
@@ -35,8 +39,8 @@ export const CreateVoucher = () => {
         code: Yup.string().required("This field is required"),
         nominal: Yup.number().min(1).max(100).required("This field is required"),
         minimumPayment: Yup.number().min(0).required("This field is required"),
-        maximumDiscount: Yup.number().min(0).required("This field is required"),
-        amountPerRedeem: Yup.number().min(0).required("This field is required"),
+        maximumDiscount: Yup.number().min(1).required("This field is required"),
+        amountPerRedeem: Yup.number().min(1).required("This field is required"),
         availableFrom: Yup.string().required("This field is required"),
         validUntil: Yup.string().required("This field is required")
     });
@@ -51,6 +55,15 @@ export const CreateVoucher = () => {
         else setIsPercentage(false)
     }
 
+    const fetchBranches = async() => {
+        try {
+            const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+            setBranches(data)
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const handleSubmit = async(value) => {
         value.type = useProductRef.current.value;
         if (isPercentageRef.current.value === "true") value.isPercentage = true;
@@ -59,6 +72,9 @@ export const CreateVoucher = () => {
             value.description = descriptionRef.current.value
         }
         if (useProductRef.current.value) value.ProductId = selectedProduct.id;
+        if (RoleId === 3) value.BranchId = branchIdRef.current.value;
+        else value.BranchId = BranchId
+
         console.log(value)
         try {
             await axios.post(`${process.env.REACT_APP_API_BASE_URL}/voucher`, value, {
@@ -102,6 +118,10 @@ export const CreateVoucher = () => {
         });
     }
 
+    useEffect(() => {
+        fetchBranches()
+    }, []);
+
     return (
         <Formik
         initialValues={{ name: "", code: "", type: "", isPercentage: false, nominal: 0, minimumPayment: 0, maximumDiscount: 0, amountPerRedeem: 3, availableFrom: null, validUntil: null, ProductId: null }}
@@ -120,6 +140,9 @@ export const CreateVoucher = () => {
                                     <Stack gap={6}>
                                         <FormLabel htmlFor="name">Voucher Name</FormLabel>
                                         <FormLabel htmlFor="code">Promo Code</FormLabel>
+                                        {RoleId === 3 && (
+                                        <FormLabel htmlFor="branch">Branch</FormLabel>
+                                        )}
                                         <FormLabel htmlFor="type">Voucher Type</FormLabel>
                                         <FormLabel htmlFor="isPercentage">Deduction Type</FormLabel>
                                         <FormLabel htmlFor="nominal">Nominal</FormLabel>
@@ -151,7 +174,7 @@ export const CreateVoucher = () => {
                                                 as={Field}
                                                 type="text"
                                                 name="code"
-                                                placeholder="Enter voucher promo code"
+                                                placeholder={RoleId === 3 ? "Enter NOPROMOCODE to disable promo code" :"Enter voucher promo code"}
                                                 focusBorderColor="gray.300"
                                             />
                                             <ErrorMessage
@@ -159,6 +182,18 @@ export const CreateVoucher = () => {
                                                 name="code"
                                                 style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
                                             />
+                                        </Stack>
+                                        <Stack>
+                                        {RoleId === 3 && (
+                                            <Select w={"150px"} borderColor={"gray.300"} focusBorderColor="gray.500" name="branch" defaultValue={""} ref={branchIdRef}>
+                                                <option value={""}>All Branches</option>
+                                                {branches.map(( { name, id } ) => {
+                                                    return (
+                                                        <option value={id}>{name}</option>
+                                                    )
+                                                })}
+                                            </Select>
+                                        )}
                                         </Stack>
                                         <Stack>
                                             <Select name="type" ref={useProductRef} onChange={handleUseProduct} defaultValue={"Total purchase"}>
