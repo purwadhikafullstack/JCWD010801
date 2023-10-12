@@ -3,7 +3,6 @@ const db = require("../models");
 const vouchers = db.Vouchers;
 const users = db.Users;
 const user_vouchers = db.User_vouchers;
-const orders = db.Orders;
 const products = db.Products;
 const branches = db.Branches;
 const notifications = db.Notifications;
@@ -25,13 +24,14 @@ module.exports = {
                 ProductId,
                 amountPerRedeem,
                 notifyUsers,
-                description
+                description,
+                BranchId
             } = req.body;
 
             if (type === "Single item" && !ProductId) throw { status: false, message: "Please enter the product id to create single item vouchers" };
             if (!isPercentage) maximumDiscount = nominal;
             if (type === "Total purchase" || type === "Shipment") ProductId = null;
-            const adminInfo = await users.findOne({ where: { id: req.user.id } });
+            if (req.user.RoleId === 3 && code === "NOPROMOCODE") code = null
 
             await vouchers.create({
                 name, 
@@ -45,7 +45,7 @@ module.exports = {
                 validUntil: new Date(`${validUntil}`),
                 amountPerRedeem,
                 ProductId,
-                BranchId: adminInfo.BranchId
+                BranchId: req.user.RoleId === 3 && BranchId === "" ? null : parseInt(BranchId)
             }, { transaction });
 
             if (notifyUsers) {
@@ -103,7 +103,7 @@ module.exports = {
                             new Date(`${endValidUntil}`)
                         ]
                     },
-                    BranchId: checkRole.RoleId === 3 ? { [Op.like]: `${branchId}%` } : checkRole.BranchId
+                    BranchId: checkRole.RoleId === 3 ? { [Op.or]: { [Op.like]: `%${branchId}%`, [Op.eq]: null } } : checkRole.BranchId
                 },
                 limit,
                 offset: limit * ( page - 1 ),
@@ -185,6 +185,7 @@ module.exports = {
     },
     redeemVoucherCode: async(req, res) => {
         try {
+            if (!req.body.code) throw { status: false, message: "Enter promo code to redeem vouchers" }
             const codeCheck = await vouchers.findOne({
                 where: { 
                     code: req.body.code,
@@ -222,56 +223,4 @@ module.exports = {
             res.status(400).send(err);
         }
     },
-    freeShipment: async(req, res) => {
-        try {
-            const countOrder = await orders.count({
-                where: {
-                    UserId: req.user.id,
-                    status: "Processing"
-                }
-            });
-            const freeShipmentVoucher = await vouchers.findOne({
-                where: {
-                    name: { [Op.like]: `Free Shipment%` },
-                    availableFrom: { [Op.lte]: new Date(Date.now()) },
-                    validUntil: { [Op.gte]: new Date(Date.now()) }
-                }
-            })
-            const freeShipmentVoucherCheck = await user_vouchers.findOne({
-                where: {
-                    UserId: req.user.id,
-                    VoucherId: freeShipmentVoucher.id
-                }
-            });
-            if ( countOrder % 3 === 0 && !freeShipmentVoucherCheck ) {
-                await user_vouchers.create({
-                    UserId: req.user.id,
-                    VoucherId: 1,
-                    amount: 1
-                });
-                res.status(201).send({
-                    status: true, 
-                    message: "Added 1 free shipment voucher"
-                });
-            }
-            else if ( countOrder % 3 === 0 && freeShipmentVoucherCheck ) {
-                await user_vouchers.update({
-                    amount: freeShipmentVoucherCheck.amount + 1
-                }, {
-                    where: {
-                        UserId: req.user.id,
-                        VoucherId: 1
-                    }
-                });
-                res.status(200).send({
-                    status: true, 
-                    message: "Added 1 free shipment voucher"
-                });
-            }
-            else res.status(200).send({ status: true });
-
-        } catch (err) {
-            res.status(400).send(err);
-        }
-    }
 }
