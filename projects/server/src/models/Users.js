@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
 			Users.hasMany(models.Carts);
 			Users.hasMany(models.Changelogs);
 			Users.hasMany(models.Notifications);
+			Users.hasMany(models.Reviews);
 			Users.belongsToMany(models.Vouchers, {
 				through: "User_vouchers",
 				foreignKey: "UserId",
