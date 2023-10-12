@@ -188,7 +188,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								alignitems={token && address !== undefined && Object.keys(address).length > 0 ? "space-evenly" : "center"}
 								justify={"right"}
 								display={{ base: "none", lg: "flex" }}
-								ml={"385px"}
+								ml={"325px"}
 							>
 								{token && address !== undefined && Object.keys(address).length > 0 ? (
 									<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
