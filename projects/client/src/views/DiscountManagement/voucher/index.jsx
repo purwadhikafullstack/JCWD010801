@@ -66,26 +66,20 @@ export const VoucherManagementPageView = () => {
                     </Text>
                 </Flex>
             </Stack>
-            {RoleId === 3 ? (
-                <Flex p={5}>
-                    <VoucherTable/>
-                </Flex>
-            ) : (
-                <Tabs colorScheme="black" w={"100%"} p={3}>
-                    <TabList>
-                        <Tab>All Vouchers</Tab>
-                        <Tab>Create</Tab>
-                    </TabList>
-                    <TabPanels>
-                        <TabPanel>
-                            <VoucherTable/>
-                        </TabPanel>
-                        <TabPanel>
-                            <CreateVoucher/>
-                        </TabPanel>
-                    </TabPanels>
-                </Tabs>
-            )}
+            <Tabs colorScheme="black" w={"100%"} p={3}>
+                <TabList>
+                    <Tab>All Vouchers</Tab>
+                    <Tab>Create</Tab>
+                </TabList>
+                <TabPanels>
+                    <TabPanel>
+                        <VoucherTable/>
+                    </TabPanel>
+                    <TabPanel>
+                        <CreateVoucher/>
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
         </Stack>
     )
 }

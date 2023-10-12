@@ -67,6 +67,7 @@ export const VoucherTable = () => {
             const endAvailableFrom = endAvailableFromRef.current.value
             const startValidUntil = startValidUntilRef.current.value
             const endValidUntil = endValidUntilRef.current.value
+            console.log(page)
             const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/voucher?limit=8&page=${page}search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${order ? "ASC" : "DESC"}`, {
                 headers: {
                     authorization: `Bearer ${token}`
@@ -246,8 +247,8 @@ export const VoucherTable = () => {
                                     </Text>
                                 </Td>
                                 <Td>
-                                    <Text>
-                                        {code}
+                                    <Text textAlign={!code && "center"} fontWeight={!code && "bold"}>
+                                        {code ? code : "---"}
                                     </Text>
                                 </Td>
                                 <Td>
@@ -280,7 +281,7 @@ export const VoucherTable = () => {
                                 </Td>
                                 {RoleId === 3 && (
                                     <Td>
-                                        <Text>{Branch?.name}</Text>
+                                        <Text>{BranchId ? Branch?.name : "All"}</Text>
                                     </Td>
                                 )}
                                 <Td>
