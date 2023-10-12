@@ -155,7 +155,6 @@ module.exports = {
 				token,
 			});
 		} catch (error) {
-			console.log(error)
 			await transaction.rollback();
 			return res.status(500).send({
 				error,
@@ -224,7 +223,7 @@ module.exports = {
 				message: "Reset password link sent. Please check your e-mail.",
 				token,
 			});
-		} catch (err) {
+		} catch (error) {
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -242,7 +241,7 @@ module.exports = {
 				status: true,
 				message: "Reset password successful.",
 			});
-		} catch (err) {
+		} catch (error) {
 			return res.status(500).send({
 				error,
 				status: 500,
