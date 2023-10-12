@@ -48,7 +48,6 @@ module.exports = {
                 message: "Voucher created"
             });
         } catch (err) {
-            console.log(err)
             res.status(400).send(err);
         }
     },

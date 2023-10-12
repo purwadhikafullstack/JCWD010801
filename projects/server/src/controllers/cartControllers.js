@@ -134,7 +134,6 @@ module.exports = {
 				checkProduct
 			});
 		} catch (err) {
-			console.log(err)
 			await transaction.rollback();
 			res.status(400).send(err);
 		}
@@ -325,7 +324,6 @@ module.exports = {
 				message: "Item quantity updated",
 			});
 		} catch (err) {
-			console.log(err)
 			res.status(400).send(err);
 		}
 	},

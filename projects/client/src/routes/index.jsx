@@ -1,5 +1,6 @@
 import Spinner from "../components/spinner";
 import Layout from "../pages/layout";
+import ReportPrelim from "../pages/reportPrelim"
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { Error404page } from "../pages/error404";
@@ -10,6 +11,7 @@ const RegisterPage = lazy(() => import("../pages/register"));
 const VerificationPage = lazy(() => import("../pages/verification"));
 const ProductDetail = lazy(() => import("../pages/productDetail"));
 const Search = lazy(() => import("../pages/search"));
+const Wishlist = lazy(() => import("../pages/wishlist"));
 const AdminsList = lazy(() => import("../pages/adminsList"));
 const ForgotPasswordPage = lazy(() => import("../pages/forgotPassword"));
 const ResetPasswordPage = lazy(() => import("../pages/resetPassword"));
@@ -19,7 +21,6 @@ const CartPage = lazy(() => import("../pages/cart"));
 const CheckoutPage = lazy(() => import("../pages/checkOut"));
 const OrdersList = lazy(() => import("../pages/orderList"));
 const ReportPage = lazy(() => import("../pages/report"));
-const ReportPrelim = lazy(() => import("../pages/reportPrelim"));
 const ReportOverview = lazy(() => import("../pages/reportOverview"));
 const CategoriesCharts = lazy(() => import("../pages/categoriesCharts"));
 const StockReport = lazy(() => import("../pages/stockReport"));
@@ -54,6 +55,14 @@ export const AppRouter = createBrowserRouter([
 				element: (
 					<Suspense fallback={<Spinner />}>
 						<Search />
+					</Suspense>
+				),
+			},
+			{
+				path: "/wishlist",
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<Wishlist />
 					</Suspense>
 				),
 			},
@@ -149,11 +158,7 @@ export const AppRouter = createBrowserRouter([
 	},
 	{
 		path: "/dashboard/report/welcome",
-		element: (
-			<Suspense fallback={<Spinner />}>
-				<ReportPrelim />
-			</Suspense>
-		),
+		element: <ReportPrelim />,
 	},
 	{
 		path: "/dashboard/report/overview",

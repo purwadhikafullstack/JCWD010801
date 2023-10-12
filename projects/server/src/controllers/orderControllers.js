@@ -963,10 +963,51 @@ module.exports = {
 
 						for (const { ProductId, quantity } of result) {
 							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
-							await stocks.update(
-								{ currentStock: currentStock + quantity },
+							const product = await products.findOne({
+								where: {
+									id: ProductId,
+								},
+							});
+
+							await product.increment(
 								{
-									where: { ProductId, BranchId: ord.Cart.BranchId },
+									aggregateStock: parseInt(quantity, 10),
+								},
+								{
+									where: {
+										id: ProductId,
+									},
+									transaction,
+								}
+							);
+
+							const newBranchStock = parseInt(currentStock, 10) + parseInt(quantity, 10);
+
+							await stockMovements.create(
+								{
+									ProductId: ProductId,
+									BranchId: ord.Cart.BranchId,
+									oldValue: currentStock,
+									newValue: parseInt(newBranchStock, 10),
+									change: parseInt(quantity, 10),
+									isAddition: true,
+									isAdjustment: false,
+									isInitialization: false,
+									isBranchInitialization: false,
+									UserId: ord.Cart.UserId,
+								},
+								{ transaction }
+							);
+
+							await stocks.increment(
+								{
+									currentStock: parseInt(quantity, 10),
+								},
+								{
+									where: {
+										ProductId,
+										BranchId: ord.Cart.BranchId,
+									},
 									transaction,
 								}
 							);
@@ -1164,7 +1205,7 @@ module.exports = {
 				status: true,
 				result,
 			});
-		} catch (error) {
+		} catch (err) {
 			return res.status(500).send({
 				err,
 				status: 500,
