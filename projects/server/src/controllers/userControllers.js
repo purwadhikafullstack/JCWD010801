@@ -353,22 +353,28 @@ module.exports = {
 	},
 	resendVerificationEmail: async (req, res) => {
 		try {
+			const result = await users.findOne({
+				where: { id: req.user.id }
+			});
+			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
 			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
 			const tempCompile = await handlebars.compile(data);
-			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: req.user.id, token });
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: result.username, token });
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
-				to: email,
+				to: result.email,
 				subject: "Verify Your AlphaMart Account",
 				html: tempResult,
 			});
+			
 			res.status(200).send({
 				status: true,
 				message: "Verification email sent. Link will expire in 5 minutes.",
 				token,
 			});
 		} catch (err) {
+			console.log(err)
 			res.status(400).send(err);
 		}
 	},

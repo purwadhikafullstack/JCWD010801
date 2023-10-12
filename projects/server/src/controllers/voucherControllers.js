@@ -6,9 +6,11 @@ const user_vouchers = db.User_vouchers;
 const orders = db.Orders;
 const products = db.Products;
 const branches = db.Branches;
+const notifications = db.Notifications;
 
 module.exports = {
     createVoucher: async(req, res) => {
+        const transaction = await db.sequelize.transaction();
         try {
             let { 
                 name, 
@@ -21,7 +23,9 @@ module.exports = {
                 availableFrom, 
                 validUntil, 
                 ProductId,
-                amountPerRedeem
+                amountPerRedeem,
+                notifyUsers,
+                description
             } = req.body;
 
             if (type === "Single item" && !ProductId) throw { status: false, message: "Please enter the product id to create single item vouchers" };
@@ -42,14 +46,29 @@ module.exports = {
                 amountPerRedeem,
                 ProductId,
                 BranchId: adminInfo.BranchId
-            });
+            }, { transaction });
 
+            if (notifyUsers) {
+                const allUsers = await users.findAll({ where: { RoleId: 1 } })
+                for (const { id } of allUsers ) {
+                    await notifications.create({
+                        type: "Discount",
+                        name,
+                        description,
+                        UserId: id,
+                        promoCode: code
+                    }, { transaction })
+                }
+            };
+
+            await transaction.commit();
             res.status(201).send({
                 status: true,
                 message: "Voucher created"
             });
         } catch (err) {
             console.log(err)
+            await transaction.rollback();
             res.status(400).send(err);
         }
     },

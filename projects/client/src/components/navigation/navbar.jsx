@@ -33,6 +33,8 @@ import { NavbarMobile } from "./navbarMobile";
 import { SearchMobile } from "./searchMobile";
 import { toast } from "react-toastify";
 import { setValueAddress } from "../../redux/addressSlice";
+import { ReferralModal } from "./referralModal";
+import { ResendVerification } from "./resendVerification";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -45,6 +47,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const firstName = reduxStore?.value?.firstName;
 	const lastName = reduxStore?.value?.lastName;
 	const RoleId = reduxStore?.value?.RoleId;
+	const isVerified = reduxStore?.value?.isVerified;
 	const { refresh } = useSelector((state) => state.cart.value);
 	const [search, setSearch] = useState("");
 	const [products, setProducts] = useState([]);
@@ -138,236 +141,243 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	return (
 		<>
 			{isNotDisabled && (
-				<Flex
-					alignItems={"center"}
-					justifyContent={"space-between"}
-					position={"sticky"}
-					top={0}
-					zIndex={20}
-					w={"100%"}
-					bgColor={"white"}
+				<Stack
+				position={"sticky"}
+				top={0}
+				zIndex={20}
+				w={"100%"}
+				bgColor={"white"}
 				>
 					<Flex
-						mx={{ base: "10px", md: "30px", lg: "50px" }}
-						my={{ base: "20px", lg: 0 }}
-						w="100%"
-						h="100%"
+						alignItems={"center"}
 						justifyContent={"space-between"}
+						w={"100%"}
 					>
-						<NavbarMobile />
-						<Image
-							display={{ base: "none", lg: "block" }}
-							cursor={"pointer"}
-							onClick={() => navigate("/")}
-							src={AlphaMartLogo}
-							w={"150px"}
-						/>
 						<Flex
-							gap={"2rem"}
-							alignItems={"center"}
-							display={{ base: "none", lg: "flex" }}
+							mx={{ base: "10px", md: "30px", lg: "50px" }}
+							my={{ base: "20px", lg: 0 }}
+							w="100%"
+							h="100%"
 							justifyContent={"space-between"}
 						>
-							{token && address !== undefined && Object.keys(address).length > 0 ? (
-								<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-									<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-									<Stack gap={0}>
-										<Box onClick={() => navigate("/profile#addresses")}>
-											<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
-											<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
-												{address.label}
-											</Text>
-										</Box>
-									</Stack>
-								</Flex>
-							) : null}
-							<Text
-								onClick={() => navigate("/search")}
-								fontSize={{ base: "sm", lg: "md" }}
+							<NavbarMobile />
+							<Image
+								display={{ base: "none", lg: "block" }}
 								cursor={"pointer"}
-								fontWeight={"medium"}
+								onClick={() => navigate("/")}
+								src={AlphaMartLogo}
+								w={"150px"}
+							/>
+							<Flex
+								gap={"2rem"}
+								alignItems={"center"}
+								display={{ base: "none", lg: "flex" }}
+								justifyContent={"space-between"}
 							>
-								Shop
-							</Text>
-							<Text
-								onClick={() => navigate("/voucher")}
-								fontSize={{ base: "sm", lg: "md" }}
-								cursor={"pointer"}
-								fontWeight={"medium"}
-							>
-								Voucher
-							</Text>
-						</Flex>
-						<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
-							<SearchMobile />
-							{/* //! SEARCH RESULTS */}
-							<div style={{ position: "relative" }}>
-								<InputGroup display={{ base: "none", sm: "block" }}>
-									<Input
-										type="search"
-										value={search}
-										bgColor={"whiteAlpha.300"}
-										focusBorderColor="gray.300"
-										placeholder="Search Products"
-										onChange={(e) => {
-											setSearch(e.target.value);
-											setReload(true);
-										}}
-										onFocus={handleSearchFocus}
-										onBlur={handleSearchBlur}
-									/>
-									<InputLeftElement>
-										<Icon as={LuSearch} />
-									</InputLeftElement>
-								</InputGroup>
-								{isSearchFocused && products.length > 0 && (
-									<Stack
-										position="absolute"
-										top="100%"
-										left={0}
-										zIndex={369}
-										mt="2"
-										p="2"
-										bgColor="#E1E0E0"
-										boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
-										width="100%"
-									>
-										{products.map((data) => (
-											<Flex
-												key={data.id}
-												alignItems="center"
-												cursor="pointer"
-												boxShadow="0px 0px 5px gray"
-												borderRadius="1px"
-												mb={2}
-												h="65px"
-												bgColor="#C3C1C1"
-												fontWeight="semibold"
-												overflow="hidden"
-												onMouseDown={(e) => {
-													e.preventDefault();
-													productDetail(data?.id);
-												}}
-											>
-												<Image
-													src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
-													alt={data.productName}
-													boxSize="65px"
-													objectFit="cover"
-													mr="2"
-												/>
-												<Text>{data.productName}</Text>
-												<Spacer />
-												<Text fontSize={"12px"} whiteSpace="nowrap">
-													Rp. {Math.floor(data?.price / 1000).toLocaleString("id-ID")}K
+								{token && address !== undefined && Object.keys(address).length > 0 ? (
+									<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
+										<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
+										<Stack gap={0}>
+											<Box onClick={() => navigate("/profile#addresses")}>
+												<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
+												<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
+													{address.label}
 												</Text>
-											</Flex>
-										))}
-										{products.length >= 3 && (
-											<Flex
-												alignItems="center"
-												cursor="pointer"
-												boxShadow="0px 0px 5px gray"
-												borderRadius="1px"
-												mb={2}
-												h="65px"
-												bgColor="#C3C1C1"
-												fontWeight="semibold"
-												overflow="hidden"
-												onMouseDown={(e) => {
-													e.preventDefault();
-													searchQuery(search);
-												}}
-											>
-												<Text textAlign={"center"}>
-													View All {totalProducts} Results for "{search.charAt(0).toUpperCase() + search.slice(1)}"
-												</Text>
-											</Flex>
-										)}
-									</Stack>
-								)}
-							</div>
-							<Button
-								isDisabled={+RoleId === 1 ? false : true}
-								bgColor={"white"}
-								rounded={"full"}
-								cursor={"pointer"}
-								onClick={() => navigate("/cart")}
-							>
-								<Icon as={BsCart} w="5" h="5" color={"black"} pos="relative" />
-								{totalCartItems > 0 && (
-									<Flex
-										w={5}
-										h={5}
-										bg={"blackAlpha.700"}
-										border={"2px solid white"}
-										rounded={"full"}
-										justifyContent={"center"}
-										alignItems={"center"}
-										pos={"absolute"}
-										top={1}
-										right={1}
-									>
-										<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
-											{totalCartItems}
-										</Text>
-									</Flex>
-								)}
-							</Button>
-							<Menu alignSelf={"center"}>
-								<Button as={MenuButton} p={0} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>
-									<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
-								</Button>
-								{token ? (
-									<MenuList>
-										<Stack alignItems={"center"} justifyContent={"center"} p="3" gap={0}>
-											<Avatar
-												mb={2}
-												src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? avatar : "default_not_set.png"}`}
-												size={"lg"}
-											/>
-											<Text fontSize={"sm"} fontWeight={"normal"}>
-												{firstName} {lastName}
-											</Text>
-											<Text fontSize={"lg"} fontWeight={"medium"}>
-												{username}
-											</Text>
-											<Text fontSize={"xs"} fontWeight={"light"}>
-												{email}
-											</Text>
+											</Box>
 										</Stack>
-										<MenuDivider />
-										{RoleId > 1 ? (
-											<MenuItem onClick={() => navigate("/dashboard")} gap="3">
-												<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
-												<Text>Dashboard</Text>
+									</Flex>
+								) : null}
+								<Text
+									onClick={() => navigate("/search")}
+									fontSize={{ base: "sm", lg: "md" }}
+									cursor={"pointer"}
+									fontWeight={"medium"}
+								>
+									Shop
+								</Text>
+								<Text
+									onClick={() => navigate("/voucher")}
+									fontSize={{ base: "sm", lg: "md" }}
+									cursor={"pointer"}
+									fontWeight={"medium"}
+								>
+									Voucher
+								</Text>
+							</Flex>
+							<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
+								<SearchMobile />
+								{/* //! SEARCH RESULTS */}
+								<div style={{ position: "relative" }}>
+									<InputGroup display={{ base: "none", sm: "block" }}>
+										<Input
+											type="search"
+											value={search}
+											bgColor={"whiteAlpha.300"}
+											focusBorderColor="gray.300"
+											placeholder="Search Products"
+											onChange={(e) => {
+												setSearch(e.target.value);
+												setReload(true);
+											}}
+											onFocus={handleSearchFocus}
+											onBlur={handleSearchBlur}
+										/>
+										<InputLeftElement>
+											<Icon as={LuSearch} />
+										</InputLeftElement>
+									</InputGroup>
+									{isSearchFocused && products.length > 0 && (
+										<Stack
+											position="absolute"
+											top="100%"
+											left={0}
+											zIndex={369}
+											mt="2"
+											p="2"
+											bgColor="#E1E0E0"
+											boxShadow="0 4px 6px rgba(0, 0, 0, 0.1)"
+											width="100%"
+										>
+											{products.map((data) => (
+												<Flex
+													key={data.id}
+													alignItems="center"
+													cursor="pointer"
+													boxShadow="0px 0px 5px gray"
+													borderRadius="1px"
+													mb={2}
+													h="65px"
+													bgColor="#C3C1C1"
+													fontWeight="semibold"
+													overflow="hidden"
+													onMouseDown={(e) => {
+														e.preventDefault();
+														productDetail(data?.id);
+													}}
+												>
+													<Image
+														src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
+														alt={data.productName}
+														boxSize="65px"
+														objectFit="cover"
+														mr="2"
+													/>
+													<Text>{data.productName}</Text>
+													<Spacer />
+													<Text fontSize={"12px"} whiteSpace="nowrap">
+														Rp. {Math.floor(data?.price / 1000).toLocaleString("id-ID")}K
+													</Text>
+												</Flex>
+											))}
+											{products.length >= 3 && (
+												<Flex
+													alignItems="center"
+													cursor="pointer"
+													boxShadow="0px 0px 5px gray"
+													borderRadius="1px"
+													mb={2}
+													h="65px"
+													bgColor="#C3C1C1"
+													fontWeight="semibold"
+													overflow="hidden"
+													onMouseDown={(e) => {
+														e.preventDefault();
+														searchQuery(search);
+													}}
+												>
+													<Text textAlign={"center"}>
+														View All {totalProducts} Results for "{search.charAt(0).toUpperCase() + search.slice(1)}"
+													</Text>
+												</Flex>
+											)}
+										</Stack>
+									)}
+								</div>
+								<Button
+									isDisabled={+RoleId === 1 ? false : true}
+									bgColor={"white"}
+									rounded={"full"}
+									cursor={"pointer"}
+									onClick={() => navigate("/cart")}
+								>
+									<Icon as={BsCart} w="5" h="5" color={"black"} pos="relative" />
+									{totalCartItems > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											bg={"blackAlpha.700"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+											right={1}
+										>
+											<Text fontSize={"10px"} color={"white"} textAlign={"center"}>
+												{totalCartItems}
+											</Text>
+										</Flex>
+									)}
+								</Button>
+								<Menu alignSelf={"center"}>
+									<Button as={MenuButton} p={0} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>
+										<Icon as={BsPerson} w="5" h="5" color="black" cursor={"pointer"} />
+									</Button>
+									{token ? (
+										<MenuList>
+											<Stack alignItems={"center"} justifyContent={"center"} p="3" gap={0}>
+												<Avatar
+													mb={2}
+													src={`${process.env.REACT_APP_BASE_URL}/avatars/${avatar ? avatar : "default_not_set.png"}`}
+													size={"lg"}
+												/>
+												<Text fontSize={"sm"} fontWeight={"normal"}>
+													{firstName} {lastName}
+												</Text>
+												<Text fontSize={"lg"} fontWeight={"medium"}>
+													{username}
+												</Text>
+												<Text fontSize={"xs"} fontWeight={"light"}>
+													{email}
+												</Text>
+											</Stack>
+											<MenuDivider />
+											{RoleId > 1 ? (
+												<MenuItem onClick={() => navigate("/dashboard")} gap="3">
+													<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
+													<Text>Dashboard</Text>
+												</MenuItem>
+											) : (
+												<ReferralModal/>
+											)}
+											<MenuItem onClick={() => navigate("/profile")} gap="3">
+												<Icon as={BsPerson} w="5" h="5" color="black" />
+												<Text>Profile</Text>
 											</MenuItem>
-										) : null}
-										<MenuItem onClick={() => navigate("/profile")} gap="3">
-											<Icon as={BsPerson} w="5" h="5" color="black" />
-											<Text>Profile</Text>
-										</MenuItem>
-										<MenuItem onClick={logout} gap="3">
-											<Icon as={MdLogout} w="5" h="5" color="black" />
-											<Text>Logout</Text>
-										</MenuItem>
-									</MenuList>
-								) : (
-									<MenuList>
-										<MenuItem onClick={() => navigate("/login")} gap="3">
-											<Icon as={MdLogin} w="5" h="5" color="black" />
-											<Text>Sign In</Text>
-										</MenuItem>
-										<MenuItem onClick={() => navigate("/register")} gap="3">
-											<Icon as={MdAppRegistration} w="5" h="5" color="black" />
-											<Text>Register</Text>
-										</MenuItem>
-									</MenuList>
-								)}
-							</Menu>
+											<MenuItem onClick={logout} gap="3">
+												<Icon as={MdLogout} w="5" h="5" color="black" />
+												<Text>Logout</Text>
+											</MenuItem>
+										</MenuList>
+									) : (
+										<MenuList>
+											<MenuItem onClick={() => navigate("/login")} gap="3">
+												<Icon as={MdLogin} w="5" h="5" color="black" />
+												<Text>Sign In</Text>
+											</MenuItem>
+											<MenuItem onClick={() => navigate("/register")} gap="3">
+												<Icon as={MdAppRegistration} w="5" h="5" color="black" />
+												<Text>Register</Text>
+											</MenuItem>
+										</MenuList>
+									)}
+								</Menu>
+							</Flex>
 						</Flex>
 					</Flex>
-				</Flex>
+					{isVerified === false && (<ResendVerification/>)}
+				</Stack>
 			)}
 		</>
 	);

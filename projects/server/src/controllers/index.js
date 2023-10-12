@@ -10,6 +10,7 @@ const productReportControllers = require("./productReportControllers");
 const discountControllers = require("./discountControllers");
 const voucherControllers = require("./voucherControllers");
 const branchControllers = require("./branchControllers");
+const notificationControllers = require("./notificationControllers");
 
 module.exports = {
 	userControllers,
@@ -24,5 +25,6 @@ module.exports = {
 	voucherControllers,
 	reportControllers,
 	productReportControllers,
-	branchControllers
+	branchControllers,
+	notificationControllers,
 };
