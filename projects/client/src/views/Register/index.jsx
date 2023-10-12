@@ -1,5 +1,5 @@
 import React from "react";
-import source from "../../assets/public/AM_backgroundLogin.png";
+import source from "../../assets/public/AM_bg_login.png";
 import sourceLogo from "../../assets/public/AM_logo_white.png";
 import sourceGraphic from "../../assets/public/AM_graphic.png";
 import { Flex, Image, Box } from "@chakra-ui/react";
@@ -31,7 +31,7 @@ export const RegisterPageView = () => {
 				marginY={{ base: "5", md: "auto" }}
 				w={["260px", "380px", "400px"]}
 				minH={["90%", "700px"]}
-				pb={"5"}
+				// pb={"5"}
 				bg="#F6F6F6"
 			>
 				<Flex align="center" justify="center" h="100%" w={"100%"}>

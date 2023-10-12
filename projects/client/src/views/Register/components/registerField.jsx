@@ -10,9 +10,12 @@ import {
 	FormControl,
 	InputRightElement,
 	InputGroup,
+	FormLabel,
+	Heading,
+	Flex,
 } from "@chakra-ui/react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -34,9 +37,7 @@ export const RegisterFields = () => {
 		username: Yup.string().required("Username is required"),
 		firstName: Yup.string().required("First Name is required"),
 		lastName: Yup.string().required("Last Name is required"),
-		email: Yup.string()
-			.email("Invalid email address format")
-			.required("Email is required"),
+		email: Yup.string().email("Invalid email address format").required("Email is required"),
 		phone: Yup.string()
 			.required("Phone number is required")
 			.min(10, "Phone number too short")
@@ -104,28 +105,38 @@ export const RegisterFields = () => {
 			{(props) => (
 				<Form>
 					<Box>
-						<Text
-							mb="4"
-							mt={"4"}
-							color="gray.600"
-							textAlign="center"
-							fontSize="2xl"
+						<Heading
+							w={"200px"}
+							mr={["0px", "150px", "150px"]}
+							mt={"28px"}
+							mb={"15px"}
+							fontSize={"38px"}
+							fontFamily={"monospace"}
 						>
-							Sign Up
-						</Text>
+							Sign Up.
+						</Heading>
 						<Field name="username">
 							{({ field }) => (
 								<FormControl mb="3">
+									<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+										Username
+									</FormLabel>
 									<Input
 										{...field}
 										id="username"
 										borderRadius="20px"
-										placeholder="Username"
+										focusBorderColor="#373433"
+										placeholder="johndoe"
 									/>
 									<ErrorMessage
 										name="username"
 										component="div"
-										style={{ color: "red" }}
+										style={{
+											color: "red",
+											marginBottom: "-15px",
+											marginLeft: "8px",
+											fontSize: "12px",
+										}}
 									/>
 								</FormControl>
 							)}
@@ -133,16 +144,25 @@ export const RegisterFields = () => {
 						<Field name="firstName">
 							{({ field }) => (
 								<FormControl mb="3">
+									<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+										First Name
+									</FormLabel>
 									<Input
 										{...field}
 										id="firstName"
 										borderRadius="20px"
-										placeholder="First Name"
+										focusBorderColor="#373433"
+										placeholder="John Doe"
 									/>
 									<ErrorMessage
 										name="firstName"
 										component="div"
-										style={{ color: "red" }}
+										style={{
+											color: "red",
+											marginBottom: "-15px",
+											marginLeft: "8px",
+											fontSize: "12px",
+										}}
 									/>
 								</FormControl>
 							)}
@@ -150,16 +170,25 @@ export const RegisterFields = () => {
 						<Field name="lastName">
 							{({ field }) => (
 								<FormControl mb="3">
+									<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+										Last Name
+									</FormLabel>
 									<Input
 										{...field}
 										id="lastName"
 										borderRadius="20px"
+										focusBorderColor="#373433"
 										placeholder="Last Name"
 									/>
 									<ErrorMessage
 										name="lastName"
 										component="div"
-										style={{ color: "red" }}
+										style={{
+											color: "red",
+											marginBottom: "-15px",
+											marginLeft: "8px",
+											fontSize: "12px",
+										}}
 									/>
 								</FormControl>
 							)}
@@ -167,17 +196,26 @@ export const RegisterFields = () => {
 						<Field name="email">
 							{({ field }) => (
 								<FormControl mb="3">
+									<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+										E-mail
+									</FormLabel>
 									<Input
 										{...field}
 										id="email"
 										borderRadius="20px"
+										focusBorderColor="#373433"
 										type="email"
 										placeholder="Email"
 									/>
 									<ErrorMessage
 										name="email"
 										component="div"
-										style={{ color: "red" }}
+										style={{
+											color: "red",
+											marginBottom: "-15px",
+											marginLeft: "8px",
+											fontSize: "12px",
+										}}
 									/>
 								</FormControl>
 							)}
@@ -185,22 +223,34 @@ export const RegisterFields = () => {
 						<Field name="phone">
 							{({ field }) => (
 								<FormControl mb="3">
+									<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+										Phone Number
+									</FormLabel>
 									<Input
 										{...field}
 										id="phone"
 										borderRadius="20px"
+										focusBorderColor="#373433"
 										type="tel"
 										placeholder="Phone Number"
 									/>
 									<ErrorMessage
 										name="phone"
 										component="div"
-										style={{ color: "red" }}
+										style={{
+											color: "red",
+											marginBottom: "-15px",
+											marginLeft: "8px",
+											fontSize: "12px",
+										}}
 									/>
 								</FormControl>
 							)}
 						</Field>
 						<FormControl mb="3">
+							<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+								Password
+							</FormLabel>
 							<InputGroup>
 								<Field name="password">
 									{({ field }) => (
@@ -208,6 +258,7 @@ export const RegisterFields = () => {
 											{...field}
 											id="password"
 											borderRadius="20px"
+											focusBorderColor="#373433"
 											type={showPassword ? "text" : "password"}
 											placeholder="Password"
 											pr="3rem"
@@ -223,7 +274,7 @@ export const RegisterFields = () => {
 										onClick={() => setShowPassword(!showPassword)}
 										cursor="pointer"
 									>
-										{showPassword ? <FaEyeSlash /> : <FaEye />}
+										{showPassword ? <FiEye /> : <FiEyeOff />}
 									</Box>
 								</InputRightElement>
 							</InputGroup>
@@ -232,10 +283,16 @@ export const RegisterFields = () => {
 								component="div"
 								style={{
 									color: "red",
+									marginBottom: "-15px",
+									marginLeft: "8px",
+									fontSize: "12px",
 								}}
 							/>
 						</FormControl>
 						<FormControl mb="3">
+							<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+								Confirm Password
+							</FormLabel>
 							<InputGroup>
 								<Field name="confirmPassword">
 									{({ field }) => (
@@ -243,6 +300,7 @@ export const RegisterFields = () => {
 											{...field}
 											id="confirmPassword"
 											borderRadius="20px"
+											focusBorderColor="#373433"
 											type={showConfirmPassword ? "text" : "password"}
 											placeholder="Confirm Password"
 											pr="3rem"
@@ -258,7 +316,7 @@ export const RegisterFields = () => {
 										onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 										cursor="pointer"
 									>
-										{showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+										{showConfirmPassword ? <FiEye /> : <FiEyeOff />}
 									</Box>
 								</InputRightElement>
 							</InputGroup>
@@ -267,31 +325,60 @@ export const RegisterFields = () => {
 								component="div"
 								style={{
 									color: "red",
+									marginBottom: "-15px",
+									marginLeft: "8px",
+									fontSize: "12px",
 								}}
 							/>
 						</FormControl>
-						<FormControl>
+						<FormControl mb="3">
+							<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+								Referral Code
+							</FormLabel>
 							<Input
 								onChange={(e) => handleReferral(e.target.value)}
 								borderRadius="20px"
 								placeholder="Referral Code"
+								focusBorderColor="#373433"
 								defaultValue={referralCode}
 							/>
 						</FormControl>
-						<Button
-							type="submit"
-							bgColor={"#373433"}
-							size="md"
-							mb="3"
-							color={"white"}
-							isDisabled={!props.dirty || !props.isValid}
-							_hover={{ bgColor: "white", color: "#373433" }}
-						>
-							Sign Up
-						</Button>
-						<Text>
-							Already have an account? <Link to="/login">Log in</Link>
-						</Text>
+						<Flex justifyContent={"end"}>
+							<Flex mt={"20px"} fontSize={"12px"} justifyContent={"center"}>
+								<Text>Already have an account? ‎</Text>
+								<Text
+									as={Link}
+									to="/login"
+									color={"gray"}
+									transition="transform 0.3s ease-in-out"
+									_hover={{ transform: "scale(1.1)" }}
+								>
+									Click Here
+								</Text>
+							</Flex>
+							<Button
+								isDisabled={!props.dirty || !props.isValid}
+								type="submit"
+								mt={"10px"}
+								backgroundColor={"#000000"}
+								color={"white"}
+								ml={"25px"}
+								_hover={{
+									textColor: "#0A0A0B",
+									bg: "#F0F0F0",
+									_before: {
+										bg: "inherit",
+									},
+									_after: {
+										bg: "inherit",
+									},
+								}}
+								transition="transform 0.3s ease-in-out"
+								borderRadius={"20px"}
+							>
+								Sign Up
+							</Button>
+						</Flex>
 					</Box>
 				</Form>
 			)}

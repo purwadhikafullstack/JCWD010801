@@ -15,6 +15,8 @@ router.patch("/user-confirm/:id", verifyToken, checkUser, orderControllers.userC
 router.patch("/auto-confirm/:id", verifyToken, checkUser, orderControllers.userAutoConfirmOrder);
 router.patch("/send/:id", verifyToken, orderControllers.processingToSent);
 router.patch("/payment-confirm/:id", verifyToken, orderControllers.paymentConfirmation);
+router.patch("/received-confirmation/:id", verifyToken, orderControllers.receiveConfirmation);
+router.patch("/reject-payment/:id", verifyToken, orderControllers.rejectPaymentProof);
 router.patch("/cancel-by-admin/:id", verifyToken, orderControllers.cancelOrderByAdmin);
 
 
