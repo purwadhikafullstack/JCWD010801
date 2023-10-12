@@ -15,6 +15,7 @@ router.patch("/:PID", multerUpload(`./src/public/products`, "P-IMG").single("ima
 router.get("/wishlist", productControllers.getUserWishlist);
 router.get("/all", productControllers.getAllProducts);
 router.get("/random", productControllers.getRandomProductName);
+router.get("/suggestions", productControllers.getProductSuggestions);
 router.get("/alladmin", productControllers.getAllProductsAdmin);
 router.get("/active", productControllers.getActiveProducts);
 router.get("/deactivated", productControllers.getDeactivatedProducts);

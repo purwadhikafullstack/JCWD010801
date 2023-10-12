@@ -5,12 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { Pagination } from "../../../components/navigation/pagination";
 import { ButtonTemp } from "../../../components/button";
 import { BiSort, BiSortDown, BiSortUp } from "react-icons/bi";
+import { UpdateDiscount } from "./updateDiscount";
+import { DeactivateDiscount } from "./deactivateDiscount";
 
 export const OngoingDiscount = () => {
     const [ discount, setDiscount ] = useState([]);
     const [ totalPages, setTotalPages ] = useState(1);
     const [page, setPage] = useState(1);
     const [ total, setTotal ] = useState(1);
+    const [ reload, setReload ] = useState(false);
     const [ sortBy, setSortBy ] = useState("id");
     const [ order, setOrder ] = useState("ASC");
     const token = localStorage.getItem("token");
@@ -53,7 +56,7 @@ export const OngoingDiscount = () => {
 
     useEffect(() => {
         fetchData()
-    }, [ page, order, sortBy ]);
+    }, [ page, order, sortBy, reload ]);
 
     return (
         <Stack w={"100%"} gap={5}>
@@ -191,7 +194,7 @@ export const OngoingDiscount = () => {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {discount.map(({ Product, type, nominal, availableFrom, validUntil, id }, idx) => {
+                    {discount.map(({ Product, type, nominal, availableFrom, validUntil, id, ProductId }, idx) => {
                         const countDiscount = () => {
                             if (type === "Percentage") {
                                 const deductedPrice = nominal / 100 * Product.price
@@ -223,12 +226,12 @@ export const OngoingDiscount = () => {
                                 </Td>
                                 <Td>
                                     <Text>
-                                        {type === "Numeric" ? "Fixed Amount" : type}
+                                        {type === "Numeric" ? "Fixed Amount" : type === "Extra" ? "Buy 1 Get 1" : type}
                                     </Text>
                                 </Td>
                                 <Td>
-                                    <Text>
-                                        {type === "Extra" ? `${nominal} items` : type === "Percentage" ? `${nominal}%` : `Rp. ${nominal.toLocaleString("id-ID")}`}
+                                    <Text fontWeight={type === "Extra" && "bold"} textAlign={type === "Extra" && "center"}>
+                                        {type === "Extra" ? `---` : type === "Percentage" ? `${nominal}%` : `Rp. ${nominal.toLocaleString("id-ID")}`}
                                     </Text>
                                 </Td>
                                 <Td>
@@ -236,7 +239,7 @@ export const OngoingDiscount = () => {
                                 </Td>
                                 <Td>
                                     {type === "Extra" ? (
-                                    <Text>{`Buy 1 get ${nominal}`}</Text>
+                                    <Text fontWeight={"bold"} textAlign={"center"}>{`---`}</Text>
                                     ) : (
                                         <Text> {countDiscount()} </Text>
                                     )}
@@ -258,7 +261,25 @@ export const OngoingDiscount = () => {
                                     </Text>
                                 </Td>
                                 <Td justifyContent={"center"}>
-                                    Update
+                                    <Flex alignItems={"center"} justifyContent={"center"} gap={1}>
+                                        <UpdateDiscount
+                                        prevType={type}
+                                        prevNominal={nominal}
+                                        prevAvailableFrom={availableFrom}
+                                        prevValidUntil={validUntil}
+                                        ProductId={ProductId}
+                                        productName={Product?.productName}
+                                        imgURL={Product?.imgURL}
+                                        price={Product.price}
+                                        DiscountId={id}
+                                        setReload={setReload}
+                                        />
+                                        <DeactivateDiscount
+                                        id={id}
+                                        productName={Product?.productName}
+                                        setReload={setReload}
+                                        />
+                                    </Flex>
                                 </Td>
                             </Tr>
                         )

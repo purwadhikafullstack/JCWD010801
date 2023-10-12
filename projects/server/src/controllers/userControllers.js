@@ -4,6 +4,7 @@ const user_vouchers = db.User_vouchers;
 const orders = db.Orders;
 const order_details = db.Order_details;
 const products = db.Products;
+const notifications = db.Notifications;
 const tokenVerification = db.Tokens;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -88,11 +89,33 @@ module.exports = {
 				referralCode: newReferralCode
 			}, { transaction });
 
-			const checkReferrer = await users.findOne({ where: { referralCode } });
-			if (checkReferrer) {
-				await user_vouchers.create({ VoucherId: 5, UserId: checkReferrer.id, amount: 2 }, { transaction });
-				await user_vouchers.create({ VoucherId: 5, UserId: result.id, amount: 1 }, { transaction });
-			};
+			if (referralCode) {
+				const checkReferrer = await users.findOne({ where: { referralCode } });
+				if (!checkReferrer) throw { message: "Referral code is not valid" };
+				
+				const checkVoucher = await user_vouchers.findOne({
+					where: {
+						VoucherId: 16,
+						UserId: checkReferrer.id
+					}
+				});
+				if (checkVoucher) await user_vouchers.update({
+					amount: checkVoucher.amount + 1
+				}, { where: { VoucherId: 16, UserId: checkReferrer.id }, transaction })
+				else await user_vouchers.create({
+					VoucherId: 16,
+					UserId: checkReferrer.id,
+					amount: 1
+				}, { transaction });
+
+				await user_vouchers.create({ VoucherId: 16, UserId: result.id, amount: 1 }, { transaction });
+				// await notifications.create({
+				// 	type: "Discount",
+				// 	name: "",
+				// 	description: ``
+				// 	UserId: order.Cart.UserId
+				// }, { transaction })
+			}
 
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
@@ -105,6 +128,7 @@ module.exports = {
 				subject: "Verify Your AlphaMart Account",
 				html: tempResult,
 			});
+			await transaction.commit();
 			res.status(200).send({
 				status: true,
 				message: "Register successful. Please check your e-mail to verify.",
@@ -112,6 +136,7 @@ module.exports = {
 				token,
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -334,16 +359,21 @@ module.exports = {
 	},
 	resendVerificationEmail: async (req, res) => {
 		try {
+			const result = await users.findOne({
+				where: { id: req.user.id }
+			});
+			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
 			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
 			const tempCompile = await handlebars.compile(data);
-			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: req.user.id, token });
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: result.username, token });
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
-				to: email,
+				to: result.email,
 				subject: "Verify Your AlphaMart Account",
 				html: tempResult,
 			});
+			
 			res.status(200).send({
 				status: true,
 				message: "Verification email sent. Link will expire in 5 minutes.",

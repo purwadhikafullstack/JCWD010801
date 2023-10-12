@@ -68,7 +68,8 @@ export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, las
 
                     ) : (
                         <Text mr={3} textAlign={"end"} fontSize={'xl'} fontWeight={'semibold'} mb={0}>
-                            {`Rp. ${(price * quantity)?.toLocaleString("id-ID")}`}
+                            {/* {`Rp. ${(price * quantity / 2)?.toLocaleString("id-ID")}`} */}
+                            {`Rp. ${price?.toLocaleString("id-ID")}`}
                         </Text>
                     )}
                     <Flex color={'gray.50'} >.</Flex>
@@ -128,7 +129,8 @@ export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, las
 
                 ) : (
                     <Text mr={3} textAlign={"end"} fontSize={'xl'} fontWeight={'semibold'} mb={0}>
-                        {`Rp. ${(price * quantity)?.toLocaleString("id-ID")}`}
+                        {/* {`Rp. ${(price * quantity / 2)?.toLocaleString("id-ID")}`} */}
+                        {`Rp. ${price?.toLocaleString("id-ID")}`}
                     </Text>
                 )}
             </Flex>

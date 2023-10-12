@@ -1,8 +1,8 @@
-import { Box, Flex, Text, Stack } from "@chakra-ui/react"
+import { Box, Flex, Text, Stack, Spacer } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom";
 import { AddToCartButton } from "../../../../components/cart/add";
 
-export const ProductCard = ({ Product, type, nominal, validUntil, ProductId }) => {
+export const ProductCard = ({ Product, type = "", nominal = 0, validUntil, ProductId }) => {
     const navigate = useNavigate();
 
     const handleType = () => {
@@ -26,8 +26,9 @@ export const ProductCard = ({ Product, type, nominal, validUntil, ProductId }) =
         <Stack
         borderRadius={'lg'}
         w={{ base: '150px', sm: '180px', md: '240px' }}
-        minH={{ base: '200px', sm: '230px', md: '290px' }}
+        h={{ base: '335px', sm: '365px', md: '380px' }}
         m={0}
+        justifyContent={"space-between"}
         >
             <Box
             display={'flex'}
@@ -41,9 +42,11 @@ export const ProductCard = ({ Product, type, nominal, validUntil, ProductId }) =
             bgRepeat={'no-repeat'}
             p={{ base: 1, sm: 2, md: 3 }}
             >
-                <Flex h={"min"} alignItems={"center"} justifyContent={"center"} bgColor={"red.500"} borderRadius={"inherit"} px={3}>
-                    <Text fontSize={{ base: "13px", sm: "15px", md: "18px" }} textAlign={"center"} color={"white"}>{handleType()}</Text>
-                </Flex>
+                {type && (
+                    <Flex h={"min"} alignItems={"center"} justifyContent={"center"} bgColor={"red.500"} borderRadius={"inherit"} px={3}>
+                        <Text fontSize={{ base: "13px", sm: "15px", md: "18px" }} textAlign={"center"} color={"white"}>{handleType()}</Text>
+                    </Flex>
+                )}
             </Box>
             <Stack mb={2} textAlign={"left"}>
                 <Text
@@ -54,15 +57,16 @@ export const ProductCard = ({ Product, type, nominal, validUntil, ProductId }) =
                 >
                     {Product?.productName}
                 </Text>
-                {type === "Extra" ? (
-                    <Text fontSize={"18px"} fontWeight={"bold"}>{`Rp. ${Product?.price.toLocaleString("id-ID")}`}</Text>
-                ) : (
+                {type === "Numeric" || type === "Percentage" ? (
                     <Flex direction={{ base: "column-reverse", sm: "row" }} gap={{ base: 1, sm: 3 }}>
                         <Text fontSize={"18px"} fontWeight={"bold"}>{countDiscount()}</Text>
                         <Text fontSize={"14px"} as={"s"} color={"gray"} >{`Rp. ${Product?.price.toLocaleString("id-ID")}`}</Text>
                     </Flex>
+                    ) : (
+                    <Text fontSize={"18px"} fontWeight={"bold"}>{`Rp. ${Product?.price.toLocaleString("id-ID")}`}</Text>
                 )}
             </Stack>
+            <Spacer/>
             <AddToCartButton 
             ProductId={ProductId}
             name={Product?.productName}

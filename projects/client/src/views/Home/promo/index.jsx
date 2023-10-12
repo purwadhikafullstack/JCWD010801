@@ -6,7 +6,7 @@ export const HomePromos = () => {
     <Stack gap={5} w="100%">
       <Flex w='100%' alignItems={'center'} >
         <Heading fontSize={"3xl"} fontWeight={"semibold"}>
-          Sales
+          On Sale
         </Heading>
       </Flex>
       <DiscountCarousel />

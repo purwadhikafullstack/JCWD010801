@@ -18,7 +18,11 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
         try {
             let quantity;
             if (quantityRef.current.value === null) quantity = 1
+            else if (isExtra && stock % 2 === 1 && quantityRef.current.value * 2 > stock) quantity = (quantityRef.current.value * 2) - 1
+            // else if (isExtra && stock % 2 === 0 && quantityRef.current.value * 2 > stock) quantity = quantityRef.current.value * 2
+            else if (isExtra) quantity = quantityRef.current.value * 2
             else quantity = quantityRef.current.value;
+            console.log(quantity)
             
             await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cart`, { ProductId, quantity, BranchId }, {
                 headers: {
@@ -28,7 +32,12 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
             dispatch(refreshCart());
         } catch (err) {
             if ( err.response.data.message === "Promo product out of stock" ) {
-                quantityRef.current.value = err.response.data.maxStock;
+                // if (stock % 2 === 0) {
+                //     quantityRef.current.value = stock / 2
+                // } else {
+                //     quantityRef.current.value = (stock + 1) / 2
+                // }
+                quantityRef.current.value = err.response.data.maxStock * 2
                 handleUpdate();
             } else if ( err.response.data.message === "Product out of stock" ) {
                 quantityRef.current.value = +stock;
@@ -95,7 +104,7 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
             </Flex>
             {isExtra && (
             <Text fontSize={"sm"} fontWeight={"light"} color={"red"}>
-                + {qty * 2 > stock ? qty - 1 : qty} FREE
+                + {qty > stock ? (qty - 1) / 2 : qty / 2} FREE
             </Text>
             )}
         </Stack>

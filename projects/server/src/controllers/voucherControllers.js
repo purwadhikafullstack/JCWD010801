@@ -5,9 +5,12 @@ const users = db.Users;
 const user_vouchers = db.User_vouchers;
 const orders = db.Orders;
 const products = db.Products;
+const branches = db.Branches;
+const notifications = db.Notifications;
 
 module.exports = {
     createVoucher: async(req, res) => {
+        const transaction = await db.sequelize.transaction();
         try {
             let { 
                 name, 
@@ -20,7 +23,9 @@ module.exports = {
                 availableFrom, 
                 validUntil, 
                 ProductId,
-                amountPerRedeem
+                amountPerRedeem,
+                notifyUsers,
+                description
             } = req.body;
 
             if (type === "Single item" && !ProductId) throw { status: false, message: "Please enter the product id to create single item vouchers" };
@@ -41,17 +46,32 @@ module.exports = {
                 amountPerRedeem,
                 ProductId,
                 BranchId: adminInfo.BranchId
-            });
+            }, { transaction });
 
+            if (notifyUsers) {
+                const allUsers = await users.findAll({ where: { RoleId: 1 } })
+                for (const { id } of allUsers ) {
+                    await notifications.create({
+                        type: "Discount",
+                        name,
+                        description,
+                        UserId: id,
+                        promoCode: code
+                    }, { transaction })
+                }
+            };
+
+            await transaction.commit();
             res.status(201).send({
                 status: true,
                 message: "Voucher created"
             });
         } catch (err) {
+            await transaction.rollback();
             res.status(400).send(err);
         }
     },
-    getAllVouchers: async(req, res) => {
+    getAdminVouchers: async(req, res) => {
         try {
             const search = req.query.search || "";
             const limit = +req.query.limit || 8;
@@ -59,10 +79,13 @@ module.exports = {
             const sortBy = req.query.sortBy || "updatedAt";
             const order = req.query.order || "DESC";
             const voucherType = req.query.type || "";
+            const branchId = req.query.BranchId || "";
             const startAvailableFrom = req.query.startAvailableFrom || 1970 ;
             const endAvailableFrom = req.query.endAvailableFrom || 2099 ;
             const startValidUntil = req.query.startValidUntil || 1970 ;
             const endValidUntil = req.query.endValidUntil || 2099 ;
+
+            const checkRole = await users.findOne({ where: { id: req.user.id } });
 
             const filter = {
                 where: { 
@@ -80,59 +103,7 @@ module.exports = {
                             new Date(`${endValidUntil}`)
                         ]
                     },
-                },
-                limit,
-                offset: limit * ( page - 1 ),
-                order: [ [ Sequelize.col(`${sortBy}`), `${order}` ] ],
-            }
-
-            const result = await vouchers.findAll(filter);
-            const totalVouchers = await vouchers.count(filter);
-            const totalPages = Math.ceil(totalVouchers / limit);
-
-            res.status(200).send({
-                status: true,
-                totalVouchers,
-                totalPages,
-                page,
-                result
-            });
-        } catch (err) {
-            res.status(404).send(err);
-        }
-    },
-    getBranchVouchers: async(req, res) => {
-        try {
-            const search = req.query.search || "";
-            const limit = +req.query.limit || 8;
-            const page = +req.query.page || 1;
-            const sortBy = req.query.sortBy || "updatedAt";
-            const order = req.query.order || "DESC";
-            const voucherType = req.query.type || "";
-            const startAvailableFrom = req.query.startAvailableFrom || 1970 ;
-            const endAvailableFrom = req.query.endAvailableFrom || 2099 ;
-            const startValidUntil = req.query.startValidUntil || 1970 ;
-            const endValidUntil = req.query.endValidUntil || 2099 ;
-
-            const checkBranch = await users.findOne({ where: { id: req.user.id } });
-
-            const filter = {
-                where: { 
-                    name: { [Op.like] : `${search}%` },
-                    type: { [Op.like] : `${voucherType}%` },
-                    availableFrom: {
-                        [Op.between]: [
-                            new Date(`${startAvailableFrom}`),
-                            new Date(`${endAvailableFrom}`)
-                        ]
-                    },
-                    validUntil: {
-                        [Op.between]: [
-                            new Date(`${startValidUntil}`),
-                            new Date(`${endValidUntil}`)
-                        ]
-                    },
-                    BranchId: checkBranch.BranchId
+                    BranchId: checkRole.RoleId === 3 ? { [Op.like]: `${branchId}%` } : checkRole.BranchId
                 },
                 limit,
                 offset: limit * ( page - 1 ),
@@ -140,6 +111,10 @@ module.exports = {
                 include: [
                     {
                         model: products
+                    },
+                    {
+                        model: branches,
+                        attributes: ['name']
                     }
                 ]
             }
@@ -295,26 +270,6 @@ module.exports = {
             }
             else res.status(200).send({ status: true });
 
-        } catch (err) {
-            res.status(400).send(err);
-        }
-    },
-    useVoucher: async(req, res) => {
-        try {
-            const filter = {
-                where: {
-                    UserId: req.user.id,
-                    VoucherId: req.params.id
-                }
-            }
-            const voucherCheck = await user_vouchers.findOne(filter);
-            if (!voucherCheck.amount) throw { status: false, message: "You are out of voucher" };
-
-            await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
-            res.status(200).send({
-                status: true,
-                message: "Voucher applied"
-            })
         } catch (err) {
             res.status(400).send(err);
         }
