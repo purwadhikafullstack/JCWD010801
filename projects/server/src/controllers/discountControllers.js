@@ -9,7 +9,7 @@ module.exports = {
     createBranchDiscount: async(req, res) => {
         const transaction = await db.sequelize.transaction();
         try {
-            const { type, nominal, availableFrom, validUntil, PIDs } = req.body;
+            let { type, nominal, availableFrom, validUntil, PIDs } = req.body;
             const checkBranch = await users.findOne({ where: { id: req.user.id } });
 
             for (const { id } of PIDs) {
@@ -18,10 +18,12 @@ module.exports = {
                         ProductId: id,
                         availableFrom: { [Op.lte]: new Date(Date.now()) },
                         validUntil: { [Op.gte]: new Date(Date.now()) },
+                        BranchId: checkBranch.BranchId
                     },
                     include: [ { model: products, require: false } ]
                 });
-                if (checkProduct) throw { status: false, message: `There's a discount on going for product ${checkProduct.Product.productName}` };
+                if (checkProduct) throw { status: false, message: `There's a discount on going for product ${checkProduct.Product.productName}`};
+                if (type === "Extra") nominal = 1;
 
                 await discounts.create({
                     type,
@@ -222,21 +224,6 @@ module.exports = {
             res.status(200).send({
                 status: true,
                 message: "Discount deactivated"
-            });
-        } catch (err) {
-            res.status(500).send({
-                status: false,
-                message: "Internal server error"
-            });
-        }
-    },
-    activateDiscount: async(req, res) => {
-        try {
-            await discounts.update({ isActive: true }, { where: { id: req.params.id } });
-
-            res.status(200).send({
-                status: true,
-                message: "Discount activated"
             });
         } catch (err) {
             res.status(500).send({

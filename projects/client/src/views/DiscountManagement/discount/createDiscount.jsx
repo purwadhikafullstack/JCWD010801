@@ -2,11 +2,12 @@ import axios from "axios";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Button, Flex, FormLabel, Icon, Image, Input, InputGroup, InputLeftAddon, InputRightAddon, Radio, RadioGroup, Select, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
+import { Button, Flex, FormLabel, Icon, Image, Input, InputGroup, InputLeftAddon, InputRightAddon, Select, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { ButtonTemp } from "../../../components/button";
 import { DiscountSelectProduct } from "../components/DiscountSelectProduct";
 import { BsTrash } from "react-icons/bs";
+import { AiFillEye } from "react-icons/ai";
 
 export const CreateDiscount = () => {
     const token = localStorage.getItem("token");
@@ -14,8 +15,19 @@ export const CreateDiscount = () => {
     const [ selectedProduct, setSelectedProduct ] = useState([]);
     const typeRef = useRef();
 
-    const discountSchema = Yup.object().shape({
+    const fixedAmountSchema = Yup.object().shape({
         nominal: Yup.number().min(1).required("This field is required"),
+        availableFrom: Yup.string().required("This field is required"),
+        validUntil: Yup.string().required("This field is required")
+    });
+
+    const percentageSchema = Yup.object().shape({
+        nominal: Yup.number().min(1).max(100).required("This field is required"),
+        availableFrom: Yup.string().required("This field is required"),
+        validUntil: Yup.string().required("This field is required")
+    });
+
+    const extraSchema = Yup.object().shape({
         availableFrom: Yup.string().required("This field is required"),
         validUntil: Yup.string().required("This field is required")
     });
@@ -28,6 +40,7 @@ export const CreateDiscount = () => {
 
     const handleSubmit = async(value) => {
         value.type = typeRef.current.value;
+        if (showType === "Extra") value.nominal = 1
         value.PIDs = selectedProduct
         try {
             await axios.post(`${process.env.REACT_APP_API_BASE_URL}/discount`, value, {
@@ -77,7 +90,7 @@ export const CreateDiscount = () => {
     return (
         <Formik
         initialValues={{ type: "", nominal: 0, availableFrom: "", validUntil: "", PIDs: [] }}
-        validationSchema={discountSchema}
+        validationSchema={showType === "Extra" ? extraSchema : showType === "Percentage" ? percentageSchema : fixedAmountSchema}
         onSubmit={(value) => {
             handleSubmit(value)
         }}>
@@ -90,28 +103,16 @@ export const CreateDiscount = () => {
                                 <Flex gap={10}>
                                     <Stack gap={6}>
                                         <FormLabel htmlFor="type">Discount Type</FormLabel>
-                                        <FormLabel htmlFor="nominal">Nominal</FormLabel>
+                                        {showType !== "Extra" && (<FormLabel htmlFor="nominal">Nominal</FormLabel>)}
                                         <FormLabel htmlFor="availableFrom">Available From</FormLabel>
                                         <FormLabel htmlFor="validUntil">Expiry Date</FormLabel>
                                     </Stack>
                                     <Stack gap={4}>
                                         <Stack>
-                                            {/* <Field as={RadioGroup} name="type">
-                                                <Flex gap={6}>
-                                                    <Radio name="type" size={"md"} borderColor={"gray"} onChange={() => setShowType(false)} value={"Total purchase"}>Total Purchase</Radio>
-                                                    <Radio name="type" size={"md"} borderColor={"gray"} onChange={() => setShowType(true)} value={"Single item"}>Single Item</Radio>
-                                                    <Radio name="type" size={"md"} borderColor={"gray"} onChange={() => setShowType(false)} value={"Shipment"}>Shipment</Radio>
-                                                </Flex>
-                                            </Field> */}
-                                            {/* <Flex gap={6}>
-                                                <Field name="type" type="radio" onChange={() => setShowType(false)} value={"Total purchase"}>Total Purchase</Field>
-                                                <Field name="type" type="radio" onChange={() => setShowType(true)} value={"Single item"}>Single Item</Field>
-                                                <Field name="type" type="radio" onChange={() => setShowType(false)} value={"Shipment"}>Shipment</Field>
-                                            </Flex> */}
                                             <Select name="type" ref={typeRef} onChange={handleTypeRef} defaultValue={"Numeric"}>
                                                 <option value={"Numeric"}>Fixed Amount</option>
                                                 <option value={"Percentage"}>Percentage</option>
-                                                <option value={"Extra"}>Buy 1 Get Extra</option>
+                                                <option value={"Extra"}>Buy 1 Get 1</option>
                                             </Select>
                                             <ErrorMessage
                                                 component="box"
@@ -119,30 +120,30 @@ export const CreateDiscount = () => {
                                                 style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
                                             />
                                         </Stack>
-                                        <Stack>
-                                            <InputGroup>
-                                                {showType === "Numeric" && (
-                                                    <InputLeftAddon children={"Rp."} />
-                                                )}
-                                                <Input
-                                                    as={Field}
-                                                    type="number"
+                                        {showType !== "Extra" && (
+                                            <Stack>
+                                                <InputGroup>
+                                                    {showType === "Numeric" && (
+                                                        <InputLeftAddon children={"Rp."} />
+                                                    )}
+                                                    <Input
+                                                        as={Field}
+                                                        type="number"
+                                                        name="nominal"
+                                                        placeholder="Enter voucher nominal"
+                                                        focusBorderColor="gray.300"
+                                                    />
+                                                    {showType === "Percentage" ? (
+                                                        <InputRightAddon children={"%"} />
+                                                    ) : null}
+                                                </InputGroup>
+                                                <ErrorMessage
+                                                    component="box"
                                                     name="nominal"
-                                                    placeholder="Enter voucher nominal"
-                                                    focusBorderColor="gray.300"
+                                                    style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
                                                 />
-                                                {showType === "Percentage" ? (
-                                                    <InputRightAddon children={"%"} />
-                                                ) : showType === "Extra" ? (
-                                                    <InputRightAddon children={"Items"} />
-                                                ) : null}
-                                            </InputGroup>
-                                            <ErrorMessage
-                                                component="box"
-                                                name="nominal"
-                                                style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
-                                            />
-                                        </Stack>
+                                            </Stack>
+                                        )}
                                         <Stack>
                                             <Input
                                                 as={Field}
@@ -213,7 +214,10 @@ export const CreateDiscount = () => {
                                                             <Text>{item?.aggregateStock}</Text>
                                                         </Td>
                                                         <Td>
-                                                            <Text>See Report</Text>
+                                                            <Flex alignItems={"center"} justifyContent={"center"} gap={1}>
+                                                                <Text>{item?.viewCount}</Text>
+                                                                <Icon as={AiFillEye} w={4} h={4} />
+                                                            </Flex>
                                                         </Td>
                                                         <Td>
                                                             <Button bgColor={"white"} p={0} borderRadius={"full"} onClick={() => handleRemoveItem(item?.id)}>

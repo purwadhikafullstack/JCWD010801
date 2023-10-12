@@ -408,7 +408,7 @@ const Search = () => {
 								setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
 								setPage(1);
 								setReload(!reload);
-								updateQueryParams({ cat: isNaN(selectedValue) ? "" : selectedValue });
+								updateQueryParams({ cat: isNaN(selectedValue) ? "" : selectedValue, p: 1 });
 							}}
 							w={"100%"}
 							h={"30px"}
@@ -726,7 +726,7 @@ const Search = () => {
 								setSelectedCategory(isNaN(selectedValue) ? "" : selectedValue);
 								setPage(1);
 								setReload(!reload);
-								updateQueryParams({ cat: isNaN(selectedValue) ? "" : selectedValue });
+								updateQueryParams({ cat: isNaN(selectedValue) ? "" : selectedValue, p: 1 });
 							}}
 							w={"200px"}
 							h={"30px"}

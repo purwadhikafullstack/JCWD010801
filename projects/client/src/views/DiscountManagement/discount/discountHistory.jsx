@@ -61,7 +61,6 @@ export const DiscountHistory = () => {
     const fetchData = async() => {
         try {
             let branchId
-            console.log(typeRef.current.value)
             const search = searchRef.current.value
             const type = typeRef.current.value
             const startAvailableFrom = startAvailableFromRef.current.value
@@ -289,12 +288,12 @@ export const DiscountHistory = () => {
                                 </Td>
                                 <Td>
                                     <Text>
-                                        {type === "Numeric" ? "Fixed Amount" : type}
+                                        {type === "Numeric" ? "Fixed Amount" : type === "Extra" ? "Buy 1 Get 1" : type}
                                     </Text>
                                 </Td>
                                 <Td>
-                                    <Text>
-                                        {type === "Extra" ? `${nominal} items` : type === "Percentage" ? `${nominal}%` : `Rp. ${nominal.toLocaleString("id-ID")}`}
+                                    <Text fontWeight={type === "Extra" && "bold"} textAlign={type === "Extra" && "center"}>
+                                        {type === "Extra" ? `---` : type === "Percentage" ? `${nominal}%` : `Rp. ${nominal.toLocaleString("id-ID")}`}
                                     </Text>
                                 </Td>
                                 <Td>
@@ -302,7 +301,7 @@ export const DiscountHistory = () => {
                                 </Td>
                                 <Td>
                                     {type === "Extra" ? (
-                                    <Text>{`Buy 1 get ${nominal}`}</Text>
+                                    <Text fontWeight={"bold"} textAlign={"center"}>{`---`}</Text>
                                     ) : (
                                         <Text> {countDiscount()} </Text>
                                     )}

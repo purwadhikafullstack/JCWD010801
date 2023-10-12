@@ -34,6 +34,11 @@ export const NavbarMobile = () => {
 	const address = useSelector((state) => state?.address?.value);
 	const token = localStorage.getItem("token");
 
+	const handleNavigate = (to) => {
+		navigate(to);
+		onClose();
+	}
+
 	return (
 		<>
 			<Flex display={{ base: "flex", lg: "none" }}>
@@ -53,11 +58,11 @@ export const NavbarMobile = () => {
 					<DrawerContent bgColor={"white"}>
 						<DrawerCloseButton />
 						<DrawerHeader alignItems={"center"} justifySelf={"center"}>
-							<Image cursor={"pointer"} onClick={() => navigate("/")} src={AlphaMartLogo} w={"200px"} />
+							<Image cursor={"pointer"} onClick={() => handleNavigate("/")} src={AlphaMartLogo} w={"200px"} />
 						</DrawerHeader>
 						<DrawerBody>
 							<List spacing={3}>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={LuHome} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
@@ -65,7 +70,7 @@ export const NavbarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/search")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/search")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={AiOutlineShopping} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
@@ -73,7 +78,7 @@ export const NavbarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => navigate("/voucher")} p={2} borderRadius={"10px"}>
+								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
 									<Flex gap={7}>
 										<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
 										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>

@@ -78,30 +78,30 @@ module.exports = {
 					},
 					{ transaction }
 				)
-			} else if (cart_item.quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
-				if ((checkProduct?.Stocks[0].currentStock / 2) % 2 === 1) {
-					await cartItems.update(
-						{ quantity: (checkProduct?.Stocks[0].currentStock / 2) + 1 },
-						{
-							where: {
-								CartId: result.id,
-								ProductId,
-							},
-							transaction,
-						}
-					)
-				} else {
-					await cartItems.update(
-						{ quantity: (checkProduct?.Stocks[0].currentStock / 2) },
-						{
-							where: {
-								CartId: result.id,
-								ProductId,
-							},
-							transaction,
-						}
-					)
-				}
+			// } else if (cart_item.quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
+			// 	if ((checkProduct?.Stocks[0].currentStock / 2) % 2 === 1) {
+			// 		await cartItems.update(
+			// 			{ quantity: (checkProduct?.Stocks[0].currentStock / 2) + 1 },
+			// 			{
+			// 				where: {
+			// 					CartId: result.id,
+			// 					ProductId,
+			// 				},
+			// 				transaction,
+			// 			}
+			// 		)
+			// 	} else {
+			// 		await cartItems.update(
+			// 			{ quantity: (checkProduct?.Stocks[0].currentStock / 2) },
+			// 			{
+			// 				where: {
+			// 					CartId: result.id,
+			// 					ProductId,
+			// 				},
+			// 				transaction,
+			// 			}
+			// 		)
+			// 	}
 			} else if (cart_item.quantity > checkProduct?.Stocks[0].currentStock) {
 				await cartItems.update(
 					{ quantity: checkProduct?.Stocks[0].currentStock },
@@ -134,7 +134,6 @@ module.exports = {
 				checkProduct
 			});
 		} catch (err) {
-			console.log(err)
 			await transaction.rollback();
 			res.status(400).send(err);
 		}
@@ -199,7 +198,19 @@ module.exports = {
 					include: [
 						{
 							model: products,
-							attributes: [],
+							attributes: { exclude: ["isDeleted", "createdAt", "updatedAt"] },
+							include: [
+								{
+									model: discounts,
+									where: {
+										BranchId: result.BranchId,
+										availableFrom: { [Op.lte]: new Date(Date.now()) },
+										validUntil: { [Op.gte]: new Date(Date.now()) },
+										isActive: true
+									},
+									separate: true
+								}
+							]
 						},
 					],
 					attributes: [
@@ -300,8 +311,8 @@ module.exports = {
 				],
 			});
 			if (checkProduct?.Discounts[0].type === "Extra" && quantity > checkProduct?.Stocks[0].currentStock / 2 + 0.5){
-				let maxStock = checkProduct?.Stocks[0].currentStock / 2 
-				if (checkProduct?.Stocks[0].currentStock % 2 === 1) maxStock = (checkProduct?.Stocks[0].currentStock / 2) + (1/2)
+				let maxStock = checkProduct?.Stocks[0].currentStock
+				if (checkProduct?.Stocks[0].currentStock % 2 === 1) maxStock = (checkProduct?.Stocks[0].currentStock ) + 1
 				throw { 
 					message: "Promo product out of stock",
 					maxStock
@@ -325,7 +336,6 @@ module.exports = {
 				message: "Item quantity updated",
 			});
 		} catch (err) {
-			console.log(err)
 			res.status(400).send(err);
 		}
 	},

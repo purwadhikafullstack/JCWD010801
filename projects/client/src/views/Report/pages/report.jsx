@@ -6,6 +6,7 @@ import TableReport from "../components/table/tableReport";
 import { useSelector } from "react-redux";
 import TableFilter from "../components/table/tableFilter";
 import { AdminSidebar } from "../../../components/navigation/adminSidebar";
+import LayoutSidebar from "../../../pages/layoutSidebar";
 
 export const Report = () => {
 	const [data, setData] = useState(null);
@@ -76,8 +77,10 @@ export const Report = () => {
 
 	return (
 		<Box>
-			<Flex>
-				<AdminSidebar />
+			<Flex display={["block", "block", "flex", "flex"]}>
+				<Flex>
+				<LayoutSidebar height={"full"}/>
+				</Flex>
 				<Box w={"full"}>
 					<Box>
 						<Center>

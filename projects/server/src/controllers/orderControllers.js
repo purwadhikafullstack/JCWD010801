@@ -19,6 +19,7 @@ const vouchers = db.Vouchers;
 const addresses = db.Addresses;
 const users = db.Users;
 const stockMovements = db.StockMovements;
+const notifications = db.Notifications;
 
 function generateInvoiceNumber(userId) {
 	const currentDate = new Date();
@@ -531,9 +532,10 @@ module.exports = {
 		}
 	},
 	paymentConfirmation: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
 			const orderId = req.params.id;
-			const order = await orders.findOne({ where: { id: orderId } });
+			const order = await orders.findOne({ where: { id: orderId }, include: [{ model: carts }] });
 			if (!order) {
 				return res.status(404).send({
 					message: "Order not found",
@@ -544,12 +546,23 @@ module.exports = {
 					message: "Order cannot be updated to 'Processing'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
+			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId }, transaction });
+			await notifications.create({
+				type: "Transaction",
+				name: "Payment Confirmation Accepted",
+				description: `The payment for your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+				has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
+				UserId: order.Cart.UserId
+			}, { transaction })
+			await transaction.commit();
+
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -561,6 +574,108 @@ module.exports = {
 		try {
 			const orderId = req.params.id;
 			const order = await orders.findOne({ where: { id: orderId } });
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Sent") {
+				return res.status(400).send({
+					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+				});
+			}
+			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Received' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	rejectPaymentProof: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Pending payment confirmation") {
+				return res.status(400).send({
+					message:
+						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+				});
+			}
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId }, transaction });
+			await notifications.create({
+				type: "Transaction",
+				name: "Payment Confirmation Rejected",
+				description: `The payment for your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+				has been rejected. Please reupload your payment proof as soon as possible.
+				If you don't do so in 3 days, your order will be automatically cancelled.`,
+				UserId: order.Cart.UserId
+			}, { transaction });
+			await transaction.commit();
+
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Please Reupload Your Payment Proof",
+				html: tempResult,
+			});
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Rejected' successfully",
+			});
+		} catch (error) {
+			await transaction.rollback();
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	processingToSent: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
 			if (!order) {
 				return res.status(404).send({
 					message: "Order not found",
@@ -661,7 +776,32 @@ module.exports = {
 			}
 			const userId = req.user.id;
 			const invoiceNumber = generateInvoiceNumber(userId);
-			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId } });
+			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId }, transaction });
+
+			// Auto confirm order 5 minutes
+			// 604800000 = 7 days
+			const autoConfirmTime = new Date(Date.now() + 300000);
+			schedule.scheduleJob(autoConfirmTime, async () => {
+				try {
+					const ord = await orders.findOne(
+						{
+							where: { id: orderId },
+						},
+					);
+					await orders.update({ status: "Received" }, { where: { id: ord.id } });
+				} catch (err) {
+					console.log(err)
+				}
+			});
+
+			await notifications.create({
+				type: "Transaction",
+				name: "Order Ready",
+				description: `Order ${invoiceNumber} is ready! Your order will be at your doorstep in around ${order.etd}. Please confirm if you have receive your order. This order will be automatically confirmed if you don't do so in 7 days. You can confirm your order on your profile page.If you did not receive your order, please contact our customer service as soon as possible. Thank you for shopping with us!`,
+				UserId: order.Cart.UserId
+			}, { transaction })
+			await transaction.commit();
+			
 			const data = fs.readFileSync("./src/templates/sentOrder.html", "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({
@@ -681,6 +821,7 @@ module.exports = {
 				message: "Order updated to 'Sent' successfully",
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -689,6 +830,7 @@ module.exports = {
 		}
 	},
 	cancelOrderByAdmin: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
 			const orderId = req.params.id;
 			const { AID } = req.query;
@@ -718,7 +860,17 @@ module.exports = {
 				});
 			}
 
-			await orders.update({ status: "Cancelled" }, { where: { id: orderId } });
+			await orders.update({ status: "Cancelled" }, { where: { id: orderId }, transaction });
+			await notifications.create({
+				type: "Transaction",
+				name: "Order Cancelled",
+				description: `Your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+				has been cancelled. We're deeply sorry for not providing you the best customer experience. 
+				We hope we can provide a better shopping experience for you in the future. Best regards, AlphaMart Team`,
+				UserId: order.Cart.UserId
+			}, { transaction })
+
 			const data = fs.readFileSync("./src/templates/cancelOrderAdmin.html", "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
@@ -757,6 +909,7 @@ module.exports = {
 						where: {
 							id: item.ProductId,
 						},
+						transaction
 					}
 				);
 
@@ -780,7 +933,7 @@ module.exports = {
 					isInitialization: false,
 					isBranchInitialization: false,
 					UserId: AID,
-				});
+				}, { transaction });
 
 				await stocks.increment(
 					{
@@ -791,16 +944,19 @@ module.exports = {
 							ProductId: item.ProductId,
 							BranchId: cartCheckedOut.BranchId,
 						},
+						transaction
 					}
 				);
 			});
 			await Promise.all(stocksPromises);
 
+			await transaction.commit();
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Cancelled' successfully",
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -944,7 +1100,7 @@ module.exports = {
 			);
 
 			// Auto cancel order 5 minutes
-			const autoCancelTime = new Date(Date.now() + 300000);
+			const autoCancelTime = new Date(Date.now() + 60000);
 			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
@@ -963,10 +1119,51 @@ module.exports = {
 
 						for (const { ProductId, quantity } of result) {
 							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
-							await stocks.update(
-								{ currentStock: currentStock + quantity },
+							const product = await products.findOne({
+								where: {
+									id: ProductId,
+								},
+							});
+
+							await product.increment(
 								{
-									where: { ProductId, BranchId: ord.Cart.BranchId },
+									aggregateStock: parseInt(quantity, 10),
+								},
+								{
+									where: {
+										id: ProductId,
+									},
+									transaction,
+								}
+							);
+
+							const newBranchStock = parseInt(currentStock, 10) + parseInt(quantity, 10);
+
+							await stockMovements.create(
+								{
+									ProductId: ProductId,
+									BranchId: ord.Cart.BranchId,
+									oldValue: currentStock,
+									newValue: parseInt(newBranchStock, 10),
+									change: parseInt(quantity, 10),
+									isAddition: true,
+									isAdjustment: false,
+									isInitialization: false,
+									isBranchInitialization: false,
+									UserId: ord.Cart.UserId,
+								},
+								{ transaction }
+							);
+
+							await stocks.increment(
+								{
+									currentStock: parseInt(quantity, 10),
+								},
+								{
+									where: {
+										ProductId,
+										BranchId: ord.Cart.BranchId,
+									},
 									transaction,
 								}
 							);
@@ -1164,7 +1361,7 @@ module.exports = {
 				status: true,
 				result,
 			});
-		} catch (error) {
+		} catch (err) {
 			return res.status(500).send({
 				err,
 				status: 500,
