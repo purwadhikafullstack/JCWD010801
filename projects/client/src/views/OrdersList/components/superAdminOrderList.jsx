@@ -299,12 +299,42 @@ export const SuperAdminOrdersList = () => {
 											{item.invoice}
 										</Text>
 									</Flex>
-									<Flex mt={"3px"}>
-										<AiOutlineShopping color="blue" size={25} />
-										<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
-											Alphamart {item?.Cart?.Branch?.name}
-										</Text>
-									</Flex>
+									{item?.Cart?.BranchId === 1 ? (
+										<Flex mt={"3px"}>
+											<AiOutlineShopping color="#E25668" size={25} />
+											<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={["11px", "13px"]}>
+												Alphamart {item?.Cart?.Branch?.name}
+											</Text>
+										</Flex>
+									) : item?.Cart?.BranchId === 2 ? (
+										<Flex mt={"3px"}>
+											<AiOutlineShopping color="#E28956" size={25} />
+											<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
+												Alphamart {item?.Cart?.Branch?.name}
+											</Text>
+										</Flex>
+									) : item?.Cart?.BranchId === 3 ? (
+										<Flex mt={"3px"}>
+											<AiOutlineShopping color="#68E256" size={25} />
+											<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
+												Alphamart {item?.Cart?.Branch?.name}
+											</Text>
+										</Flex>
+									) : item?.Cart?.BranchId === 4 ? (
+										<Flex mt={"3px"}>
+											<AiOutlineShopping color="#56E2CF" size={25} />
+											<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
+												Alphamart {item?.Cart?.Branch?.name}
+											</Text>
+										</Flex>
+									) : (
+										<Flex mt={"3px"}>
+											<AiOutlineShopping color="#5668E2" size={25} />
+											<Text ml={"5px"} mt={"4px"} fontWeight={"bold"} fontSize={"13px"}>
+												Alphamart {item?.Cart?.Branch?.name}
+											</Text>
+										</Flex>
+									)}
 									<Flex justifyContent={"space-between"}>
 										<Box>
 											{item.Order_details.map((item) => (

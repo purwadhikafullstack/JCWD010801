@@ -72,7 +72,7 @@ export const AdminListPage = () => {
 			</Flex>
 			<Flex justifyContent={"center"} w={"full"} pt={"10px"}>
 				<Box w={"f	ull"} margin={"auto"}>
-					<Flex mx={"10%"} justifyContent={"space-between"}>
+					<Flex mx={"5%"} justifyContent={"space-between"}>
 						<Box mr={"15px"}>
 							<Text fontSize={"30px"} fontWeight={"bold"}>
 								Admins ({countAdmins})

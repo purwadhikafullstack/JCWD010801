@@ -28,6 +28,12 @@ module.exports = (sequelize, DataTypes) => {
 					allowNull: true,
 				},
 			});
+			Products.hasMany(models.Reviews, {
+				foreignKey: {
+					name: "ProductId",
+					allowNull: false,
+				},
+			});
 		}
 	}
 	Products.init(

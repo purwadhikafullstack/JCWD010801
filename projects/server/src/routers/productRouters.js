@@ -1,10 +1,12 @@
 const router = require("express").Router();
 const { productControllers } = require("../controllers");
+const { verifyToken } = require("../middlewares/auth");
 const { multerUpload } = require("../middlewares/multer");
 
 router.post("/", multerUpload(`./src/public/products`, "P-IMG").single("image"), productControllers.addProduct);
 router.post("/activation/:PID", productControllers.activateDeactivate);
 router.post("/delete/:PID", productControllers.hardDelete);
+router.post("/review/:id", verifyToken, productControllers.reviewProduct);
 router.patch("/like/:PID", productControllers.likeUnlike);
 router.get("/like/:PID", productControllers.getLikeStatus);
 router.patch("/bulkcategory", productControllers.bulkUpdateCategory);

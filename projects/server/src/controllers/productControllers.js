@@ -7,6 +7,7 @@ const stocks = db.Stocks;
 const stockMovements = db.StockMovements;
 const discounts = db.Discounts;
 const wishlists = db.Wishlists;
+const reviews = db.Reviews;
 const { Sequelize, Op } = require("sequelize");
 
 module.exports = {
@@ -1526,6 +1527,32 @@ module.exports = {
 			});
 		} catch (error) {
 			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	reviewProduct: async (req, res) => {
+		try {
+			const ProductId = parseInt(req.params.id);
+			const { comment, rating } = req.body;
+			const isProduct = await reviews.findByPk(ProductId);
+			if (!isProduct)
+				return res.status(400).send({
+					status: 404,
+					message: "Product not found.",
+				});
+			const result = await reviews.create({
+				comment,
+				rating,
+				UserId: req.user.id,
+				ProductId: ProductId,
+			});
+			res.status(200).send(result);
+		} catch (error) {
+			console.log(error);
+			return res.status(500).send({
+				error,
 				status: 500,
 				message: "Internal server error.",
 			});

@@ -16,11 +16,14 @@ import {
 	Text,
 } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
-// import { MdOutlineRateReview } from "react-icons/md";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
 import { DetailProcessModal } from "./branchOrder/ModalProcessing/detailOrderModal";
+import { Link, useNavigate } from "react-router-dom";
+import ReviewModal from "./reviewModal";
+import { ConfirmButtonOrder2 } from "./branchOrder/ActionButton/confirmButtonOrder";
+import { UploadProofButton } from "./branchOrder/ActionButton/uploadButtonOrder";
 
 export const UserOrdersList = () => {
 	const [list, setList] = useState();
@@ -30,11 +33,11 @@ export const UserOrdersList = () => {
 	const [branchId, setBranchId] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
-	// const [showReviewButton, setShowReviewButton] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
 	const [reload, setReload] = useState(false);
+	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -216,9 +219,6 @@ export const UserOrdersList = () => {
 			</Flex>
 			{list && list.length > 0 ? (
 				list?.map((item, index) => {
-					// if (item.status === "Received") {
-					// 	setShowReviewButton(true);
-					// }
 					return (
 						<Box
 							key={index}
@@ -304,32 +304,28 @@ export const UserOrdersList = () => {
 							)}
 							<Flex display={["block", "flex"]} justifyContent={"space-between"}>
 								<Box>
-									{item.Order_details.map((item) => (
-										<>
+									{item.Order_details.map((i) => (
 										<Flex mt={"10px"}>
-											<Box
-												as={Image}
-												w={"100px"}
-												bg={"gray.100"}
-												src={`${process.env.REACT_APP_BASE_URL}/products/${item?.Product.imgURL}`}
-											></Box>
-											<Box>
+											<Flex w={"120px"} h={"110px"} bg={"black"}>
+												<Image
+													onClick={() => navigate(`/product/${i.Product.id}`)}
+													objectFit={"cover"}
+													src={`${process.env.REACT_APP_BASE_URL}/products/${i?.Product.imgURL}`}
+												/>
+											</Flex>
+											<Flex justifyContent={"center"} direction={"column"}>
 												<Text textAlign={"start"} ml={"15px"} fontWeight={"bold"}>
-													{item.Product.productName}
+													{i.Product.productName}
 												</Text>
-												<Text textAlign={"start"} ml={"15px"} color={"balck"} fontSize={"11px"}>
-													{item.Product.description}
+												<Text textAlign={"start"} mr={"4px"} ml={"15px"} color={"balck"} fontSize={"11px"}>
+													{i.Product.description}
 												</Text>
 												<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
-													{item.quantity} Items X {formatRupiah(item.Product.price)}
+													{i.quantity} Items X {formatRupiah(i.Product.price)}
 												</Text>
-											</Box>
+												{item.status === "Received" ? <ReviewModal /> : null}
+											</Flex>
 										</Flex>
-										{/* {showReviewButton && (
-
-											<Button w={"full"}><MdOutlineRateReview/> Review</Button>
-										)} */}
-										</>
 									))}
 								</Box>
 								<Flex>
@@ -359,39 +355,12 @@ export const UserOrdersList = () => {
 									) : null}
 								</Flex>
 							</Flex>
-							<Flex mt={["20px", "10px"]} mr={"10px"} justifyContent={"end"} alignItems={"center"}>
-								<Flex>
-									<DetailProcessModal
-										reload={reload}
-										setReload={setReload}
-										orderId={item?.id}
-										paymentProof={item?.paymentProof}
-										created={item?.createdAt}
-										date={item?.updatedAt}
-										status={item?.status}
-										subtotal={item?.subtotal}
-										tax={item?.tax}
-										discount={item?.discount}
-										total={item?.total}
-										shipment={item?.shipment}
-										shipmentMethod={item?.shipmentMethod}
-										etd={item?.etd}
-										label={item?.Address.label}
-										address={item?.Address.address}
-										subdistrict={item?.Address.subdistrict}
-										city={item?.Address.city}
-										province={item?.Address.province}
-										postal_code={item?.Address.postal_code}
-										quantity={item?.Order_details[0]?.quantity}
-										productName={item?.Order_details[0]?.Product.productName}
-										productPhoto={item?.Order_details[0]?.Product.productPhoto}
-										description={item?.Order_details[0]?.Product.description}
-										price={item?.Order_details[0]?.Product.price}
-									/>
-								</Flex>
+							<Flex mt={["20px", "10px"]} mr={"10px"} justifyContent={["space-between", "end"]} alignItems={"center"}>
 								<Flex>
 									{item.status === "Received" ? (
 										<Button
+											as={Link}
+											to={"/search"}
 											my={"auto"}
 											backgroundColor={"#000000"}
 											color={"white"}
@@ -407,9 +376,49 @@ export const UserOrdersList = () => {
 												},
 											}}
 										>
-											Review
+											<Flex mr={"5px"}>
+												<AiOutlineShopping />
+											</Flex>
+											Shop Again
 										</Button>
 									) : null}
+									{item.status === "Waiting payment" ? (
+										<UploadProofButton reload={reload} setReload={setReload} orderId={item?.id} />
+									) : null}
+									{item.status === "Sent" ? (
+										<ConfirmButtonOrder2 reload={reload} setReload={setReload} orderId={item?.id} />
+									) : null}
+									<Flex>
+										<DetailProcessModal
+											reload={reload}
+											setReload={setReload}
+											orderId={item?.id}
+											paymentProof={item?.paymentProof}
+											created={item?.createdAt}
+											date={item?.updatedAt}
+											status={item?.status}
+											subtotal={item?.subtotal}
+											tax={item?.tax}
+											discount={item?.discount}
+											total={item?.total}
+											shipment={item?.shipment}
+											shipmentMethod={item?.shipmentMethod}
+											etd={item?.etd}
+											label={item?.Address.label}
+											address={item?.Address.address}
+											subdistrict={item?.Address.subdistrict}
+											city={item?.Address.city}
+											province={item?.Address.province}
+											postal_code={item?.Address.postal_code}
+											quantity={item?.Order_details[0]?.quantity}
+											productName={item?.Order_details[0]?.Product.productName}
+											productPhoto={item?.Order_details[0]?.Product.productPhoto}
+											description={item?.Order_details[0]?.Product.description}
+											price={item?.Order_details[0]?.Product.price}
+										/>
+									</Flex>
+								</Flex>
+								<Flex>
 									{item.status !== "Cancelled" || item.status !== "Sent" || item.status !== "Received" ? (
 										<MenuOrder
 											orderId={item?.id}
