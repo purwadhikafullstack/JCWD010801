@@ -4,6 +4,9 @@ const branches = db.Branches;
 const role = db.Roles;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const transporter = require("../middlewares/transporter");
+const fs = require("fs");
+const handlebars = require("handlebars");
 const { Op } = require("sequelize");
 
 module.exports = {
@@ -36,6 +39,15 @@ module.exports = {
 			});
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
+			const data = fs.readFileSync("./src/templates/newAdmin.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username, email });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: email,
+				subject: "Welcome! New Admin Created",
+				html: tempResult,
+			});
 			res.status(200).send({
 				status: 200,
 				result,
