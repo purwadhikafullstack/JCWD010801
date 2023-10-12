@@ -28,6 +28,7 @@ const VoucherPage = lazy(() => import("../pages/voucher"));
 const DiscountOverview = lazy(() => import("../pages/discountOverview"));
 const DiscountManagementPage = lazy(() => import("../pages/discountManagement"));
 const VoucherManagementPage = lazy(() => import("../pages/voucherManagement"));
+const NotificationPage = lazy(() => import("../pages/notification"));
 
 export const AppRouter = createBrowserRouter([
 	{
@@ -95,6 +96,14 @@ export const AppRouter = createBrowserRouter([
 				element: (
 					<Suspense fallback={<Spinner />}>
 						<VoucherPage />
+					</Suspense>
+				),
+			},
+			{
+				path: "/notification",
+				element: (
+					<Suspense fallback={<Spinner />}>
+						<NotificationPage />
 					</Suspense>
 				),
 			},

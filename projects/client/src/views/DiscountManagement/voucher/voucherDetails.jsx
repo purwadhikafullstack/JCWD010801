@@ -1,22 +1,38 @@
 import {
 	Text,
-	Icon,
-	Input,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
-	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
 	Stack,
 	useDisclosure,
-	Button,
     Flex
 } from "@chakra-ui/react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 export const VoucherManagementDetails = ({ name, minimumPayment, maximumDiscount, code, type, Product, BranchId, amountPerRedeem, nominal, isPercentage, availableFrom, validUntil }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [ branches, setBranches ] = useState([]);
+
+    const fetchBranch = async () => {
+		try {
+			const branchResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(branchResponse.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+    const currentBranchInfo = branches.find((branch) => branch.id === parseInt(BranchId));
+	const currentBranchName = currentBranchInfo?.name;
+
+    useEffect(() => {
+        fetchBranch()
+    }, []);
+
     return (
         <>
         <Text onClick={onOpen} fontWeight={"semibold"} cursor={"pointer"}>View Details</Text>
@@ -30,7 +46,7 @@ export const VoucherManagementDetails = ({ name, minimumPayment, maximumDiscount
                 <ModalBody p={5}>
                     <Stack>
                         <Flex justifyContent={"space-between"}>
-                            <Stack gap={2}>
+                            <Stack gap={8}>
                                 <Stack>
                                     <Text fontWeight={"semibold"}>Discount Code</Text>
                                     <Text>{code}</Text>
@@ -54,10 +70,10 @@ export const VoucherManagementDetails = ({ name, minimumPayment, maximumDiscount
                                 </Stack>
                             </Stack>
 
-                            <Stack gap={2}>
+                            <Stack gap={8}>
                                 <Stack>
                                     <Text fontWeight={"semibold"}>Branch</Text>
-                                    <Text>{BranchId}</Text>
+                                    <Text>{currentBranchName}</Text>
                                 </Stack>
                                 <Stack>
                                     <Text fontWeight={"semibold"}>Nominal</Text>

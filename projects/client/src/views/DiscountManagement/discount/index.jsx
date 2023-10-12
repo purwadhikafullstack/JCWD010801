@@ -5,10 +5,29 @@ import { CreateDiscount } from "./createDiscount"
 import { useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { ButtonTemp } from "../../../components/button"
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 export const DiscountManagementPageView = () => {
     const { username, BranchId, RoleId } = useSelector((state) => state.user.value);
     const navigate = useNavigate();
+    const [ branches, setBranches ] = useState([]);
+
+    const fetchBranch = async () => {
+		try {
+			const branchResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
+			setBranches(branchResponse.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+    const currentBranchInfo = branches.find((branch) => branch.id === parseInt(BranchId));
+	const currentBranchName = currentBranchInfo?.name;
+
+    useEffect(() => {
+        fetchBranch()
+    }, []);
     
     return (
         <Stack>
@@ -44,28 +63,34 @@ export const DiscountManagementPageView = () => {
                         w={"800px"}
                         alignSelf={"center"}
                     >
-                        {RoleId === 3 ? "You are currently managing Alphamart discounts for all branches" : `You are currently managing Alphamart discounts for the ... branch`}
+                        {RoleId === 3 ? "You are currently managing Alphamart discounts for all branches" : `You are currently managing Alphamart discounts for the ${currentBranchName} branch`}
                     </Text>
                 </Flex>
             </Stack>
-            <Tabs colorScheme="black" w={"100%"} p={3}>
-                <TabList>
-                    <Tab>Active</Tab>
-                    <Tab>History</Tab>
-                    <Tab>Create</Tab>
-                </TabList>
-                <TabPanels>
-                    <TabPanel>
-                        <OngoingDiscount/>
-                    </TabPanel>
-                    <TabPanel>
-                        <DiscountHistory/>
-                    </TabPanel>
-                    <TabPanel>
-                        <CreateDiscount/>
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
+            {RoleId === 3 ? (
+                <Flex p={5}>
+                    <DiscountHistory />
+                </Flex>
+            ) : (
+                <Tabs colorScheme="black" w={"100%"} p={3}>
+                    <TabList>
+                        <Tab>Manage</Tab>
+                        <Tab>History</Tab>
+                        <Tab>Create</Tab>
+                    </TabList>
+                    <TabPanels>
+                        <TabPanel>
+                            <OngoingDiscount/>
+                        </TabPanel>
+                        <TabPanel>
+                            <DiscountHistory/>
+                        </TabPanel>
+                        <TabPanel>
+                            <CreateDiscount/>
+                        </TabPanel>
+                    </TabPanels>
+                </Tabs>
+            )}
         </Stack>
     )
 }

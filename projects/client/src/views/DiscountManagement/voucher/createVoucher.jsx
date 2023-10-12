@@ -2,24 +2,38 @@ import axios from "axios";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Button, Flex, FormLabel, Icon, Image, Input, InputGroup, InputLeftAddon, InputRightAddon, Radio, RadioGroup, Select, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel, Icon, Image, Input, InputGroup, InputLeftAddon, InputRightAddon, Radio, RadioGroup, Select, Stack, Switch, Table, Tbody, Td, Text, Textarea, Th, Thead, Tr } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { ButtonTemp } from "../../../components/button";
 import { DiscountSelectProduct } from "../components/DiscountSelectProduct";
 import { BsTrash } from "react-icons/bs";
+import { AiFillEye } from "react-icons/ai";
 
 export const CreateVoucher = () => {
     const token = localStorage.getItem("token");
     const [ useProduct, setUseProduct ] = useState(false);
     const [ isPercentage, setIsPercentage ] = useState(false);
+    const [ notifyUsers, setNotifyUsers ] = useState(false);
     const [ selectedProduct, setSelectedProduct ] = useState([]);
     const useProductRef = useRef();
     const isPercentageRef = useRef();
+    const descriptionRef = useRef();
 
-    const voucherSchema = Yup.object().shape({
+    const fixedAmountSchema = Yup.object().shape({
         name: Yup.string().required("This field is required"),
         code: Yup.string().required("This field is required"),
-        nominal: Yup.number().min(0).required("This field is required"),
+        nominal: Yup.number().min(1).required("This field is required"),
+        minimumPayment: Yup.number().min(0).required("This field is required"),
+        maximumDiscount: Yup.number().min(0).required("This field is required"),
+        amountPerRedeem: Yup.number().min(0).required("This field is required"),
+        availableFrom: Yup.string().required("This field is required"),
+        validUntil: Yup.string().required("This field is required")
+    });
+
+    const percentageSchema = Yup.object().shape({
+        name: Yup.string().required("This field is required"),
+        code: Yup.string().required("This field is required"),
+        nominal: Yup.number().min(1).max(100).required("This field is required"),
         minimumPayment: Yup.number().min(0).required("This field is required"),
         maximumDiscount: Yup.number().min(0).required("This field is required"),
         amountPerRedeem: Yup.number().min(0).required("This field is required"),
@@ -40,7 +54,10 @@ export const CreateVoucher = () => {
     const handleSubmit = async(value) => {
         value.type = useProductRef.current.value;
         if (isPercentageRef.current.value === "true") value.isPercentage = true;
-        console.log(selectedProduct.id)
+        if (notifyUsers) {
+            value.notifyUsers = true
+            value.description = descriptionRef.current.value
+        }
         if (useProductRef.current.value) value.ProductId = selectedProduct.id;
         console.log(value)
         try {
@@ -88,10 +105,10 @@ export const CreateVoucher = () => {
     return (
         <Formik
         initialValues={{ name: "", code: "", type: "", isPercentage: false, nominal: 0, minimumPayment: 0, maximumDiscount: 0, amountPerRedeem: 3, availableFrom: null, validUntil: null, ProductId: null }}
-        validationSchema={voucherSchema}
+        validationSchema={isPercentage ? percentageSchema : fixedAmountSchema}
         onSubmit={(value, action) => {
             handleSubmit(value)
-            action.resetForm()
+            // action.resetForm()
         }}>
             {() => {
                 return (
@@ -144,18 +161,6 @@ export const CreateVoucher = () => {
                                             />
                                         </Stack>
                                         <Stack>
-                                            {/* <Field as={RadioGroup} name="type">
-                                                <Flex gap={6}>
-                                                    <Radio name="type" size={"md"} borderColor={"gray"} onChange={() => setUseProduct(false)} value={"Total purchase"}>Total Purchase</Radio>
-                                                    <Radio name="type" size={"md"} borderColor={"gray"} onChange={() => setUseProduct(true)} value={"Single item"}>Single Item</Radio>
-                                                    <Radio name="type" size={"md"} borderColor={"gray"} onChange={() => setUseProduct(false)} value={"Shipment"}>Shipment</Radio>
-                                                </Flex>
-                                            </Field> */}
-                                            {/* <Flex gap={6}>
-                                                <Field name="type" type="radio" onChange={() => setUseProduct(false)} value={"Total purchase"}>Total Purchase</Field>
-                                                <Field name="type" type="radio" onChange={() => setUseProduct(true)} value={"Single item"}>Single Item</Field>
-                                                <Field name="type" type="radio" onChange={() => setUseProduct(false)} value={"Shipment"}>Shipment</Field>
-                                            </Flex> */}
                                             <Select name="type" ref={useProductRef} onChange={handleUseProduct} defaultValue={"Total purchase"}>
                                                 <option value={"Total purchase"}>Total Purchase</option>
                                                 <option value={"Single item"}>Single Item</option>
@@ -168,16 +173,6 @@ export const CreateVoucher = () => {
                                             />
                                         </Stack>
                                         <Stack>
-                                            {/* <Field as={RadioGroup} name="isPercentage">
-                                                <Flex gap={6}>
-                                                    <Radio size={"md"} onChange={() => setIsPercentage(false)} value={false}>Fixed Amount</Radio>
-                                                    <Radio size={"md"} onChange={() => setIsPercentage(true)} value={true}>Percentage</Radio>
-                                                </Flex>
-                                            </Field> */}
-                                            {/* <Flex gap={6}>
-                                                <Field type="radio" name="isPercentage" onChange={() => setIsPercentage(false)} value={false}>Fixed Amount</Field>
-                                                <Field type="radio" name="isPercentage" onChange={() => setIsPercentage(true)} value={true}>Percentage</Field>
-                                            </Flex> */}
                                             <Select ref={isPercentageRef} onChange={handleIsPercentage} name="isPercentage" defaultValue={false}>
                                                 <option value={false}>Fixed Amount</option>
                                                 <option value={true}>Percentage</option>
@@ -290,6 +285,23 @@ export const CreateVoucher = () => {
                                             />
                                         </Stack>
                                     </Stack>
+                                    <Stack gap={5} ml={10}>
+                                        <FormControl display='flex' alignItems='center'>
+                                            <FormLabel htmlFor='notifyUsers' mb='0'>
+                                                Notify Users?
+                                            </FormLabel>
+                                            <Switch size={"md"} onChange={() => setNotifyUsers(!notifyUsers)} id='notifyUsers' />
+                                        </FormControl>
+                                        {notifyUsers && (
+                                            <Textarea
+                                            name="description"
+                                            w={{ base: "250px", sm: "350px", md: "450px" }}
+                                            maxH={"400px"}
+                                            placeholder="Enter voucher notification description"
+                                            ref={descriptionRef}
+                                            />
+                                        )}
+                                    </Stack>
                                 </Flex>
                             </Stack>
                             {useProduct ? (
@@ -332,7 +344,10 @@ export const CreateVoucher = () => {
                                                         <Text>{selectedProduct?.aggregateStock}</Text>
                                                     </Td>
                                                     <Td>
-                                                        <Text>See Report</Text>
+                                                        <Flex alignItems={"center"} gap={1}>
+                                                            <Text>{selectedProduct?.viewCount}</Text>
+                                                            <Icon as={AiFillEye} w={4} h={4} />
+                                                        </Flex>
                                                     </Td>
                                                     <Td>
                                                         <Button bgColor={"white"} p={0} borderRadius={"full"} onClick={() => setSelectedProduct({})}>

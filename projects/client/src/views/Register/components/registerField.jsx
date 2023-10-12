@@ -22,8 +22,17 @@ import "react-toastify/dist/ReactToastify.css";
 export const RegisterFields = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const queryParams = new URLSearchParams(location.search);
+	const referralCode = queryParams.get("r") || "";
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+	const handleReferral = (e) => {
+		const newSearchParams = new URLSearchParams();
+		newSearchParams.set("r", e);
+		navigate(`?${newSearchParams.toString()}`);
+	}
+
 	const registerSchema = Yup.object().shape({
 		username: Yup.string().required("Username is required"),
 		firstName: Yup.string().required("First Name is required"),
@@ -46,7 +55,11 @@ export const RegisterFields = () => {
 	});
 	const handleSubmit = async (data) => {
 		try {
-			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/user/`, data);
+			data.referralCode = referralCode
+			const response = await Axios.post(
+				`${process.env.REACT_APP_API_BASE_URL}/user/`,
+				data
+			);
 			navigate("/login");
 			toast.success(response.data.message, {
 				position: "top-right",
@@ -316,6 +329,18 @@ export const RegisterFields = () => {
 									marginLeft: "8px",
 									fontSize: "12px",
 								}}
+							/>
+						</FormControl>
+						<FormControl mb="3">
+							<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+								Referral Code
+							</FormLabel>
+							<Input
+								onChange={(e) => handleReferral(e.target.value)}
+								borderRadius="20px"
+								placeholder="Referral Code"
+								focusBorderColor="#373433"
+								defaultValue={referralCode}
 							/>
 						</FormControl>
 						<Flex justifyContent={"end"}>
