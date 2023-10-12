@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
-import { BsCart, BsPerson } from "react-icons/bs";
+import { BsBagHeartFill, BsCart, BsPerson } from "react-icons/bs";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdLogout, MdLogin, MdAppRegistration } from "react-icons/md";
 import { LuSearch } from "react-icons/lu";
@@ -115,8 +115,8 @@ export const Navbar = ({ isNotDisabled = true }) => {
 			progress: undefined,
 			theme: "dark",
 		});
-		dispatch(setValue({}));	
-		dispatch(setValueAddress({}))
+		dispatch(setValue({}));
+		dispatch(setValueAddress({}));
 		navigate("/login");
 		setProducts([]);
 	};
@@ -163,10 +163,12 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							w={"150px"}
 						/>
 						<Flex
+							w={"325px"}
 							gap={"2rem"}
-							alignItems={"center"}
+							alignitems={token && address !== undefined && Object.keys(address).length > 0 ? "space-evenly" : "center"}
+							justify={"right"}
 							display={{ base: "none", lg: "flex" }}
-							justifyContent={"space-between"}
+							ml={"385px"}
 						>
 							{token && address !== undefined && Object.keys(address).length > 0 ? (
 								<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
@@ -182,20 +184,43 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								</Flex>
 							) : null}
 							<Text
+								h={"35px"}
+								w={"80px"}
+								textAlign={"center"}
 								onClick={() => navigate("/search")}
 								fontSize={{ base: "sm", lg: "md" }}
 								cursor={"pointer"}
 								fontWeight={"medium"}
+								borderRadius={"20px"}
+								border={"1px solid #C3C1C1"}
+								alignSelf={"center"}
+								p={"3px"}
+								_hover={{
+									bgColor: "gray.300",
+								}}
+								transition="background-color 0.3s"
 							>
 								Shop
 							</Text>
 							<Text
+								h={"35px"}
+								w={"80px"}
+								textAlign={"center"}
 								onClick={() => navigate("/voucher")}
 								fontSize={{ base: "sm", lg: "md" }}
 								cursor={"pointer"}
 								fontWeight={"medium"}
+								borderRadius={"20px"}
+								border={"1px solid #C3C1C1"}
+								alignSelf={"center"}
+								p={"3px"}
+								_hover={{
+									bgColor: "gray.300",
+								}}
+								transition="background-color 0.3s"
+								ml={"-10px"}
 							>
-								Voucher
+								Vouchers
 							</Text>
 						</Flex>
 						<Flex gap={{ base: 1, md: 3 }} alignItems={"center"}>
@@ -313,6 +338,15 @@ export const Navbar = ({ isNotDisabled = true }) => {
 										</Text>
 									</Flex>
 								)}
+							</Button>
+							<Button
+								isDisabled={+RoleId === 1 && RoleId !== undefined ? false : true}
+								bgColor={"white"}
+								rounded={"full"}
+								cursor={+RoleId === 1 && RoleId !== undefined ? "pointer" : "not-allowed"}
+								onClick={() => navigate("/wishlist")}
+							>
+								<Icon as={BsBagHeartFill} w="5" h="5" color={"black"} pos="relative" />
 							</Button>
 							<Menu alignSelf={"center"}>
 								<Button as={MenuButton} p={0} bgColor={"white"} pt={1} borderRadius={"full"} cursor={"pointer"}>

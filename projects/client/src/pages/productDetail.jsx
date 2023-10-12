@@ -38,15 +38,17 @@ const calculateTimeRemaining = (validUntil) => {
 	const timeDiff = endTime - currentTime;
 
 	if (timeDiff <= 0) {
-		return { hours: "00", minutes: "00", seconds: "00" };
+		return { days: "00", hours: "00", minutes: "00", seconds: "00" };
 	}
 
 	const totalSeconds = Math.floor(timeDiff / 1000);
-	const hours = Math.floor(totalSeconds / 3600);
+	const days = Math.floor(totalSeconds / (3600 * 24));
+	const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
 	const seconds = totalSeconds % 60;
 
 	return {
+		days: formatTime(days),
 		hours: formatTime(hours),
 		minutes: formatTime(minutes),
 		seconds: formatTime(seconds),
@@ -433,9 +435,9 @@ const ProductDetail = () => {
 									Product Reviews
 								</Tab>
 							</TabList>
-							<TabPanels mb={"50px"} >
-								<TabPanel w={'340px'}>
-									<Stack fontWeight={"bold"} h={"350px"} justifyContent={"center"} fontSize={"30px"} w={'100%'}>
+							<TabPanels mb={"50px"}>
+								<TabPanel w={"340px"}>
+									<Stack fontWeight={"bold"} h={"350px"} justifyContent={"center"} fontSize={"30px"} w={"100%"}>
 										<Box
 											mt={"10px"}
 											fontSize={"15px"}
@@ -491,7 +493,7 @@ const ProductDetail = () => {
 										</Box>
 									</Stack>
 								</TabPanel>
-								<TabPanel w={'340px'}>
+								<TabPanel w={"340px"}>
 									{discountData ? (
 										<Box>
 											<>
@@ -520,6 +522,9 @@ const ProductDetail = () => {
 														<Text zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
 															Discount Ends In <br />
 															<Badge colorScheme="red" fontSize={"18px"}>
+																{timeRemaining?.days} D :
+															</Badge>
+															<Badge colorScheme="red" fontSize={"18px"} ml={"5px"}>
 																{timeRemaining?.hours} h :
 															</Badge>
 															<Badge colorScheme="red" fontSize={"18px"} ml={"5px"}>
@@ -564,6 +569,9 @@ const ProductDetail = () => {
 														<Text zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
 															Discount Ends In <br />
 															<Badge colorScheme="red" fontSize={"18px"}>
+																{timeRemaining?.days} h :
+															</Badge>
+															<Badge colorScheme="red" fontSize={"18px"} ml={"5px"}>
 																{timeRemaining?.hours} h :
 															</Badge>
 															<Badge colorScheme="red" fontSize={"18px"} ml={"5px"}>
@@ -608,6 +616,9 @@ const ProductDetail = () => {
 														<Text zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
 															Offer Ends In <br />
 															<Badge colorScheme="red" fontSize={"18px"}>
+																{timeRemaining?.days} h :
+															</Badge>
+															<Badge colorScheme="red" fontSize={"18px"} ml={"5px"}>
 																{timeRemaining?.hours} h :
 															</Badge>
 															<Badge colorScheme="red" fontSize={"18px"} ml={"5px"}>
@@ -913,17 +924,31 @@ const ProductDetail = () => {
 															Rp. {(discountData?.nominal).toLocaleString("id-ID")} Reduction
 														</Text>
 														<Text zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
-															Discount Ends In{" "}
-															<Badge colorScheme="red" fontSize={"25px"}>
-																{timeRemaining?.hours} h :
-															</Badge>
-															<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
-																{timeRemaining?.minutes} m :
-															</Badge>
-															<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
-																{timeRemaining?.seconds} s
-															</Badge>
+															Discount Ends In
 														</Text>
+														<Stack zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
+															<Flex
+																zIndex={2}
+																position={"absolute"}
+																justify={"center"}
+																textAlign={"center"}
+																w={"100%"}
+																mt={"50px"}
+															>
+																<Badge colorScheme="red" fontSize={"25px"}>
+																	{timeRemaining?.days} D :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.hours} h :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.minutes} m :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.seconds} s
+																</Badge>
+															</Flex>
+														</Stack>
 														<Image
 															fontWeight={"bold"}
 															w={"100%"}
@@ -958,17 +983,31 @@ const ProductDetail = () => {
 															{discountData?.nominal} % OFF!
 														</Text>
 														<Text zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
-															Discount Ends In{" "}
-															<Badge colorScheme="red" fontSize={"25px"}>
-																{timeRemaining?.hours} h :
-															</Badge>
-															<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
-																{timeRemaining?.minutes} m :
-															</Badge>
-															<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
-																{timeRemaining?.seconds} s
-															</Badge>
+															Discount Ends In
 														</Text>
+														<Stack zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
+															<Flex
+																zIndex={2}
+																position={"absolute"}
+																justify={"center"}
+																textAlign={"center"}
+																w={"100%"}
+																mt={"50px"}
+															>
+																<Badge colorScheme="red" fontSize={"25px"}>
+																	{timeRemaining?.days} D :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.hours} h :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.minutes} m :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.seconds} s
+																</Badge>
+															</Flex>
+														</Stack>
 														<Image
 															fontWeight={"bold"}
 															w={"100%"}
@@ -1003,17 +1042,31 @@ const ProductDetail = () => {
 															BUY 1 GET {discountData?.nominal}
 														</Text>
 														<Text zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
-															Offer Ends In{" "}
-															<Badge colorScheme="red" fontSize={"25px"}>
-																{timeRemaining?.hours} h :
-															</Badge>
-															<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
-																{timeRemaining?.minutes} m :
-															</Badge>
-															<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
-																{timeRemaining?.seconds} s
-															</Badge>
+															Offer Ends In
 														</Text>
+														<Stack zIndex={2} position={"absolute"} textAlign={"center"} w={"100%"} mt={"290px"}>
+															<Flex
+																zIndex={2}
+																position={"absolute"}
+																justify={"center"}
+																textAlign={"center"}
+																w={"100%"}
+																mt={"50px"}
+															>
+																<Badge colorScheme="red" fontSize={"25px"}>
+																	{timeRemaining?.days} D :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.hours} h :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.minutes} m :
+																</Badge>
+																<Badge colorScheme="red" fontSize={"25px"} ml={"5px"}>
+																	{timeRemaining?.seconds} s
+																</Badge>
+															</Flex>
+														</Stack>
 														<Image
 															fontWeight={"bold"}
 															w={"100%"}

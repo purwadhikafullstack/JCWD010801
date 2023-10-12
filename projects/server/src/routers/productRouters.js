@@ -6,19 +6,20 @@ router.post("/", multerUpload(`./src/public/products`, "P-IMG").single("image"),
 router.post("/activation/:PID", productControllers.activateDeactivate);
 router.post("/delete/:PID", productControllers.hardDelete);
 router.patch("/like/:PID", productControllers.likeUnlike);
-router.get("/like/:PID", productControllers.getLikeStatus);
 router.patch("/bulkcategory", productControllers.bulkUpdateCategory);
 router.patch("/bulkdeactivate", productControllers.bulkDeactivate);
 router.patch("/bulkactivate", productControllers.bulkActivate);
 router.patch("/bulkdelete", productControllers.bulkDelete);
 router.patch("/view/:PID", productControllers.addOneUserView);
 router.patch("/:PID", multerUpload(`./src/public/products`, "P-IMG").single("image"), productControllers.updateProduct);
+router.get("/wishlist", productControllers.getUserWishlist);
 router.get("/all", productControllers.getAllProducts);
 router.get("/random", productControllers.getRandomProductName);
 router.get("/alladmin", productControllers.getAllProductsAdmin);
 router.get("/active", productControllers.getActiveProducts);
 router.get("/deactivated", productControllers.getDeactivatedProducts);
 router.get("/deleted", productControllers.getDeletedProducts);
+router.get("/like/:PID", productControllers.getLikeStatus);
 router.get("/stock/:id", productControllers.getBranchStock);
 router.get("/:id", productControllers.getProduct);
 
