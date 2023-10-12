@@ -12,16 +12,11 @@ import { ProductCard } from './card';
 export const DiscountCarousel = () => {
 
   const [ discount, setDiscount ] = useState([]);
-  const token = localStorage.getItem('token');
   const BranchId = localStorage.getItem('BranchId');
 
   const fetchData = async() => {
     try {
-        const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/discount/ongoing?branchId=${BranchId}`, {
-            headers: {
-                authorization: `Bearer ${token}`
-            }
-        });
+        const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/discount/ongoing?branchId=${BranchId}`);
         setDiscount(data.result);
     } catch (err) {
         console.log(err);

@@ -18,6 +18,7 @@ const {
 	reportRouters,
 	discountRouters,
 	voucherRouters,
+	notificationRouters
 } = require("./routers");
 
 // server.use(
@@ -45,9 +46,11 @@ server.use("/api/cart", cartRouters);
 server.use("/api/order", orderRouters);
 server.use("/api/product-report", productReportRouters);
 server.use("/api/branch", branchRouters);
-server.use("/api/report", reportRouters);
-server.use("/api/discount", discountRouters);
-server.use("/api/voucher", voucherRouters);
+server.use('/api/report', reportRouters);
+server.use('/api/discount', discountRouters);
+server.use('/api/voucher', voucherRouters);
+server.use('/api/notification', notificationRouters);
+
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);
@@ -92,12 +95,11 @@ server.get("*", (req, res) => {
 });
 
 //#endregion
-// userAutoCancelOrder();
 server.listen(PORT, (err) => {
 	if (err) {
 		console.log(`ERROR: ${err}`);
 	} else {
-		// db.sequelize.sync({ alter: true });
+		db.sequelize.sync({ alter: true });
 		console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
 	}
 });

@@ -15,7 +15,10 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "VoucherId"
             });
             Vouchers.belongsTo(models.Branches, {
-                foreignKey: "BranchId"
+                foreignKey: {
+					name: "BranchId",
+					allowNull: true
+				}
             });
 		}
 	}

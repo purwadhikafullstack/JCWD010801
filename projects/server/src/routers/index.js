@@ -10,6 +10,7 @@ const productReportRouters = require("./productReportRouters");
 const discountRouters = require("./discountRouters");
 const voucherRouters = require("./voucherRouters");
 const branchRouters = require("./branchRouters");
+const notificationRouters = require("./notificationRouters");
 
 module.exports = {
 	userRouters,
@@ -22,6 +23,7 @@ module.exports = {
 	reportRouters,
 	productReportRouters,
 	branchRouters,
+	notificationRouters,
 	discountRouters,
 	voucherRouters,
 };

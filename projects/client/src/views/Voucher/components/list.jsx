@@ -24,7 +24,7 @@ export const VoucherList = () => {
 
     return (
         <Tabs defaultIndex={0} variant={{ base: "solid-rounded", md: "soft-rounded" }} size={{ base: "sm", md: "md" }}>
-            <TabList minW={"454px"} overflow={"auto"} mb={5} justifyContent={"space-evenly"}>
+            <TabList mb={5} minW={"454px"} overflowX={"auto"} justifyContent={"space-evenly"}>
                 <Tab border={"2px solid black"} color={"gray"} onClick={() => fetchData("")}  _hover={{ bgColor: "black", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>All types</Tab>
                 <Tab border={"2px solid black"} color={"black"} onClick={() => fetchData("Single item")} _hover={{ bgColor: "blackAlpha.500", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>Single item</Tab>
                 <Tab border={"2px solid black"} color={"red"} onClick={() => fetchData("Total purchase")} _hover={{ bgColor: "red.600", color:"white" }} _selected={{ bgColor: "black", color:"white" }}>Total purchase</Tab>
