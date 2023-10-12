@@ -5,7 +5,7 @@ import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { Box } from "@chakra-ui/react";
 import { SidebarMobile } from "../components/navigation/sidebarMobile";
 
-const LayoutSidebar = () => {
+const LayoutSidebar = ({ height }) => {
 	const token = localStorage.getItem("token");
 	const data = useSelector((state) => state?.user?.value);
 	return (
@@ -15,7 +15,7 @@ const LayoutSidebar = () => {
 			) : (
 				<>
 					<Box display={["none", "none", "block", "block"]}>
-						<AdminSidebar />
+						<AdminSidebar height={height || "100vh"} />
 						<Outlet />
 					</Box>
 					<Box display={["block", "block", "none", "none"]}>
