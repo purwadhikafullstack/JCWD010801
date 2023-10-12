@@ -34,7 +34,6 @@ export const UserOrdersList = () => {
 	const [branchId, setBranchId] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
-	// const [showReviewButton, setShowReviewButton] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");

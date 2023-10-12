@@ -58,7 +58,7 @@ export const AdminListPage = () => {
 	};
 
 	useEffect(() => {
-		if (user.RoleId === 1 || user.RoleId === 2) navigate("/");
+		if (user.RoleId === 1 || user.RoleId === 2) navigate("/dashboard");
 		if (!token) navigate("/");
 		getEmployee(page);
 		getBranches();

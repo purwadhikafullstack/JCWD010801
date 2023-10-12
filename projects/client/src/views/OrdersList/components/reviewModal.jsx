@@ -39,7 +39,7 @@ export default function ReviewModal({ id, reload, setReload }) {
 				Review
 			</Button>
 
-			<Modal isOpen={isOpen} onClose={onClose}>
+			<Modal isCentered isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
 					<ModalHeader fontWeight={""}>Product's rating & review</ModalHeader>
