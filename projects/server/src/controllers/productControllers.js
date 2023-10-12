@@ -152,7 +152,6 @@ module.exports = {
 
 			if (branchStock) {
 				return res.status(400).send({
-					error,
 					status: 400,
 					message: "Product name already exists. Did you mean to update product?",
 				});
@@ -751,7 +750,6 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -1448,7 +1446,7 @@ module.exports = {
 				},
 			});
 
-			if (!user) { 
+			if (!user) {
 				return res.status(404).send({
 					status: 404,
 					message: "Non logged in users do not have a wishlist.",
@@ -1484,45 +1482,71 @@ module.exports = {
 	},
 	getUserWishlist: async (req, res) => {
 		try {
-			const { UID } = req.query;
+			const { UID, page = 1, sortBy = "createdAt", sortOrder = "ASC" } = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
+			const user = await users.findByPk(UID);
 
-			const user = await users.findOne({
-				where: {
-					id: UID,
-				},
-			});
-
-			if (user.RoleId > 1) {
-				return res.status(400).send({
-					status: 400,
-					message: "Admins do not have a wishlist!",
-				});
-			}
-
-			if (!user) { 
+			if (!user) {
 				return res.status(404).send({
 					status: 404,
-					message: "Non logged in users do not have a wishlist.",
+					message: "User not found or not logged in.",
 				});
 			}
 
-			const wishlistedItems = await wishlists.findAll({
+			if (user.RoleId > 1) {
+				return res.status(403).send({
+					status: 403,
+					message: "Admins do not have a wishlist.",
+				});
+			}
+
+			const offset = (page - 1) * parseInt(itemLimit, 10);
+
+			let orderCriteria = [];
+			if (sortBy === "productName") {
+				orderCriteria.push(["Product", "productName", sortOrder]);
+			} else if (sortBy === "price") {
+				orderCriteria.push(["Product", "price", sortOrder]);
+			} else if (sortBy === "weight") {
+				orderCriteria.push(["Product", "weight", sortOrder]);
+			} else if (sortBy === "CategoryId") {
+				orderCriteria.push(["Product", "CategoryId", sortOrder]);
+			} else if (sortBy === "aggregateStock") {
+				orderCriteria.push(["Product", "aggregateStock", sortOrder]);
+			} else {
+				orderCriteria.push(["createdAt", sortOrder]);
+			}
+
+			const { count, rows: wishlistedItems } = await wishlists.findAndCountAll({
 				where: {
 					UserId: UID,
+					isLiked: true,
 				},
+				include: [
+					{
+						model: products,
+					},
+				],
+				limit: parseInt(itemLimit, 10),
+				offset,
+				order: orderCriteria,
 			});
 
 			if (wishlistedItems.length === 0) {
 				return res.status(404).send({
 					status: 404,
-					message: "Users don't have any product wishlisted yet.",
+					message: "User does not have any wishlisted products.",
 				});
 			}
 
 			return res.status(200).send({
 				status: 200,
 				message: "Wishlisted products fetched successfully.",
-				wishlist: wishlistedItems
+				totalProducts: count,
+				productsPerPage: parseInt(itemLimit, 10),
+				totalPages: Math.ceil(parseInt(count, 10) / parseInt(itemLimit, 10)),
+				currentPage: page,
+				wishlist: wishlistedItems,
 			});
 		} catch (error) {
 			return res.status(500).send({
