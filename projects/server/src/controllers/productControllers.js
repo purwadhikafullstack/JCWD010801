@@ -1,10 +1,12 @@
 const db = require("../models");
+const users = db.Users;
 const categories = db.Categories;
 const products = db.Products;
 const changelogs = db.Changelogs;
 const stocks = db.Stocks;
 const stockMovements = db.StockMovements;
 const discounts = db.Discounts;
+const wishlists = db.Wishlists;
 const { Sequelize, Op } = require("sequelize");
 
 module.exports = {
@@ -566,11 +568,11 @@ module.exports = {
 							BranchId: parseInt(BranchId) || 1,
 							availableFrom: { [Op.lte]: new Date(Date.now()) },
 							validUntil: { [Op.gte]: new Date(Date.now()) },
-							isActive: true
+							isActive: true,
 						},
 						separate: true,
-						required: false
-					}
+						required: false,
+					},
 				],
 			});
 
@@ -1273,12 +1275,33 @@ module.exports = {
 				});
 			}
 
+			if (RoleId === undefined) {
+				await product.update({
+					viewCount: +product.viewCount + 1,
+				});
+
+				return res.status(200).send({
+					status: 200,
+					message: "View count updated successfully.",
+				});
+			}
+
 			if (RoleId < 2) {
 				await product.update({
 					viewCount: +product.viewCount + 1,
 				});
-			} else {
-				return;
+
+				return res.status(200).send({
+					status: 200,
+					message: "View count updated successfully.",
+				});
+			}
+
+			if (RoleId >= 2) {
+				return res.status(400).send({
+					status: 400,
+					message: "View count not added for admins.",
+				});
 			}
 		} catch (error) {
 			return res.status(500).send({
@@ -1309,7 +1332,199 @@ module.exports = {
 				productName: randomProduct.productName,
 			});
 		} catch (error) {
-			console.error(error);
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	likeUnlike: async (req, res) => {
+		try {
+			const { PID } = req.params;
+			const { UID } = req.query;
+
+			const user = await users.findOne({
+				where: {
+					id: UID,
+				},
+			});
+
+			if (!user) {
+				return res.status(400).send({
+					status: 400,
+					message: "Please login to add this product to your wishlist.",
+				});
+			}
+
+			if (user.RoleId > 1) {
+				return res.status(403).send({
+					status: 403,
+					message: "Admins do not have a wishlist!",
+				});
+			}
+
+			const product = await products.findOne({ where: { id: PID } });
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product is not found.",
+				});
+			}
+
+			const wishlistedItem = await wishlists.findOne({
+				where: {
+					UserId: UID,
+					ProductId: PID,
+				},
+			});
+
+			if (!wishlistedItem) {
+				await wishlists.create({
+					isLiked: true,
+					UserId: UID,
+					ProductId: PID,
+				});
+
+				await product.update({
+					likeCount: +product.likeCount + 1,
+				});
+
+				return res.status(200).send({
+					status: 200,
+					message: `${product.productName} successfully added to your wishlist 😊`,
+				});
+			} else if (wishlistedItem.isLiked === true) {
+				await wishlistedItem.update({
+					isLiked: !wishlistedItem.isLiked,
+				});
+
+				await product.update({
+					likeCount: +product.likeCount - 1,
+				});
+
+				return res.status(200).send({
+					status: 200,
+					message: `${product.productName} successfully removed from your wishlist 😔`,
+				});
+			} else if (wishlistedItem.isLiked === false) {
+				await wishlistedItem.update({
+					isLiked: !wishlistedItem.isLiked,
+				});
+
+				await product.update({
+					likeCount: +product.likeCount + 1,
+				});
+
+				return res.status(200).send({
+					status: 200,
+					message: `${product.productName} successfully added to your wishlist 😊`,
+				});
+			}
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	getLikeStatus: async (req, res) => {
+		try {
+			const { PID } = req.params;
+			const { UID } = req.query;
+
+			const product = await products.findOne({ where: { id: PID } });
+
+			if (!product) {
+				return res.status(404).send({
+					status: 404,
+					message: "Product is not found.",
+				});
+			}
+
+			const user = await users.findOne({
+				where: {
+					id: UID,
+				},
+			});
+
+			if (!user) { 
+				return res.status(404).send({
+					status: 404,
+					message: "Non logged in users do not have a wishlist.",
+				});
+			}
+
+			const wishlistedItem = await wishlists.findOne({
+				where: {
+					UserId: UID,
+					ProductId: PID,
+				},
+			});
+
+			if (!wishlistedItem) {
+				return res.status(404).send({
+					status: 404,
+					likeStatus: false,
+					message: "Product is not yet liked by this user.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				likeStatus: wishlistedItem.isLiked,
+				message: "Liked status fetched successfully.",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	getUserWishlist: async (req, res) => {
+		try {
+			const { UID } = req.query;
+
+			const user = await users.findOne({
+				where: {
+					id: UID,
+				},
+			});
+
+			if (user.RoleId > 1) {
+				return res.status(400).send({
+					status: 400,
+					message: "Admins do not have a wishlist!",
+				});
+			}
+
+			if (!user) { 
+				return res.status(404).send({
+					status: 404,
+					message: "Non logged in users do not have a wishlist.",
+				});
+			}
+
+			const wishlistedItems = await wishlists.findAll({
+				where: {
+					UserId: UID,
+				},
+			});
+
+			if (wishlistedItems.length === 0) {
+				return res.status(404).send({
+					status: 404,
+					message: "Users don't have any product wishlisted yet.",
+				});
+			}
+
+			return res.status(200).send({
+				status: 200,
+				message: "Wishlisted products fetched successfully.",
+				wishlist: wishlistedItems
+			});
+		} catch (error) {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",

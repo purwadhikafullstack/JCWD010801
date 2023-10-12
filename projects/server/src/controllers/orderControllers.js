@@ -2,7 +2,10 @@ const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Axios = require("axios");
 const db = require("../models");
+const transporter = require("../middlewares/transporter");
+const fs = require("fs");
 const qs = require("qs");
+const handlebars = require("handlebars");
 const schedule = require("node-schedule");
 const orders = db.Orders;
 const order_details = db.Order_details;
@@ -73,104 +76,11 @@ module.exports = {
 	ordersList: async (req, res) => {
 		try {
 			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 4;
+			const limit = +req.query.limit || 8;
 			const search = req.query.search;
-			const startDate = req.query.startDate;
-			const endDate = req.query.endDate;
-			const status = req.query.status;
-			const sort = req.query.sort || "DESC";
-			const offset = (page - 1) * limit;
-			const condition = {};
-			const whereCondition = {};
-			if (search) {
-				whereCondition[Op.or] = [
-					{
-						invoice: {
-							[Op.like]: `${search}`,
-						},
-					},
-				];
-			}
-			if (status) {
-				whereCondition.status = status;
-			}
-			if (startDate && endDate) {
-				const startOfDay = new Date(startDate);
-				const endOfDay = new Date(endDate);
-				endOfDay.setHours(23, 59, 59, 999);
-				whereCondition.updatedAt = {
-					[Op.between]: [startOfDay, endOfDay],
-				};
-			} else if (startDate) {
-				const startOfDay = new Date(startDate);
-				whereCondition.updatedAt = {
-					[Op.gte]: startOfDay,
-				};
-			} else if (endDate) {
-				const endOfDay = new Date(endDate);
-				endOfDay.setHours(23, 59, 59, 999);
-				whereCondition.updatedAt = {
-					[Op.lte]: endOfDay,
-				};
-			}
-			const result = await orders.findAll({
-				include: [
-					{
-						model: order_details,
-						include: [
-							{
-								model: products,
-								where: condition,
-							},
-						],
-					},
-					{
-						model: carts,
-						include: [
-							{
-								model: branches,
-							},
-						],
-						where: { UserId: req.user.id },
-					},
-				],
-				limit,
-				offset,
-				order: [["updatedAt", sort]],
-				where: whereCondition,
-			});
-			const countOrders = await orders.count({
-				include: [
-					{
-						model: carts,
-						where: { UserId: req.user.id },
-					},
-				],
-				where: whereCondition,
-			});
-			const filteredResult = result.filter((item) => item.Cart.UserId === req.user.id);
-			res.status(200).send({
-				totalPage: Math.ceil(countOrders / limit),
-				currentPage: page,
-				countOrders,
-				result: filteredResult,
-			});
-		} catch (error) {
-			return res.status(500).send({
-				error,
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
-	superAdminOrdersList: async (req, res) => {
-		try {
-			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 4;
-			const search = req.query.search;
-			const startDate = req.query.startDate;
-			const endDate = req.query.endDate;
 			const branchId = req.query.branchId;
+			const startDate = req.query.startDate;
+			const endDate = req.query.endDate;
 			const status = req.query.status;
 			const sort = req.query.sort || "DESC";
 			const offset = (page - 1) * limit;
@@ -181,7 +91,7 @@ module.exports = {
 				whereCondition[Op.or] = [
 					{
 						invoice: {
-							[Op.like]: `${search}`,
+							[Op.like]: `%${search}%`,
 						},
 					},
 				];
@@ -210,13 +120,13 @@ module.exports = {
 			}
 			if (branchId) branchCondition["BranchId"] = branchId;
 			const result = await orders.findAll({
+				where: whereCondition,
 				include: [
 					{
 						model: order_details,
 						include: [
 							{
 								model: products,
-								where: condition,
 							},
 						],
 					},
@@ -227,16 +137,186 @@ module.exports = {
 								model: branches,
 							},
 						],
-						where: branchCondition,
+						where: { UserId: req.user.id, ...branchCondition },
+					},
+					{
+						model: addresses,
 					},
 				],
 				limit,
 				offset,
 				order: [["updatedAt", sort]],
-				where: whereCondition,
 			});
 			const countOrders = await orders.count({
-				where: condition,
+				where: whereCondition,
+				include: [
+					{
+						model: order_details,
+						include: [
+							{
+								model: products,
+							},
+						],
+					},
+					{
+						model: carts,
+						include: [
+							{
+								model: branches,
+							},
+						],
+						where: { UserId: req.user.id, ...branchCondition },
+					},
+					{
+						model: addresses,
+					},
+				],
+			});
+			res.status(200).send({
+				totalPage: Math.ceil(countOrders / limit),
+				currentPage: page,
+				countOrders,
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	superAdminOrdersList: async (req, res) => {
+		try {
+			const page = +req.query.page || 1;
+			const limit = +req.query.limit || 8;
+			const search = req.query.search;
+			const branchId = req.query.branchId;
+			const searchName = req.query.searchName;
+			const startDate = req.query.startDate;
+			const endDate = req.query.endDate;
+			const status = req.query.status;
+			const sort = req.query.sort || "DESC";
+			const offset = (page - 1) * limit;
+			const searchCondition = {};
+			const whereCondition = {};
+			const branchCondition = {};
+			if (search) {
+				whereCondition[Op.or] = [
+					{
+						invoice: {
+							[Op.like]: `%${search}%`,
+						},
+					},
+				];
+			}
+			if (searchName) {
+				searchCondition[Op.or] = [
+					{
+						username: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+					{
+						email: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+					{
+						firstName: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+					{
+						lastName: {
+							[Op.like]: `%${searchName}%`,
+						},
+					},
+				];
+			}
+			if (status) {
+				whereCondition.status = status;
+			}
+			if (startDate && endDate) {
+				const startOfDay = new Date(startDate);
+				const endOfDay = new Date(endDate);
+				endOfDay.setHours(23, 59, 59, 999);
+				whereCondition.updatedAt = {
+					[Op.between]: [startOfDay, endOfDay],
+				};
+			} else if (startDate) {
+				const startOfDay = new Date(startDate);
+				whereCondition.updatedAt = {
+					[Op.gte]: startOfDay,
+				};
+			} else if (endDate) {
+				const endOfDay = new Date(endDate);
+				endOfDay.setHours(23, 59, 59, 999);
+				whereCondition.updatedAt = {
+					[Op.lte]: endOfDay,
+				};
+			}
+			if (branchId) branchCondition["BranchId"] = branchId;
+			const result = await orders.findAll({
+				where: whereCondition,
+				include: [
+					{
+						model: order_details,
+						include: [
+							{
+								model: products,
+							},
+						],
+					},
+					{
+						model: carts,
+						include: [
+							{
+								model: branches,
+							},
+							{
+								model: users,
+								where: searchCondition,
+							},
+						],
+						where: branchCondition,
+					},
+					{
+						model: addresses,
+					},
+				],
+				limit,
+				offset,
+				order: [["updatedAt", sort]],
+			});
+			const countOrders = await orders.count({
+				where: whereCondition,
+				include: [
+					{
+						model: order_details,
+						include: [
+							{
+								model: products,
+							},
+						],
+					},
+					{
+						model: carts,
+						include: [
+							{
+								model: branches,
+							},
+							{
+								model: users,
+								where: searchCondition,
+							},
+						],
+						where: branchCondition,
+					},
+					{
+						model: addresses,
+					},
+				],
 			});
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
@@ -255,7 +335,7 @@ module.exports = {
 	branchAdminOrdersList: async (req, res) => {
 		try {
 			const page = +req.query.page || 1;
-			const limit = +req.query.limit || 4;
+			const limit = +req.query.limit || 8;
 			const search = req.query.search;
 			const searchName = req.query.searchName;
 			const startDate = req.query.startDate;
@@ -321,6 +401,7 @@ module.exports = {
 					[Op.lte]: endOfDay,
 				};
 			}
+			const branchAdmin = await users.findOne({ where: req.user.id });
 			const result = await orders.findAll({
 				where: whereCondition,
 				include: [
@@ -343,6 +424,9 @@ module.exports = {
 								where: condition,
 							},
 						],
+						where: {
+							BranchId: branchAdmin.BranchId,
+						},
 					},
 					{
 						model: addresses,
@@ -353,39 +437,79 @@ module.exports = {
 				order: [["updatedAt", sort]],
 			});
 			const countOrders = await orders.count({
-				where: whereCondition,
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
 			const waitingOrders = await orders.count({
 				where: {
 					status: "Waiting Payment",
+				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
 				},
 			});
 			const pendingOrders = await orders.count({
 				where: {
 					status: "Pending payment confirmation",
 				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
 			const processingOrders = await orders.count({
 				where: {
 					status: "Processing",
+				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
 				},
 			});
 			const sentOrders = await orders.count({
 				where: {
 					status: "Sent",
 				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
 			const receivedOrders = await orders.count({
 				where: {
 					status: "Received",
+				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
 				},
 			});
 			const cancelledOrders = await orders.count({
 				where: {
 					status: "Cancelled",
 				},
+				include: {
+					model: carts,
+					where: {
+						BranchId: branchAdmin.BranchId,
+					},
+				},
 			});
-			// const filteredResult = result.filter((item) => item.Cart.BranchId === req.user.BranchId);
 			res.status(200).send({
 				totalPage: Math.ceil(countOrders / limit),
 				currentPage: page,
@@ -396,10 +520,9 @@ module.exports = {
 				sentOrders,
 				receivedOrders,
 				cancelledOrders,
-				result,
+				result: result,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -421,7 +544,7 @@ module.exports = {
 					message: "Order cannot be updated to 'Processing'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Processing" }, { where: { id: orderId } });
+			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Processing' successfully",
@@ -434,10 +557,98 @@ module.exports = {
 			});
 		}
 	},
-	processingToSent: async (req, res) => {
+	receiveConfirmation: async (req, res) => {
 		try {
 			const orderId = req.params.id;
 			const order = await orders.findOne({ where: { id: orderId } });
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Sent") {
+				return res.status(400).send({
+					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+				});
+			}
+			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Received' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	rejectPaymentProof: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Pending payment confirmation") {
+				return res.status(400).send({
+					message:
+						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+				});
+			}
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Please Reupload Your Payment Proof",
+				html: tempResult,
+			});
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Rejected' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	processingToSent: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
 			if (!order) {
 				return res.status(404).send({
 					message: "Order not found",
@@ -451,6 +662,19 @@ module.exports = {
 			const userId = req.user.id;
 			const invoiceNumber = generateInvoiceNumber(userId);
 			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/sentOrder.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({
+				link: process.env.REACT_APP_BASE_URL,
+				invoice: invoiceNumber,
+				username: order.Cart.User.username,
+			});
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "We have sent out your order for delivery.",
+				html: tempResult,
+			});
 			res.status(200).send({
 				status: true,
 				invoiceNumber: invoiceNumber,
@@ -468,7 +692,19 @@ module.exports = {
 		try {
 			const orderId = req.params.id;
 			const { AID } = req.query;
-			const order = await orders.findOne({ where: { id: orderId } });
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
 
 			if (!order) {
 				return res.status(404).send({
@@ -483,6 +719,15 @@ module.exports = {
 			}
 
 			await orders.update({ status: "Cancelled" }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/cancelOrderAdmin.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Sorry, your order has been canceled by the admin.",
+				html: tempResult,
+			});
 
 			const cartCheckedOut = await carts.findOne({
 				where: {
@@ -566,23 +811,25 @@ module.exports = {
 	order: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
 		try {
-			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } = req.body;
-			
+			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } =
+				req.body;
+
 			// Use voucher
 			const filter = {
-                where: {
-                    UserId: req.user.id,
-                    VoucherId
-                },
-				transaction
-            }
-            if (VoucherId) {
+				where: {
+					UserId: req.user.id,
+					VoucherId,
+				},
+				transaction,
+			};
+			if (VoucherId) {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if ( voucherTypeCheck.minimumPayment > subtotal ) return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
+				if (voucherTypeCheck.minimumPayment > subtotal)
+					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
-			} 
+			}
 
 			const cartCheckedOut = await carts.findOne({
 				where: {
@@ -597,25 +844,31 @@ module.exports = {
 				},
 			});
 
-			const result = await orders.create({
-				shipment,
-				shipmentMethod,
-				etd,
-				shippingFee,
-				subtotal,
-				tax,
-				total,
-				discount,
-				status: "Waiting payment",
-				CartId: cartCheckedOut.id,
-				AddressId: AddressId,
-			}, transaction);
+			const result = await orders.create(
+				{
+					shipment,
+					shipmentMethod,
+					etd,
+					shippingFee,
+					subtotal,
+					tax,
+					total,
+					discount,
+					status: "Waiting payment",
+					CartId: cartCheckedOut.id,
+					AddressId: AddressId,
+				},
+				transaction
+			);
 			const orderDetailPromises = orderedItems.map(async (item) => {
-				await order_details.create({
-					OrderId: result.id,
-					ProductId: item.ProductId,
-					quantity: item.quantity,
-				}, { transaction });
+				await order_details.create(
+					{
+						OrderId: result.id,
+						ProductId: item.ProductId,
+						quantity: item.quantity,
+					},
+					{ transaction }
+				);
 			});
 			await Promise.all(orderDetailPromises);
 
@@ -628,13 +881,13 @@ module.exports = {
 
 				await product.decrement(
 					{
-						aggregateStock: parseInt(item.quantity),
+						aggregateStock: parseInt(item.quantity, 10),
 					},
 					{
 						where: {
 							id: item.ProductId,
 						},
-						transaction
+						transaction,
 					}
 				);
 
@@ -645,31 +898,34 @@ module.exports = {
 					},
 				});
 
-				const newBranchStock = parseInt(oldBranchStock.currentStock) - parseInt(item.quantity);
+				const newBranchStock = parseInt(oldBranchStock.currentStock, 10) - parseInt(item.quantity, 10);
 
-				await stockMovements.create({
-					ProductId: item.ProductId,
-					BranchId: cartCheckedOut.BranchId,
-					oldValue: oldBranchStock.currentStock,
-					newValue: parseInt(newBranchStock),
-					change: -parseInt(item.quantity),
-					isAddition: false,
-					isAdjustment: false,
-					isInitialization: false,
-					isBranchInitialization: false,
-					UserId: req.user.id,
-				}, { transaction });
+				await stockMovements.create(
+					{
+						ProductId: item.ProductId,
+						BranchId: cartCheckedOut.BranchId,
+						oldValue: oldBranchStock.currentStock,
+						newValue: parseInt(newBranchStock, 10),
+						change: -parseInt(item.quantity, 10),
+						isAddition: false,
+						isAdjustment: false,
+						isInitialization: false,
+						isBranchInitialization: false,
+						UserId: req.user.id,
+					},
+					{ transaction }
+				);
 
 				await stocks.decrement(
 					{
-						currentStock: parseInt(item.quantity),
+						currentStock: parseInt(item.quantity, 10),
 					},
 					{
 						where: {
 							ProductId: item.ProductId,
 							BranchId: cartCheckedOut.BranchId,
 						},
-						transaction
+						transaction,
 					}
 				);
 			});
@@ -683,33 +939,38 @@ module.exports = {
 					where: {
 						id: cartCheckedOut.id,
 					},
-					transaction
+					transaction,
 				}
 			);
 
 			// Auto cancel order 5 minutes
 			const autoCancelTime = new Date(Date.now() + 300000);
-			schedule.scheduleJob(autoCancelTime, async() => {
+			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
-					const ord = await orders.findOne({
-						where: { id: result.id },
-						include: { model: carts }
-					}, { transaction });
-					
+					const ord = await orders.findOne(
+						{
+							where: { id: result.id },
+							include: { model: carts },
+						},
+						{ transaction }
+					);
+
 					if (!ord.paymentProof) {
 						await orders.update({ status: "Cancelled" }, { where: { id: ord.id }, transaction });
-			
+
 						const result = await order_details.findAll({ where: { OrderId: ord.id } });
-			
-						for (const {ProductId, quantity} of result) {
-							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } })
-							await stocks.update({ currentStock: currentStock + quantity }, {
-								where: { ProductId, BranchId: ord.Cart.BranchId },
-								transaction
-							})
+
+						for (const { ProductId, quantity } of result) {
+							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
+							await stocks.update(
+								{ currentStock: currentStock + quantity },
+								{
+									where: { ProductId, BranchId: ord.Cart.BranchId },
+									transaction,
+								}
+							);
 						}
-			
 					}
 					await transaction.commit();
 				} catch (err) {
@@ -717,7 +978,7 @@ module.exports = {
 				}
 			});
 
-            await transaction.commit();
+			await transaction.commit();
 
 			res.status(200).send({
 				status: true,
@@ -768,10 +1029,51 @@ module.exports = {
 
 			for (const { ProductId, quantity } of result) {
 				let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
-				await stocks.update(
-					{ currentStock: currentStock + quantity },
+				const product = await products.findOne({
+					where: {
+						id: ProductId,
+					},
+				});
+
+				await product.increment(
 					{
-						where: { ProductId, BranchId: ord.Cart.BranchId },
+						aggregateStock: parseInt(quantity, 10),
+					},
+					{
+						where: {
+							id: ProductId,
+						},
+						transaction,
+					}
+				);
+
+				const newBranchStock = parseInt(currentStock, 10) + parseInt(quantity, 10);
+
+				await stockMovements.create(
+					{
+						ProductId: ProductId,
+						BranchId: ord.Cart.BranchId,
+						oldValue: currentStock,
+						newValue: parseInt(newBranchStock, 10),
+						change: parseInt(quantity, 10),
+						isAddition: true,
+						isAdjustment: false,
+						isInitialization: false,
+						isBranchInitialization: false,
+						UserId: ord.Cart.UserId,
+					},
+					{ transaction }
+				);
+
+				await stocks.increment(
+					{
+						currentStock: parseInt(quantity, 10),
+					},
+					{
+						where: {
+							ProductId,
+							BranchId: ord.Cart.BranchId,
+						},
 						transaction,
 					}
 				);

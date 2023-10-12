@@ -9,12 +9,12 @@ module.exports = (sequelize, DataTypes) => {
 			Users.hasMany(models.Carts);
 			Users.hasMany(models.Changelogs);
 			Users.belongsToMany(models.Vouchers, {
-                through: "User_vouchers",
-                foreignKey: "UserId"
-            });
+				through: "User_vouchers",
+				foreignKey: "UserId",
+			});
 			// Users.hasMany(models.User_vouchers, {
-            //     foreignKey: "UserId"
-            // });
+			//     foreignKey: "UserId"
+			// });
 		}
 	}
 	Users.init(
