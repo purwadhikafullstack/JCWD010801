@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
-import { BsCart, BsPerson } from "react-icons/bs";
+import { BsBell, BsCart, BsPerson } from "react-icons/bs";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdLogout, MdLogin, MdAppRegistration } from "react-icons/md";
 import { LuSearch } from "react-icons/lu";
@@ -35,6 +35,7 @@ import { toast } from "react-toastify";
 import { setValueAddress } from "../../redux/addressSlice";
 import { ReferralModal } from "./referralModal";
 import { ResendVerification } from "./resendVerification";
+import { AiOutlineBell } from "react-icons/ai";
 
 export const Navbar = ({ isNotDisabled = true }) => {
 	const navigate = useNavigate();
@@ -55,6 +56,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 	const [reload, setReload] = useState(false);
 	const [isSearchFocused, setSearchFocused] = useState(false);
 	const [totalCartItems, setTotalCartItems] = useState(0);
+	const [totalUnreadNotifications, setTotalUnreadNotifications] = useState(0);
 	const address = useSelector((state) => state?.address?.value);
 
 	const fetchData = async () => {
@@ -81,6 +83,19 @@ export const Navbar = ({ isNotDisabled = true }) => {
 		}
 	};
 
+	const fetchUnreadNotification = async() => {
+		try {
+			const { data } = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/notification`, {
+				headers: {
+					authorization: `Bearer ${token}`,
+				},
+			});
+			setTotalUnreadNotifications(data.unreadTotal);
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 	const handleSearchFocus = () => {
 		setSearchFocused(true);
 		setReload(true);
@@ -103,6 +118,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	useEffect(() => {
 		fetchCart();
+		fetchUnreadNotification();
 		// eslint-disable-next-line
 	}, [refresh]);
 
@@ -293,6 +309,33 @@ export const Navbar = ({ isNotDisabled = true }) => {
 										</Stack>
 									)}
 								</div>
+								<Button
+									isDisabled={+RoleId === 1 ? false : true}
+									bgColor={"white"}
+									rounded={"full"}
+									cursor={"pointer"}
+									onClick={() => navigate("/notification")}
+								>
+									<Icon as={BsBell} w="5" h="5" color={"black"} pos="relative" />
+									{totalUnreadNotifications > 0 && (
+										<Flex
+											w={5}
+											h={5}
+											bg={"blackAlpha.700"}
+											border={"2px solid white"}
+											rounded={"full"}
+											justifyContent={"center"}
+											alignItems={"center"}
+											pos={"absolute"}
+											top={1}
+											right={1}
+										>
+											<Text fontSize={"10px"} align={"center"} justifyContent={"center"} color={"white"} textAlign={"center"}>
+												{totalUnreadNotifications}
+											</Text>
+										</Flex>
+									)}
+								</Button>
 								<Button
 									isDisabled={+RoleId === 1 ? false : true}
 									bgColor={"white"}

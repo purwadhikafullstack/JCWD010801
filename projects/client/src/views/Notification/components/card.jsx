@@ -60,7 +60,7 @@ export const NotificationCard = ({ item, setReload, isLast = false }) => {
         zIndex={5}
         >
             <Icon as={type === "Discount" ? MdDiscount : BiReceipt} w={7} h={7} />
-            <Stack ml={5} justifyContent={"center"} gap={2}>
+            <Stack w={"50%"} ml={5} justifyContent={"center"} gap={2}>
                 <Text fontSize={"20px"} fontWeight={"semibold"} textOverflow={"ellipsis"}>{name}</Text>
                 <Text textOverflow={"ellipsis"}>{description}</Text>
             </Stack>

@@ -4,6 +4,7 @@ const user_vouchers = db.User_vouchers;
 const orders = db.Orders;
 const order_details = db.Order_details;
 const products = db.Products;
+const notifications = db.Notifications;
 const tokenVerification = db.Tokens;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -108,6 +109,12 @@ module.exports = {
 				}, { transaction });
 
 				await user_vouchers.create({ VoucherId: 16, UserId: result.id, amount: 1 }, { transaction });
+				// await notifications.create({
+				// 	type: "Discount",
+				// 	name: "",
+				// 	description: ``
+				// 	UserId: order.Cart.UserId
+				// }, { transaction })
 			}
 
 			const payload = { id: result.id };

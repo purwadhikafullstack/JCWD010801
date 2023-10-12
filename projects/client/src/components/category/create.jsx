@@ -97,7 +97,7 @@ export const CreateCategory = ({ isText }) => {
 							onClose();
 						}}
 					>
-						{({ setFieldValue }) => {
+						{({ setFieldValue, values }) => {
 							return (
 								<Form>
 									<ModalBody>
@@ -122,23 +122,50 @@ export const CreateCategory = ({ isText }) => {
 											</Stack>
 											<Stack gap={1}>
 												<Text fontWeight={"semibold"}>Category Image</Text>
-												<Stack>
-													<Input
-														as={Field}
-														type={"file"}
-														name="image"
-														placeholder="Insert the category image here"
-														focusBorderColor="#373433"
-														value={undefined}
-                                                        accept="image/jpg, image/jpeg, image/png"
-														onChange={(e) => {
-															setFieldValue("image", e.target.files[0]);
+												<Stack align={"center"}>
+													<img
+														id="previewImage"
+														src={values.image ? URL.createObjectURL(values.image) : ""}
+														alt="Loading Preview.."
+														style={{
+															display: values.image ? "block" : "none",
+															width: "250px",
+															height: "250px",
+															maxWidth: "300px",
+															maxHeight: "500px",
 														}}
 													/>
+													<input
+														type="file"
+														id="image"
+														name="image"
+														style={{ display: "none" }}
+														accept="image/jpg, image/jpeg, image/png"
+														onChange={(e) => {
+															const file = e.target.files[0];
+															setFieldValue("image", file);
+															const previewImage = document.getElementById("previewImage");
+															if (previewImage && file) {
+																previewImage.style.display = "block";
+																const reader = new FileReader();
+																reader.onload = (e) => {
+																	previewImage.src = e.target.result;
+																};
+																reader.readAsDataURL(file);
+															}
+														}}
+													/>
+													<Button
+														onClick={() => {
+															document.getElementById("image").click();
+														}}
+													>
+														Select Image
+													</Button>
 													<ErrorMessage
 														component="box"
 														name="image"
-														style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
+														style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "12px" }}
 													/>
 												</Stack>
 											</Stack>
