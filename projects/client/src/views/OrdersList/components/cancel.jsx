@@ -42,7 +42,7 @@ export const CancelOrder = ({ id, orderNumber = "INV/20230813/MPL/3400120239" })
                 theme: "dark",
             });
         } catch (err) {
-            toast.error(err.response.data.message, {
+            toast.error("Failed to cancel order. Please try again later.", {
                 position: "top-center",
                 autoClose: 4000,
                 hideProgressBar: false,

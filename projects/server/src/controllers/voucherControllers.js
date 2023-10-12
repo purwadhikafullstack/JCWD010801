@@ -67,7 +67,6 @@ module.exports = {
                 message: "Voucher created"
             });
         } catch (err) {
-            console.log(err)
             await transaction.rollback();
             res.status(400).send(err);
         }

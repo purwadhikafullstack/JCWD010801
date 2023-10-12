@@ -50,7 +50,7 @@ export const NotificationCard = ({ item, setReload, isLast = false }) => {
         <>
         <Flex 
         cursor={"pointer"} 
-        p={3} 
+        p={{ base: 2, md: 3 }} 
         alignItems={"center"} 
         onClick={isRead ? onOpen : handleOpen} 
         borderBottom={isLast ? null : "1px solid gray"} 
@@ -60,18 +60,17 @@ export const NotificationCard = ({ item, setReload, isLast = false }) => {
         zIndex={5}
         >
             <Icon as={type === "Discount" ? MdDiscount : BiReceipt} w={7} h={7} />
-            <Stack w={"50%"} ml={5} justifyContent={"center"} gap={2}>
-                <Text fontSize={"20px"} fontWeight={"semibold"} textOverflow={"ellipsis"}>{name}</Text>
-                <Text textOverflow={"ellipsis"}>{description}</Text>
+            <Stack overflow={"hidden"} whiteSpace={"nowrap"} textOverflow={"ellipsis"} w={"60%"} ml={5} justifyContent={"center"} gap={2}>
+                <Text fontSize={{ base: "15px", md: "20px" }} fontWeight={"semibold"}>{name}</Text>
+                <Text fontSize={{ base: "12px", md: "16px" }}>{description}</Text>
             </Stack>
             <Spacer/>
-            <Stack mr={5} textAlign={"end"} gap={3} justifyContent={"center"} alignItems={"end"}>
+            <Stack mr={{ base: 0, md: 5 }} textAlign={"end"} gap={3} justifyContent={"center"} alignItems={"end"}>
                 <Text fontWeight={"semibold"}>{new Date(createdAt)?.toLocaleDateString("us-US", {
                     month: "short",
-                    day: "numeric",
-                    year: "numeric"
+                    day: "numeric"
                 })}</Text>
-                <Icon as={BsCircleFill} w={4} h={4} color={isRead ? "white" : "red.700"} />
+                <Icon display={isRead ? "none" : "flex"} as={BsCircleFill} w={4} h={4} color={"red.700"} />
             </Stack>
             <DeleteNotification setReload={setReload} id={id} />
         </Flex>
@@ -110,6 +109,9 @@ export const NotificationCard = ({ item, setReload, isLast = false }) => {
                             })}</Text>
                         </Flex>
                         <Text alignSelf={"start"} textAlign={"start"}>{description}</Text>
+                        <Flex m={0} w={"100%"} justifyContent={"flex-end"}>
+                            <DeleteNotification onDetail={true} setReload={setReload} id={id} />
+                        </Flex>
                     </Stack>
                 </ModalBody>
             </ModalContent>

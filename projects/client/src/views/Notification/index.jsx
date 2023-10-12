@@ -43,7 +43,7 @@ export const NotificationPageView = () => {
                 </TabList>
                 <TabPanels>
                     {notifications.length > 0 ? (
-                        <Stack borderRadius={"10px"} p={5} boxShadow={"lg"}>
+                        <Stack borderRadius={"10px"} p={{ base: 1, sm: 3, md: 5 }} boxShadow={"lg"}>
                             {notifications.map((item, idx) => {
                                 return (
                                     <NotificationCard 

@@ -67,7 +67,7 @@ export const UploadProof = ({ id, date, branch, amount, reload, setReload }) => 
 			setReload(!reload);
 			onClose();
 		} catch (err) {
-			toast.error(err.response.data.message, {
+			toast.error("Failed to upload payment proof. Please try again later.", {
 				position: "top-center",
 				autoClose: 4000,
 				hideProgressBar: false,

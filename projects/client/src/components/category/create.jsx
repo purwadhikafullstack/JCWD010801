@@ -31,7 +31,17 @@ export const CreateCategory = ({ isText }) => {
 
 	const categorySchema = Yup.object().shape({
 		category: Yup.string().required("This field must not be empty"),
-		image: Yup.mixed().required("This field must not be empty"),
+		image: Yup.mixed()
+		.required("This field must not be empty")
+		.test("fileSize", "Image size is too large (max 1MB)", (value) => {
+			if (!value) return true;
+			return value.size <= 1024 * 1024;
+		})
+		.test("fileType", "Only JPG, JPEG, PNG, WEBP, and GIF image types are supported.", (value) => {
+			if (!value) return true;
+			const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
+			return acceptedTypes.includes(value.type);
+		}),
 	});
 
 	const handleSubmit = async (value) => {

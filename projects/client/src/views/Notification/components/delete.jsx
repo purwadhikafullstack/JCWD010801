@@ -6,7 +6,7 @@ import { BiTrashAlt } from "react-icons/bi";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { ButtonTemp } from "../../../components/button";
 
-export const DeleteNotification = ({ setReload, id }) => {
+export const DeleteNotification = ({ setReload, id, onDetail = false }) => {
     const token = localStorage.getItem('token');
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -45,7 +45,7 @@ export const DeleteNotification = ({ setReload, id }) => {
 
     return (
         <>
-        <Button zIndex={10} bgColor={"inherit"} color={"red.700"} size={"lg"} onClick={onOpen} borderRadius={"full"} p={0}>
+        <Button display={onDetail ? "flex" : { base: "none", md: "flex" }} zIndex={10} bgColor={"inherit"} color={"red.700"} size={"lg"} onClick={onOpen} borderRadius={"full"} p={0}>
             <Icon as={BiTrashAlt} w='6' h='6' />
         </Button>
         <Modal isOpen={isOpen} onClose={onClose}>
