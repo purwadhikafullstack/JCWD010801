@@ -1418,7 +1418,7 @@ module.exports = {
 			});
 		} catch (err) {
 			return res.status(500).send({
-				error,
+				err,
 				status: 500,
 				message: "Internal server error.",
 			});
