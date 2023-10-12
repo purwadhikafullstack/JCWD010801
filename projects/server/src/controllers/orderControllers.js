@@ -736,6 +736,94 @@ module.exports = {
 					message: "Order not found",
 				});
 			}
+			if (order.status !== "Sent") {
+				return res.status(400).send({
+					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+				});
+			}
+			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Received' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	rejectPaymentProof: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Pending payment confirmation") {
+				return res.status(400).send({
+					message:
+						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+				});
+			}
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Please Reupload Your Payment Proof",
+				html: tempResult,
+			});
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Rejected' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	processingToSent: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
 			if (order.status !== "Processing") {
 				return res.status(400).send({
 					message: "Order cannot be updated to 'Sent'. Current status is not 'Processing'.",
