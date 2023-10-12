@@ -71,7 +71,7 @@ const EditAvatar = () => {
 			});
 			setIsModalOpen(!isModalOpen);
 		} catch (error) {
-			toast.error(error?.response.data.error.message, {
+			toast.error("Failed to udpate your profile picture", {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
