@@ -127,7 +127,7 @@ const EditAvatar = () => {
 									)}
 									<Form>
 										<Field name="avatar">
-											{({ field }) => (
+											{({ field, form }) => (
 												<FormControl>
 													<FormLabel htmlFor="avatar">Select an image</FormLabel>
 													<Input
@@ -145,6 +145,9 @@ const EditAvatar = () => {
 														type="file"
 														id="avatar"
 														accept="image/*"
+														onBlur={() => {
+															form.setFieldTouched("avatar", true);
+														}}
 													/>
 												</FormControl>
 											)}
