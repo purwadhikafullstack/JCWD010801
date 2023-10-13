@@ -4,17 +4,28 @@ import { useNavigate, useParams } from "react-router-dom";
 import source from "../../assets/public/AM_logo_trans.png";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch, useSelector } from "react-redux";
+import { setValue } from "../../redux/userSlice";
 export const VerificationPageView = () => {
 	const { token } = useParams();
+	const tokenLogin = localStorage.getItem("token")
 	const navigate = useNavigate();
+	const data = useSelector((state) => state?.user?.value);
+	const dispatch = useDispatch();
 	const headers = {
 		Authorization: `Bearer ${token}`,
 	};
-
+	
 	const handleSubmit = async () => {
 		try {
 			const response = await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/user/verification`, {}, { headers });
-			navigate("/login");
+			if (data.id && tokenLogin)  {
+				const updatedUser = { ...data, isVerified: true };
+				dispatch(setValue(updatedUser));
+				navigate("/");
+			} else {
+				navigate("/login");
+			}
 			toast.success(response.data.message, {
 				position: "top-right",
 				autoClose: 5000,
