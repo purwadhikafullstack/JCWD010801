@@ -8,8 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
 export const VerificationPageView = () => {
 	const { token } = useParams();
+	const tokenLogin = localStorage.getItem("token")
 	const navigate = useNavigate();
-	const data = useSelector((state) => state.user.value);
+	const data = useSelector((state) => state?.user?.value);
 	const dispatch = useDispatch();
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -18,7 +19,7 @@ export const VerificationPageView = () => {
 	const handleSubmit = async () => {
 		try {
 			const response = await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/user/verification`, {}, { headers });
-			if (data.id) {
+			if (data.id && tokenLogin)  {
 				const updatedUser = { ...data, isVerified: true };
 				dispatch(setValue(updatedUser));
 				navigate("/");
