@@ -41,14 +41,14 @@ const EditAvatar = () => {
 	const validationSchema = Yup.object().shape({
 		avatar: Yup.mixed()
 			.required("Image is required.")
-			.test("fileSize", "Image size is too large (max 1MB)", () => {
-				if (!file) return true;
-				return file.size <= 1024 * 1024;
-			})
 			.test("fileType", "Only JPG, JPEG, PNG, WEBP, and GIF image types are supported.", () => {
 				if (!file) return true;
 				const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 				return acceptedTypes.includes(file.type);
+			})
+			.test("fileSize", "Image size is too large (max 1MB)", () => {
+				if (!file) return true;
+				return file.size <= 1024 * 1024;
 			}),
 	});
 	const handleSubmit = async () => {
@@ -71,7 +71,7 @@ const EditAvatar = () => {
 			});
 			setIsModalOpen(!isModalOpen);
 		} catch (error) {
-			toast.error(error?.response.data.error.message, {
+			toast.error("Failed to udpate your profile picture", {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -85,7 +85,7 @@ const EditAvatar = () => {
 	};
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
-		setImagePreview(`${process.env.REACT_APP_BASE_URL}/avatars/${data?.avatar ? data?.avatar : "default_not_set.png"}`); 
+		setImagePreview(`${process.env.REACT_APP_BASE_URL}/avatars/${data?.avatar ? data?.avatar : "default_not_set.png"}`);
 	};
 
 	const handleOpenModal = () => {
@@ -122,16 +122,12 @@ const EditAvatar = () => {
 								<ModalBody>
 									{imagePreview && (
 										<Flex justifyContent={"center"}>
-											<Image
-												src={imagePreview}
-												alt="Preview"
-												style={{ maxWidth: "100%", maxHeight: "200px", marginTop: "10px" }}
-											/>
+											<Image src={imagePreview} style={{ maxWidth: "100%", maxHeight: "200px", marginTop: "10px" }} />
 										</Flex>
 									)}
 									<Form>
 										<Field name="avatar">
-											{({ field }) => (
+											{({ field, form }) => (
 												<FormControl>
 													<FormLabel htmlFor="avatar">Select an image</FormLabel>
 													<Input
@@ -149,6 +145,9 @@ const EditAvatar = () => {
 														type="file"
 														id="avatar"
 														accept="image/*"
+														onBlur={() => {
+															form.setFieldTouched("avatar", true);
+														}}
 													/>
 												</FormControl>
 											)}

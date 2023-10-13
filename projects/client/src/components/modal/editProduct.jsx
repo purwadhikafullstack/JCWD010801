@@ -47,6 +47,7 @@ export const EditProduct = ({
 	const currentCategory = categories.find((category) => category.value === CategoryId);
 	const currentCategoryId = currentCategory?.value;
 	const id = useSelector((state) => state?.user?.value?.id);
+	const RoleId = useSelector((state) => state?.user?.value?.RoleId);
 
 	const productSchema = Yup.object().shape({
 		productName: Yup.string().required("Product name cannot be empty."),
@@ -193,11 +194,11 @@ export const EditProduct = ({
 				size={28}
 				onClick={handleClick}
 				cursor={"pointer"}
-				isdisabled={(isDeleted === true || isActive === false).toString()}
+				isdisabled={(isDeleted === true || isActive === false || RoleId === 3).toString()}
 			/>
 			<Modal
 				size={{ base: "xs", sm: "sm", md: "md" }}
-				isOpen={isOpen && isActive === true && isDeleted === false}
+				isOpen={isOpen && isActive === true && isDeleted === false && RoleId !== 3}
 				onClose={onClose}
 			>
 				<ModalOverlay />
