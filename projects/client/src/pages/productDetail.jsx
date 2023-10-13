@@ -86,7 +86,7 @@ const ProductDetail = () => {
 	const [fourStarStatic, setFourStarStatic] = useState(0);
 	const [fiveStarStatic, setFiveStarStatic] = useState(0);
 	const [totalReviewsStatic, setTotalReviewsStatic] = useState(0);
-	const [itemLimit, setItemLimit] = useState(15);
+	const [itemLimit, setItemLimit] = useState(5);
 	const [page, setPage] = useState(1);
 	const [selectedRating, setSelectedRating] = useState(null);
 	const [sortOrder, setSortOrder] = useState("DESC");
