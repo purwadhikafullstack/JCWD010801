@@ -171,7 +171,7 @@ export const SuperAdminDashboardButton = () => {
 					</Box>
 					<Box
 						mt={["10px", "10px", "0px", "0px"]}
-						onClick={() => navigate("/dashboard/product-management")}
+						onClick={() => navigate("/dashboard/report/welcome")}
 						w={["full", "full", "28%", "28%"]}
 						ml={["0px", "0px", "15px", "15px"]}
 						h={["125px", "250px"]}

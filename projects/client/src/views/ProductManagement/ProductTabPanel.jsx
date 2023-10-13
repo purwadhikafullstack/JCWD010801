@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { ConfirmPassword } from "../../components/modal/confirmPassword";
 import { EditProduct } from "../../components/modal/editProduct";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export const ProductTabPanel = ({
 	id,
@@ -32,6 +33,7 @@ export const ProductTabPanel = ({
 	isEvenIndex,
 }) => {
 	const navigate = useNavigate();
+	const RoleId = useSelector((state) => state?.user?.value?.RoleId);
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 	const [inputPassword, setInputPassword] = useState("");
 	const [validationError, setValidationError] = useState("");
@@ -251,7 +253,7 @@ export const ProductTabPanel = ({
 				bgColor={data.isDeleted ? "rgba(3, 3, 3, 0.8)" : "rgba(51, 50, 52, 0.2)"}
 				borderRadius={"5px"}
 			>
-				<Text>{branchStock} Units</Text>
+				{RoleId !== 3 ? <Text>{branchStock} Units</Text> : <Text>-</Text>}
 			</Flex>
 			<Flex w={"64px"} h={"75px"} justify={"center"} align={"center"} ml={"5px"}>
 				<Switch

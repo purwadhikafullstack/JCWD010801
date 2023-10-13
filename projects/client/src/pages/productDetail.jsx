@@ -2,6 +2,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Axios from "axios";
 import NoDiscountBanner from "../assets/public/no_discount.jpg";
 import DiscountBanner from "../assets/public/sale_banner.png";
+import NoReview from "../assets/public/no_review.jpg";
+import RatingBar from "../components/ratingBar";
 import { toast } from "react-toastify";
 import {
 	Box,
@@ -25,8 +27,12 @@ import { Link, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { MinusIcon, AddIcon } from "@chakra-ui/icons";
 import { TiHeartOutline, TiHeartFullOutline } from "react-icons/ti";
+import { PiShootingStarDuotone } from "react-icons/pi";
+import { TbStar, TbStarFilled, TbStarHalfFilled } from "react-icons/tb";
 import { AddToCartButton } from "../components/cart/add";
 import { useSelector } from "react-redux";
+import { categorizeDate } from "../helper/categorizeDate";
+import { censorUsername } from "../helper/censorUsername";
 
 const formatTime = (time) => {
 	return time < 10 ? `0${time}` : time;
@@ -72,7 +78,20 @@ const ProductDetail = () => {
 	const [userLat, setUserLat] = useState(localStorage.getItem("lat"));
 	const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining(discountData?.validUntil));
 	const [isLiked, setIsLiked] = useState(false);
+	const [reviews, setReviews] = useState([]);
+	const [rating, setRating] = useState(0);
+	const [oneStarStatic, setOneStarStatic] = useState(0);
+	const [twoStarStatic, setTwoStarStatic] = useState(0);
+	const [threeStarStatic, setThreeStarStatic] = useState(0);
+	const [fourStarStatic, setFourStarStatic] = useState(0);
+	const [fiveStarStatic, setFiveStarStatic] = useState(0);
+	const [totalReviewsStatic, setTotalReviewsStatic] = useState(0);
+	const [itemLimit, setItemLimit] = useState(15);
+	const [page, setPage] = useState(1);
+	const [selectedRating, setSelectedRating] = useState(null);
+	const [sortOrder, setSortOrder] = useState("DESC");
 	const [reload, setReload] = useState(false);
+	const [reload2, setReload2] = useState(false);
 
 	useEffect(() => {
 		const intervalId = setInterval(() => {
@@ -112,6 +131,16 @@ const ProductDetail = () => {
 		fetchData();
 		// eslint-disable-next-line
 	}, [reload, id, BranchId, isLiked]);
+
+	useEffect(() => {
+		fetchReviewData();
+		// eslint-disable-next-line
+	}, [reload2, id]);
+
+	useEffect(() => {
+		fetchStaticReviewData();
+		// eslint-disable-next-line
+	}, []);
 
 	useEffect(() => {
 		processDiscount();
@@ -169,6 +198,41 @@ const ProductDetail = () => {
 			}
 		} catch (error) {
 			console.error("Error fetching product like status.", error);
+		}
+	};
+
+	const fetchStaticReviewData = async () => {
+		try {
+			const reviewResponse = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product/review/${id}?page=1`);
+			setOneStarStatic(reviewResponse.data.oneStar);
+			setTwoStarStatic(reviewResponse.data.twoStar);
+			setThreeStarStatic(reviewResponse.data.threeStar);
+			setFourStarStatic(reviewResponse.data.fourStar);
+			setFiveStarStatic(reviewResponse.data.fiveStar);
+			setTotalReviewsStatic(reviewResponse.data.total_reviews);
+			setRating(reviewResponse.data.avg_rating);
+		} catch (error) {
+			console.error("Error fetching review data.", error);
+		}
+	};
+
+	const fetchReviewData = async () => {
+		try {
+			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/review/${id}?page=${page}&sortOrder=${sortOrder}`;
+
+			if (itemLimit) {
+				apiURL += `&itemLimit=${itemLimit}`;
+			}
+
+			if (selectedRating) {
+				apiURL += `&rating=${selectedRating}`;
+			}
+
+			const reviewResponse = await Axios.get(apiURL);
+
+			setReviews(reviewResponse.data.result);
+		} catch (error) {
+			console.error("Error fetching review data.", error);
 		}
 	};
 
@@ -1093,7 +1157,288 @@ const ProductDetail = () => {
 										/>
 									)}
 								</TabPanel>
-								<TabPanel>{/* Product Review Tab */}</TabPanel>
+								<TabPanel>
+									<Stack h={"600px"} alignContent={"center"}>
+										<Text fontSize={"30px"} fontWeight={"bold"}>
+											What Others Said About {product.productName} :
+										</Text>
+										{reviews.length === 0 ? (
+											<Image
+												fontWeight={"bold"}
+												w={"100%"}
+												h={"480px"}
+												alignContent={"center"}
+												justifyContent={"center"}
+												src={NoReview}
+												objectFit="fill"
+											/>
+										) : (
+											<Flex w={"1250px"} h={"550px"} justifyContent={"space-between"}>
+												<Stack
+													alignSelf={"center"}
+													w={"300px"}
+													h={"400px"}
+													border={"5px ridge grey"}
+													borderRadius={"15px"}
+													position="sticky"
+													top="0"
+													zIndex="1"
+													py={5}
+													px={2}
+												>
+													<Flex align={"center"} justify={"center"}>
+														{Array.from({ length: Math.floor(rating) }).map((_, index) => (
+															<TbStarFilled key={index} size={35} color="#DA9100" />
+														))}
+														{rating % 1 === 0.5 ? <TbStarHalfFilled size={35} color="#DA9100" /> : null}
+														{Array.from({ length: 5 - Math.ceil(rating) }).map((_, index) => (
+															<TbStar key={index} size={35} color="grey" />
+														))}
+													</Flex>
+													<Flex justify={"center"} align={"center"}>
+														<PiShootingStarDuotone size={100} color="#DA9100" />
+														<Text fontWeight={"bold"} fontSize={"60px"}>
+															{rating}
+														</Text>
+														<Text fontSize={"20px"}> ‎ / 5.0</Text>
+													</Flex>
+													<Text>{totalReviewsStatic} Reviews</Text>
+													<Flex align={"center"} justify={"center"}>
+														<span>1 ‎</span>
+														<TbStarFilled
+															className="star-icon"
+															size={25}
+															cursor={oneStarStatic !== 0 ? "pointer" : "not-allowed"}
+															onClick={() => {
+																if (oneStarStatic !== 0) {
+																	setSelectedRating(1);
+																	setPage(1);
+																	setReload2(!reload2);
+																} else {
+																	toast.info("Sorry, no 1 star review is available.", {
+																		position: "top-right",
+																		autoClose: 4000,
+																		hideProgressBar: false,
+																		closeOnClick: true,
+																		pauseOnHover: true,
+																		draggable: true,
+																		progress: undefined,
+																		theme: "dark",
+																	});
+																}
+															}}
+														/>
+														<RatingBar filledPercentage={(oneStarStatic / totalReviewsStatic) * 100} /> ‎{" "}
+														{oneStarStatic}
+													</Flex>
+													<Flex align={"center"} justify={"center"}>
+														<span>2 ‎</span>
+														<TbStarFilled
+															className="star-icon"
+															size={25}
+															cursor={twoStarStatic !== 0 ? "pointer" : "not-allowed"}
+															onClick={() => {
+																if (twoStarStatic !== 0) {
+																	setSelectedRating(2);
+																	setPage(1);
+																	setReload2(!reload2);
+																} else {
+																	toast.info("Sorry, no 2 star review is available.", {
+																		position: "top-right",
+																		autoClose: 4000,
+																		hideProgressBar: false,
+																		closeOnClick: true,
+																		pauseOnHover: true,
+																		draggable: true,
+																		progress: undefined,
+																		theme: "dark",
+																	});
+																}
+															}}
+														/>
+														<RatingBar filledPercentage={(twoStarStatic / totalReviewsStatic) * 100} /> ‎{" "}
+														{twoStarStatic}
+													</Flex>
+													<Flex align={"center"} justify={"center"}>
+														<span>3 ‎</span>
+														<TbStarFilled
+															className="star-icon"
+															size={25}
+															cursor={threeStarStatic !== 0 ? "pointer" : "not-allowed"}
+															onClick={() => {
+																if (threeStarStatic !== 0) {
+																	setSelectedRating(3);
+																	setPage(1);
+																	setReload2(!reload2);
+																} else {
+																	toast.info("Sorry, no 3 star review is available.", {
+																		position: "top-right",
+																		autoClose: 4000,
+																		hideProgressBar: false,
+																		closeOnClick: true,
+																		pauseOnHover: true,
+																		draggable: true,
+																		progress: undefined,
+																		theme: "dark",
+																	});
+																}
+															}}
+														/>
+														<RatingBar filledPercentage={(threeStarStatic / totalReviewsStatic) * 100} /> ‎{" "}
+														{threeStarStatic}
+													</Flex>
+													<Flex align={"center"} justify={"center"}>
+														<span>4 ‎</span>
+														<TbStarFilled
+															className="star-icon"
+															size={25}
+															cursor={fourStarStatic !== 0 ? "pointer" : "not-allowed"}
+															onClick={() => {
+																if (fourStarStatic !== 0) {
+																	setSelectedRating(4);
+																	setPage(1);
+																	setReload2(!reload2);
+																} else {
+																	toast.info("Sorry, no 4 star review is available.", {
+																		position: "top-right",
+																		autoClose: 4000,
+																		hideProgressBar: false,
+																		closeOnClick: true,
+																		pauseOnHover: true,
+																		draggable: true,
+																		progress: undefined,
+																		theme: "dark",
+																	});
+																}
+															}}
+														/>
+														<RatingBar filledPercentage={(fourStarStatic / totalReviewsStatic) * 100} /> ‎{" "}
+														{fourStarStatic}
+													</Flex>
+													<Flex align={"center"} justify={"center"}>
+														<span>5 ‎</span>
+														<TbStarFilled
+															className="star-icon"
+															size={25}
+															cursor={fiveStarStatic !== 0 ? "pointer" : "not-allowed"}
+															onClick={() => {
+																if (fiveStarStatic !== 0) {
+																	setSelectedRating(5);
+																	setPage(1);
+																	setReload2(!reload2);
+																} else {
+																	toast.info("Sorry, no 5 star review is available.", {
+																		position: "top-right",
+																		autoClose: 4000,
+																		hideProgressBar: false,
+																		closeOnClick: true,
+																		pauseOnHover: true,
+																		draggable: true,
+																		progress: undefined,
+																		theme: "dark",
+																	});
+																}
+															}}
+														/>
+														<RatingBar filledPercentage={(fiveStarStatic / totalReviewsStatic) * 100} /> ‎{" "}
+														{fiveStarStatic}
+													</Flex>
+												</Stack>
+												<Stack overflowY={"auto"} className="scrollbar-4px" mt={"5px"}>
+													{reviews.map((item) => (
+														<Flex
+															key={item.id}
+															border={"1px ridge grey"}
+															borderRadius={"100px"}
+															w={"900px"}
+															h={"150px"}
+															p={5}
+															alignSelf={"flex-end"}
+															justifyContent={"space-between"}
+														>
+															<Flex w={"20%"} align={"center"} justify={"flex-start"}>
+																{item.rating === 1 ? (
+																	<Flex w={"155px"} h={"35px"} align={"center"} justify={"center"}>
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStar size={30} color="grey" />
+																		<TbStar size={30} color="grey" />
+																		<TbStar size={30} color="grey" />
+																		<TbStar size={30} color="grey" />
+																	</Flex>
+																) : item.rating === 2 ? (
+																	<Flex w={"155px"} h={"35px"} align={"center"} justify={"center"}>
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStar size={30} color="grey" />
+																		<TbStar size={30} color="grey" />
+																		<TbStar size={30} color="grey" />
+																	</Flex>
+																) : item.rating === 3 ? (
+																	<Flex w={"155px"} h={"35px"} align={"center"} justify={"center"}>
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStar size={30} color="grey" />
+																		<TbStar size={30} color="grey" />
+																	</Flex>
+																) : item.rating === 4 ? (
+																	<Flex w={"155px"} h={"35px"} align={"center"} justify={"center"}>
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStar size={30} color="grey" />
+																	</Flex>
+																) : (
+																	<Flex w={"155px"} h={"35px"} align={"center"} justify={"center"}>
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																		<TbStarFilled size={30} color="#DA9100" />
+																	</Flex>
+																)}
+															</Flex>
+															<Flex w={"60%"} flexDirection="column" alignItems="flex-start">
+																<Flex align={"center"} w={"250px"}>
+																	<Text fontWeight={"bold"} fontSize={"22px"}>
+																		{censorUsername(item?.User?.username)}
+																	</Text>
+																	<Text fontStyle={"italic"} ml={"25px"}>
+																		{categorizeDate(item?.createdAt)}
+																	</Text>
+																</Flex>
+																<Text
+																	style={{
+																		fontSize: "18px",
+																		overflow: "hidden",
+																		textOverflow: "ellipsis",
+																		whiteSpace: "break-spaces",
+																		maxWidth: "100%",
+																		maxHeight: "100px",
+																	}}
+																>
+																	{item.comment}
+																</Text>
+															</Flex>
+															<Flex w={"20%"} align={"center"} justify={"flex-end"}>
+																<Image
+																	boxSize={"100px"}
+																	borderRadius={"5px"}
+																	rounded={"50px"}
+																	boxShadow={"1px 2px 3px black"}
+																	src={`${process.env.REACT_APP_BASE_URL}/avatars/${
+																		item.User.avatar !== null ? item.User.avatar : "default_not_set_thumb.png"
+																	}`}
+																/>
+															</Flex>
+														</Flex>
+													))}
+												</Stack>
+											</Flex>
+										)}
+									</Stack>
+								</TabPanel>
 							</TabPanels>
 						</Tabs>
 					</Flex>
