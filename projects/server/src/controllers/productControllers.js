@@ -1556,24 +1556,24 @@ module.exports = {
 			});
 		}
 	},
-	getProductSuggestions: async(req, res) => {
+	getProductSuggestions: async (req, res) => {
 		try {
-			const limit = +req.query.limit || 12
+			const limit = +req.query.limit || 12;
 
 			const result = await products.findAll({
-				order: Sequelize.literal('rand()'),
+				order: Sequelize.literal("rand()"),
 				limit,
 				where: { isActive: true },
 				include: [
 					{
-						model: discounts
-					}
-				]
-			})
+						model: discounts,
+					},
+				],
+			});
 
 			return res.status(200).send({
 				status: 200,
-				result
+				result,
 			});
 		} catch (error) {
 			return res.status(500).send({
@@ -1584,28 +1584,119 @@ module.exports = {
 	},
 	reviewProduct: async (req, res) => {
 		try {
-			const ProductId = parseInt(req.params.id);
+			const { PID } = req.params;
 			const { comment, rating } = req.body;
-			const isProduct = await reviews.findByPk(ProductId);
-			if (!isProduct)
-				return res.status(400).send({
+			const product = await products.findByPk(PID);
+
+			if (!product)
+				return res.status(404).send({
 					status: 404,
 					message: "Product not found.",
 				});
+
 			const result = await reviews.create({
 				comment,
 				rating,
 				UserId: req.user.id,
-				ProductId: ProductId,
+				ProductId: PID,
 			});
 			res.status(200).send(result);
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				error,
 				status: 500,
 				message: "Internal server error.",
 			});
 		}
-	}
+	},
+	getProductReviews: async (req, res) => {
+		try {
+			const { PID } = req.params;
+			const { rating, page, sortOrder = "DESC" } = req.query;
+			const itemLimit = parseInt(req?.query?.itemLimit) || 5;
+
+			if (!PID)
+				return res.status(404).send({
+					status: 404,
+					message: "Please enter a valid PID.",
+				});
+
+			const product = await products.findByPk(PID);
+
+			if (!product)
+				return res.status(404).send({
+					status: 404,
+					message: "Product not found.",
+				});
+
+			const filters = {
+				ProductId: PID,
+			};
+
+			if (rating && rating >= 1 && rating <= 5) {
+				filters.rating = rating;
+			}
+
+			const result = await reviews.findAndCountAll({
+				where: filters,
+				include: [
+					{
+						model: users,
+					},
+				],
+				order: [["createdAt", sortOrder]],
+				offset: (page - 1) * itemLimit,
+				limit: itemLimit,
+			});
+
+			if (result.count === 0)
+				return res.status(404).send({
+					status: 404,
+					message: "There are no reviews yet for this product.",
+				});
+
+			const oneStar = await reviews.count({ where: { ProductId: PID, rating: 1 } });
+			const twoStar = await reviews.count({ where: { ProductId: PID, rating: 2 } });
+			const threeStar = await reviews.count({ where: { ProductId: PID, rating: 3 } });
+			const fourStar = await reviews.count({ where: { ProductId: PID, rating: 4 } });
+			const fiveStar = await reviews.count({ where: { ProductId: PID, rating: 5 } });
+
+			const resultAll = await reviews.findAll({
+				where: {
+					ProductId: PID,
+				},
+				include: [
+					{
+						model: users,
+					},
+				],
+			});
+
+			const sumOfRatings = resultAll.reduce((sum, entry) => sum + parseInt(entry.rating, 10), 0);
+			const ratingAvg = sumOfRatings / parseInt(resultAll.length, 10);
+			const pointFiveRatingAvg = Math.round(ratingAvg * 2) / 2;
+
+			res.status(200).send({
+				status: 200,
+				message: "Product reviews successfully fetched.",
+				total_reviews: result.count,
+				productsPerPage: itemLimit,
+				totalPages: Math.ceil(result.count / itemLimit),
+				currentPage: parseInt(page, 10),
+				oneStar,
+				twoStar,
+				threeStar,
+				fourStar,
+				fiveStar,
+				avg_rating: pointFiveRatingAvg,
+				result: result.rows,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
 };

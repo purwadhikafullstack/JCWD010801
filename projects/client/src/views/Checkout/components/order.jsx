@@ -163,7 +163,6 @@ function Order() {
 			} else if (Product?.Discounts[0]?.type === "Percentage") {
 				totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100) * Product?.price;
 			}
-			console.log(totalDiscount);
 		});
 		return setDiscount(totalDiscount);
 	};

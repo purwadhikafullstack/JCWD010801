@@ -20,7 +20,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toast } from "react-toastify";
 import { ButtonTemp } from "../button";
 
-export const AddProduct = ({ categories, reload, setReload, BranchId, currentBranchName, UID }) => {
+export const AddProduct = ({ categories, reload, setReload, BranchId, currentBranchName, UID, RoleId }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const productSchema = Yup.object().shape({
@@ -102,7 +102,7 @@ export const AddProduct = ({ categories, reload, setReload, BranchId, currentBra
 
 	return (
 		<>
-			<ButtonTemp content={"Add Product"} onClick={handleClick} />
+			<ButtonTemp content={"Add Product"} onClick={handleClick} isDisabled={RoleId === 3} />
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>

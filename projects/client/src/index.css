@@ -256,3 +256,12 @@ canvas {
     transform: rotateY(360deg) rotateZ(-3deg) perspective(1px);
   }
 }
+
+.star-icon {
+  color: #DA9100;
+  transition: color 0.5s;
+}
+
+.star-icon:hover {
+  color: #7A5200;
+}

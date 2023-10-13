@@ -37,8 +37,7 @@ const DiscountOverview = () => {
 						/>
 					</Flex>
 				</Flex>
-
-				<Flex gap={10} justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}>
+				<Flex gap={10} justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}mt={'150px'}>
 					<Flex
 						as={Link}
 						to={"/dashboard/discount-management"}
