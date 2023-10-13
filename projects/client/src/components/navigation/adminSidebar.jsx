@@ -11,7 +11,7 @@ import { LiaBoxSolid } from "react-icons/lia";
 import { VscGraphLine } from "react-icons/vsc";
 import { RiDashboardLine, RiFileList3Line } from "react-icons/ri";
 import { BsPersonGear } from "react-icons/bs";
-import { AiOutlineBranches, AiOutlineHome } from "react-icons/ai";
+import { AiOutlineHome } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
 import { sidebarEvent } from "../../events/sidebarEvent";

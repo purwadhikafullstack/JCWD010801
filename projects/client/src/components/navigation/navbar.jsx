@@ -449,9 +449,9 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							</Flex>
 						</Flex>
 					</Flex>
-					{!isVerified && (
+					{!isVerified && token ? (
 						<ResendVerification/>
-					)}
+					) : null}
 				</Stack>
 			)}
 		</>

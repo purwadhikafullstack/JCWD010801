@@ -555,6 +555,61 @@ module.exports = {
 				has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
 				UserId: order.Cart.UserId
 			}, { transaction })
+
+			//Free shipment voucher
+			const countOrder = await orders.count({
+                where: {
+                    UserId: order.Cart.UserId,
+                    status: "Processing"
+                }
+            });
+            const freeShipmentVoucher = await vouchers.findOne({
+                where: {
+                    name: { [Op.like]: `Free Shipment%` },
+                    availableFrom: { [Op.lte]: new Date(Date.now()) },
+                    validUntil: { [Op.gte]: new Date(Date.now()) }
+                }
+            })
+            const freeShipmentVoucherCheck = await user_vouchers.findOne({
+                where: {
+                    UserId: order.Cart.UserId,
+                    VoucherId: freeShipmentVoucher.id
+                }
+            });
+            if ( countOrder % 3 === 0 && !freeShipmentVoucherCheck ) {
+                await user_vouchers.create({
+                    UserId: order.Cart.UserId,
+                    VoucherId: freeShipmentVoucher.id,
+                    amount: 1
+                }, { transaction });
+				await notifications.create({
+					type: "Discount",
+					name: "Thank you for choosing us!",
+					description: `Thank you, our loyal customer, for shopping with us!
+					As a token of gratitude, you've received a free shipment voucher.
+					We love having customers like you, and your support means everything to us.`,
+					UserId: order.Cart.UserId
+				})
+            }
+            else if ( countOrder % 3 === 0 && freeShipmentVoucherCheck ) {
+                await user_vouchers.update({
+                    amount: freeShipmentVoucherCheck.amount + 1
+                }, {
+                    where: {
+                        UserId: order.Cart.UserId,
+                        VoucherId: freeShipmentVoucher.id
+                    }
+                }, { transaction });
+				await notifications.create({
+					type: "Discount",
+					name: "Thank you for choosing us!",
+					description: `Thank you, our loyal customer, for shopping with us!
+					As a token of gratitude, you've received a free shipment voucher.
+					We love having customers like you, and your support means everything to us.`,
+					UserId: order.Cart.UserId
+				})
+            }
+			
 			await transaction.commit();
 
 			res.status(200).send({
@@ -661,6 +716,94 @@ module.exports = {
 	},
 	processingToSent: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Sent") {
+				return res.status(400).send({
+					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+				});
+			}
+			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Received' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	rejectPaymentProof: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Pending payment confirmation") {
+				return res.status(400).send({
+					message:
+						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+				});
+			}
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Please Reupload Your Payment Proof",
+				html: tempResult,
+			});
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Rejected' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	processingToSent: async (req, res) => {
 		try {
 			const orderId = req.params.id;
 			const order = await orders.findOne({
@@ -1128,7 +1271,7 @@ module.exports = {
 	userCancelOrder: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
 		try {
-			await orders.update({ status: "cancelled" }, { where: { id: req.params.id }, transaction });
+			await orders.update({ status: "Cancelled" }, { where: { id: req.params.id }, transaction });
 			const ord = await orders.findOne({
 				where: { id: req.params.id },
 				include: { model: carts },
