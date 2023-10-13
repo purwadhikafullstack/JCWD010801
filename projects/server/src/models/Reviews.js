@@ -9,8 +9,27 @@ module.exports = (sequelize, DataTypes) => {
 	}
 	Reviews.init(
 		{
-			comment: { type: DataTypes.STRING(500), allowNull: true },
-			rating: { type: DataTypes.INTEGER, allowNull: true },
+			comment: {
+				type: DataTypes.STRING(500),
+				allowNull: true,
+			},
+			rating: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				validate: {
+					isNumeric: true,
+					min: 0,
+					max: 5,
+				},
+			},
+			qty: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+			},
+			invoiceNumber: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
 		},
 		{
 			sequelize,
