@@ -26,43 +26,65 @@ export const Footer = ({ isNotDisabled = true }) => {
 						<GridItem justifySelf={{ base: "start", md: "center" }} colSpan={1} rowSpan={1}>
 							<Stack gap={0}>
 								<Image src={logo} w={"200px"} />
-								<Text color={"gray"}>Groceries right at your doorstep</Text>
-								{/* <Text fontSize={'md'} fontWeight={'medium'} color={'gray.500'}>
-                                Groceries right at your doorstep
-                            </Text> */}
+								<Text color={"gray"}>Groceries Right At Your Doorsteps</Text>
 							</Stack>
 						</GridItem>
 						<GridItem justifySelf={{ base: "start", md: "center" }} colSpan={1} rowSpan={1}>
 							<Stack>
 								<Text fontWeight={"bold"}>LOCATION</Text>
 								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
+									Jakarta
+								</Text>
+								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
 									Bandung
 								</Text>
 								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
-									Jakarta
+									Jogjakarta
 								</Text>
 								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
 									Surabaya
 								</Text>
 								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
-									Yogyakarta
+									Batam
 								</Text>
 							</Stack>
 						</GridItem>
 						<GridItem justifySelf={{ base: "start", md: "center" }} colSpan={1} rowSpan={1}>
 							<Stack>
 								<Text fontWeight={"bold"}>HEADQUARTERS</Text>
-								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
-									HQ Bandung
+								<Text
+									cursor={"pointer"}
+									_hover={{ textDecoration: "underline" }}
+									color={"gray"}
+									fontSize={{ base: "12px", md: "16px" }}
+								>
+									AlphaMart Jakarta Office
 								</Text>
-								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
-									HQ Jakarta
+								<Text
+									cursor={"pointer"}
+									_hover={{ textDecoration: "underline" }}
+									color={"gray"}
+									fontSize={{ base: "8px", md: "12px" }}
+								>
+									Jl. BSD Green Office Park, GOP 9 - G Floor BSD City, Sampora, Kec. Cisauk, Kabupaten Tangerang, Banten
+									15345
 								</Text>
-								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
-									HQ Surabaya
+								<Text
+									cursor={"pointer"}
+									_hover={{ textDecoration: "underline" }}
+									color={"gray"}
+									fontSize={{ base: "12px", md: "16px" }}
+								>
+									AlphaMart Bandung Office
 								</Text>
-								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
-									HQ Yogyakarta
+								<Text
+									cursor={"pointer"}
+									_hover={{ textDecoration: "underline" }}
+									color={"gray"}
+									fontSize={{ base: "8px", md: "12px" }}
+								>
+									Menara Monex LT.6, Jl. Asia Afrika No.133-137, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa
+									Barat 40112
 								</Text>
 							</Stack>
 						</GridItem>
