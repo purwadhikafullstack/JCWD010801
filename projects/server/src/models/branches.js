@@ -5,9 +5,10 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			Branches.hasMany(models.Users);
 			Branches.hasMany(models.StockMovements);
-			Branches.belongsToMany(models.Products, {
-				through: models.Stocks,
-			});
+			// Branches.belongsToMany(models.Products, {
+			// 	through: models.Stocks,
+			// 	as: "ProductStocks"
+			// });
 			Branches.hasMany(models.Discounts);
 			Branches.hasMany(models.Vouchers);
 		}
