@@ -1,25 +1,34 @@
+import "./index.css";
+import App from "./App";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { routes } from "./routes";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, ColorModeProvider } from "@chakra-ui/react";
 import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
 import { store } from "./redux";
+import { theme, colorModeConfig } from "./chakraTheme";
 
+const LightModeWrapper = ({ children }) => {
+	React.useEffect(() => {
+		localStorage.setItem("chakra-ui-color-mode", "light");
+		localStorage.removeItem("chakra-ui-color-mode");
+		localStorage.setItem("chakra-ui-color-mode", "light");
+	});
+	return <>{children}</>;
+};
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-
-const router = createBrowserRouter(routes);
-
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <ChakraProvider>
-        <RouterProvider router={router} />
-      </ChakraProvider>
-    <ToastContainer/>
-    </Provider>
-  </React.StrictMode>
+	<React.StrictMode>
+		<ChakraProvider theme={theme}>
+			<Provider store={store}>
+				<LightModeWrapper>
+					<ColorModeProvider options={colorModeConfig}>
+						<App />
+						<ToastContainer />
+					</ColorModeProvider>
+				</LightModeWrapper>
+			</Provider>
+		</ChakraProvider>
+	</React.StrictMode>
 );
