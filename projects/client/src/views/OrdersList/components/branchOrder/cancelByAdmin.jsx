@@ -54,6 +54,7 @@ export const CanceledOrders = ({ reload, setReload }) => {
 	};
 	useEffect(() => {
 		ordersList(page);
+		// eslint-disable-next-line
 	}, [startDate, endDate, searchName, sort, reload]);
 	return (
 		<Flex>

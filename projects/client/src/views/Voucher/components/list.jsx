@@ -1,5 +1,5 @@
-import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import axios from "axios";
+import { Flex, Tab, TabList, TabPanels, Tabs } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { VoucherCard } from "./card";
 
@@ -20,6 +20,7 @@ export const VoucherList = () => {
     }
     useEffect(() => {
         fetchData("")
+        // eslint-disable-next-line
     }, []);
 
     return (

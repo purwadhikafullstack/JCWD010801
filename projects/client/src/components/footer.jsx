@@ -31,7 +31,7 @@ export const Footer = ({ isNotDisabled = true }) => {
 						</GridItem>
 						<GridItem justifySelf={{ base: "start", md: "center" }} colSpan={1} rowSpan={1}>
 							<Stack>
-								<Text fontWeight={"bold"}>LOCATION</Text>
+								<Text fontWeight={"bold"}>LOCATIONS</Text>
 								<Text cursor={"pointer"} _hover={{ textDecoration: "underline" }} color={"gray"}>
 									Jakarta
 								</Text>

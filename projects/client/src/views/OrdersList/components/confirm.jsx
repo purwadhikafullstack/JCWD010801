@@ -64,6 +64,7 @@ export const ConfirmOrder = ({ reload, setReload, id, invoice }) => {
 
 	useEffect(() => {
 		setReload(true);
+		// eslint-disable-next-line
 	}, [reload]);
 
 	return (

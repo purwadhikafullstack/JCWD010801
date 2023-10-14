@@ -1,12 +1,11 @@
-import { Box, Center, Flex, Heading } from "@chakra-ui/react";
-import ChartReport from "../components/chartReport";
-import { useEffect, useState } from "react";
 import Axios from "axios";
 import TableReport from "../components/table/tableReport";
-import { useSelector } from "react-redux";
 import TableFilter from "../components/table/tableFilter";
-import { AdminSidebar } from "../../../components/navigation/adminSidebar";
 import LayoutSidebar from "../../../pages/layoutSidebar";
+import ChartReport from "../components/chartReport";
+import { Box, Center, Flex, Heading } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export const Report = () => {
 	const [data, setData] = useState(null);
@@ -16,7 +15,7 @@ export const Report = () => {
 	const roleId = reduxStore?.value?.RoleId;
 	const branchId = reduxStore?.value?.BranchId;
 	const token = localStorage.getItem("token");
-	
+
 	const initialQueryObj = {
 		page: 0,
 		limit: 10,
@@ -62,6 +61,7 @@ export const Report = () => {
 		if (branchId && queryObj.searchBranch !== branchId) {
 			setQueryObj({ ...queryObj, searchBranch: branchId });
 		}
+		// eslint-disable-next-line
 	}, [queryObj, branchId]);
 
 	useEffect(() => {
@@ -79,7 +79,7 @@ export const Report = () => {
 		<Box>
 			<Flex display={["block", "block", "flex", "flex"]}>
 				<Flex>
-				<LayoutSidebar height={"full"}/>
+					<LayoutSidebar height={"full"} />
 				</Flex>
 				<Box w={"full"}>
 					<Box>

@@ -1,4 +1,5 @@
 import Axios from "axios";
+import ReviewModal from "./reviewModal";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useEffect, useState } from "react";
@@ -16,17 +17,20 @@ import {
 	Text,
 } from "@chakra-ui/react";
 import { HiOutlineTruck } from "react-icons/hi";
-// import { MdOutlineRateReview } from "react-icons/md";
 import { AiOutlineShopping, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MenuOrder } from "./menu";
 import { EmptyList } from "./emptyList";
 import { DetailProcessModal } from "./branchOrder/ModalProcessing/detailOrderModal";
 import { Link, useNavigate } from "react-router-dom";
-import ReviewModal from "./reviewModal";
 import { ConfirmButtonOrder2 } from "./branchOrder/ActionButton/confirmButtonOrder";
 import { UploadProofButton } from "./branchOrder/ActionButton/uploadButtonOrder";
 
 export const UserOrdersList = () => {
+	const navigate = useNavigate();
+	const token = localStorage.getItem("token");
+	const headers = {
+		Authorization: `Bearer ${token}`,
+	};
 	const [list, setList] = useState();
 	const [branch, setBranch] = useState();
 	const [search, setSearch] = useState("");
@@ -34,16 +38,12 @@ export const UserOrdersList = () => {
 	const [branchId, setBranchId] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
-	// const [showReviewButton, setShowReviewButton] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
 	const [reload, setReload] = useState(false);
-	const navigate = useNavigate();
-	const token = localStorage.getItem("token");
-	const headers = {
-		Authorization: `Bearer ${token}`,
-	};
+	// const [showReviewButton, setShowReviewButton] = useState("");
+
 	const formatRupiah = (number) => {
 		const formatter = new Intl.NumberFormat("id-ID", {
 			style: "currency",
@@ -55,6 +55,7 @@ export const UserOrdersList = () => {
 		formatted = formatted.replace("Rp", "Rp.");
 		return formatted;
 	};
+
 	const ordersList = async (pageNum) => {
 		try {
 			const response = await Axios.get(
@@ -71,6 +72,7 @@ export const UserOrdersList = () => {
 			console.log(error);
 		}
 	};
+
 	const getBranches = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches`);
@@ -79,17 +81,21 @@ export const UserOrdersList = () => {
 			console.log(err);
 		}
 	};
+
 	const prevPage = () => {
 		if (page > 1) ordersList(page - 1);
 	};
+
 	const nextPage = () => {
 		if (page < totalPage) {
 			ordersList(page + 1);
 		}
 	};
+
 	useEffect(() => {
 		ordersList(page);
 		getBranches();
+		// eslint-disable-next-line
 	}, [startDate, endDate, branchId, search, sort, status, reload, branchId]);
 	return (
 		<Box>
