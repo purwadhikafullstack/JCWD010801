@@ -9,6 +9,7 @@ import { useEffect } from "react";
 export const MenuOrder = ({ reload, setReload, orderId, imgURL, date, branch, amount, status, invoice }) => {
 	useEffect(() => {
 		setReload(true);
+		// eslint-disable-next-line
 	}, [reload]);
 	return (
 		<Menu>

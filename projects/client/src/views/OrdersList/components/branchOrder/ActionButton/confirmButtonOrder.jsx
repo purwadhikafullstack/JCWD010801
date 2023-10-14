@@ -63,6 +63,7 @@ export const ConfirmButtonOrder2 = ({ reload, setReload, invoice, orderId }) => 
 
 	useEffect(() => {
 		setReload(true);
+		// eslint-disable-next-line
 	}, [reload]);
 
 	return (

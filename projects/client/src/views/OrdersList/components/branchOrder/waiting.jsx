@@ -55,6 +55,7 @@ export const WaitingOrders = ({ reload, setReload }) => {
 	};
 	useEffect(() => {
 		ordersList();
+		// eslint-disable-next-line
 	}, [startDate, endDate, searchName, sort, reload]);
 	return (
 		<Flex>

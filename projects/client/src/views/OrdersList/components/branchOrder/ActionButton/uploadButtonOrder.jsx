@@ -1,7 +1,9 @@
+import * as Yup from "yup";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 import {
 	Flex,
 	Text,
-	Icon,
 	Input,
 	Modal,
 	ModalBody,
@@ -14,10 +16,7 @@ import {
 	useDisclosure,
 	Button,
 } from "@chakra-ui/react";
-import axios from "axios";
-import * as Yup from "yup";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { BiUpload } from "react-icons/bi";
 import { useEffect } from "react";
@@ -72,6 +71,7 @@ export const UploadProofButton = ({ orderId, date, branch, amount, reload, setRe
 
 	useEffect(() => {
 		setReload(true);
+		// eslint-disable-next-line
 	}, [reload]);
 
 	return (

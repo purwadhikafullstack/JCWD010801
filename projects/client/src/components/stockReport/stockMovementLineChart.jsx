@@ -65,6 +65,7 @@ const StockMovementLineChart = ({
 				setIsChartLoading(false);
 			}, 500);
 		}
+		// eslint-disable-next-line
 	}, [productName, activeTab]);
 
 	useEffect(() => {
@@ -94,6 +95,7 @@ const StockMovementLineChart = ({
 					console.error("Error fetching aggregate stock history data:", error);
 				});
 		}
+		// eslint-disable-next-line
 	}, [startDate, endDate, itemLimit, page, sortOrder, sortBy]);
 
 	const extractLastEntryForEachDate = (historyData) => {
@@ -115,9 +117,7 @@ const StockMovementLineChart = ({
 	const lastEntries = extractLastEntryForEachDate(aggregateStockHistory);
 
 	if (isChartLoading) {
-		return (
-			<SpinnerSmall />
-		);
+		return <SpinnerSmall />;
 	}
 
 	if (isSearchEmpty || !isDateFound) {
