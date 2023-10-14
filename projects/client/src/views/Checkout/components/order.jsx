@@ -1,3 +1,6 @@
+import "react-toastify/dist/ReactToastify.css";
+import * as Yup from "yup";
+import Axios from "axios";
 import { useEffect, useState } from "react";
 import {
 	Box,
@@ -20,16 +23,14 @@ import {
 	FormControl,
 	Spinner,
 } from "@chakra-ui/react";
-import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonTemp } from "../../../components/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import { refreshCart } from "../../../redux/cartSlice";
+
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank-transfer");
 	const [address, setAddress] = useState([]);
@@ -155,6 +156,20 @@ function Order() {
 		return formatter.format(value);
 	};
 
+	// const countDiscount = () => {
+	// 	let totalDiscount = 0;
+	// 	item.map(({ Product }) => {
+	// 		if (Product?.Discounts[0]?.type === "Numeric") {
+	// 			totalDiscount = totalDiscount + Product?.Discounts[0]?.nominal;
+	// 		} else if (Product?.Discounts[0]?.type === "Percentage") {
+	// 			totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100) * Product?.price;
+	// 		}
+	// 	});
+	// 	return setDiscount(totalDiscount);
+	// };
+	//! FAIL BUILD!
+	// Line 160:26:  Array.prototype.map() expects a return value from arrow function array-callback-return
+
 	const countDiscount = () => {
 		let totalDiscount = 0;
 		item.map(({ Product }) => {
@@ -163,6 +178,7 @@ function Order() {
 			} else if (Product?.Discounts[0]?.type === "Percentage") {
 				totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100) * Product?.price;
 			}
+			return null;
 		});
 		return setDiscount(totalDiscount);
 	};
@@ -245,8 +261,11 @@ function Order() {
 	useEffect(() => {
 		getAddress();
 		getCartItems();
+		// eslint-disable-next-line
 	}, []);
+
 	const [isSmallerThan768] = useMediaQuery("(max-width: 768px)");
+
 	return (
 		<Formik
 			initialValues={{

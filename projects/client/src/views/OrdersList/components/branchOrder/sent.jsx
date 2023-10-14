@@ -57,6 +57,7 @@ export const SentOrders = ({ reload, setReload }) => {
 	};
 	useEffect(() => {
 		ordersList();
+		// eslint-disable-next-line
 	}, [startDate, endDate, search, searchName, sort, reload]);
 	return (
 		<Flex>

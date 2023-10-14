@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
 import { useMediaQuery } from "react-responsive";
-import { FaSearch } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
 const Wishlist = () => {

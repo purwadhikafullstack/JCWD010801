@@ -1,7 +1,7 @@
 import Axios from "axios";
+import LayoutSidebar from "../../../pages/layoutSidebar";
 import { useEffect, useState } from "react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator, Flex, Box, Text } from "@chakra-ui/react";
-import { AdminSidebar } from "../../../components/navigation/adminSidebar";
 import { NavbarAdmin } from "../../../components/navigation/navbarAdmin";
 import { WaitingOrders } from "./branchOrder/waiting";
 import { ProcessingOrders } from "./branchOrder/processing";
@@ -11,7 +11,6 @@ import { ConfirmedOrders } from "./branchOrder/received";
 import { CanceledOrders } from "./branchOrder/cancelByAdmin";
 import { AllOrders } from "./branchOrder/allOrders";
 import { useLocation, useNavigate } from "react-router-dom";
-import LayoutSidebar from "../../../pages/layoutSidebar";
 
 export const BranchAdminOrdersList = () => {
 	const [totalOrders, setTotalOrders] = useState("");
@@ -67,6 +66,7 @@ export const BranchAdminOrdersList = () => {
 	const activeTab = getTabFromHash(hash);
 	useEffect(() => {
 		ordersList();
+		// eslint-disable-next-line
 	}, [reload]);
 	return (
 		<Flex>

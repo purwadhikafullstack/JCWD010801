@@ -58,6 +58,7 @@ export const ConfirmedOrders = () => {
 	};
 	useEffect(() => {
 		ordersList(page);
+		// eslint-disable-next-line
 	}, [startDate, endDate, search, searchName, sort, reload]);
 	return (
 		<Flex>

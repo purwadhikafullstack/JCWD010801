@@ -76,6 +76,7 @@ export const ResendVerification = () => {
 		}, 1000);
 
 		return () => clearInterval(intervalId);
+        // eslint-disable-next-line
 	}, [timeRemaining]);
 
     return (
