@@ -1,4 +1,4 @@
-# Purwadhika Final Project Repository test
+# Purwadhika Final Project Repository
 
 
 This is the final project of JCWD 0108 TEAM 1 "α Mart":
