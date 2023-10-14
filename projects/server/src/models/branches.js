@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
 			Branches.hasMany(models.StockMovements);
 			// Branches.belongsToMany(models.Products, {
 			// 	through: models.Stocks,
-			// 	as: "ProductStocks"
 			// });
 			Branches.hasMany(models.Discounts);
 			Branches.hasMany(models.Vouchers);
