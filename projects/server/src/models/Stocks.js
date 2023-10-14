@@ -6,9 +6,11 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			Stocks.belongsTo(models.Products, {
 				foreignKey: "ProductId",
+				as: "ProductsStocks",
 			});
 			Stocks.belongsTo(models.Branches, {
 				foreignKey: "BranchId",
+				as: "BranchesStocks",
 			});
 		}
 	}
