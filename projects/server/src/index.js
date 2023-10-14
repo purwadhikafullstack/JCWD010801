@@ -33,7 +33,7 @@ server.get("/api", (req, res) => {
 
 server.get("/api/greetings", (req, res, next) => {
   res.status(200).json({
-    message: "Hello, Student !",
+    message: "Hello, Student Purwadhika!",
   });
 });
 
