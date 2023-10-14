@@ -6,19 +6,19 @@ const PORT = process.env.PORT || 8000;
 const server = express();
 const db = require("./models");
 const {
-	userRouters,
-	adminRouters,
-	productRouters,
-	categoryRouters,
-	addressRouters,
-	cartRouters,
-	orderRouters,
-	productReportRouters,
-	branchRouters,
-	reportRouters,
-	discountRouters,
-	voucherRouters,
-	notificationRouters
+  userRouters,
+  adminRouters,
+  productRouters,
+  categoryRouters,
+  addressRouters,
+  cartRouters,
+  orderRouters,
+  productReportRouters,
+  branchRouters,
+  reportRouters,
+  discountRouters,
+  voucherRouters,
+  notificationRouters,
 } = require("./routers");
 
 // server.use(
@@ -46,41 +46,40 @@ server.use("/api/cart", cartRouters);
 server.use("/api/order", orderRouters);
 server.use("/api/product-report", productReportRouters);
 server.use("/api/branch", branchRouters);
-server.use('/api/report', reportRouters);
-server.use('/api/discount', discountRouters);
-server.use('/api/voucher', voucherRouters);
-server.use('/api/notification', notificationRouters);
-
+server.use("/api/report", reportRouters);
+server.use("/api/discount", discountRouters);
+server.use("/api/voucher", voucherRouters);
+server.use("/api/notification", notificationRouters);
 
 server.get("/api", (req, res) => {
-	res.send(`Hello, welcome to Alpha Mart API.`);
+  res.send(`Hello, welcome to Alpha Mart API.`);
 });
 
 server.get("/api/greetings", (req, res, next) => {
-	res.status(200).json({
-		message: "Hello, Student !",
-	});
+  res.status(200).json({
+    message: "Hello, Student Purwadhika!",
+  });
 });
 
 // ===========================
 
 // not found
 server.use((req, res, next) => {
-	if (req.path.includes("/api/")) {
-		res.status(404).send("Not found !");
-	} else {
-		next();
-	}
+  if (req.path.includes("/api/")) {
+    res.status(404).send("Not found !");
+  } else {
+    next();
+  }
 });
 
 // error
 server.use((err, req, res, next) => {
-	if (req.path.includes("/api/")) {
-		console.error("Error : ", err.stack);
-		res.status(500).send("Error !");
-	} else {
-		next();
-	}
+  if (req.path.includes("/api/")) {
+    console.error("Error : ", err.stack);
+    res.status(500).send("Error !");
+  } else {
+    next();
+  }
 });
 
 //#endregion
@@ -91,15 +90,15 @@ server.use(express.static(join(__dirname, clientPath)));
 
 // Serve the HTML page
 server.get("*", (req, res) => {
-	res.sendFile(join(__dirname, clientPath, "index.html"));
+  res.sendFile(join(__dirname, clientPath, "index.html"));
 });
 
 //#endregion
 server.listen(PORT, (err) => {
-	if (err) {
-		console.log(`ERROR: ${err}`);
-	} else {
-		// db.sequelize.sync({ alter: true });
-		console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
-	}
+  if (err) {
+    console.log(`ERROR: ${err}`);
+  } else {
+    // db.sequelize.sync({ alter: true });
+    console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
+  }
 });
