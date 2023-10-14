@@ -418,16 +418,16 @@ export const Navbar = ({ isNotDisabled = true }) => {
 												</Text>
 											</Stack>
 											<MenuDivider />
+											<MenuItem onClick={() => navigate("/profile")} gap="3">
+												<Icon as={BsPerson} w="5" h="5" color="black" />
+												<Text>Profile</Text>
+											</MenuItem>
 											{RoleId > 1 ? (
 												<MenuItem onClick={() => navigate("/dashboard")} gap="3">
 													<Icon as={MdSpaceDashboard} w="5" h="5" color="black" />
 													<Text>Dashboard</Text>
 												</MenuItem>
 											) : (<ReferralModal/>)}
-											<MenuItem onClick={() => navigate("/profile")} gap="3">
-												<Icon as={BsPerson} w="5" h="5" color="black" />
-												<Text>Profile</Text>
-											</MenuItem>
 											<MenuItem onClick={logout} gap="3">
 												<Icon as={MdLogout} w="5" h="5" color="black" />
 												<Text>Logout</Text>
