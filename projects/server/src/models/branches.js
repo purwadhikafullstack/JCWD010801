@@ -8,7 +8,6 @@ module.exports = (sequelize, DataTypes) => {
 			Branches.belongsToMany(models.Products, {
 				through: models.Stocks,
 				foreignKey: "BranchId",
-				as: "BranchesStocks",
 			});
 			Branches.hasMany(models.Discounts);
 			Branches.hasMany(models.Vouchers);

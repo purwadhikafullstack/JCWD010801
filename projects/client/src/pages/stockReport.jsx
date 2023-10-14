@@ -674,31 +674,31 @@ const StockReport = () => {
 							‎ Units
 						</Td>
 						<Td className="centered-td">
-							{item.StockMovements.txCount !== 0 ? (
+							{item?.StockMovements?.txCount !== 0 ? (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.StockMovements.txCount}</Text> <LuPackagePlus size={20} color="green" />
+										<Text mr={"3px"}>{item?.StockMovements?.txCount}</Text> <LuPackagePlus size={20} color="green" />
 									</Flex>
 								</div>
 							) : (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.StockMovements.txCount}</Text> <LuPackageMinus size={20} color="#D11010" />
+										<Text mr={"3px"}>{item?.StockMovements?.txCount}</Text> <LuPackageMinus size={20} color="#D11010" />
 									</Flex>
 								</div>
 							)}
 						</Td>
 						<Td className="centered-td">
-							{item.StockMovements.failedTxCount !== 0 ? (
+							{item?.StockMovements?.failedTxCount !== 0 ? (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.StockMovements.failedTxCount}</Text> <LuPackageX size={20} color="#D11010" />
+										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text> <LuPackageX size={20} color="#D11010" />
 									</Flex>
 								</div>
 							) : (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.StockMovements.failedTxCount}</Text>{" "}
+										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text>{" "}
 										<LuPackageCheck size={20} color="green" />
 									</Flex>
 								</div>
