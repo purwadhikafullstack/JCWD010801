@@ -5,10 +5,7 @@ module.exports = (sequelize, DataTypes) => {
 	class Stocks extends Model {
 		static associate(models) {
 			Stocks.belongsTo(models.Products);
-			Stocks.belongsTo(models.Branches, {
-				foreignKey: "BranchId",
-				as: "BranchStocks"
-			});
+			Stocks.belongsTo(models.Branches);
 		}
 	}
 	Stocks.init(
