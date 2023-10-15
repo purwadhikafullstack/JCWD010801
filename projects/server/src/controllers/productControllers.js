@@ -1600,6 +1600,12 @@ module.exports = {
 					message: "Rating is required.",
 				});
 
+			if (invoiceNumber === null)
+				return res.status(400).send({
+					status: 400,
+					message: "Invoice is required.",
+				});
+
 			const existingReview = await reviews.findOne({
 				where: {
 					ProductId: PID,
