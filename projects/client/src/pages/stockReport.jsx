@@ -557,7 +557,7 @@ const StockReport = () => {
 	const fetchBranchKeyMetricsData = async () => {
 		try {
 			const baseMetrics = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`);
-			setKeyMetricsBranch(baseMetrics.data.result);
+			setKeyMetricsBranch(baseMetrics.data.branchProducts);
 
 			const txMetrics = await Axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/bestandworst/${keyMetricsTxBranchId}`
