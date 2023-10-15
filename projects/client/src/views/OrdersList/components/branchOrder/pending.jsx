@@ -57,6 +57,7 @@ export const PendingOrders = ({ reload, setReload }) => {
 	};
 	useEffect(() => {
 		ordersList(page);
+		// eslint-disable-next-line
 	}, [startDate, endDate, searchName, sort, reload, page]);
 	return (
 		<Flex>

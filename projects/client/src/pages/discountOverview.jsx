@@ -1,7 +1,7 @@
 import LayoutSidebar from "../pages/layoutSidebar";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { Error404page } from "./error404";
 import { TbDiscount2 } from "react-icons/tb";
 import { MdDiscount } from "react-icons/md";

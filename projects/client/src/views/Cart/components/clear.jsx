@@ -3,6 +3,8 @@ import { ButtonTemp } from "../../../components/button";
 import { BsCartX } from "react-icons/bs"
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
+import { refreshCart } from "../../../redux/cartSlice";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { refreshCart } from "../../../redux/cartSlice";

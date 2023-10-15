@@ -24,8 +24,8 @@ export const CartPageView = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const dispatch = useDispatch();
 
-    const { refresh } = useSelector((state) => state.cart.value);
-    const { RoleId } = useSelector((state) => state.user.value);
+	const { refresh } = useSelector((state) => state.cart.value);
+	const { RoleId } = useSelector((state) => state.user.value);
 
     const fetchCart = async() => {
         try {

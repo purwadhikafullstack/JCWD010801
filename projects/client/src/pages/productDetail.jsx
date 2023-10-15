@@ -559,7 +559,7 @@ const ProductDetail = () => {
 											fontWeight={"semibold"}
 											textAlign={"left"}
 											w={"330px"}
-											h={"80px"}
+											h={"70px"}
 											textOverflow={"ellipsis"}
 										>
 											Description ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎:{" "}
@@ -769,7 +769,7 @@ const ProductDetail = () => {
 									)}
 								</TabPanel>
 								<TabPanel>
-									<Center flexDir="column" align="center" p={4}>
+									<Center flexDir="column" align="center" justifyItems={"center"} w={"100%"}>
 										<Text fontSize="2xl" fontWeight="bold">
 											What Others Said About {product.productName}:
 										</Text>
@@ -789,6 +789,28 @@ const ProductDetail = () => {
 																setItemLimit(parseInt(e.target.value, 10));
 																setPage(1);
 																setReload2(!reload2);
+															} else if (e.target.value === "") {
+																toast.info("Showing 5 reviews per page.", {
+																	position: "top-right",
+																	autoClose: 4000,
+																	hideProgressBar: false,
+																	closeOnClick: true,
+																	pauseOnHover: true,
+																	draggable: true,
+																	progress: undefined,
+																	theme: "dark",
+																});
+															} else {
+																toast.info(`Sorry, only ${totalReviewsStatic} reviews exists.`, {
+																	position: "top-right",
+																	autoClose: 4000,
+																	hideProgressBar: false,
+																	closeOnClick: true,
+																	pauseOnHover: true,
+																	draggable: true,
+																	progress: undefined,
+																	theme: "dark",
+																});
 															}
 														}}
 														w="100%"
@@ -1089,118 +1111,189 @@ const ProductDetail = () => {
 														)}
 													</Stack>
 												</Flex>
-												{/* //! mappedcontent*/}
-												{/* //! needs responsive adjustment*/}
-												<Center w="100%" borderRadius="lg" p={5} mt={5} zIndex="1">
-													<Flex direction="column" align="center" w="100%">
-														{isLoading ? (
-															<Stack overflowY="auto" className="scrollbar-4px" mt={5} w="100%">
-																{reviews.map((item) => (
-																	<Flex key={item.id} borderRadius="lg" bg="red.100" w="100%">
-																		{/* Left column */}
-																		<Flex w="100%" direction="column" align="center">
-																			<Skeleton count={1} width="100%" height="33px" highlightColor="#141415" />
+												<Center
+													w="300px"
+													h={"inherit"}
+													borderRadius="lg"
+													zIndex="1"
+													overflowY="auto"
+													className="scrollbar-4px"
+												>
+													{isLoading ? (
+														<Stack mt={5} w="100%" h={"100%"}>
+															{reviews.map((item) => (
+																<Stack
+																	key={item.id}
+																	borderRadius="15px"
+																	w="100%"
+																	border={"1px solid black"}
+																	mb={"10px"}
+																>
+																	<Flex w="100%" h={"40px"} direction="row" align="center">
+																		<Flex
+																			w="50%"
+																			direction="row"
+																			align="center"
+																			justify={"flex-start"}
+																			height={"100%"}
+																			pl={3}
+																		>
+																			<Skeleton count={1} width="80px" height="15px" highlightColor="#141415" />
+																		</Flex>
+																		<Stack w={"50%"} h={"100%"} align={"center"}>
+																			<Flex w={"100%"} h={"20px"} align={"center"} justify={"flex-end"} pr={2} pt={1}>
+																				<Skeleton
+																					count={1}
+																					width="100px"
+																					height="10px"
+																					highlightColor="#141415"
+																					direction="rtl"
+																				/>
+																			</Flex>
+																			<Flex w={"100%"} h={"20px"} align={"center"} justify={"flex-end"} pr={2}>
+																				<Skeleton
+																					count={1}
+																					width="50px"
+																					height="15px"
+																					highlightColor="#141415"
+																					direction="rtl"
+																				/>
+																			</Flex>
+																		</Stack>
+																	</Flex>
+																	<Flex w="100%" h={"100%"} direction="column" flexDirection={"row"}>
+																		<Stack w="50%" h={"52.5px"} justify={"center"} pl={"10px"}>
+																			<Skeleton count={1} width="100px" height="18px" highlightColor="#141415" />
+																			<Skeleton count={1} width="100px" height="12px" highlightColor="#141415" />
+																		</Stack>
+																		<Flex w="50%" h={"52.5px"} justify={"flex-end"} pr={"15px"}>
 																			<Skeleton
-																				count={1}
-																				width="100%"
-																				height="24px"
+																				circle={true}
+																				width="50px"
+																				height="50px"
 																				highlightColor="#141415"
-																				direction="ltr"
+																				direction="rtl"
 																			/>
 																		</Flex>
-																		{/* Right column */}
-																		<Flex w="100%" direction="column">
-																			<Flex align="center">
-																				<Skeleton count={1} width="100%" height="33px" highlightColor="#141415" />
-																			</Flex>
-																			<Skeleton count={1} width="100%" height="24px" highlightColor="#141415" />
-																			<Skeleton count={1} width="100%" height="24px" highlightColor="#141415" />
-																			<Skeleton count={1} width="100%" height="24px" highlightColor="#141415" />
-																		</Flex>
 																	</Flex>
-																))}
-															</Stack>
-														) : (
-															<Stack overflowY="auto" className="scrollbar-4px" mt={5} w="100%">
-																{reviews.map((item) => (
-																	<Flex key={item.id} borderRadius="lg" p={5} m={3} bg="gray.100" w="100%">
-																		<Flex w="100%" direction="column" align="center">
+																	<Flex Flex w="100%" h={"100%"} px={3} pb={1}>
+																		<Skeleton count={1} width="275px" height="16px" highlightColor="#141415" />
+																	</Flex>
+																</Stack>
+															))}
+														</Stack>
+													) : (
+														<Stack overflowY="auto" className="scrollbar-4px" w="100%" h={"100%"} mt={"10px"}>
+															{reviews.map((item) => (
+																<Stack
+																	key={item.id}
+																	borderRadius="15px"
+																	w="100%"
+																	border={"1px solid black"}
+																	mb={"10px"}
+																>
+																	<Flex w="100%" h={"40px"} direction="row" align="center">
+																		<Flex
+																			w="50%"
+																			direction="row"
+																			align="center"
+																			justify={"flex-start"}
+																			height={"100%"}
+																			pl={1}
+																		>
 																			{item.rating === 1 ? (
-																				<Flex w="100%" h="35px" align="center" justify="center">
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStar size={30} color="grey" />
-																					<TbStar size={30} color="grey" />
-																					<TbStar size={30} color="grey" />
-																					<TbStar size={30} color="grey" />
+																				<Flex w="100%" h="35px" align="center" justify="flex-start" pl="3px">
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStar size={15} color="grey" />
+																					<TbStar size={15} color="grey" />
+																					<TbStar size={15} color="grey" />
+																					<TbStar size={15} color="grey" />
 																				</Flex>
 																			) : item.rating === 2 ? (
-																				<Flex w="100%" h="35px" align="center" justify="center">
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStar size={30} color="grey" />
-																					<TbStar size={30} color="grey" />
-																					<TbStar size={30} color="grey" />
+																				<Flex w="100%" h="35px" align="center" justify="flex-start" pl="3px">
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStar size={15} color="grey" />
+																					<TbStar size={15} color="grey" />
+																					<TbStar size={15} color="grey" />
 																				</Flex>
 																			) : item.rating === 3 ? (
-																				<Flex w="100%" h="35px" align="center" justify="center">
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStar size={30} color="grey" />
-																					<TbStar size={30} color="grey" />
+																				<Flex w="100%" h="35px" align="center" justify="flex-start" pl="3px">
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStar size={15} color="grey" />
+																					<TbStar size={15} color="grey" />
 																				</Flex>
 																			) : item.rating === 4 ? (
-																				<Flex w="100%" h="35px" align="center" justify="center">
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStar size={30} color="grey" />
+																				<Flex w="100%" h="35px" align="center" justify="flex-start" pl="3px">
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStar size={15} color="grey" />
 																				</Flex>
 																			) : (
-																				<Flex w="100%" h="35px" align="center" justify="center">
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
-																					<TbStarFilled size={30} color="#DA9100" />
+																				<Flex w="100%" h="35px" align="center" justify="flex-start" pl="3px">
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
+																					<TbStarFilled size={15} color="#DA9100" />
 																				</Flex>
 																			)}
 																		</Flex>
-																		<Flex w="100%" direction="column">
-																			<Flex align="center">
-																				<Text fontWeight="bold" fontSize="22px">
-																					{censorUsername(item?.User?.username)}
+																		<Stack w={"50%"} h={"100%"} align={"center"}>
+																			<Flex w={"100%"} h={"20px"} align={"center"} justify={"flex-end"} pr={2} pt={1}>
+																				<Text fontWeight={"hairline"} fontSize={"8px"} whiteSpace="nowrap">
+																					{censorInvoice(item?.invoiceNumber)}
 																				</Text>
 																			</Flex>
-																			<Flex align="center">
-																				<Text fontSize="14px">
-																					bought {product?.productName} x {item?.qty}
-																				</Text>
-																			</Flex>
-																			<Flex align="center">
+																			<Flex w={"100%"} h={"20px"} align={"center"} justify={"flex-end"} pr={2}>
 																				<Text fontStyle="italic" fontSize="14px">
 																					{categorizeDate(item?.createdAt)}
 																				</Text>
 																			</Flex>
-																			<Text
-																				fontSize="18px"
-																				whiteSpace="nowrap"
-																				overflow="hidden"
-																				textOverflow="ellipsis"
-																				maxWidth="100%"
-																				maxHeight="100px"
-																			>
-																				{item.comment}
+																		</Stack>
+																	</Flex>
+																	<Flex w="100%" h={"100%"} direction="column" flexDirection={"row"}>
+																		<Stack w="50%" h={"52.5px"} justify={"center"} pl={"10px"}>
+																			<Text fontSize="18px" textAlign={"left"} fontWeight="bold" justify={"flex-start"}>
+																				{censorUsername(item?.User?.username)}
 																			</Text>
+																			<Text fontSize="12px" textAlign={"left"} justify={"flex-start"}>
+																				bought {product?.productName} x {item?.qty}
+																			</Text>
+																		</Stack>
+																		<Flex w="50%" h={"52.5px"} justify={"flex-end"} pr={"15px"}>
+																			<Image
+																				boxSize={"50px"}
+																				borderRadius={"5px"}
+																				rounded={"50px"}
+																				boxShadow={"1px 2px 3px black"}
+																				src={`${process.env.REACT_APP_BASE_URL}/avatars/${
+																					item.User.avatar !== null ? item.User.avatar : "default_not_set_thumb.png"
+																				}`}
+																			/>
 																		</Flex>
 																	</Flex>
-																))}
-															</Stack>
-														)}
-													</Flex>
+																	<Flex Flex w="100%" h={"100%"} px={3} pb={1}>
+																		<Text
+																			fontSize="18px"
+																			whiteSpace="nowrap"
+																			overflow="hidden"
+																			textOverflow="ellipsis"
+																			maxWidth="100%"
+																			maxHeight="100px"
+																		>
+																			{item.comment}
+																		</Text>
+																	</Flex>
+																</Stack>
+															))}
+														</Stack>
+													)}
 												</Center>
-												{/* //! end of mappedcontent*/}
 												<Flex align={"center"} justify={"center"} mt={5}>
 													<Pagination
 														page={page}
@@ -1685,11 +1778,31 @@ const ProductDetail = () => {
 																setItemLimit(parseInt(e.target.value, 10));
 																setPage(1);
 																setReload2(!reload2);
+															} else if (e.target.value === "") {
+																toast.info("Showing 5 reviews per page.", {
+																	position: "top-right",
+																	autoClose: 4000,
+																	hideProgressBar: false,
+																	closeOnClick: true,
+																	pauseOnHover: true,
+																	draggable: true,
+																	progress: undefined,
+																	theme: "dark",
+																});
 															} else {
-																return;
+																toast.info(`Sorry, only ${totalReviewsStatic} reviews exists.`, {
+																	position: "top-right",
+																	autoClose: 4000,
+																	hideProgressBar: false,
+																	closeOnClick: true,
+																	pauseOnHover: true,
+																	draggable: true,
+																	progress: undefined,
+																	theme: "dark",
+																});
 															}
 														}}
-														w={"171px"}
+														w={"215px"}
 														h={"30px"}
 														borderColor={"gray"}
 														bgColor={"white"}
@@ -2173,6 +2286,7 @@ const ProductDetail = () => {
 																					textOverflow={"ellipsis"}
 																					overflow={"hidden"}
 																					whiteSpace="nowrap"
+																					ml={"5px"}
 																				>
 																					<Text fontSize={"14px"} whiteSpace="nowrap">
 																						bought {product?.productName} x {item?.qty}

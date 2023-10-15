@@ -1,8 +1,10 @@
+import axios from "axios";
+import * as Yup from "yup";
+import "react-toastify/dist/ReactToastify.css";
 import {
 	Flex,
 	Text,
 	Icon,
-	Input,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
@@ -14,11 +16,8 @@ import {
 	useDisclosure,
 	Button,
 } from "@chakra-ui/react";
-import axios from "axios";
-import * as Yup from "yup";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, ErrorMessage } from "formik";
 import { BiUpload } from "react-icons/bi";
 import { ButtonTemp } from "../../../components/button";
 import { useEffect } from "react";
@@ -29,16 +28,16 @@ export const UploadProof = ({ id, date, branch, amount, reload, setReload }) => 
 
 	const paymentProofSchema = Yup.object().shape({
 		image: Yup.mixed()
-		.required("This field must not be empty")
-		.test("fileSize", "Image size is too large (max 1MB)", (value) => {
-			if (!value) return true;
-			return value.size <= 1024 * 1024;
-		})
-		.test("fileType", "Only JPG, JPEG, PNG, WEBP, and GIF image types are supported.", (value) => {
-			if (!value) return true;
-			const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
-			return acceptedTypes.includes(value.type);
-		}),
+			.required("This field must not be empty")
+			.test("fileSize", "Image size is too large (max 1MB)", (value) => {
+				if (!value) return true;
+				return value.size <= 1024 * 1024;
+			})
+			.test("fileType", "Only JPG, JPEG, PNG, WEBP, and GIF image types are supported.", (value) => {
+				if (!value) return true;
+				const acceptedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
+				return acceptedTypes.includes(value.type);
+			}),
 	});
 
 	const handleSubmit = async (value) => {
@@ -82,6 +81,7 @@ export const UploadProof = ({ id, date, branch, amount, reload, setReload }) => 
 
 	useEffect(() => {
 		setReload(true);
+		// eslint-disable-next-line
 	}, [reload]);
 
 	return (
@@ -112,7 +112,15 @@ export const UploadProof = ({ id, date, branch, amount, reload, setReload }) => 
 										<Stack gap={4} p={3}>
 											<Stack gap={1}>
 												<Text fontWeight={"semibold"}>Date</Text>
-												<Text>{new Date(date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</Text>
+												<Text>
+													{new Date(date).toLocaleDateString("en-US", {
+														month: "long",
+														day: "numeric",
+														year: "numeric",
+														hour: "2-digit",
+														minute: "2-digit",
+													})}
+												</Text>
 											</Stack>
 											<Flex>
 												<Stack mr={40} gap={1}>

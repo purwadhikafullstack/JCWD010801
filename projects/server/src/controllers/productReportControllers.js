@@ -237,10 +237,15 @@ module.exports = {
 	getAverageProductsPerBranch: async (req, res) => {
 		try {
 			const branchData = await branches.findAll({
-				include: [products],
+				include: [
+					{
+						model: products,
+						as: "ProductsBranches",
+					},
+				],
 			});
 
-			const totalProductCount = branchData.reduce((total, branch) => total + branch.Products.length, 0);
+			const totalProductCount = branchData.reduce((total, branch) => total + branch.ProductsBranches.length, 0);
 
 			const averageProductCount = Math.round(totalProductCount / branchData.length);
 
@@ -623,6 +628,8 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "viewCount") {
 				orderCriteria.push(["viewCount", sortOrder]);
+			} else if (sortBy === "likeCount") {
+				orderCriteria.push(["likeCount", sortOrder]);
 			} else if (sortBy === "CategoryId") {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "branchStock") {
@@ -729,11 +736,18 @@ module.exports = {
 	getBranchesProductCount: async (req, res) => {
 		try {
 			const branchesData = await branches.findAll({
-				include: [products],
+				include: [
+					{
+						model: products,
+						as: "ProductsBranches",
+					},
+				],
 			});
 
+			console.log(branchesData);
+
 			const result = branchesData.map((branch) => {
-				const productsData = branch.Products;
+				const productsData = branch.ProductsBranches;
 
 				const sortedProducts = {
 					byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
@@ -762,6 +776,7 @@ module.exports = {
 				result: result,
 			});
 		} catch (error) {
+			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",

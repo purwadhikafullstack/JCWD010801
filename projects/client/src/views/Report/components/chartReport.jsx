@@ -1,8 +1,8 @@
+import Axios from "axios";
 import React, { useEffect, useState } from "react";
+import "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import { Box, Center, FormControl, FormLabel, Grid, Select, Text } from "@chakra-ui/react";
-import "chart.js/auto";
-import Axios from "axios";
 export const options = {
 	responsive: true,
 	maintainAspectRatio: false,
@@ -40,6 +40,7 @@ function ChartReport({ roleId, branchId }) {
 	const [selectedYear, setSelectedYear] = useState(currentYear.toString());
 	const [monthlyTotals, setMonthlyTotals] = useState([]);
 	const token = localStorage.getItem("token");
+
 	const fetchReport = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/report/`, {
@@ -54,6 +55,7 @@ function ChartReport({ roleId, branchId }) {
 			setDataReport(response.data);
 		} catch (error) {}
 	};
+
 	const fetchBranch = async () => {
 		try {
 			const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/branches/`);
@@ -67,6 +69,7 @@ function ChartReport({ roleId, branchId }) {
 			currency: "IDR",
 		}).format(number);
 	}
+
 	const availableYears = dataReport ? Object.keys(dataReport.groupedResults) : [];
 	availableYears.sort((a, b) => parseInt(b) - parseInt(a));
 	const data = {
@@ -87,7 +90,9 @@ function ChartReport({ roleId, branchId }) {
 		}
 		fetchReport();
 		fetchBranch();
+		// eslint-disable-next-line
 	}, [searchBranch, branchId]);
+
 	useEffect(() => {
 		if (dataReport && selectedYear) {
 			const yearData = dataReport?.groupedResults[selectedYear];
@@ -103,6 +108,7 @@ function ChartReport({ roleId, branchId }) {
 			}
 		}
 	}, [dataReport, selectedYear]);
+
 	return dataReport ? (
 		<Center>
 			<Box boxShadow={"md"} p="4" maxW={"80%"} w="100%">
