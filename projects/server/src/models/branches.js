@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
 			Branches.hasMany(models.StockMovements);
 			Branches.belongsToMany(models.Products, {
 				through: models.Stocks,
+				as: 'Products'
 			}); // Try to enable again in deploy v.3.0.
 			Branches.hasMany(models.Discounts);
 			Branches.hasMany(models.Vouchers);
