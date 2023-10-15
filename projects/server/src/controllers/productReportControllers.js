@@ -623,6 +623,8 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "viewCount") {
 				orderCriteria.push(["viewCount", sortOrder]);
+			} else if (sortBy === "likeCount") {
+				orderCriteria.push(["likeCount", sortOrder]);
 			} else if (sortBy === "CategoryId") {
 				orderCriteria.push(["CategoryId", sortOrder]);
 			} else if (sortBy === "branchStock") {

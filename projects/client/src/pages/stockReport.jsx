@@ -66,7 +66,8 @@ import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { ImEye, ImEyeBlocked } from "react-icons/im";
-import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
+import { FcLike, FcDislike } from "react-icons/fc";
+import { AiOutlineDislike, AiOutlineLike, AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
@@ -624,7 +625,7 @@ const StockReport = () => {
 							>
 								<Skeleton
 									count={1}
-									width={"1310px"}
+									width={"1375px"}
 									containerClassName="flex-1"
 									height={"32px"}
 									highlightColor="#141415"
@@ -692,7 +693,8 @@ const StockReport = () => {
 							{item?.StockMovements?.failedTxCount !== 0 ? (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text> <LuPackageX size={20} color="#D11010" />
+										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text>{" "}
+										<LuPackageX size={20} color="#D11010" />
 									</Flex>
 								</div>
 							) : (
@@ -708,13 +710,28 @@ const StockReport = () => {
 							{item.viewCount !== 0 ? (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.viewCount}</Text> <ImEye size={18} color="#DA9100" />
+										<Text mr={"3px"}>{item?.viewCount}</Text> <ImEye size={18} color="#DA9100" />
 									</Flex>
 								</div>
 							) : (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.viewCount}</Text> <ImEyeBlocked size={18} color="#D11010" />
+										<Text mr={"3px"}>{item?.viewCount}</Text> <ImEyeBlocked size={18} color="#D11010" />
+									</Flex>
+								</div>
+							)}
+						</Td>
+						<Td className="centered-td">
+							{item.likeCount !== 0 ? (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.likeCount}</Text> <FcLike size={18} color="#DA9100" />
+									</Flex>
+								</div>
+							) : (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.likeCount}</Text> <FcDislike size={18} color="#D11010" />
 									</Flex>
 								</div>
 							)}
@@ -883,7 +900,7 @@ const StockReport = () => {
 					.toString()
 					.padStart(2, "0")}:${createdAtDate.getSeconds().toString().padStart(2, "0")}`;
 				const startsWith = (str, prefix) => {
-					return str.indexOf(prefix) === 0;
+					return str && str.indexOf(prefix) === 0;
 				};
 
 				return (
@@ -1379,7 +1396,7 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>Alphabetical</Text>
+										<Text ml={"-6px"}>NAME</Text>
 									</Radio>
 									<Radio
 										size="sm"
@@ -1391,7 +1408,7 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>Nationwide</Text>
+										<Text ml={"-6px"}>ALL</Text>
 									</Radio>
 									<Radio
 										size="sm"
@@ -1480,7 +1497,7 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>#Failed</Text>
+										<Text ml={"-6px"}>#CANCEL</Text>
 									</Radio>
 									<Radio
 										size="sm"
@@ -1492,7 +1509,19 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>Views</Text>
+										<Text ml={"-6px"}>#VIEWS</Text>
+									</Radio>
+									<Radio
+										size="sm"
+										isChecked={sortLevelBy === "likeCount"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortLevelBy("likeCount");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										<Text ml={"-6px"}>#LIKES</Text>
 									</Radio>
 								</Flex>
 								<Flex
@@ -1743,6 +1772,30 @@ const StockReport = () => {
 												{...customRadioStyle}
 											>
 												<IconEyePlus size={23} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "likeCount" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineDislike size={23} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineLike size={23} />
 											</Radio>
 										</>
 									)}
@@ -2331,6 +2384,21 @@ const StockReport = () => {
 																	cursor="pointer"
 																	onClick={() => {
 																		setSortLevelBy("viewCount");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Likes
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("likeCount");
 																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
 																	}}
 																/>
