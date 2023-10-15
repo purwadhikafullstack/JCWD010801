@@ -707,6 +707,7 @@ const ProductManagement = () => {
 						>
 							<Flex w={"240px"} h={"45px"} align="center" fontWeight="bold">
 								<Input
+									name="search"
 									type="search"
 									value={search}
 									mr={"5px"}
