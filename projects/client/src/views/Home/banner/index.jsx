@@ -3,7 +3,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import "./banner.css";
-import Banner0 from "../../../assets/public/AM_logo.png";
+import Banner0 from "../../../assets/public/banners/banner0.jpg";
 import Banner1 from "../../../assets/public/banners/banner1.jpg";
 import Banner2 from "../../../assets/public/banners/banner2.jpg";
 import Banner3 from "../../../assets/public/banners/banner3.jpg";
