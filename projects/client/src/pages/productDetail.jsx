@@ -1176,7 +1176,7 @@ const ProductDetail = () => {
 																			/>
 																		</Flex>
 																	</Flex>
-																	<Flex Flex w="100%" h={"100%"} px={3} pb={1}>
+																	<Flex w="100%" h={"100%"} px={3} pb={1}>
 																		<Skeleton count={1} width="275px" height="16px" highlightColor="#141415" />
 																	</Flex>
 																</Stack>
@@ -1277,7 +1277,7 @@ const ProductDetail = () => {
 																			/>
 																		</Flex>
 																	</Flex>
-																	<Flex Flex w="100%" h={"100%"} px={3} pb={1}>
+																	<Flex w="100%" h={"100%"} px={3} pb={1}>
 																		<Text
 																			fontSize="18px"
 																			whiteSpace="nowrap"
