@@ -744,8 +744,6 @@ module.exports = {
 				],
 			});
 
-			console.log(branchesData);
-
 			const result = branchesData.map((branch) => {
 				const productsData = branch.ProductsBranches;
 
