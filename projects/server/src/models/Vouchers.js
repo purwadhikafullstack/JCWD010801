@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
             });
 			// Vouchers.belongsToMany(models.Users, {
             //     through: "User_vouchers",
-            //     foreignKey: "VoucherId"
             // });
             Vouchers.belongsTo(models.Branches, {
                 foreignKey: {
