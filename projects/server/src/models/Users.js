@@ -13,8 +13,9 @@ module.exports = (sequelize, DataTypes) => {
 			Users.belongsToMany(models.Vouchers, {
 				through: "User_vouchers",
 				foreignKey: "UserId",
-				allowNull: false
-			});
+				otherKey: "VoucherId",
+				as: "vouchers",
+			  });
 			// Users.hasMany(models.User_vouchers, {
 			//     foreignKey: "UserId"
 			// });
