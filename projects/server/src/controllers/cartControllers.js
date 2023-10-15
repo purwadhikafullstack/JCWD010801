@@ -243,34 +243,30 @@ module.exports = {
 	switchBranch: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
-			await carts.update(
-				{
-					status: "ABANDONED",
-					description: "Switched branch",
-				},
-				{
-					where: {
-						UserId: req.user.id,
-						status: "ACTIVE",
-					},
-					transaction,
-				}
-			);
-
-			await carts.create(
-				{
+			const cart = await carts.findOne({
+				where: {
 					UserId: req.user.id,
 					status: "ACTIVE",
-					BranchId: req.body.BranchId,
 				},
-				{ transaction }
-			);
+			});
+
+			await cartItems.destroy({
+				where: { CartId: cart.id },
+				transaction
+			});
+
+			await carts.update({ BranchId: req.body.BranchId }, {
+					where: {
+						id: cart.id
+					},
+					transaction
+			});
 
 			await transaction.commit();
 
 			res.status(200).send({
 				status: true,
-				message: "Cart abandoned",
+				message: "Cart switched branch",
 			});
 		} catch (err) {
 			await transaction.rollback();
@@ -366,24 +362,20 @@ module.exports = {
 	},
 	clearCart: async (req, res) => {
 		try {
-			const { description } = req.body;
-
-			await carts.update(
-				{
-					status: "ABANDONED",
-					description,
+			const cart = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
 				},
-				{
-					where: {
-						UserId: req.user.id,
-						status: "ACTIVE",
-					},
-				}
-			);
+			});
+
+			await cartItems.destroy({
+				where: { CartId: cart.id }
+			});
 
 			res.status(200).send({
 				status: true,
-				message: "Item removed from cart",
+				message: "Cart cleared",
 			});
 		} catch (err) {
 			res.status(400).send(err);
