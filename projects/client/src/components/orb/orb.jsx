@@ -84,6 +84,7 @@ export const Orb = () => {
 				}
 			}
 			count++;
+			// eslint-disable-next-line
 			animationFrameId = requestAnimationFrame(orb);
 		};
 
@@ -91,6 +92,7 @@ export const Orb = () => {
 		orb();
 
 		return () => {
+			// eslint-disable-next-line
 			isUnmounted = true;
 
 			if (animationFrameId) {

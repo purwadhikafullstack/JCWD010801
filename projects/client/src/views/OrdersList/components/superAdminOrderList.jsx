@@ -86,6 +86,7 @@ export const SuperAdminOrdersList = () => {
 	useEffect(() => {
 		ordersList();
 		getBranches();
+		// eslint-disable-next-line
 	}, [startDate, endDate, search, searchName, sort, status, reload, branchId]);
 	return (
 		<Flex>

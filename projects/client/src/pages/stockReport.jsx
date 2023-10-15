@@ -10,6 +10,8 @@ import NoProductThumb from "../assets/public/404_thumb.gif";
 import FirstPlace from "../assets/public/key_metrics_assets/1st_place.png";
 import SecondPlace from "../assets/public/key_metrics_assets/2nd_place.png";
 import ThirdPlace from "../assets/public/key_metrics_assets/3rd_place.png";
+import AM1 from "../assets/public/AM_logo_only_trans.png";
+import AM2 from "../assets/public/AM_logo_only_trans_180.png";
 import React, { useEffect, useState } from "react";
 import CategoryBarChart from "../components/stockReport/categoryBarChart";
 import BranchBarChart from "../components/stockReport/branchBarChart";
@@ -19,6 +21,7 @@ import ActiveProductsBarChart from "../components/stockReport/activeProductsBarC
 import DeactivatedProductsBarChart from "../components/stockReport/deactivatedProductsBarChart";
 import DeletedProductsBarChart from "../components/stockReport/deletedProductsBarChart";
 import ViewCountBarChart from "../components/stockReport/viewCountBarChart";
+import LikeCountBarChart from "../components/stockReport/likeCountBarChart";
 import StatusStackedBarChart from "../components/stockReport/statusStackedBarChart";
 import BranchTxStackedBarChart from "../components/stockReport/branchTxStackedBarChart";
 import StockMovementLineChart from "../components/stockReport/stockMovementLineChart";
@@ -58,10 +61,11 @@ import { useNavigate } from "react-router-dom";
 import { NavbarAdmin } from "../components/navigation/navbarAdmin";
 import { AdminSidebar } from "../components/navigation/adminSidebar";
 import { Pagination } from "../components/navigation/pagination";
+import { sidebarEvent } from "../events/sidebarEvent";
 import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
-import { sidebarEvent } from "../events/sidebarEvent";
+import { ImEye, ImEyeBlocked } from "react-icons/im";
 import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
@@ -105,7 +109,7 @@ const StockReport = () => {
 	const [itemLimit, setItemLimit] = useState(15);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-	const [selectedBranch, setSelectedBranch] = useState("");
+	const [selectedBranch, setSelectedBranch] = useState(RoleId !== 3 ? adminBranchId : "");
 	const [sortedData, setSortedData] = useState([]);
 	const [administrators, setAdministrators] = useState([]);
 	const [users, setUsers] = useState([]);
@@ -669,9 +673,52 @@ const StockReport = () => {
 								: 0}
 							‎ Units
 						</Td>
-						<Td textAlign={"center"}>{item.StockMovements.txCount} Orders</Td>
-						<Td textAlign={"center"}>{item.StockMovements.failedTxCount} Cancellations</Td>
-						<Td textAlign={"center"}>{item.viewCount} x</Td>
+						<Td className="centered-td">
+							{item?.StockMovements?.txCount !== 0 ? (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.StockMovements?.txCount}</Text> <LuPackagePlus size={20} color="green" />
+									</Flex>
+								</div>
+							) : (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.StockMovements?.txCount}</Text> <LuPackageMinus size={20} color="#D11010" />
+									</Flex>
+								</div>
+							)}
+						</Td>
+						<Td className="centered-td">
+							{item?.StockMovements?.failedTxCount !== 0 ? (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text> <LuPackageX size={20} color="#D11010" />
+									</Flex>
+								</div>
+							) : (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text>{" "}
+										<LuPackageCheck size={20} color="green" />
+									</Flex>
+								</div>
+							)}
+						</Td>
+						<Td className="centered-td">
+							{item.viewCount !== 0 ? (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item.viewCount}</Text> <ImEye size={18} color="#DA9100" />
+									</Flex>
+								</div>
+							) : (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item.viewCount}</Text> <ImEyeBlocked size={18} color="#D11010" />
+									</Flex>
+								</div>
+							)}
+						</Td>
 					</Tr>
 				);
 			});
@@ -766,7 +813,29 @@ const StockReport = () => {
 						<Td textAlign={"center"}>{item.oldValue} units</Td>
 						<Td textAlign={"center"}>{item.change} units</Td>
 						<Td textAlign={"center"}>{item.newValue} units</Td>
-						<Td textAlign={"center"}>{findBranchNameById(item.BranchId)}</Td>
+						<Td textAlign={"center"}>
+							{findBranchNameById(item.BranchId) === "Jakarta" ? (
+								<Badge background={"#E25668"} color={"white"} variant={"outline"}>
+									Jakarta
+								</Badge>
+							) : findBranchNameById(item.BranchId) === "Bandung" ? (
+								<Badge background={"#E28956"} color={"white"} variant={"outline"}>
+									Bandung
+								</Badge>
+							) : findBranchNameById(item.BranchId) === "Jogjakarta" ? (
+								<Badge background={"#68E256"} color={"white"} variant={"outline"}>
+									Jogjakarta
+								</Badge>
+							) : findBranchNameById(item.BranchId) === "Surabaya" ? (
+								<Badge background={"#56E2CF"} color={"white"} variant={"outline"}>
+									Surabaya
+								</Badge>
+							) : (
+								<Badge background={"#5668E2"} color={"white"} variant={"outline"}>
+									Batam
+								</Badge>
+							)}
+						</Td>
 						<Td textAlign={"center"}>{findAdminNameById(item.UserId)}</Td>
 						<Td textAlign={"center"}>{formattedDate}</Td>
 						<Td textAlign={"center"}>{formattedTime}</Td>
@@ -1105,7 +1174,7 @@ const StockReport = () => {
 							setSortLevelBy("productName");
 							setLevelSortOrder("ASC");
 							setPage(1);
-							setSelectedBranch("");
+							setSelectedBranch(RoleId !== 3 ? adminBranchId : "");
 							setSelectedCategory("");
 							setSearch("");
 							setLevelsSearch("");
@@ -2563,7 +2632,9 @@ const StockReport = () => {
 									borderRadius={"15px"}
 								>
 									<Flex className="transition-element" justify={"center"} align={"center"}>
+										<Image className="transition-element" src={AM1} boxSize={"350px"} />
 										<DateRangePicker
+											className="transition-element"
 											ranges={dateRange}
 											onChange={(date) => {
 												setDateRange([date.selection]);
@@ -2573,6 +2644,7 @@ const StockReport = () => {
 											startDatePlaceholder={dateRange[0].startDate || "Currently Showing"}
 											endDatePlaceholder={dateRange[0].endDate || "All Entries"}
 										/>
+										<Image className="transition-element" src={AM2} boxSize={"350px"} />
 									</Flex>
 									<Stack
 										className="transition-element"
@@ -4447,6 +4519,7 @@ const StockReport = () => {
 											px={"50px"}
 										>
 											<ViewCountBarChart />
+											<LikeCountBarChart />
 										</Flex>
 									</Stack>
 								</Stack>

@@ -17,6 +17,7 @@ const Login = () => {
 		if (token) {
 			navigate("/");
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	return (

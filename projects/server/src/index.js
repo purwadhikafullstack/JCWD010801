@@ -18,7 +18,7 @@ const {
 	reportRouters,
 	discountRouters,
 	voucherRouters,
-	notificationRouters
+	notificationRouters,
 } = require("./routers");
 
 // server.use(
@@ -46,11 +46,10 @@ server.use("/api/cart", cartRouters);
 server.use("/api/order", orderRouters);
 server.use("/api/product-report", productReportRouters);
 server.use("/api/branch", branchRouters);
-server.use('/api/report', reportRouters);
-server.use('/api/discount', discountRouters);
-server.use('/api/voucher', voucherRouters);
-server.use('/api/notification', notificationRouters);
-
+server.use("/api/report", reportRouters);
+server.use("/api/discount", discountRouters);
+server.use("/api/voucher", voucherRouters);
+server.use("/api/notification", notificationRouters);
 
 server.get("/api", (req, res) => {
 	res.send(`Hello, welcome to Alpha Mart API.`);

@@ -11,10 +11,10 @@ const ViewCountBarChart = () => {
 
 	const fetchData = async () => {
 		try {
-			const deletedResponse = await axios.get(
+			const response = await axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusCounts`
 			);
-			setViewCountPerCategory(deletedResponse.data.productCountsByCategory);
+			setViewCountPerCategory(response.data.productCountsByCategory);
 			const viewCount = await axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/categories/statusAverages`
 			);

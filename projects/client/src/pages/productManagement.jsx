@@ -513,6 +513,7 @@ const ProductManagement = () => {
 							BranchId={BranchId}
 							currentBranchName={currentBranchName}
 							UID={id}
+							RoleId={RoleId}
 						/>
 					</Flex>
 				</Flex>
@@ -529,16 +530,29 @@ const ProductManagement = () => {
 					</Text>
 				</Flex>
 				<Flex h={"25px"}>
-					<Text
-						className="pm-d"
-						textAlign={"left"}
-						h={"25px"}
-						w={"800px"}
-						alignSelf={"center"}
-						ml={marginStyles.marginLeftDescription}
-					>
-						You are currently managing AlphaMart products for the {currentBranchName} branch
-					</Text>
+					{RoleId !== 3 ? (
+						<Text
+							className="pm-d"
+							textAlign={"left"}
+							h={"25px"}
+							w={"800px"}
+							alignSelf={"center"}
+							ml={marginStyles.marginLeftDescription}
+						>
+							You are currently managing AlphaMart products for the {currentBranchName} branch
+						</Text>
+					) : (
+						<Text
+							className="pm-d"
+							textAlign={"left"}
+							h={"25px"}
+							w={"800px"}
+							alignSelf={"center"}
+							ml={marginStyles.marginLeftDescription}
+						>
+							You are currently managing AlphaMart products at the nationwide level
+						</Text>
+					)}
 				</Flex>
 				<Box
 					w={"1250px"}
@@ -847,6 +861,7 @@ const ProductManagement = () => {
 										setPage(1);
 									}}
 									{...customRadioStyle}
+									isDisabled={RoleId === 3}
 								>
 									B.Stock
 								</Radio>
@@ -1295,15 +1310,17 @@ const ProductManagement = () => {
 										<Text fontSize={"12px"} mr={"3px"}>
 											BRANCH
 										</Text>
-										<BiSort
-											size={18}
-											color="#3E3D40"
-											cursor="pointer"
-											onClick={() => {
-												setSortBy("branchStock");
-												setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
-											}}
-										/>
+										{RoleId !== 3 ? (
+											<BiSort
+												size={18}
+												color="#3E3D40"
+												cursor="pointer"
+												onClick={() => {
+													setSortBy("branchStock");
+													setSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+												}}
+											/>
+										) : null}
 									</Flex>
 								</>
 							) : null}

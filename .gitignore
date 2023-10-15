@@ -1,1 +1,3 @@
 node_modules/
+testBuild/
+projects/server/src/config/

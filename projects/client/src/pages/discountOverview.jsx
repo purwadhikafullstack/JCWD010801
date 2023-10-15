@@ -1,7 +1,7 @@
 import LayoutSidebar from "../pages/layoutSidebar";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { Error404page } from "./error404";
 import { TbDiscount2 } from "react-icons/tb";
 import { MdDiscount } from "react-icons/md";
@@ -37,8 +37,7 @@ const DiscountOverview = () => {
 						/>
 					</Flex>
 				</Flex>
-
-				<Flex gap={10} justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}>
+				<Flex gap={10} justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}mt={'150px'}>
 					<Flex
 						as={Link}
 						to={"/dashboard/discount-management"}

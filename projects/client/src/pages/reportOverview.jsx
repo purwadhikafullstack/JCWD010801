@@ -1,7 +1,7 @@
 import LayoutSidebar from "../pages/layoutSidebar";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { VscGraph } from "react-icons/vsc";
 import { BsBoxes } from "react-icons/bs";
 import { Error404page } from "./error404";
@@ -37,8 +37,14 @@ const ReportOverview = () => {
 						/>
 					</Flex>
 				</Flex>
-
-				<Stack justifyContent={"center"} alignContent={"center"} justifyItems={"center"} alignItems={"center"}>
+				<Flex
+					mt={"150px"}
+					justifyContent={"center"}
+					alignContent={"center"}
+					justifyItems={"center"}
+					alignItems={"center"}
+					w={"1270px"}
+				>
 					<Flex
 						as={Link}
 						to={"/dashboard/report/stocks"}
@@ -61,7 +67,7 @@ const ReportOverview = () => {
 						</Flex>
 					</Flex>
 					<Flex
-						mt={"10px"}
+						ml={"40px"}
 						as={Link}
 						to={"/dashboard/report/sales"}
 						w={"400px"}
@@ -82,7 +88,7 @@ const ReportOverview = () => {
 							<Text fontSize={"20px"}>Sales Report</Text>
 						</Flex>
 					</Flex>
-				</Stack>
+				</Flex>
 			</Box>
 		</Flex>
 	) : (

@@ -90,6 +90,7 @@ export const CreateCategory = ({ isText }) => {
 					w={!isText ? { base: "40px", md: "none" } : "135px"}
 					borderRadius={!isText ? { base: "full", md: "10px" } : "6px"}
 					onClick={onOpen}
+					isDisabled={RoleId === 3}
 				/>
 			)}
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>

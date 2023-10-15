@@ -18,6 +18,7 @@ export const ErrorPageLayout = ({ title, timer }) => {
 		return () => {
 			clearInterval(interval);
 		};
+		// eslint-disable-next-line
 	}, [countdown]);
 
 	return (

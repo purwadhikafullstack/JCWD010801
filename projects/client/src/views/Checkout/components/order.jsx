@@ -1,3 +1,6 @@
+import "react-toastify/dist/ReactToastify.css";
+import * as Yup from "yup";
+import Axios from "axios";
 import { useEffect, useState } from "react";
 import {
 	Box,
@@ -20,16 +23,14 @@ import {
 	FormControl,
 	Spinner,
 } from "@chakra-ui/react";
-import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonTemp } from "../../../components/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import { refreshCart } from "../../../redux/cartSlice";
+
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank-transfer");
 	const [address, setAddress] = useState([]);
@@ -73,6 +74,7 @@ function Order() {
 				});
 				navigate("/search");
 			}
+
 			setBranch(response.data.cart.Branch);
 			setItem(response.data.cart_items);
 			setSubTotalItem(response.data.subtotal);
@@ -130,7 +132,18 @@ function Order() {
 			};
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/order/shipment`, data);
 			setDataOngkir(response.data.data);
-		} catch (error) {}
+		} catch (error) {
+			toast.error("Key Raja Ongkir is expired", {
+				position: "top-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
+		}
 	};
 
 	const formatToRupiah = (value) => {
@@ -143,34 +156,58 @@ function Order() {
 		return formatter.format(value);
 	};
 
+	// const countDiscount = () => {
+	// 	let totalDiscount = 0;
+	// 	item.map(({ Product }) => {
+	// 		if (Product?.Discounts[0]?.type === "Numeric") {
+	// 			totalDiscount = totalDiscount + Product?.Discounts[0]?.nominal;
+	// 		} else if (Product?.Discounts[0]?.type === "Percentage") {
+	// 			totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100) * Product?.price;
+	// 		}
+	// 	});
+	// 	return setDiscount(totalDiscount);
+	// };
+	//! FAIL BUILD!
+	// Line 160:26:  Array.prototype.map() expects a return value from arrow function array-callback-return
+
 	const countDiscount = () => {
-		let totalDiscount = 0
+		let totalDiscount = 0;
 		item.map(({ Product }) => {
 			if (Product?.Discounts[0]?.type === "Numeric") {
-				totalDiscount = totalDiscount + Product?.Discounts[0]?.nominal
+				totalDiscount = totalDiscount + Product?.Discounts[0]?.nominal;
 			} else if (Product?.Discounts[0]?.type === "Percentage") {
-				totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100 * Product?.price)
+				totalDiscount = totalDiscount + (Product?.Discounts[0]?.nominal / 100) * Product?.price;
 			}
-			console.log(totalDiscount)
-		})
-		return setDiscount(totalDiscount)
-	}
+			return null;
+		});
+		return setDiscount(totalDiscount);
+	};
 
 	const voucherDeduction = (shipmentFeeDiscount) => {
-        if ( voucher.isPercentage && voucher.type === "Shipment" ) return setVoucherDiscount((shipmentFeeDiscount * voucher.nominal / 100))
-        else if ( voucher.isPercentage && voucher.type === "Total purchase" ) {
-			if ((totalSubtotalItem * voucher.nominal / 100) > voucher.maxDisc) return setVoucherDiscount(voucher.maxDisc)
-			else return setVoucherDiscount(totalSubtotalItem * voucher.nominal / 100)
-		} 
-		else setVoucherDiscount(voucher.nominal)
-    }
+		if (voucher.isPercentage && voucher.type === "Shipment")
+			return setVoucherDiscount((shipmentFeeDiscount * voucher.nominal) / 100);
+		else if (voucher.isPercentage && voucher.type === "Total purchase") {
+			if ((totalSubtotalItem * voucher.nominal) / 100 > voucher.maxDisc) return setVoucherDiscount(voucher.maxDisc);
+			else return setVoucherDiscount((totalSubtotalItem * voucher.nominal) / 100);
+		} else setVoucherDiscount(voucher.nominal);
+	};
 	const totalSubtotalItem = subTotalItem.reduce((total, item) => {
 		const subtotalValue = parseInt(item.subtotal, 10);
 		return total + subtotalValue;
 	}, 0);
-	const tax = voucher.VoucherId ? (totalSubtotalItem + shipmentFee - discount - voucherDiscount) / 10 : (totalSubtotalItem + shipmentFee - discount) / 10;
-	const total = voucher.VoucherId ? tax + (totalSubtotalItem + shipmentFee - discount - voucherDiscount) : tax + (totalSubtotalItem + shipmentFee - discount) ;
+	const tax = voucher.VoucherId
+		? (totalSubtotalItem + shipmentFee - discount - voucherDiscount) / 10
+		: (totalSubtotalItem + shipmentFee - discount) / 10;
+	const total = voucher.VoucherId
+		? tax + (totalSubtotalItem + shipmentFee - discount - voucherDiscount)
+		: tax + (totalSubtotalItem + shipmentFee - discount);
 	const subtotal = totalSubtotalItem + shipmentFee;
+	const taxBeforeShipment = voucher.VoucherId
+		? (totalSubtotalItem - discount - voucherDiscount) / 10
+		: (totalSubtotalItem - discount) / 10;
+	const totalBeforeShipment = voucher.VoucherId
+		? taxBeforeShipment + (totalSubtotalItem - discount - voucherDiscount)
+		: taxBeforeShipment + (totalSubtotalItem - discount);
 	const validationSchema = Yup.object({
 		shipmentMethod: Yup.string().required("Shipping method is required"),
 		shipment: Yup.string().required("Shipping courier is required"),
@@ -187,7 +224,7 @@ function Order() {
 				subtotal: subtotal,
 				discount: discount + voucherDiscount,
 				AddressId: selectedAddress.id,
-				VoucherId: voucher.VoucherId
+				VoucherId: voucher.VoucherId,
 			};
 			const response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/order/`, data, {
 				headers: {
@@ -208,7 +245,6 @@ function Order() {
 
 			dispatch(refreshCart());
 			navigate("/profile#orders");
-
 		} catch (error) {
 			toast.error(error?.response.data.error.message, {
 				position: "top-right",
@@ -225,8 +261,11 @@ function Order() {
 	useEffect(() => {
 		getAddress();
 		getCartItems();
+		// eslint-disable-next-line
 	}, []);
+
 	const [isSmallerThan768] = useMediaQuery("(max-width: 768px)");
+
 	return (
 		<Formik
 			initialValues={{
@@ -434,7 +473,9 @@ function Order() {
 										</Flex>
 										{voucher.VoucherId && (
 											<Flex justify={"space-between"}>
-												<Text fontWeight={"bold"}>{voucher.type === "Shipment" ? "Shipment" : "Shopping"} Discount</Text>
+												<Text fontWeight={"bold"}>
+													{voucher.type === "Shipment" ? "Shipment" : "Shopping"} Discount
+												</Text>
 												<Text>{formatToRupiah(voucherDiscount)}</Text>
 											</Flex>
 										)}
@@ -442,23 +483,40 @@ function Order() {
 											<Text fontWeight={"bold"}>Tax</Text>
 											<Text>{formatToRupiah(tax)}</Text>
 										</Flex>
+										<Box mt={8}>
+											{!isNaN(total) ? (
+												<Text fontSize="2xl" flexGrow={1}>
+													Total: {formatToRupiah(total)}
+												</Text>
+											) : null}
+											<Spacer />
+										</Box>
 									</Box>
-								) : null}
-								<Box mt={8}>
-									{!isNaN(total) ? (
-										<Text fontSize="2xl" flexGrow={1}>
-											Total: {formatToRupiah(total)}
-										</Text>
-									) : null}
-									<Spacer />
-								</Box>
+								) : (
+									<Box mt={6}>
+										<Flex justify={"space-between"}>
+											<Text fontWeight={"bold"}>Subtotal</Text>
+											<Text>{formatToRupiah(totalSubtotalItem)}</Text>
+										</Flex>
+										<Flex justify={"space-between"}>
+											<Text fontWeight={"bold"}>Tax</Text>
+											<Text>{formatToRupiah(taxBeforeShipment)}</Text>
+										</Flex>
+										<Box mt={8}>
+											<Text fontSize="2xl" flexGrow={1}>
+												Total: {formatToRupiah(totalBeforeShipment)}
+											</Text>
+											<Spacer />
+										</Box>
+									</Box>
+								)}
 								<ButtonTemp
 									type="submit"
 									size="lg"
 									mt={8}
 									w={"full"}
 									content={"Place Order"}
-									isDisabled={!props.dirty || !props.isValid}
+									isDisabled={!props.dirty || !props.isValid || shipmentMethods === ""}
 								/>
 							</Box>
 						</Flex>
