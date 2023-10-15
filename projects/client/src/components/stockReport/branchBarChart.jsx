@@ -14,9 +14,9 @@ const BranchBarChart = () => {
 			const branchResponse = await axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`
 			);
-			setBranchData(branchResponse.data.result);
+			setBranchData(branchResponse.data.branchProducts);
 			const averageResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/average`);
-			setAverageCount(averageResponse.data.result);
+			setAverageCount(averageResponse.data.average);
 		} catch (error) {
 			console.log("Error fetching branch data:", error);
 		}
@@ -26,17 +26,20 @@ const BranchBarChart = () => {
 		fetchData();
 	}, []);
 
+	const branchNames = Object.keys(branchData);
+	const productCounts = branchNames.map((branchName) => branchData[branchName].productCount);
+
 	const data = {
-		labels: branchData.map((branch) => branch.name),
+		labels: branchNames,
 		datasets: [
 			{
 				label: "PPB",
-				data: branchData.map((branch) => branch.productCount),
+				data: productCounts,
 				backgroundColor: "#C3C1C1",
 			},
 			{
 				label: "Avg. PPB Across All Branches",
-				data: Array(branchData.length).fill(averageCount),
+				data: Array(branchNames.length).fill(averageCount),
 				backgroundColor: "#000000",
 			},
 		],

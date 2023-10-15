@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
 					allowNull: false,
 				},
 			});
-			// Products.belongsToMany(models.Branches, {
-			// 	through: models.Stocks,
-			// }); // DISABLED: DEPLOY V.3.7
+			Products.belongsToMany(models.Branches, {
+				through: models.Stocks,
+			}); // DISABLED: DEPLOY V.3.7
 			Products.hasMany(models.Stocks, {
 				foreignKey: "ProductId",
 			});
