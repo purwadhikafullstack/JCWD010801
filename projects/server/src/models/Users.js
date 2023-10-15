@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
 				through: "User_vouchers",
 				foreignKey: "UserId",
 			});
-			// Users.hasMany(models.User_vouchers, {
-			//     foreignKey: "UserId"
-			// });
+			Users.hasMany(models.User_vouchers, {
+			    foreignKey: "UserId"
+			});
 		}
 	}
 	Users.init(

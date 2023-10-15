@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: true
                 }
             });
-			Vouchers.belongsToMany(models.Users, {
-                through: "User_vouchers",
-                foreignKey: "VoucherId"
-            });
+			// Vouchers.belongsToMany(models.Users, {
+            //     through: "User_vouchers",
+            //     foreignKey: "VoucherId"
+            // });
             Vouchers.belongsTo(models.Branches, {
                 foreignKey: {
 					name: "BranchId",
