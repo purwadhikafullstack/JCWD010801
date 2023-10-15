@@ -853,11 +853,15 @@ module.exports = {
 					}
 
 					branchProducts[branchName].topBranchStock.push({
+						id: product.id,
 						productName: product.productName,
+						imgURL: product.imgURL,
 						currentStock: branch.Stocks.currentStock,
 					});
 					branchProducts[branchName].lowBranchStock.push({
+						id: product.id,
 						productName: product.productName,
+						imgURL: product.imgURL,
 						currentStock: branch.Stocks.currentStock,
 					});
 
