@@ -20,7 +20,7 @@ import {
 import { MdOutlineRateReview } from "react-icons/md";
 import { AiOutlineStar, AiTwotoneStar } from "react-icons/ai";
 
-export default function ReviewModal({ id, reload, setReload }) {
+export default function ReviewModal({ id, quantity, invoice }) {
 	const token = localStorage.getItem("token");
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [rating, setRating] = useState(0);
@@ -70,6 +70,14 @@ export default function ReviewModal({ id, reload, setReload }) {
 								ref={commentRef}
 							/>
 						</FormControl>
+						<Flex mt={"5px"} justifyContent={"space-between"}>
+							<Flex fontSize={"13px"} fontWeight={"light"}>
+								Quantity: {quantity} item(s)
+							</Flex>
+							<Flex fontSize={"13px"} fontWeight={"light"}>
+								Invoice: {invoice}
+							</Flex>
+						</Flex>
 					</ModalBody>
 
 					<ModalFooter>
@@ -77,18 +85,8 @@ export default function ReviewModal({ id, reload, setReload }) {
 							bg="teal"
 							color={"white"}
 							onClick={async () => {
-								try {
-									await Axios.post(
-										`${process.env.REACT_APP_API_BASE_URL}/product/review/2`,
-										{
-											rating,
-											comment: commentRef.current.value,
-										},
-										{
-											headers: { Authorization: `Bearer ${token}` },
-										}
-									);
-									toast.success("Product Reviewed", {
+								if (rating === 0) {
+									toast.error("Please provide a rating", {
 										position: "top-center",
 										autoClose: 4000,
 										hideProgressBar: false,
@@ -98,9 +96,43 @@ export default function ReviewModal({ id, reload, setReload }) {
 										progress: undefined,
 										theme: "dark",
 									});
-									onClose();
-								} catch (error) {
-									console.log(error);
+								} else {
+									try {
+										await Axios.post(
+											`${process.env.REACT_APP_API_BASE_URL}/product/review/${id}`,
+											{
+												rating,
+												comment: commentRef.current.value,
+												qty: quantity,
+												invoiceNumber: invoice,
+											},
+											{
+												headers: { Authorization: `Bearer ${token}` },
+											}
+										);
+										toast.success("Product Reviewed", {
+											position: "top-center",
+											autoClose: 4000,
+											hideProgressBar: false,
+											closeOnClick: true,
+											pauseOnHover: true,
+											draggable: true,
+											progress: undefined,
+											theme: "dark",
+										});
+										onClose();
+									} catch (error) {
+										toast.error(error.response.data.message, {
+											position: "top-center",
+											autoClose: 4000,
+											hideProgressBar: false,
+											closeOnClick: true,
+											pauseOnHover: true,
+											draggable: true,
+											progress: undefined,
+											theme: "dark",
+										});
+									}
 								}
 							}}
 						>
