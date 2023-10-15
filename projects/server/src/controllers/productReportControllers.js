@@ -237,15 +237,10 @@ module.exports = {
 	getAverageProductsPerBranch: async (req, res) => {
 		try {
 			const branchData = await branches.findAll({
-				include: [
-					{
-						model: products,
-						as: "ProductsBranches",
-					},
-				],
+				include: [products],
 			});
 
-			const totalProductCount = branchData.reduce((total, branch) => total + branch.ProductsBranches.length, 0);
+			const totalProductCount = branchData.reduce((total, branch) => total + branch.Products.length, 0);
 
 			const averageProductCount = Math.round(totalProductCount / branchData.length);
 
@@ -736,16 +731,11 @@ module.exports = {
 	getBranchesProductCount: async (req, res) => {
 		try {
 			const branchesData = await branches.findAll({
-				include: [
-					{
-						model: products,
-						as: "ProductsBranches",
-					},
-				],
+				include: [products],
 			});
 
 			const result = branchesData.map((branch) => {
-				const productsData = branch.ProductsBranches;
+				const productsData = branch.Products;
 
 				const sortedProducts = {
 					byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
@@ -774,7 +764,6 @@ module.exports = {
 				result: result,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
