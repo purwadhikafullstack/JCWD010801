@@ -240,12 +240,12 @@ module.exports = {
 				include: [
 					{
 						model: products,
-						as: "Products",
+						as: "ProductsBranches",
 					},
 				],
 			});
 
-			const totalProductCount = branchData.reduce((total, branch) => total + branch.Products.length, 0);
+			const totalProductCount = branchData.reduce((total, branch) => total + branch.ProductsBranches.length, 0);
 
 			const averageProductCount = Math.round(totalProductCount / branchData.length);
 
@@ -739,7 +739,7 @@ module.exports = {
 				include: [
 					{
 						model: products,
-						as: "Products",
+						as: "ProductsBranches",
 					},
 				],
 			});
@@ -747,7 +747,7 @@ module.exports = {
 			console.log(branchesData);
 
 			const result = branchesData.map((branch) => {
-				const productsData = branch.Products;
+				const productsData = branch.ProductsBranches;
 
 				const sortedProducts = {
 					byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
