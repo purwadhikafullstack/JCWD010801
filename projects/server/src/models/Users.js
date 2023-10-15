@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 			// Users.hasMany(models.User_vouchers, {
 			//     foreignKey: "UserId"
 			// });
+			// DISABLED: DEPLOY V.4.1
 		}
 	}
 	Users.init(
