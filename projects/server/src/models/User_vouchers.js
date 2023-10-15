@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			User_vouchers.belongsTo(models.Users);
 			User_vouchers.belongsTo(models.Vouchers);
-		}
+		} // DEPLOY V.4.1
 	}
 	User_vouchers.init(
 		{
