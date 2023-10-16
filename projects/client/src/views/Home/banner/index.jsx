@@ -44,7 +44,7 @@ export const Banner = () => {
 					src={Banner1}
 					w={"500px"}
 					cursor={"pointer"}
-					onClick={() => navigate(`/search?cat=1`)}
+					onClick={() => navigate(`/search?cat=3`)}
 				/>
 			</SwiperSlide>
 			<SwiperSlide>
@@ -54,7 +54,7 @@ export const Banner = () => {
 					src={Banner2}
 					w={"500px"}
 					cursor={"pointer"}
-					onClick={() => navigate(`/search?cat=2`)}
+					onClick={() => navigate(`/search?cat=4`)}
 				/>
 			</SwiperSlide>
 			<SwiperSlide>
@@ -64,7 +64,7 @@ export const Banner = () => {
 					src={Banner3}
 					w={"500px"}
 					cursor={"pointer"}
-					onClick={() => navigate(`/search?cat=3`)}
+					onClick={() => navigate(`/search?cat=2`)}
 				/>
 			</SwiperSlide>
 		</Swiper>

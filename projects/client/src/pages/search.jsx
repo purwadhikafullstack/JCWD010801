@@ -1,13 +1,27 @@
 import Axios from "axios";
 import NoProduct from "../assets/public/404.png";
 import { debounce } from "lodash";
-import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import {
+	Box,
+	Flex,
+	Input,
+	Radio,
+	RadioGroup,
+	Stack,
+	Image,
+	Select,
+	Center,
+	InputGroup,
+	InputLeftElement,
+	InputRightElement,
+} from "@chakra-ui/react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
 import { useMediaQuery } from "react-responsive";
 import { FaSearch } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { TbZoomCancel } from "react-icons/tb";
 
 const Search = () => {
 	const user = useSelector((state) => state?.user?.value);
@@ -22,14 +36,18 @@ const Search = () => {
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState("productName");
 	const [sortOrder, setSortOrder] = useState("ASC");
+	const [minPrice, setMinPrice] = useState("");
+	const [maxPrice, setMaxPrice] = useState("");
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
+	const minPriceInputRef = useRef("");
+	const maxPriceInputRef = useRef("");
 
 	useEffect(() => {
 		fetchData(page);
 		// eslint-disable-next-line
-	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages]);
+	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages, minPrice, maxPrice]);
 
 	useEffect(() => {
 		const queryParams = new URLSearchParams(location.search);
@@ -38,12 +56,16 @@ const Search = () => {
 		const sortOrderParam = queryParams.get("order") || "ASC";
 		const categoryParam = queryParams.get("cat") || "";
 		const pageParam = queryParams.get("p") || 1;
+		const minParam = queryParams.get("min") || "";
+		const maxParam = queryParams.get("max") || "";
 
 		setSearch(searchParam);
 		setSortBy(sortByParam);
 		setSortOrder(sortOrderParam);
 		setSelectedCategory(categoryParam);
 		setPage(pageParam);
+		setMinPrice(minParam);
+		setMaxPrice(maxParam);
 	}, [location.search]);
 
 	const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
@@ -80,6 +102,14 @@ const Search = () => {
 
 			if (itemLimit) {
 				apiURL += `&itemLimit=${itemLimit}`;
+			}
+
+			if (minPrice) {
+				apiURL += `&minPrice=${minPrice}`;
+			}
+
+			if (maxPrice) {
+				apiURL += `&maxPrice=${maxPrice}`;
 			}
 
 			const productsResponse = await Axios.get(apiURL);
@@ -138,17 +168,77 @@ const Search = () => {
 	const handleSearch = debounce(
 		(e) => {
 			setSearch(e);
+
 			if (products.length === 0) {
 				setIsSearchEmpty(true);
 			} else {
 				setIsSearchEmpty(false);
 			}
+
 			const newSearchParams = new URLSearchParams();
 			newSearchParams.set("q", e);
 			newSearchParams.set("sort", sortBy);
 			newSearchParams.set("order", sortOrder);
 			newSearchParams.set("cat", selectedCategory);
 			newSearchParams.set("p", 1);
+			minPrice !== null && !isNaN(minPrice) ? newSearchParams.set("min", minPrice) : newSearchParams.set("min", "");
+			maxPrice !== null && !isNaN(maxPrice) ? newSearchParams.set("max", maxPrice) : newSearchParams.set("max", "");
+			navigate(`?${newSearchParams.toString()}`);
+		},
+		1000,
+		{
+			leading: false,
+			trailing: true,
+		}
+	);
+
+	const handleMinSearch = debounce(
+		(e) => {
+			setMinPrice(e);
+			const min = e === "" || isNaN(e) ? "" : e;
+
+			if (products.length === 0) {
+				setIsSearchEmpty(true);
+			} else {
+				setIsSearchEmpty(false);
+			}
+
+			const newSearchParams = new URLSearchParams();
+			newSearchParams.set("q", search);
+			newSearchParams.set("sort", sortBy);
+			newSearchParams.set("order", sortOrder);
+			newSearchParams.set("cat", selectedCategory);
+			newSearchParams.set("p", 1);
+			newSearchParams.set("min", min);
+			maxPrice !== null && !isNaN(maxPrice) ? newSearchParams.set("max", maxPrice) : newSearchParams.set("max", "");
+			navigate(`?${newSearchParams.toString()}`);
+		},
+		1000,
+		{
+			leading: false,
+			trailing: true,
+		}
+	);
+
+	const handleMaxSearch = debounce(
+		(e) => {
+			setMaxPrice(e);
+			const max = e === "" || isNaN(e) ? "" : e;
+
+			if (products.length === 0) {
+				setIsSearchEmpty(true);
+			} else {
+				setIsSearchEmpty(false);
+			}
+
+			const newSearchParams = new URLSearchParams();
+			newSearchParams.set("q", search);
+			newSearchParams.set("sort", sortBy);
+			newSearchParams.set("order", sortOrder);
+			newSearchParams.set("cat", selectedCategory);
+			newSearchParams.set("p", 1);
+			minPrice !== null && !isNaN(minPrice) ? newSearchParams.set("min", minPrice) : newSearchParams.set("min", "");
+			newSearchParams.set("max", max);
 			navigate(`?${newSearchParams.toString()}`);
 		},
 		1000,
@@ -395,12 +485,12 @@ const Search = () => {
 							</Stack>
 						</RadioGroup>
 					</Box>
-					<Box p={2}>
+					<Box p={2} borderBottom={"1px solid"} borderColor={"gray.400"} pb={"20px"}>
 						<Box mb={"5px"} fontWeight={"thin"} color={"gray"}>
 							Product Categories
 						</Box>
 						<Select
-							mt={"10px"}
+							mt={"5px"}
 							placeholder="All Categories"
 							value={selectedCategory.toString()}
 							onChange={(e) => {
@@ -432,6 +522,110 @@ const Search = () => {
 								</option>
 							))}
 						</Select>
+					</Box>
+					<Box fontWeight={"thin"} color={"gray"} p={2}>
+						Minimum Price
+						<InputGroup>
+							<InputLeftElement
+								bgColor={"#117C09"}
+								h={"28px"}
+								mt={"11px"}
+								ml={"1px"}
+								borderTopLeftRadius={"5px"}
+								borderBottomLeftRadius={"5px"}
+								fontWeight={"semibold"}
+								color={"white"}
+							>
+								Rp.
+							</InputLeftElement>
+							<Input
+								mt={"10px"}
+								type="number"
+								placeholder="0"
+								w={"100%"}
+								h={"30px"}
+								border={"1px solid gray"}
+								bgColor={"white"}
+								{...customInputStyle}
+								defaultValue={""}
+								onChange={(e) => {
+									setPage(1);
+									handleMinSearch(e.target.value);
+								}}
+								onKeyDown={(e) => {
+									handleMinSearch(e.target.value);
+								}}
+								ref={minPriceInputRef}
+							/>
+							{minPrice !== "" && (
+								<InputRightElement
+									mr={"5px"}
+									mt={"5px"}
+									children={<TbZoomCancel color="#E01815" size={22} />}
+									onClick={() => {
+										setPage(1);
+										if (minPriceInputRef.current) {
+											minPriceInputRef.current.value = "";
+										}
+										handleMinSearch("");
+									}}
+									cursor="pointer"
+									color="gray.600"
+								/>
+							)}
+						</InputGroup>
+					</Box>
+					<Box fontWeight={"thin"} color={"gray"} p={2}>
+						Maximum Price
+						<InputGroup>
+							<InputLeftElement
+								bgColor={"#117C09"}
+								h={"28px"}
+								mt={"11px"}
+								ml={"1px"}
+								borderTopLeftRadius={"5px"}
+								borderBottomLeftRadius={"5px"}
+								fontWeight={"semibold"}
+								color={"white"}
+							>
+								Rp.
+							</InputLeftElement>
+							<Input
+								mt={"10px"}
+								type="number"
+								placeholder="0"
+								w={"100%"}
+								h={"30px"}
+								border={"1px solid gray"}
+								bgColor={"white"}
+								{...customInputStyle}
+								defaultValue={""}
+								onChange={(e) => {
+									setPage(1);
+									handleMaxSearch(e.target.value);
+								}}
+								onKeyDown={(e) => {
+									handleMaxSearch(e.target.value);
+								}}
+								ref={maxPriceInputRef}
+							/>
+							{maxPrice !== "" && (
+								<InputRightElement
+									mr={"5px"}
+									mt={"5px"}
+									children={<TbZoomCancel color="#E01815" size={22} />}
+									onClick={() => {
+										setPage(1);
+										if (maxPriceInputRef.current) {
+											maxPriceInputRef.current.value = "";
+										}
+										handleMaxSearch("");
+									}}
+									cursor="pointer"
+									color="gray.600"
+								/>
+							)}
+						</InputGroup>
 					</Box>
 				</Box>
 				<Box mt={4} flex="1" overflowY="auto" width="90%" className="scrollbar-3px">
@@ -715,7 +909,7 @@ const Search = () => {
 							</Stack>
 						</RadioGroup>
 					</Box>
-					<Box fontWeight={"thin"} color={"gray"}>
+					<Box fontWeight={"thin"} color={"gray"} borderBottom={"1px solid"} borderColor={"gray.400"} pb={"20px"}>
 						Product Categories
 						<Select
 							mt={"10px"}
@@ -750,6 +944,110 @@ const Search = () => {
 								</option>
 							))}
 						</Select>
+					</Box>
+					<Box fontWeight={"thin"} color={"gray"} mt={"15px"}>
+						Minimum Price
+						<InputGroup>
+							<InputLeftElement
+								bgColor={"#117C09"}
+								h={"28px"}
+								mt={"11px"}
+								ml={"1px"}
+								borderTopLeftRadius={"5px"}
+								borderBottomLeftRadius={"5px"}
+								fontWeight={"semibold"}
+								color={"white"}
+							>
+								Rp.
+							</InputLeftElement>
+							<Input
+								mt={"10px"}
+								type="number"
+								placeholder="0"
+								w={"200px"}
+								h={"30px"}
+								border={"1px solid gray"}
+								bgColor={"white"}
+								{...customInputStyle}
+								defaultValue={""}
+								onChange={(e) => {
+									setPage(1);
+									handleMinSearch(e.target.value);
+								}}
+								onKeyDown={(e) => {
+									handleMinSearch(e.target.value);
+								}}
+								ref={minPriceInputRef}
+							/>
+							{minPrice !== "" && (
+								<InputRightElement
+									mr={"45px"}
+									mt={"5px"}
+									children={<TbZoomCancel color="#E01815" size={22} />}
+									onClick={() => {
+										setPage(1);
+										if (minPriceInputRef.current) {
+											minPriceInputRef.current.value = "";
+										}
+										handleMinSearch("");
+									}}
+									cursor="pointer"
+									color="gray.600"
+								/>
+							)}
+						</InputGroup>
+					</Box>
+					<Box fontWeight={"thin"} color={"gray"} mt={"15px"}>
+						Maximum Price
+						<InputGroup>
+							<InputLeftElement
+								bgColor={"#117C09"}
+								h={"28px"}
+								mt={"11px"}
+								ml={"1px"}
+								borderTopLeftRadius={"5px"}
+								borderBottomLeftRadius={"5px"}
+								fontWeight={"semibold"}
+								color={"white"}
+							>
+								Rp.
+							</InputLeftElement>
+							<Input
+								mt={"10px"}
+								type="number"
+								placeholder="0"
+								w={"200px"}
+								h={"30px"}
+								border={"1px solid gray"}
+								bgColor={"white"}
+								{...customInputStyle}
+								defaultValue={""}
+								onChange={(e) => {
+									setPage(1);
+									handleMaxSearch(e.target.value);
+								}}
+								onKeyDown={(e) => {
+									handleMaxSearch(e.target.value);
+								}}
+								ref={maxPriceInputRef}
+							/>
+							{maxPrice !== "" && (
+								<InputRightElement
+									mr={"45px"}
+									mt={"5px"}
+									children={<TbZoomCancel color="#E01815" size={22} />}
+									onClick={() => {
+										setPage(1);
+										if (maxPriceInputRef.current) {
+											maxPriceInputRef.current.value = "";
+										}
+										handleMaxSearch("");
+									}}
+									cursor="pointer"
+									color="gray.600"
+								/>
+							)}
+						</InputGroup>
 					</Box>
 				</Box>
 				<Flex justifyContent={"center"} pt={"50px"} w={"full"}>
