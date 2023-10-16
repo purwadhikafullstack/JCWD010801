@@ -51,7 +51,7 @@ export const DetailProcessModal = ({
 		<>
 			<Button
 				my={"auto"}
-				mr={"10px"}
+				mr={"5px"}
 				backgroundColor={"blue.900"}
 				color={"white"}
 				_hover={{

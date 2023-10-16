@@ -1585,7 +1585,7 @@ module.exports = {
 	reviewProduct: async (req, res) => {
 		try {
 			const { PID } = req.params;
-			const { comment, rating } = req.body;
+			const { comment, rating, qty, invoiceNumber } = req.body;
 			const product = await products.findByPk(PID);
 
 			if (!product)
@@ -1594,16 +1594,42 @@ module.exports = {
 					message: "Product not found.",
 				});
 
+			if (rating === null)
+				return res.status(400).send({
+					status: 400,
+					message: "Rating is required.",
+				});
+
+			if (invoiceNumber === null)
+				return res.status(400).send({
+					status: 400,
+					message: "Invoice is required.",
+				});
+
+			const existingReview = await reviews.findOne({
+				where: {
+					ProductId: PID,
+					invoiceNumber: invoiceNumber,
+				},
+			});
+
+			if (existingReview) {
+				return res.status(400).send({
+					status: 400,
+					message: "You already reviewed this product",
+				});
+			}
 			const result = await reviews.create({
 				comment,
 				rating,
+				qty,
+				invoiceNumber,
 				UserId: req.user.id,
 				ProductId: PID,
 			});
 			res.status(200).send(result);
 		} catch (error) {
 			return res.status(500).send({
-				error,
 				status: 500,
 				message: "Internal server error.",
 			});
