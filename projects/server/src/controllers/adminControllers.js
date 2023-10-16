@@ -1,3 +1,4 @@
+const path = require("path");
 const db = require("../models");
 const users = db.Users;
 const branches = db.Branches;
@@ -39,7 +40,7 @@ module.exports = {
 			});
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
-			const data = fs.readFileSync("./src/templates/newAdmin.html", "utf-8");
+			const data = fs.readFileSync(path.join(__dirname, "../templates/newAdmin.html"), "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username, email });
 			transporter.sendMail({

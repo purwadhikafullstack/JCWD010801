@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ButtonTemp } from "../../../components/button";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { FormLabel, Input, InputGroup, InputRightElement, Stack, Text, Button } from "@chakra-ui/react";
+import { FormLabel, Input, InputGroup, InputRightElement, Stack, Text, Box, FormControl } from "@chakra-ui/react";
 
 export const ResetPasswordFields = () => {
 	const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +43,7 @@ export const ResetPasswordFields = () => {
 				theme: "dark",
 			});
 		} catch (err) {
-			toast.error(err.response.data.message, {
+			toast.error(err.response.data.error.message, {
 				position: "top-center",
 				autoClose: 4000,
 				hideProgressBar: false,
@@ -69,46 +69,90 @@ export const ResetPasswordFields = () => {
 					<Form>
 						<Stack w="100%" gap={5}>
 							<Stack w={"100%"}>
-								<FormLabel className="password">New Password</FormLabel>
+								<FormControl mb="3">
+								<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+									Password
+								</FormLabel>
 								<InputGroup>
-									<Input
-										as={Field}
-										name="password"
-										type={showPassword ? "text" : "password"}
-										focusBorderColor="gray.300"
-									/>
-									<InputRightElement>
-										<Button variant={"unstyled"} onClick={() => setShowPassword(!showPassword)}>
+									<Field name="password">
+										{({ field }) => (
+											<Input
+												{...field}
+												id="password"
+												borderRadius="20px"
+												focusBorderColor="#373433"
+												type={showPassword ? "text" : "password"}
+												placeholder="Password"
+												pr="3rem"
+											/>
+										)}
+									</Field>
+									<InputRightElement width="3rem">
+										<Box
+											h="100%"
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											onClick={() => setShowPassword(!showPassword)}
+											cursor="pointer"
+										>
 											{showPassword ? <FiEye /> : <FiEyeOff />}
-										</Button>
+										</Box>
 									</InputRightElement>
 								</InputGroup>
 								<ErrorMessage
-									component="box"
 									name="password"
-									style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
+									component="div"
+									style={{
+										color: "red",
+										marginBottom: "-15px",
+										marginLeft: "8px",
+										fontSize: "12px",
+									}}
 								/>
-							</Stack>
-							<Stack w={"100%"}>
-								<FormLabel className="confirmPassword">Confirm Password</FormLabel>
+							</FormControl>
+							<FormControl mb="3">
+								<FormLabel mb={"5px"} c7olor={"gray.00"} fontSize={"12px"} ml={"8px"}>
+									Confirm Password
+								</FormLabel>
 								<InputGroup>
-									<Input
-										as={Field}
-										name="confirmPassword"
-										type={showConfirmPassword ? "text" : "password"}
-										focusBorderColor="gray.300"
-									/>
-									<InputRightElement>
-										<Button variant={"unstyled"} onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+									<Field name="confirmPassword">
+										{({ field }) => (
+											<Input
+												{...field}
+												id="confirmPassword"
+												borderRadius="20px"
+												focusBorderColor="#373433"
+												type={showConfirmPassword ? "text" : "password"}
+												placeholder="Confirm Password"
+												pr="3rem"
+											/>
+										)}
+									</Field>
+									<InputRightElement width="3rem">
+										<Box
+											h="100%"
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+											cursor="pointer"
+										>
 											{showConfirmPassword ? <FiEye /> : <FiEyeOff />}
-										</Button>
+										</Box>
 									</InputRightElement>
 								</InputGroup>
 								<ErrorMessage
-									component="box"
 									name="confirmPassword"
-									style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
+									component="div"
+									style={{
+										color: "red",
+										marginBottom: "-15px",
+										marginLeft: "8px",
+										fontSize: "12px",
+									}}
 								/>
+							</FormControl>
 							</Stack>
 
 							<ButtonTemp content={<Text>Reset Password</Text>} isDisabled={!dirty} type="submit" w="100%" />

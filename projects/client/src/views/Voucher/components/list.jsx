@@ -49,6 +49,8 @@ export const VoucherList = () => {
                             availableFrom={Voucher?.availableFrom}
                             validUntil={Voucher?.validUntil}
                             Product={Voucher?.Product}
+                            Branch={Voucher?.Branch}
+                            BranchId={Voucher?.BranchId}
                             />
                         )
                     })}

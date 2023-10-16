@@ -64,10 +64,10 @@ module.exports = {
 			});
 
 			if (!cart_item) {
-				if (quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
-					quantity = checkProduct?.Stocks[0].currentStock / 2;
-				} else if (quantity > checkProduct?.Stocks[0].currentStock) {
-					quantity = checkProduct?.Stocks[0].currentStock;
+				if (quantity > checkProduct?.Stocks[0]?.currentStock / 2 && checkProduct?.Discounts[0]?.type === "Extra") {
+					quantity = checkProduct?.Stocks[0]?.currentStock;
+				} else if (quantity > checkProduct?.Stocks[0]?.currentStock) {
+					quantity = checkProduct?.Stocks[0]?.currentStock;
 				}
 				await cartItems.create(
 					{
@@ -77,33 +77,36 @@ module.exports = {
 					},
 					{ transaction }
 				);
-				// } else if (cart_item.quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
-				// 	if ((checkProduct?.Stocks[0].currentStock / 2) % 2 === 1) {
-				// 		await cartItems.update(
-				// 			{ quantity: (checkProduct?.Stocks[0].currentStock / 2) + 1 },
-				// 			{
-				// 				where: {
-				// 					CartId: result.id,
-				// 					ProductId,
-				// 				},
-				// 				transaction,
-				// 			}
-				// 		)
-				// 	} else {
-				// 		await cartItems.update(
-				// 			{ quantity: (checkProduct?.Stocks[0].currentStock / 2) },
-				// 			{
-				// 				where: {
-				// 					CartId: result.id,
-				// 					ProductId,
-				// 				},
-				// 				transaction,
-				// 			}
-				// 		)
-				// 	}
-			} else if (cart_item.quantity >= checkProduct?.Stocks[0].currentStock) {
+			} else if (
+				cart_item.quantity > checkProduct?.Stocks[0]?.currentStock / 2 &&
+				checkProduct?.Discounts[0]?.type === "Extra"
+			) {
+				if ((checkProduct?.Stocks[0]?.currentStock / 2) % 2 === 1) {
+					await cartItems.update(
+						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 + 1 },
+						{
+							where: {
+								CartId: result.id,
+								ProductId,
+							},
+							transaction,
+						}
+					);
+				} else {
+					await cartItems.update(
+						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 },
+						{
+							where: {
+								CartId: result.id,
+								ProductId,
+							},
+							transaction,
+						}
+					);
+				}
+			} else if (cart_item.quantity >= checkProduct?.Stocks[0]?.currentStock) {
 				await cartItems.update(
-					{ quantity: checkProduct?.Stocks[0].currentStock },
+					{ quantity: checkProduct?.Stocks[0]?.currentStock },
 					{
 						where: {
 							CartId: result.id,
@@ -117,7 +120,7 @@ module.exports = {
 
 				return res.status(400).send({
 					status: "Exceed",
-					message: `You are trying to add ${quantity} ${checkProduct.productName} into your cart. You already have ${cart_item.quantity} units in your cart and only ${checkProduct?.Stocks[0].currentStock} units are available.`,
+					message: `You are trying to add ${quantity} ${checkProduct.productName} into your cart. You already have ${cart_item.quantity} units in your cart and only ${checkProduct?.Stocks[0]?.currentStock} units are available.`,
 					checkProduct,
 				});
 			} else if (cart_item) {
@@ -205,7 +208,7 @@ module.exports = {
 						);
 				}
 				const total = await cartItems.count(filter);
-				const subtotal = await cartItems.findAll({
+				const subtotalData = await cartItems.findAll({
 					where: { CartId: result.id },
 					include: [
 						{
@@ -236,15 +239,29 @@ module.exports = {
 					group: ["Cart_items.id"],
 				});
 
+				let subtotal = 0;
+				for (let { Product, quantity } of cart_items) {
+					if (
+						Product?.Discounts[0]?.type === "Extra" &&
+						quantity % 2 === 1 &&
+						Product?.Stocks[0]?.currentStock === quantity
+					)
+						quantity = quantity / 2 + 0.5;
+					else if (Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1) quantity = quantity / 2;
+					else if (Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 0) quantity = quantity / 2;
+					subtotal = subtotal + quantity * Product.price;
+				}
+
 				res.status(200).send({
 					status: true,
 					total,
-					subtotal,
+					subtotal: [{ subtotal }],
 					cart: result,
 					cart_items,
 				});
 			}
 		} catch (err) {
+			console.log(err);
 			res.status(500).send({
 				status: false,
 				message: "Internal server error",
@@ -254,34 +271,33 @@ module.exports = {
 	switchBranch: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
-			await carts.update(
-				{
-					status: "ABANDONED",
-					description: "Switched branch",
+			const cart = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
 				},
+			});
+
+			await cartItems.destroy({
+				where: { CartId: cart.id },
+				transaction,
+			});
+
+			await carts.update(
+				{ BranchId: req.body.BranchId },
 				{
 					where: {
-						UserId: req.user.id,
-						status: "ACTIVE",
+						id: cart.id,
 					},
 					transaction,
 				}
-			);
-
-			await carts.create(
-				{
-					UserId: req.user.id,
-					status: "ACTIVE",
-					BranchId: req.body.BranchId,
-				},
-				{ transaction }
 			);
 
 			await transaction.commit();
 
 			res.status(200).send({
 				status: true,
-				message: "Cart abandoned",
+				message: "Cart switched branch",
 			});
 		} catch (err) {
 			await transaction.rollback();
@@ -321,7 +337,7 @@ module.exports = {
 					},
 				],
 			});
-			if (checkProduct?.Discounts[0].type === "Extra" && quantity > checkProduct?.Stocks[0].currentStock / 2 + 0.5) {
+			if (checkProduct?.Discounts[0].type === "Extra" && quantity > checkProduct?.Stocks[0].currentStock + 0.5) {
 				let maxStock = checkProduct?.Stocks[0].currentStock;
 				if (checkProduct?.Stocks[0].currentStock % 2 === 1) maxStock = checkProduct?.Stocks[0].currentStock + 1;
 				throw {
@@ -377,24 +393,20 @@ module.exports = {
 	},
 	clearCart: async (req, res) => {
 		try {
-			const { description } = req.body;
-
-			await carts.update(
-				{
-					status: "ABANDONED",
-					description,
+			const cart = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
 				},
-				{
-					where: {
-						UserId: req.user.id,
-						status: "ACTIVE",
-					},
-				}
-			);
+			});
+
+			await cartItems.destroy({
+				where: { CartId: cart.id },
+			});
 
 			res.status(200).send({
 				status: true,
-				message: "Item removed from cart",
+				message: "Cart cleared",
 			});
 		} catch (err) {
 			res.status(400).send(err);

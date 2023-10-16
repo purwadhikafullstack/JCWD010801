@@ -19,7 +19,6 @@ import {
 	MenuButton,
 	MenuDivider,
 	Spacer,
-	Box,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setValue } from "../../redux/userSlice";
@@ -123,6 +122,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 
 	const logout = () => {
 		localStorage.removeItem("token");
+		localStorage.removeItem("timeout");
 		toast.success("You have successfully logged out.", {
 			position: "top-right",
 			autoClose: 4000,
@@ -190,7 +190,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								display={{ base: "none", lg: "flex" }}
 								ml={"325px"}
 							>
-								{token && address !== undefined && Object.keys(address).length > 0 ? (
+								{/* {token && address !== undefined && Object.keys(address).length > 0 ? (
 									<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
 										<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
 										<Stack gap={0}>
@@ -202,7 +202,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 											</Box>
 										</Stack>
 									</Flex>
-								) : null}
+								) : null} */}
 								<Text
 									h={"35px"}
 									w={"80px"}
@@ -212,7 +212,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									cursor={"pointer"}
 									fontWeight={"medium"}
 									borderRadius={"20px"}
-									border={"1px solid #C3C1C1"}
+									// border={"1px solid #C3C1C1"}
 									alignSelf={"center"}
 									p={"3px"}
 									_hover={{
@@ -226,19 +226,21 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									h={"35px"}
 									w={"80px"}
 									textAlign={"center"}
-									onClick={() => navigate("/voucher")}
+									onClick={+RoleId === 1 ? () => navigate("/voucher") : null}
 									fontSize={{ base: "sm", lg: "md" }}
-									cursor={"pointer"}
+									cursor={+RoleId === 1 && "pointer"}
 									fontWeight={"medium"}
 									borderRadius={"20px"}
-									border={"1px solid #C3C1C1"}
+									color={+RoleId === 1 ? "black" : "blackAlpha.500"}
+									// border={"1px solid #C3C1C1"}
 									alignSelf={"center"}
 									p={"3px"}
-									_hover={{
+									_hover={+RoleId === 1 && {
 										bgColor: "gray.300",
 									}}
 									transition="background-color 0.3s"
 									ml={"-10px"}
+									mr={5}
 								>
 									Vouchers
 								</Text>
@@ -337,6 +339,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									bgColor={"white"}
 									rounded={"full"}
 									cursor={"pointer"}
+									ml={1}
 									onClick={() => navigate("/cart")}
 								>
 									<Icon as={BsCart} w="5" h="5" color={"black"} pos="relative" />
@@ -449,6 +452,31 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							</Flex>
 						</Flex>
 					</Flex>
+					{token && address !== undefined && (
+					<Flex py={1} bgColor={"gray.100"} w={"100%"} pl={{ base: "10px", md: "30px", lg: "50px" }} pb={1} gap="2" alignItems={"center"}>
+						<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
+						<Text fontSize={{ base: "sm", lg: "md" }}>Deliver To</Text>
+						<Text 
+						onClick={() => navigate("/profile#addresses")} 
+						cursor={"pointer"} 
+						fontSize={{ base: "sm", lg: "md" }} 
+						_hover={{ textDecoration: "underline" }}
+						fontWeight={"medium"}>
+							{token && address !== undefined && Object.keys(address).length > 0 ? address.label : "Your Location"}
+						</Text>
+					</Flex>
+					)}
+					{/* {token && address !== undefined && Object.keys(address).length > 0 ? (
+						<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
+							<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
+							<Box onClick={() => navigate("/profile#addresses")}>
+								<Text fontSize={{ base: "sm", lg: "md" }}>Deliver To</Text>
+								<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
+									{address.label}
+								</Text>
+							</Box>
+						</Flex>
+					) : null} */}
 					{!isVerified && token ? (
 						<ResendVerification/>
 					) : null}
