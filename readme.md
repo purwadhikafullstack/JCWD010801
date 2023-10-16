@@ -41,8 +41,4 @@ Install dependency in client project. Use `npm install:client:dev` for dev depen
 ### `npm run server`
 Run command on server project.
 ### `npm run install:server`
-<<<<<<< HEAD
 Install dependency in server project. Use `npm install:server:dev` for dev dependencies.
-=======
-Install dependency in server project. Use `npm install:server:dev` for dev dependencies.
->>>>>>> dba162b585462fb3c64148da269fe2c78f3b6eb0
