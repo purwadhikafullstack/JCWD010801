@@ -370,7 +370,7 @@ function Order() {
 														<Text fontWeight={"bold"}>{item.Product.productName}</Text>
 														{item?.Product?.Discounts[0]?.type === "Extra" ? (
 															<Text>
-																{`(${item.quantity}+${item.quantity})`} x {formatToRupiah(item.Product.price)}
+																{`(${item.Product?.Stocks[0].currentStock % 2 === 0 ? item.quantity / 2 : item.quantity / 2 + 0.5}+${item.Product?.Stocks[0].currentStock % 2 === 0 ? item.quantity / 2 : item.quantity / 2 - 0.5})`} x {formatToRupiah(item.Product.price)}
 															</Text>
 														) : (
 															<Text>

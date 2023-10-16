@@ -19,7 +19,7 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
             let quantity;
             if (quantityRef.current.value === null) quantity = 1
             else if (isExtra && stock % 2 === 1 && quantityRef.current.value * 2 > stock) quantity = (quantityRef.current.value * 2) - 1
-            // else if (isExtra && stock % 2 === 0 && quantityRef.current.value * 2 > stock) quantity = quantityRef.current.value * 2
+            else if (isExtra && stock % 2 === 0 && quantityRef.current.value * 2 > stock) quantity = quantityRef.current.value * 2
             else if (isExtra) quantity = quantityRef.current.value * 2
             else quantity = quantityRef.current.value;
             console.log(quantity)
@@ -37,7 +37,8 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
                 // } else {
                 //     quantityRef.current.value = (stock + 1) / 2
                 // }
-                quantityRef.current.value = err.response.data.maxStock * 2
+                console.log(err.response.data.maxStock)
+                quantityRef.current.value = +err.response.data.maxStock / 2
                 handleUpdate();
             } else if ( err.response.data.message === "Product out of stock" ) {
                 quantityRef.current.value = +stock;
@@ -104,7 +105,7 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
             </Flex>
             {isExtra && (
             <Text fontSize={"sm"} fontWeight={"light"} color={"red"}>
-                + {qty > stock ? (qty - 1) / 2 : qty / 2} FREE
+                + {qty === stock && stock % 2 === 1 ? (qty - 1) / 2 : qty / 2} FREE
             </Text>
             )}
         </Stack>

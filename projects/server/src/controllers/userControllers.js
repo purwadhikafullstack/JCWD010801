@@ -206,7 +206,7 @@ module.exports = {
 			if (!result) throw { message: "Email not found" };
 
 			const payload = { id: result.id };
-			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1d" });
+			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
 
 			const data = await fs.readFileSync("./src/templates/resetPassword.html", "utf-8");
 			const tempCompile = await handlebars.compile(data);
@@ -233,6 +233,14 @@ module.exports = {
 	},
 	resetPassword: async (req, res) => {
 		try {
+			console.log(req.token)
+			const isTokenExist = await tokenVerification.findOne({
+				where: { token: req.token },
+			});
+			if (isTokenExist) throw { message: "Verification link is expired." };
+			await tokenVerification.create({
+				token: req.token,
+			});
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(req.body.password, salt);
 			users.update({ password: hashPassword }, { where: { id: req.user.id } });

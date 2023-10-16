@@ -28,7 +28,16 @@ export const ForgotPasswordField = () => {
                 theme: "dark",
             });
         } catch (err) {
-            toast.error(err.response.data.message, {
+            if (err.response.data.error.message) toast.error(err.response.data.error.message, {
+                position: "top-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            }); else toast.error("Failed to send email. Please try again later", {
                 position: "top-center",
                 autoClose: 4000,
                 hideProgressBar: false,

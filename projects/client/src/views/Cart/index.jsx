@@ -78,7 +78,6 @@ export const CartPageView = () => {
     }, [ refresh ]);
 
     useEffect(() => {
-        console.log(Boolean(cartInfo?.BranchId !== +BranchId))
         if (cartInfo?.BranchId !== +BranchId && cartInfo) onOpen();
     }, [ cartInfo ])
     

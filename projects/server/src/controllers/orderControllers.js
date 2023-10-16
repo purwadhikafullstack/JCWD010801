@@ -559,9 +559,12 @@ module.exports = {
 			//Free shipment voucher
 			const countOrder = await orders.count({
                 where: {
-                    UserId: order.Cart.UserId,
                     status: "Processing"
-                }
+                },
+				include: [{
+					model: carts,
+					where: { UserId: order.Cart.UserId }
+				}]
             });
             const freeShipmentVoucher = await vouchers.findOne({
                 where: {
@@ -576,7 +579,7 @@ module.exports = {
                     VoucherId: freeShipmentVoucher.id
                 }
             });
-            if ( countOrder % 3 === 0 && !freeShipmentVoucherCheck ) {
+            if ( countOrder + 1 % 3 === 0 && !freeShipmentVoucherCheck ) {
                 await user_vouchers.create({
                     UserId: order.Cart.UserId,
                     VoucherId: freeShipmentVoucher.id,
@@ -589,9 +592,9 @@ module.exports = {
 					As a token of gratitude, you've received a free shipment voucher.
 					We love having customers like you, and your support means everything to us.`,
 					UserId: order.Cart.UserId
-				})
+				}, { transaction })
             }
-            else if ( countOrder % 3 === 0 && freeShipmentVoucherCheck ) {
+            else if ( countOrder + 1 % 3 === 0 && freeShipmentVoucherCheck ) {
                 await user_vouchers.update({
                     amount: freeShipmentVoucherCheck.amount + 1
                 }, {
@@ -607,7 +610,7 @@ module.exports = {
 					As a token of gratitude, you've received a free shipment voucher.
 					We love having customers like you, and your support means everything to us.`,
 					UserId: order.Cart.UserId
-				})
+				}, { transaction })
             }
 			
 			await transaction.commit();
@@ -617,6 +620,7 @@ module.exports = {
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
+			console.log(error)
 			await transaction.rollback();
 			return res.status(500).send({
 				error,
@@ -1025,6 +1029,13 @@ module.exports = {
 			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } =
 				req.body;
 
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+			});
+
 			// Use voucher
 			const filter = {
 				where: {
@@ -1033,21 +1044,15 @@ module.exports = {
 				},
 				transaction,
 			};
+			
 			if (VoucherId) {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if (voucherTypeCheck.minimumPayment > subtotal)
-					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
+				if (cartCheckedOut.BranchId !== voucherTypeCheck.BranchId) return res.status(400).send({ status: false, message: "Voucher is not applicable on this branch" });
+				if (voucherTypeCheck.minimumPayment > subtotal) return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
 			}
-
-			const cartCheckedOut = await carts.findOne({
-				where: {
-					UserId: req.user.id,
-					status: "ACTIVE",
-				},
-			});
 
 			const orderedItems = await cartItems.findAll({
 				where: {

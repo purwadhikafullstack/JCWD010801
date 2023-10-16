@@ -32,6 +32,7 @@ export const NavbarMobile = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const navigate = useNavigate();
 	const address = useSelector((state) => state?.address?.value);
+	const RoleId = useSelector((state) => state?.user?.value?.RoleId);
 	const token = localStorage.getItem("token");
 
 	const handleNavigate = (to) => {
@@ -78,14 +79,16 @@ export const NavbarMobile = () => {
 										</Text>
 									</Flex>
 								</ListItem>
-								<ListItem cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
-									<Flex gap={7}>
-										<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
-										<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
-											Vouchers
-										</Text>
-									</Flex>
-								</ListItem>
+								{+RoleId === 1 && (
+									<ListItem cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
+										<Flex gap={7}>
+											<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
+											<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+												Vouchers
+											</Text>
+										</Flex>
+									</ListItem>
+								)}
 							</List>
 						</DrawerBody>
 						<DrawerFooter>
