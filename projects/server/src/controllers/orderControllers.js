@@ -647,7 +647,6 @@ module.exports = {
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
-			console.log(error);
 			await transaction.rollback();
 			return res.status(500).send({
 				error,
