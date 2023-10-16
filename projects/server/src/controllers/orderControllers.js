@@ -1,3 +1,4 @@
+const path = require("path");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Axios = require("axios");
@@ -546,73 +547,99 @@ module.exports = {
 					message: "Order cannot be updated to 'Processing'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
-			await notifications.create({
-				type: "Transaction",
-				name: "Payment Confirmation Accepted",
-				description: `The payment for your order on 
-				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+			await orders.update({ status: "Processing" }, { where: { id: orderId }, transaction });
+			await notifications.create(
+				{
+					type: "Transaction",
+					name: "Payment Confirmation Accepted",
+					description: `The payment for your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				})}
 				has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
-				UserId: order.Cart.UserId
-			}, { transaction })
+					UserId: order.Cart.UserId,
+				},
+				{ transaction }
+			);
 
 			//Free shipment voucher
 			const countOrder = await orders.count({
-                where: {
-                    status: "Processing"
-                },
-				include: [{
-					model: carts,
-					where: { UserId: order.Cart.UserId }
-				}]
-            });
-            const freeShipmentVoucher = await vouchers.findOne({
-                where: {
-                    name: { [Op.like]: `Free Shipment%` },
-                    availableFrom: { [Op.lte]: new Date(Date.now()) },
-                    validUntil: { [Op.gte]: new Date(Date.now()) }
-                }
-            })
-            const freeShipmentVoucherCheck = await user_vouchers.findOne({
-                where: {
-                    UserId: order.Cart.UserId,
-                    VoucherId: freeShipmentVoucher.id
-                }
-            });
-            if ( countOrder + 1 % 3 === 0 && !freeShipmentVoucherCheck ) {
-                await user_vouchers.create({
-                    UserId: order.Cart.UserId,
-                    VoucherId: freeShipmentVoucher.id,
-                    amount: 1
-                }, { transaction });
-				await notifications.create({
-					type: "Discount",
-					name: "Thank you for choosing us!",
-					description: `Thank you, our loyal customer, for shopping with us!
+				where: {
+					status: "Processing",
+				},
+				include: [
+					{
+						model: carts,
+						where: { UserId: order.Cart.UserId },
+					},
+				],
+			});
+			const freeShipmentVoucher = await vouchers.findOne({
+				where: {
+					name: { [Op.like]: `Free Shipment%` },
+					availableFrom: { [Op.lte]: new Date(Date.now()) },
+					validUntil: { [Op.gte]: new Date(Date.now()) },
+				},
+			});
+
+			const freeShipmentVoucherCheck = await user_vouchers.findOne({
+				where: {
+					UserId: order?.Cart?.UserId,
+					VoucherId: freeShipmentVoucher?.id || null,
+				},
+				attributes: { exclude: ["id"] },
+			});
+
+			if (countOrder + (1 % 3) === 0 && !freeShipmentVoucherCheck) {
+				await user_vouchers.create(
+					{
+						UserId: order.Cart.UserId,
+						VoucherId: freeShipmentVoucher?.id,
+						amount: 1,
+					},
+					{ transaction }
+				);
+				await notifications.create(
+					{
+						type: "Discount",
+						name: "Thank you for choosing us!",
+						description: `Thank you, our loyal customer, for shopping with us!
 					As a token of gratitude, you've received a free shipment voucher.
 					We love having customers like you, and your support means everything to us.`,
-					UserId: order.Cart.UserId
-				}, { transaction })
-            }
-            else if ( countOrder + 1 % 3 === 0 && freeShipmentVoucherCheck ) {
-                await user_vouchers.update({
-                    amount: freeShipmentVoucherCheck.amount + 1
-                }, {
-                    where: {
-                        UserId: order.Cart.UserId,
-                        VoucherId: freeShipmentVoucher.id
-                    }
-                }, { transaction });
-				await notifications.create({
-					type: "Discount",
-					name: "Thank you for choosing us!",
-					description: `Thank you, our loyal customer, for shopping with us!
+						UserId: order.Cart.UserId,
+					},
+					{ transaction }
+				);
+			} else if (countOrder + (1 % 3) === 0 && freeShipmentVoucherCheck) {
+				await user_vouchers.update(
+					{
+						amount: freeShipmentVoucherCheck?.amount + 1,
+					},
+					{
+						where: {
+							UserId: order.Cart.UserId,
+							VoucherId: freeShipmentVoucher?.id,
+						},
+					},
+					{ transaction }
+				);
+				await notifications.create(
+					{
+						type: "Discount",
+						name: "Thank you for choosing us!",
+						description: `Thank you, our loyal customer, for shopping with us!
 					As a token of gratitude, you've received a free shipment voucher.
 					We love having customers like you, and your support means everything to us.`,
-					UserId: order.Cart.UserId
-				}, { transaction })
-            }
-			
+						UserId: order.Cart.UserId,
+					},
+					{ transaction }
+				);
+			}
+
 			await transaction.commit();
 
 			res.status(200).send({
@@ -620,6 +647,7 @@ module.exports = {
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
+			console.log(error);
 			await transaction.rollback();
 			return res.status(500).send({
 				error,
@@ -684,18 +712,27 @@ module.exports = {
 				});
 			}
 			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId }, transaction });
-			await notifications.create({
-				type: "Transaction",
-				name: "Payment Confirmation Rejected",
-				description: `The payment for your order on 
-				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+			await notifications.create(
+				{
+					type: "Transaction",
+					name: "Payment Confirmation Rejected",
+					description: `The payment for your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				})}
 				has been rejected. Please reupload your payment proof as soon as possible.
 				If you don't do so in 3 days, your order will be automatically cancelled.`,
-				UserId: order.Cart.UserId
-			}, { transaction });
+					UserId: order.Cart.UserId,
+				},
+				{ transaction }
+			);
 			await transaction.commit();
 
-			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
@@ -739,17 +776,60 @@ module.exports = {
 					message: "Order not found",
 				});
 			}
-			if (order.status !== "Sent") {
+			if (order.status !== "Processing") {
 				return res.status(400).send({
-					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+					message: "Order cannot be updated to 'Sent'. Current status is not 'Processing'.",
 				});
 			}
-			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			const userId = req.user.id;
+			const invoiceNumber = generateInvoiceNumber(userId);
+			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId }, transaction });
+
+			// Auto confirm order 5 minutes
+			// 604800000 = 7 days
+			const autoConfirmTime = new Date(Date.now() + 300000);
+			schedule.scheduleJob(autoConfirmTime, async () => {
+				try {
+					const ord = await orders.findOne({
+						where: { id: orderId },
+					});
+					await orders.update({ status: "Received" }, { where: { id: ord.id } });
+				} catch (err) {
+					console.log(err);
+				}
+			});
+
+			await notifications.create(
+				{
+					type: "Transaction",
+					name: "Order Ready",
+					description: `Order ${invoiceNumber} is ready! Your order will be at your doorstep in around ${order.etd}. Please confirm if you have receive your order. This order will be automatically confirmed if you don't do so in 7 days. You can confirm your order on your profile page.If you did not receive your order, please contact our customer service as soon as possible. Thank you for shopping with us!`,
+					UserId: order.Cart.UserId,
+				},
+				{ transaction }
+			);
+			await transaction.commit();
+
+			const data = fs.readFileSync(path.join(__dirname, "../templates/sentOrder.html"), "utf-8"); 
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({
+				link: process.env.REACT_APP_BASE_URL,
+				invoice: invoiceNumber,
+				username: order.Cart.User.username,
+			});
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "We have sent out your order for delivery.",
+				html: tempResult,
+			});
 			res.status(200).send({
 				status: true,
-				message: "Order updated to 'Received' successfully",
+				invoiceNumber: invoiceNumber,
+				message: "Order updated to 'Sent' successfully",
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -785,7 +865,7 @@ module.exports = {
 				});
 			}
 			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
-			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
@@ -799,88 +879,6 @@ module.exports = {
 				message: "Order updated to 'Rejected' successfully",
 			});
 		} catch (error) {
-			return res.status(500).send({
-				error,
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
-	processingToSent: async (req, res) => {
-		try {
-			const transaction = await db.sequelize.transaction();
-			const orderId = req.params.id;
-			const order = await orders.findOne({
-				where: { id: orderId },
-				include: [
-					{
-						model: carts,
-						include: [
-							{
-								model: users,
-							},
-						],
-					},
-				],
-			});
-			if (!order) {
-				return res.status(404).send({
-					message: "Order not found",
-				});
-			}
-			if (order.status !== "Processing") {
-				return res.status(400).send({
-					message: "Order cannot be updated to 'Sent'. Current status is not 'Processing'.",
-				});
-			}
-			const userId = req.user.id;
-			const invoiceNumber = generateInvoiceNumber(userId);
-			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId }, transaction });
-
-			// Auto confirm order 5 minutes
-			// 604800000 = 7 days
-			const autoConfirmTime = new Date(Date.now() + 300000);
-			schedule.scheduleJob(autoConfirmTime, async () => {
-				try {
-					const ord = await orders.findOne(
-						{
-							where: { id: orderId },
-						},
-					);
-					await orders.update({ status: "Received" }, { where: { id: ord.id } });
-				} catch (err) {
-					console.log(err)
-				}
-			});
-
-			await notifications.create({
-				type: "Transaction",
-				name: "Order Ready",
-				description: `Order ${invoiceNumber} is ready! Your order will be at your doorstep in around ${order.etd}. Please confirm if you have receive your order. This order will be automatically confirmed if you don't do so in 7 days. You can confirm your order on your profile page.If you did not receive your order, please contact our customer service as soon as possible. Thank you for shopping with us!`,
-				UserId: order.Cart.UserId
-			}, { transaction })
-			await transaction.commit();
-			
-			const data = fs.readFileSync("./src/templates/sentOrder.html", "utf-8");
-			const tempCompile = handlebars.compile(data);
-			const tempResult = tempCompile({
-				link: process.env.REACT_APP_BASE_URL,
-				invoice: invoiceNumber,
-				username: order.Cart.User.username,
-			});
-			transporter.sendMail({
-				from: process.env.NODEMAILER_USER,
-				to: order.Cart.User.email,
-				subject: "We have sent out your order for delivery.",
-				html: tempResult,
-			});
-			res.status(200).send({
-				status: true,
-				invoiceNumber: invoiceNumber,
-				message: "Order updated to 'Sent' successfully",
-			});
-		} catch (error) {
-			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -920,17 +918,26 @@ module.exports = {
 			}
 
 			await orders.update({ status: "Cancelled" }, { where: { id: orderId }, transaction });
-			await notifications.create({
-				type: "Transaction",
-				name: "Order Cancelled",
-				description: `Your order on 
-				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+			await notifications.create(
+				{
+					type: "Transaction",
+					name: "Order Cancelled",
+					description: `Your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				})}
 				has been cancelled. We're deeply sorry for not providing you the best customer experience. 
 				We hope we can provide a better shopping experience for you in the future. Best regards, AlphaMart Team`,
-				UserId: order.Cart.UserId
-			}, { transaction })
+					UserId: order.Cart.UserId,
+				},
+				{ transaction }
+			);
 
-			const data = fs.readFileSync("./src/templates/cancelOrderAdmin.html", "utf-8");
+			const data = fs.readFileSync(path.join(__dirname, "../templates/cancelOrderAdmin.html"), "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
@@ -968,7 +975,7 @@ module.exports = {
 						where: {
 							id: item.ProductId,
 						},
-						transaction
+						transaction,
 					}
 				);
 
@@ -981,18 +988,21 @@ module.exports = {
 
 				const newBranchStock = parseInt(oldBranchStock.currentStock) + parseInt(item.quantity);
 
-				await stockMovements.create({
-					ProductId: item.ProductId,
-					BranchId: cartCheckedOut.BranchId,
-					oldValue: oldBranchStock.currentStock,
-					newValue: parseInt(newBranchStock),
-					change: parseInt(item.quantity),
-					isAddition: true,
-					isAdjustment: false,
-					isInitialization: false,
-					isBranchInitialization: false,
-					UserId: AID,
-				}, { transaction });
+				await stockMovements.create(
+					{
+						ProductId: item.ProductId,
+						BranchId: cartCheckedOut.BranchId,
+						oldValue: oldBranchStock.currentStock,
+						newValue: parseInt(newBranchStock),
+						change: parseInt(item.quantity),
+						isAddition: true,
+						isAdjustment: false,
+						isInitialization: false,
+						isBranchInitialization: false,
+						UserId: AID,
+					},
+					{ transaction }
+				);
 
 				await stocks.increment(
 					{
@@ -1003,7 +1013,7 @@ module.exports = {
 							ProductId: item.ProductId,
 							BranchId: cartCheckedOut.BranchId,
 						},
-						transaction
+						transaction,
 					}
 				);
 			});
@@ -1044,13 +1054,15 @@ module.exports = {
 				},
 				transaction,
 			};
-			
+
 			if (VoucherId) {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if (cartCheckedOut.BranchId !== voucherTypeCheck.BranchId) return res.status(400).send({ status: false, message: "Voucher is not applicable on this branch" });
-				if (voucherTypeCheck.minimumPayment > subtotal) return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
+				if (cartCheckedOut.BranchId !== voucherTypeCheck.BranchId)
+					return res.status(400).send({ status: false, message: "Voucher is not applicable on this branch" });
+				if (voucherTypeCheck.minimumPayment > subtotal)
+					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
 			}
 
