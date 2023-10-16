@@ -58,7 +58,7 @@ export const AdminListPage = () => {
 	};
 
 	useEffect(() => {
-		if (user.RoleId === 1 || user.RoleId === 2) navigate("/");
+		if (user.RoleId === 1 || user.RoleId === 2) navigate("/dashboard");
 		if (!token) navigate("/");
 		getEmployee(page);
 		getBranches();
@@ -164,7 +164,7 @@ export const AdminListPage = () => {
 
 											<Box mt={"15px"} ml={["0px", "8px"]}>
 												<Text ml={"10px"} fontSize={"10px"} fontWeight={"bold"}>
-													Email:
+													E-mail:
 												</Text>
 												<Text ml={"7px"} fontWeight={"light"} fontSize={"12px"}>
 													‎ {item?.email}

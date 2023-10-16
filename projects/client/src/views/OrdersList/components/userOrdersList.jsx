@@ -331,7 +331,9 @@ export const UserOrdersList = () => {
 												<Text textAlign={"start"} ml={"15px"} color={"gray.500"} fontSize={"11px"}>
 													{i.quantity} Items X {formatRupiah(i.Product.price)}
 												</Text>
-												{item.status === "Received" ? <ReviewModal /> : null}
+												{item.status === "Received" ? (
+													<ReviewModal id={i.Product.id} quantity={i.quantity} invoice={item.invoice} />
+												) : null}
 											</Flex>
 										</Flex>
 									))}

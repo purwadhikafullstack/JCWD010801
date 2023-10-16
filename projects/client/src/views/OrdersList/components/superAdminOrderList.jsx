@@ -18,6 +18,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineShopping } from "reac
 import { EmptyList } from "./emptyList";
 import { AdminSidebar } from "../../../components/navigation/adminSidebar";
 import { DetailProcessModal } from "./branchOrder/ModalProcessing/detailOrderModal";
+import { useNavigate } from "react-router-dom";
 
 export const SuperAdminOrdersList = () => {
 	const [list, setList] = useState();
@@ -33,6 +34,7 @@ export const SuperAdminOrdersList = () => {
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
 	const [reload, setReload] = useState(false);
+	const navigate = useNavigate("")
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -341,6 +343,7 @@ export const SuperAdminOrdersList = () => {
 											{item.Order_details.map((item) => (
 												<Flex mt={"10px"}>
 													<Box
+														onClick={() => navigate(`/product/${item.Product.id}`)}
 														as={Image}
 														w={"100px"}
 														bg={"gray.100"}
