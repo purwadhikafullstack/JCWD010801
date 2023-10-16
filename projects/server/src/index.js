@@ -33,7 +33,7 @@ const {
 
 server.use(cors());
 server.use(express.json());
-server.use(express.static("./src/public"));
+server.use("/", express.static(__dirname + "/public"));
 
 //#region API ROUTES
 // ===========================
