@@ -238,8 +238,9 @@ module.exports = {
 
 				let subtotal = 0
 				for (let { Product, quantity } of cart_items) {
-					if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 0 ) quantity = quantity / 2
+					if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1 && Product?.Stocks[0]?.currentStock === quantity ) quantity = quantity / 2 + 0.5
 					else if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1 ) quantity = quantity / 2
+					else if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 0 ) quantity = quantity / 2
 					subtotal = subtotal + ( quantity * Product.price )
 				}
 

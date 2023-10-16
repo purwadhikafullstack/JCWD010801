@@ -78,6 +78,7 @@ function Order() {
 			setBranch(response.data.cart.Branch);
 			setItem(response.data.cart_items);
 			setSubTotalItem(response.data.subtotal);
+			console.log(response.data.subtotal)
 		} catch (error) {
 			toast.warn("Cart is empty", {
 				position: "top-right",
@@ -370,7 +371,7 @@ function Order() {
 														<Text fontWeight={"bold"}>{item.Product.productName}</Text>
 														{item?.Product?.Discounts[0]?.type === "Extra" ? (
 															<Text>
-																{`(${item.Product?.Stocks[0].currentStock % 2 === 0 ? item.quantity / 2 : item.quantity / 2 + 0.5}+${item.Product?.Stocks[0].currentStock % 2 === 0 ? item.quantity / 2 : item.quantity / 2 - 0.5})`} x {formatToRupiah(item.Product.price)}
+																{`(${item.Product?.Stocks[0].currentStock % 2 === 1 && item.quantity >= item.Product?.Stocks[0].currentStock ? item.quantity / 2 + 0.5 : item.quantity / 2}+${item.Product?.Stocks[0].currentStock % 2 === 1 && item.quantity >= item.Product?.Stocks[0].currentStock ? item.quantity / 2 - 0.5 : item.quantity / 2})`} x {formatToRupiah(item.Product.price)}
 															</Text>
 														) : (
 															<Text>

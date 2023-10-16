@@ -32,12 +32,6 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
             dispatch(refreshCart());
         } catch (err) {
             if ( err.response.data.message === "Promo product out of stock" ) {
-                // if (stock % 2 === 0) {
-                //     quantityRef.current.value = stock / 2
-                // } else {
-                //     quantityRef.current.value = (stock + 1) / 2
-                // }
-                console.log(err.response.data.maxStock)
                 quantityRef.current.value = +err.response.data.maxStock / 2
                 handleUpdate();
             } else if ( err.response.data.message === "Product out of stock" ) {
