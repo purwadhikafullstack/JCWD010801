@@ -10,12 +10,19 @@ module.exports = (sequelize, DataTypes) => {
 			Users.hasMany(models.Changelogs);
 			Users.hasMany(models.Notifications);
 			Users.hasMany(models.Reviews);
-			Users.belongsToMany(models.Vouchers, {
-				through: "User_vouchers",
-			});
+			// Users.belongsToMany(models.Vouchers, {
+			// 	through: "User_vouchers",
+			// 	foreignKey: {
+			// 		name: "UserId",
+			// 		allowNull: true,
+			// 	},
+			// });
+			// name: 'SequelizeDatabaseError',
+			// server:parent: Error: Column 'UserId' cannot be NOT NULL: needed in a foreign key constraint 'User_vouchers_ibfk_1' SET NULL
 			// Users.hasMany(models.User_vouchers, {
 			//     foreignKey: "UserId"
 			// });
+			// DISABLED: DEPLOY V.4.1
 		}
 	}
 	Users.init(

@@ -546,7 +546,7 @@ module.exports = {
 					message: "Order cannot be updated to 'Processing'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId }, transaction });
+			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
 			await notifications.create({
 				type: "Transaction",
 				name: "Payment Confirmation Accepted",
@@ -620,7 +620,6 @@ module.exports = {
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
-			console.log(error)
 			await transaction.rollback();
 			return res.status(500).send({
 				error,
@@ -809,6 +808,7 @@ module.exports = {
 	},
 	processingToSent: async (req, res) => {
 		try {
+			const transaction = await db.sequelize.transaction();
 			const orderId = req.params.id;
 			const order = await orders.findOne({
 				where: { id: orderId },

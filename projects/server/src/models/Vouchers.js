@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
             });
 			// Vouchers.belongsToMany(models.Users, {
             //     through: "User_vouchers",
-            // });
+            // }); // DISABLED: DEPLOY V.4.1
             Vouchers.belongsTo(models.Branches, {
                 foreignKey: {
 					name: "BranchId",

@@ -26,7 +26,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 	const BranchId = localStorage.getItem("BranchId");
 	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const { RoleId } = useSelector((state) => state.user.value);
+	const { RoleId } = useSelector((state) => state?.user?.value);
 
 	const handleAdd = async () => {
 		try {

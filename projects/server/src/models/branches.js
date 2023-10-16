@@ -5,10 +5,9 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			Branches.hasMany(models.Users);
 			Branches.hasMany(models.StockMovements);
-			Branches.belongsToMany(models.Products, {
-				through: models.Stocks,
-				as: 'ProductsBranches'
-			}); // Try to enable again in deploy v.3.0.
+			// Branches.belongsToMany(models.Products, {
+			// 	through: models.Stocks,
+			// }); // DISABLED: DEPLOY v.4.1. //! STAGING FOR PERMANENT DELETION.
 			Branches.hasMany(models.Discounts);
 			Branches.hasMany(models.Vouchers);
 		}

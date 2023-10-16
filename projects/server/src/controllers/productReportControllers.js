@@ -234,24 +234,68 @@ module.exports = {
 			});
 		}
 	},
+	//! DEPLOY V.3.8 DISABLED
+	// getAverageProductsPerBranch: async (req, res) => {
+	// 	try {
+	// 		const branchData = await branches.findAll({
+	// 			include: [products],
+	// 		});
+
+	// 		const totalProductCount = branchData.reduce((total, branch) => total + branch.Products.length, 0);
+
+	// 		const averageProductCount = Math.round(totalProductCount / branchData.length);
+
+	// 		res.status(200).send({
+	// 			status: 200,
+	// 			result: averageProductCount,
+	// 		});
+	// 	} catch (error) {
+	// 		return res.status(500).send({
+	// 			status: 500,
+	// 			message: "Internal server error.",
+	// 			error,
+	// 		});
+	// 	}
+	// },
 	getAverageProductsPerBranch: async (req, res) => {
 		try {
-			const branchData = await branches.findAll({
-				include: [
-					{
-						model: products,
-						as: "ProductsBranches",
-					},
-				],
+			const productsData = await products.findAll({
+				include: [branches],
 			});
 
-			const totalProductCount = branchData.reduce((total, branch) => total + branch.ProductsBranches.length, 0);
+			const branchProducts = {};
 
-			const averageProductCount = Math.round(totalProductCount / branchData.length);
+			productsData.forEach((product) => {
+				product.Branches.forEach((branch) => {
+					const branchName = branch.name;
+					if (!branchProducts[branchName]) {
+						branchProducts[branchName] = 0;
+					}
+
+					branchProducts[branchName]++;
+				});
+			});
+
+			const branchesToCheck = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya", "Batam"];
+
+			const result = {};
+
+			branchesToCheck.forEach((branchName) => {
+				if (branchProducts[branchName] === undefined) {
+					result[branchName] = 0;
+				} else {
+					result[branchName] = branchProducts[branchName];
+				}
+			});
+
+			const totalProductCount = Object.values(result).reduce((total, count) => total + count, 0);
+			const averageProductCount = Math.round(totalProductCount / branchesToCheck.length);
 
 			res.status(200).send({
 				status: 200,
-				result: averageProductCount,
+				message: "Branch averages fetched successfully",
+				average: averageProductCount,
+				result: result,
 			});
 		} catch (error) {
 			return res.status(500).send({
@@ -733,50 +777,110 @@ module.exports = {
 			});
 		}
 	},
+	//! DEPLOY V.3.8 DISABLED
+	// getBranchesProductCount: async (req, res) => {
+	// 	try {
+	// 		const branchesData = await branches.findAll({
+	// 			include: [products],
+	// 		});
+
+	// 		const result = branchesData.map((branch) => {
+	// 			const productsData = branch.Products;
+
+	// 			const sortedProducts = {
+	// 				byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
+	// 				byLowBranchStock: productsData.slice().sort((a, b) => a.Stocks.currentStock - b.Stocks.currentStock),
+	// 			};
+
+	// 			const branchesProducts = {
+	// 				topBranchStock: sortedProducts.byBranchStock.slice(0, 3),
+	// 				lowBranchStock: sortedProducts.byLowBranchStock.slice(0, 3),
+	// 			};
+
+	// 			return {
+	// 				id: branch.id,
+	// 				name: branch.name,
+	// 				address: branch.address,
+	// 				lng: branch.lng,
+	// 				lat: branch.lat,
+	// 				imgURL: branch.imgURL,
+	// 				productCount: productsData.length,
+	// 				products: branchesProducts,
+	// 			};
+	// 		});
+
+	// 		res.status(200).send({
+	// 			status: 200,
+	// 			result: result,
+	// 		});
+	// 	} catch (error) {
+	// 		return res.status(500).send({
+	// 			status: 500,
+	// 			message: "Internal server error.",
+	// 			error,
+	// 		});
+	// 	}
+	// },
 	getBranchesProductCount: async (req, res) => {
 		try {
-			const branchesData = await branches.findAll({
-				include: [
-					{
-						model: products,
-						as: "ProductsBranches",
-					},
-				],
+			const productsData = await products.findAll({
+				include: [branches],
 			});
 
-			console.log(branchesData);
+			const branchNamesToCheck = ["Jakarta", "Bandung", "Jogjakarta", "Surabaya", "Batam"];
 
-			const result = branchesData.map((branch) => {
-				const productsData = branch.ProductsBranches;
+			const branchProducts = {};
 
-				const sortedProducts = {
-					byBranchStock: productsData.slice().sort((a, b) => b.Stocks.currentStock - a.Stocks.currentStock),
-					byLowBranchStock: productsData.slice().sort((a, b) => a.Stocks.currentStock - b.Stocks.currentStock),
-				};
-
-				const branchesProducts = {
-					topBranchStock: sortedProducts.byBranchStock.slice(0, 3),
-					lowBranchStock: sortedProducts.byLowBranchStock.slice(0, 3),
-				};
-
-				return {
-					id: branch.id,
-					name: branch.name,
-					address: branch.address,
-					lng: branch.lng,
-					lat: branch.lat,
-					imgURL: branch.imgURL,
-					productCount: productsData.length,
-					products: branchesProducts,
+			branchNamesToCheck.forEach((branchName) => {
+				branchProducts[branchName] = {
+					name: branchName,
+					productCount: 0,
+					topBranchStock: [],
+					lowBranchStock: [],
 				};
 			});
+
+			productsData.forEach((product) => {
+				product.Branches.forEach((branch) => {
+					const branchName = branch.name;
+					if (!branchProducts[branchName]) {
+						branchProducts[branchName] = {
+							name: branchName,
+							productCount: 0,
+							topBranchStock: [],
+							lowBranchStock: [],
+						};
+					}
+
+					branchProducts[branchName].topBranchStock.push({
+						id: product.id,
+						productName: product.productName,
+						imgURL: product.imgURL,
+						currentStock: branch.Stocks.currentStock,
+					});
+					branchProducts[branchName].lowBranchStock.push({
+						id: product.id,
+						productName: product.productName,
+						imgURL: product.imgURL,
+						currentStock: branch.Stocks.currentStock,
+					});
+
+					branchProducts[branchName].productCount++;
+				});
+			});
+
+			for (const branchName in branchProducts) {
+				branchProducts[branchName].topBranchStock.sort((a, b) => b.currentStock - a.currentStock);
+				branchProducts[branchName].lowBranchStock.sort((a, b) => a.currentStock - b.currentStock);
+				branchProducts[branchName].topBranchStock = branchProducts[branchName].topBranchStock.slice(0, 3);
+				branchProducts[branchName].lowBranchStock = branchProducts[branchName].lowBranchStock.slice(0, 3);
+			}
 
 			res.status(200).send({
 				status: 200,
-				result: result,
+				branchProducts,
 			});
 		} catch (error) {
-			console.log(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
