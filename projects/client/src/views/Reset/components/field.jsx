@@ -153,46 +153,6 @@ export const ResetPasswordFields = () => {
 									}}
 								/>
 							</FormControl>
-								{/* <FormLabel className="password">New Password</FormLabel>
-								<InputGroup>
-									<Input
-										as={Field}
-										name="password"
-										type={showPassword ? "text" : "password"}
-										focusBorderColor="gray.300"
-									/>
-									<InputRightElement>
-										<Button variant={"unstyled"} onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <FiEye /> : <FiEyeOff />}
-										</Button>
-									</InputRightElement>
-								</InputGroup>
-								<ErrorMessage
-									component="box"
-									name="password"
-									style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
-								/>
-							</Stack>
-							<Stack w={"100%"}>
-								<FormLabel className="confirmPassword">Confirm Password</FormLabel>
-								<InputGroup>
-									<Input
-										as={Field}
-										name="confirmPassword"
-										type={showConfirmPassword ? "text" : "password"}
-										focusBorderColor="gray.300"
-									/>
-									<InputRightElement>
-										<Button variant={"unstyled"} onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-											{showConfirmPassword ? <FiEye /> : <FiEyeOff />}
-										</Button>
-									</InputRightElement>
-								</InputGroup>
-								<ErrorMessage
-									component="box"
-									name="confirmPassword"
-									style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
-								/> */}
 							</Stack>
 
 							<ButtonTemp content={<Text>Reset Password</Text>} isDisabled={!dirty} type="submit" w="100%" />

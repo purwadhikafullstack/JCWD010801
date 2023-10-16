@@ -78,7 +78,6 @@ function Order() {
 			setBranch(response.data.cart.Branch);
 			setItem(response.data.cart_items);
 			setSubTotalItem(response.data.subtotal);
-			console.log(response.data.subtotal)
 		} catch (error) {
 			toast.warn("Cart is empty", {
 				position: "top-right",

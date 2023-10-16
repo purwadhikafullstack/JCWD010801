@@ -206,7 +206,7 @@ module.exports = {
 			if (!result) throw { message: "Email not found" };
 
 			const payload = { id: result.id };
-			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
+			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1d" });
 
 			const data = await fs.readFileSync("./src/templates/resetPassword.html", "utf-8");
 			const tempCompile = await handlebars.compile(data);
@@ -233,7 +233,6 @@ module.exports = {
 	},
 	resetPassword: async (req, res) => {
 		try {
-			console.log(req.token)
 			const isTokenExist = await tokenVerification.findOne({
 				where: { token: req.token },
 			});
