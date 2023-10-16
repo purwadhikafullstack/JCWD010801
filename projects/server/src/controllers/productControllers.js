@@ -630,7 +630,15 @@ module.exports = {
 	},
 	getAllProducts: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC" } = req.query;
+			const {
+				search = "",
+				CategoryId,
+				page = 1,
+				sortBy = "productName",
+				sortOrder = "ASC",
+				minPrice = 0,
+				maxPrice = 2147483647,
+			} = req.query;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -641,6 +649,13 @@ module.exports = {
 
 			if (CategoryId) {
 				whereCondition.CategoryId = CategoryId;
+			}
+
+			if (minPrice && !isNaN(minPrice)) {
+				whereCondition.price = { [Op.gte]: parseFloat(minPrice) };
+			}
+			if (maxPrice && !isNaN(maxPrice)) {
+				whereCondition.price = { ...whereCondition.price, [Op.lte]: parseFloat(maxPrice) };
 			}
 
 			const queriedCount = await products.count({
