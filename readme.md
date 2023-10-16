@@ -1,13 +1,15 @@
 # Purwadhika Final Project Repository
 
-## This is the final project of JCWD 0108 TEAM 1 "α Mart":
-## **PURWADHIKA _BANDUNG_ BATCH 1**
 
-### TEAM MEMBERS:
-> Amadeo Filberto Marli
-> Alvian Aryo Bimo
-> Raffael W
-> Rifky Rizkita Gandawidura
+This is the final project of JCWD 0108 TEAM 1 "α Mart":
+
+Amadeo Filberto Marli
+
+Alvian Aryo Bimo
+
+Raffael
+
+Rifky Rizkita Gandawidura
 
 ### MENTOR:
 > Gangsar Aryo
