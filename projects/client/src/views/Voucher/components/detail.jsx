@@ -7,11 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { ButtonTemp } from "../../../components/button";
 import { setVoucherInfo } from "../../../redux/voucherSlice";
 
-export const VoucherDetails = ({ name, type, isPercentage, nominal, minPay, maxDisc, Product, BranchId, amount, validUntil, availableFrom, VoucherId }) => {
+export const VoucherDetails = ({ name, type, isPercentage, nominal, minPay, maxDisc, Product, BranchId, amount, validUntil, availableFrom, VoucherId, branchName }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const dispatch = useDispatch();
-    const applyVoucher = async({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }) => {
+    const applyVoucher = async({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId, branchName }) => {
         dispatch(setVoucherInfo({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }));
         console.log({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId })
         closeModal();
@@ -21,13 +21,15 @@ export const VoucherDetails = ({ name, type, isPercentage, nominal, minPay, maxD
     const initialTerms = [
         "Voucher cannot be used together with other vouchers",
         "This voucher can be redeemed until the date stated on this voucher, or as long as the voucher quota is still available",
-        `This voucher is only applicable on Alphamart ${BranchId}`,
         "Voucher cannot be exchanged with cash under any circumstances"
     ];
 
     const [terms, setTerms] = useState(initialTerms);
+    const currentBranch = localStorage.getItem("BranchId")
 
     const handleSetTerms = () => {
+        if ( BranchId ) setTerms(currentTerms => [...currentTerms, `This voucher is only applicable on Alphamart ${branchName}`]);
+        else setTerms(currentTerms => [...currentTerms, `This voucher is applicable on all branches`]);
         if (isPercentage && maxDisc && minPay) setTerms(currentTerms => [...currentTerms, `Get a ${nominal}% discount up to Rp. ${maxDisc.toLocaleString("id-ID")} with a minimum transaction of Rp. ${minPay.toLocaleString("id-ID")}`])
         else if (isPercentage && maxDisc) setTerms(currentTerms => [...currentTerms, `Get a ${nominal}% discount up to Rp. ${maxDisc.toLocaleString("id-ID")}`])
     
@@ -123,6 +125,7 @@ export const VoucherDetails = ({ name, type, isPercentage, nominal, minPay, maxD
                     borderRadius={"10px"}
                     w={{ base: "100%", sm: "inherit" }}
                     onClick={useOrRemove}
+                    isDisabled={BranchId === +currentBranch || BranchId === null ? false : true}
                     // bgColor={voucher.VoucherId === VoucherId ? "white" : "inherit"}
                     // border={voucher.VoucherId === VoucherId ? "1px solid black" : "inherit"}
                     content={(voucher.VoucherId === VoucherId ? <Text fontSize={"16px"}>USE LATER</Text> : <Text fontSize={"16px"}>REDEEM</Text>)} 

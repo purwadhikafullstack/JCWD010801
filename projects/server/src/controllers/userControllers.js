@@ -233,6 +233,13 @@ module.exports = {
 	},
 	resetPassword: async (req, res) => {
 		try {
+			const isTokenExist = await tokenVerification.findOne({
+				where: { token: req.token },
+			});
+			if (isTokenExist) throw { message: "Verification link is expired." };
+			await tokenVerification.create({
+				token: req.token,
+			});
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(req.body.password, salt);
 			users.update({ password: hashPassword }, { where: { id: req.user.id } });

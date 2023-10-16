@@ -532,7 +532,7 @@ module.exports = {
 		}
 	},
 	paymentConfirmation: async (req, res) => {
-		// const transaction = await db.sequelize.transaction();
+		const transaction = await db.sequelize.transaction();
 		try {
 			const orderId = req.params.id;
 			const order = await orders.findOne({ where: { id: orderId }, include: [{ model: carts }] });
@@ -547,77 +547,80 @@ module.exports = {
 				});
 			}
 			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
-			// await notifications.create({
-			// 	type: "Transaction",
-			// 	name: "Payment Confirmation Accepted",
-			// 	description: `The payment for your order on 
-			// 	${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-			// 	has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
-			// 	UserId: order.Cart.UserId
-			// }, { transaction })
+			await notifications.create({
+				type: "Transaction",
+				name: "Payment Confirmation Accepted",
+				description: `The payment for your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+				has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
+				UserId: order.Cart.UserId
+			}, { transaction })
 
-			// //Free shipment voucher
-			// const countOrder = await orders.count({
-            //     where: {
-            //         UserId: order.Cart.UserId,
-            //         status: "Processing"
-            //     }
-            // });
-            // const freeShipmentVoucher = await vouchers.findOne({
-            //     where: {
-            //         name: { [Op.like]: `Free Shipment%` },
-            //         availableFrom: { [Op.lte]: new Date(Date.now()) },
-            //         validUntil: { [Op.gte]: new Date(Date.now()) }
-            //     }
-            // })
-            // const freeShipmentVoucherCheck = await user_vouchers.findOne({
-            //     where: {
-            //         UserId: order.Cart.UserId,
-            //         VoucherId: freeShipmentVoucher.id
-            //     }
-            // });
-            // if ( countOrder % 3 === 0 && !freeShipmentVoucherCheck ) {
-            //     await user_vouchers.create({
-            //         UserId: order.Cart.UserId,
-            //         VoucherId: freeShipmentVoucher.id,
-            //         amount: 1
-            //     }, { transaction });
-			// 	await notifications.create({
-			// 		type: "Discount",
-			// 		name: "Thank you for choosing us!",
-			// 		description: `Thank you, our loyal customer, for shopping with us!
-			// 		As a token of gratitude, you've received a free shipment voucher.
-			// 		We love having customers like you, and your support means everything to us.`,
-			// 		UserId: order.Cart.UserId
-			// 	})
-            // }
-            // else if ( countOrder % 3 === 0 && freeShipmentVoucherCheck ) {
-            //     await user_vouchers.update({
-            //         amount: freeShipmentVoucherCheck.amount + 1
-            //     }, {
-            //         where: {
-            //             UserId: order.Cart.UserId,
-            //             VoucherId: freeShipmentVoucher.id
-            //         }
-            //     }, { transaction });
-			// 	await notifications.create({
-			// 		type: "Discount",
-			// 		name: "Thank you for choosing us!",
-			// 		description: `Thank you, our loyal customer, for shopping with us!
-			// 		As a token of gratitude, you've received a free shipment voucher.
-			// 		We love having customers like you, and your support means everything to us.`,
-			// 		UserId: order.Cart.UserId
-			// 	})
-            // }
+			//Free shipment voucher
+			const countOrder = await orders.count({
+                where: {
+                    status: "Processing"
+                },
+				include: [{
+					model: carts,
+					where: { UserId: order.Cart.UserId }
+				}]
+            });
+            const freeShipmentVoucher = await vouchers.findOne({
+                where: {
+                    name: { [Op.like]: `Free Shipment%` },
+                    availableFrom: { [Op.lte]: new Date(Date.now()) },
+                    validUntil: { [Op.gte]: new Date(Date.now()) }
+                }
+            })
+            const freeShipmentVoucherCheck = await user_vouchers.findOne({
+                where: {
+                    UserId: order.Cart.UserId,
+                    VoucherId: freeShipmentVoucher.id
+                }
+            });
+            if ( countOrder + 1 % 3 === 0 && !freeShipmentVoucherCheck ) {
+                await user_vouchers.create({
+                    UserId: order.Cart.UserId,
+                    VoucherId: freeShipmentVoucher.id,
+                    amount: 1
+                }, { transaction });
+				await notifications.create({
+					type: "Discount",
+					name: "Thank you for choosing us!",
+					description: `Thank you, our loyal customer, for shopping with us!
+					As a token of gratitude, you've received a free shipment voucher.
+					We love having customers like you, and your support means everything to us.`,
+					UserId: order.Cart.UserId
+				}, { transaction })
+            }
+            else if ( countOrder + 1 % 3 === 0 && freeShipmentVoucherCheck ) {
+                await user_vouchers.update({
+                    amount: freeShipmentVoucherCheck.amount + 1
+                }, {
+                    where: {
+                        UserId: order.Cart.UserId,
+                        VoucherId: freeShipmentVoucher.id
+                    }
+                }, { transaction });
+				await notifications.create({
+					type: "Discount",
+					name: "Thank you for choosing us!",
+					description: `Thank you, our loyal customer, for shopping with us!
+					As a token of gratitude, you've received a free shipment voucher.
+					We love having customers like you, and your support means everything to us.`,
+					UserId: order.Cart.UserId
+				}, { transaction })
+            }
 			
-			// await transaction.commit();
+			await transaction.commit();
 
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
-			// await transaction.rollback();
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -1026,6 +1029,13 @@ module.exports = {
 			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } =
 				req.body;
 
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+			});
+
 			// Use voucher
 			const filter = {
 				where: {
@@ -1034,21 +1044,15 @@ module.exports = {
 				},
 				transaction,
 			};
+			
 			if (VoucherId) {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if (voucherTypeCheck.minimumPayment > subtotal)
-					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
+				if (cartCheckedOut.BranchId !== voucherTypeCheck.BranchId) return res.status(400).send({ status: false, message: "Voucher is not applicable on this branch" });
+				if (voucherTypeCheck.minimumPayment > subtotal) return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
 			}
-
-			const cartCheckedOut = await carts.findOne({
-				where: {
-					UserId: req.user.id,
-					status: "ACTIVE",
-				},
-			});
 
 			const orderedItems = await cartItems.findAll({
 				where: {
