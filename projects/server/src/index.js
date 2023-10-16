@@ -1,4 +1,5 @@
-require("dotenv/config");
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
 const { join } = require("path");
@@ -98,7 +99,7 @@ server.listen(PORT, (err) => {
 	if (err) {
 		console.log(`ERROR: ${err}`);
 	} else {
-		db.sequelize.sync({ alter: true });
+		// db.sequelize.sync({ alter: true });
 		console.log(`SERVER IS RUNNING AT PORT:${PORT} ✅`);
 	}
 });
