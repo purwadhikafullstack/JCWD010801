@@ -93,7 +93,7 @@ export const ResendVerification = () => {
             <Text>
                 You need to verify your account in order to do any transaction.
             </Text>
-            {timeRemaining && (
+            {timeRemaining && timeRemaining?.hours === 0 && timeRemaining?.minutes === 0 && timeRemaining?.seconds === 0 && (
                 <Text>
                     Resend available in {timeRemaining?.minutes} : {timeRemaining?.seconds}
                 </Text>

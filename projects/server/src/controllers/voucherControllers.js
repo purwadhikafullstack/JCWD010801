@@ -161,6 +161,9 @@ module.exports = {
                         include: [
                             {
                                 model: products
+                            },
+                            {
+                                model: branches
                             }
                         ]
                     }
