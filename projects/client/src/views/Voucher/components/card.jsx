@@ -6,13 +6,14 @@ import { VoucherDetails } from "./detail"
 import { PiTruckThin } from "react-icons/pi"
 import { RiMenu3Line } from "react-icons/ri"
 
-export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay, maxDisc, Product, BranchId, amount, validUntil, availableFrom, VoucherId }) => {
+export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay, maxDisc, Product, BranchId, amount, validUntil, availableFrom, VoucherId, Branch }) => {
     const dispatch = useDispatch();
     const applyVoucher = ({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }) => {
-        console.log({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId })
         dispatch(setVoucherInfo({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }));
     };
     const appliedVoucherCheck = useSelector((state) => state?.voucher?.value?.VoucherId);
+
+    const currentBranch = localStorage.getItem("BranchId");
 
     return (
         <>
@@ -26,7 +27,7 @@ export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay,
             color={"white"} 
             w={"55%"}>
                 {type === "Shipment" ? (
-                    <Flex w={"inherit"} py={5} h={"inherit"} position={"absolute"} overflow={"hidden"}>
+                    <Flex py={5} position={"absolute"} overflow={"hidden"}>
                         <Icon as={RiMenu3Line} mr={2} mt={{ base: 24, sm: 12 }} ml={{ base: 3, sm: 1 }} p={0} color={"yellow.600"} w={{ base: 9, sm: 16 }} h={{ base: 9, sm: 16 }} />
                         <Icon as={PiTruckThin} p={0} mt={{ base: 20, sm: 0 }} color={"yellow.600"} w={{ base: 20, sm: 40 }} h={{ base: 20, sm: 40 }} />
                     </Flex>
@@ -72,7 +73,7 @@ export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay,
                 borderRadius={0} 
                 mb={2} 
                 onClick={() => applyVoucher({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId })} 
-                isDisabled={appliedVoucherCheck === VoucherId && true} 
+                isDisabled={BranchId === +currentBranch || BranchId === null ? appliedVoucherCheck === VoucherId ? true : false : true}
                 content={(appliedVoucherCheck === VoucherId ? <Text fontSize={"16px"}>APPLIED</Text> : <Text fontSize={"16px"}>REDEEM</Text>)} 
                 />
                 <VoucherDetails
@@ -88,6 +89,7 @@ export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay,
                 Product={Product}
                 availableFrom={availableFrom}
                 validUntil={validUntil}
+                branchName={Branch?.name}
                 />
                 <Text fontSize={"16px"}>
                     {amount} vouchers
