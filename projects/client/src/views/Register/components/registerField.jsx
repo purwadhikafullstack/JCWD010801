@@ -108,9 +108,9 @@ export const RegisterFields = () => {
 						<Heading
 							w={"200px"}
 							mr={["0px", "150px", "150px"]}
-							mt={"28px"}
-							mb={"15px"}
-							fontSize={"38px"}
+							mt={"15px"}
+							mb={"5px"}
+							fontSize={"35px"}
 							fontFamily={"monospace"}
 						>
 							Sign Up.
@@ -359,7 +359,8 @@ export const RegisterFields = () => {
 							<Button
 								isDisabled={!props.dirty || !props.isValid}
 								type="submit"
-								mt={"10px"}
+								mt={"8px"}
+								mb={"10px"}
 								backgroundColor={"#000000"}
 								color={"white"}
 								ml={"25px"}

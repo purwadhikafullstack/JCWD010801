@@ -15,13 +15,13 @@ export const RegisterPageView = () => {
 				boxShadow="0px 0px 10px black"
 				marginY="auto"
 				w={["200px", "300px", "400px"]}
-				h={["700px"]}
+				h={["720px"]}
 				bg="#373433"
 			>
 				<Flex mt="50px" justifyContent="center">
 					<Image w={["100px", "200px", "300px"]} src={sourceLogo} />
 				</Flex>
-				<Flex mt="255.7px" justifyContent="center">
+				<Flex mt="276.7px" justifyContent="center">
 					<Image w={["100px", "200px", "400px"]} src={sourceGraphic} />
 				</Flex>
 			</Flex>
