@@ -26,7 +26,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 	const BranchId = localStorage.getItem("BranchId");
 	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const { RoleId } = useSelector((state) => state.user.value);
+	const { RoleId } = useSelector((state) => state?.user?.value);
 
 	const handleAdd = async () => {
 		try {
@@ -40,8 +40,9 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 				}
 			);
 
-			if (data.status === "Switched") onOpen();
-			else {
+			if (data.status === "Switched") {
+				onOpen();
+			} else {
 				dispatch(refreshCart());
 				toast.success(`${quantity} ${name} added to cart`, {
 					position: "top-center",
@@ -75,7 +76,17 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 					progress: undefined,
 					theme: "dark",
 				});
-			} else
+			} else if (err.response.data.status === "Exceed") {
+				toast.info(err.response.data.message, {
+					position: "top-center",
+					autoClose: 3000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+			} else {
 				toast.error(`Failed to add ${name} to cart. Please try again later.`, {
 					position: "top-center",
 					autoClose: 3000,
@@ -85,6 +96,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 					progress: undefined,
 					theme: "dark",
 				});
+			}
 		}
 	};
 
@@ -122,9 +134,21 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 	return (
 		<>
 			{isText ? (
-				<ButtonTemp isDisabled={RoleId === 1 ? false : true} ml={ml} content={"Add to cart"} onClick={handleAdd} cursor={"pointer"} />
+				<ButtonTemp
+					isDisabled={RoleId === 1 ? false : true}
+					ml={ml}
+					content={"Add to cart"}
+					onClick={handleAdd}
+					cursor={"pointer"}
+				/>
 			) : (
-				<Button isDisabled={RoleId === 1 ? false : true} onClick={handleAdd} bgColor={"white"} rounded={"full"} cursor={"pointer"}>
+				<Button
+					isDisabled={RoleId === 1 ? false : true}
+					onClick={handleAdd}
+					bgColor={"white"}
+					rounded={"full"}
+					cursor={"pointer"}
+				>
 					<Icon as={BsCartPlus} w="5" h="5" color={"black"} />
 				</Button>
 			)}

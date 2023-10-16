@@ -11,7 +11,7 @@ const BranchDoughnutChart = () => {
 	const fetchData = async () => {
 		try {
 			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`);
-			setBranchData(response.data.result);
+			setBranchData(response.data.branchProducts);
 		} catch (error) {
 			console.log("Error fetching branch data:", error);
 		}
@@ -21,11 +21,14 @@ const BranchDoughnutChart = () => {
 		fetchData();
 	}, []);
 
+	const branchNames = Object.keys(branchData);
+	const productCounts = branchNames.map((branchName) => branchData[branchName].productCount);
+
 	const data = {
-		labels: branchData.map((branch) => branch.name),
+		labels: branchNames,
 		datasets: [
 			{
-				data: branchData.map((branch) => branch.productCount),
+				data: productCounts,
 				backgroundColor: ["#E25668", "#E28956", "#68E256", "#56E2CF", "#5668E2"],
 			},
 		],

@@ -66,7 +66,8 @@ import { BiSolidChevronsDown, BiSort } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { PiChartLineDown, PiChartLineUp } from "react-icons/pi";
 import { ImEye, ImEyeBlocked } from "react-icons/im";
-import { AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
+import { FcLike, FcDislike } from "react-icons/fc";
+import { AiOutlineDislike, AiOutlineLike, AiOutlineShop, AiTwotoneShop } from "react-icons/ai";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
 import { AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
@@ -556,7 +557,7 @@ const StockReport = () => {
 	const fetchBranchKeyMetricsData = async () => {
 		try {
 			const baseMetrics = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/mostandleast`);
-			setKeyMetricsBranch(baseMetrics.data.result);
+			setKeyMetricsBranch(Object.values(baseMetrics.data.branchProducts));
 
 			const txMetrics = await Axios.get(
 				`${process.env.REACT_APP_API_BASE_URL}/product-report/branches/bestandworst/${keyMetricsTxBranchId}`
@@ -624,7 +625,7 @@ const StockReport = () => {
 							>
 								<Skeleton
 									count={1}
-									width={"1310px"}
+									width={"1375px"}
 									containerClassName="flex-1"
 									height={"32px"}
 									highlightColor="#141415"
@@ -692,7 +693,8 @@ const StockReport = () => {
 							{item?.StockMovements?.failedTxCount !== 0 ? (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text> <LuPackageX size={20} color="#D11010" />
+										<Text mr={"3px"}>{item?.StockMovements?.failedTxCount}</Text>{" "}
+										<LuPackageX size={20} color="#D11010" />
 									</Flex>
 								</div>
 							) : (
@@ -708,13 +710,28 @@ const StockReport = () => {
 							{item.viewCount !== 0 ? (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.viewCount}</Text> <ImEye size={18} color="#DA9100" />
+										<Text mr={"3px"}>{item?.viewCount}</Text> <ImEye size={18} color="#DA9100" />
 									</Flex>
 								</div>
 							) : (
 								<div className="centered-content">
 									<Flex>
-										<Text mr={"3px"}>{item.viewCount}</Text> <ImEyeBlocked size={18} color="#D11010" />
+										<Text mr={"3px"}>{item?.viewCount}</Text> <ImEyeBlocked size={18} color="#D11010" />
+									</Flex>
+								</div>
+							)}
+						</Td>
+						<Td className="centered-td">
+							{item.likeCount !== 0 ? (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.likeCount}</Text> <FcLike size={18} color="#DA9100" />
+									</Flex>
+								</div>
+							) : (
+								<div className="centered-content">
+									<Flex>
+										<Text mr={"3px"}>{item?.likeCount}</Text> <FcDislike size={18} color="#D11010" />
 									</Flex>
 								</div>
 							)}
@@ -883,7 +900,7 @@ const StockReport = () => {
 					.toString()
 					.padStart(2, "0")}:${createdAtDate.getSeconds().toString().padStart(2, "0")}`;
 				const startsWith = (str, prefix) => {
-					return str.indexOf(prefix) === 0;
+					return str && str.indexOf(prefix) === 0;
 				};
 
 				return (
@@ -1379,7 +1396,7 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>Alphabetical</Text>
+										<Text ml={"-6px"}>NAME</Text>
 									</Radio>
 									<Radio
 										size="sm"
@@ -1391,7 +1408,7 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>Nationwide</Text>
+										<Text ml={"-6px"}>ALL</Text>
 									</Radio>
 									<Radio
 										size="sm"
@@ -1480,7 +1497,7 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>#Failed</Text>
+										<Text ml={"-6px"}>#CANCEL</Text>
 									</Radio>
 									<Radio
 										size="sm"
@@ -1492,7 +1509,19 @@ const StockReport = () => {
 										}}
 										{...customRadioStyle}
 									>
-										<Text ml={"-6px"}>Views</Text>
+										<Text ml={"-6px"}>#VIEWS</Text>
+									</Radio>
+									<Radio
+										size="sm"
+										isChecked={sortLevelBy === "likeCount"}
+										borderColor={"gray"}
+										onChange={() => {
+											setSortLevelBy("likeCount");
+											setPage(1);
+										}}
+										{...customRadioStyle}
+									>
+										<Text ml={"-6px"}>#LIKES</Text>
 									</Radio>
 								</Flex>
 								<Flex
@@ -1743,6 +1772,30 @@ const StockReport = () => {
 												{...customRadioStyle}
 											>
 												<IconEyePlus size={23} />
+											</Radio>
+										</>
+									)}
+									{sortLevelBy === "likeCount" && (
+										<>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "ASC"}
+												onChange={() => {
+													setLevelSortOrder("ASC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineDislike size={23} />
+											</Radio>
+											<Radio
+												borderColor={"gray"}
+												isChecked={levelSortOrder === "DESC"}
+												onChange={() => {
+													setLevelSortOrder("DESC");
+												}}
+												{...customRadioStyle}
+											>
+												<AiOutlineLike size={23} />
 											</Radio>
 										</>
 									)}
@@ -2331,6 +2384,21 @@ const StockReport = () => {
 																	cursor="pointer"
 																	onClick={() => {
 																		setSortLevelBy("viewCount");
+																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
+																	}}
+																/>
+															</div>
+														</Th>
+														<Th>
+															<div className="centered-content">
+																Likes
+																<BiSort
+																	display={"flex"}
+																	size={14}
+																	color="#3E3D40"
+																	cursor="pointer"
+																	onClick={() => {
+																		setSortLevelBy("likeCount");
 																		setLevelSortOrder((prevSortOrder) => (prevSortOrder === "ASC" ? "DESC" : "ASC"));
 																	}}
 																/>
@@ -3717,20 +3785,19 @@ const StockReport = () => {
 																ml={"-27px"}
 																top={"-5px"}
 																cursor={
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
-																		?.id !== undefined
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[1]?.id !==
+																	undefined
 																		? "pointer"
 																		: "not-allowed"
 																}
 																onClick={() => {
 																	if (
-																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
-																			?.id !== undefined
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[1]?.id !==
+																		undefined
 																	) {
 																		navigate(
 																			`/product/${
-																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
-																					?.topBranchStock[1]?.id
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[1]?.id
 																			}`
 																		);
 																	}
@@ -3739,8 +3806,7 @@ const StockReport = () => {
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
 																src={`${process.env.REACT_APP_BASE_URL}/products/${
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
-																		?.imgURL
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)].topBranchStock[1]?.imgURL
 																}`}
 																boxSize={"231px"}
 																rounded={"full"}
@@ -3756,20 +3822,19 @@ const StockReport = () => {
 																top={"-5px"}
 																ml={"335px"}
 																cursor={
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
-																		?.id !== undefined
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)].topBranchStock[0]?.id !==
+																	undefined
 																		? "pointer"
 																		: "not-allowed"
 																}
 																onClick={() => {
 																	if (
-																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
-																			?.id !== undefined
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[0]?.id !==
+																		undefined
 																	) {
 																		navigate(
 																			`/product/${
-																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
-																					?.topBranchStock[0]?.id
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[0]?.id
 																			}`
 																		);
 																	}
@@ -3778,8 +3843,7 @@ const StockReport = () => {
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
 																src={`${process.env.REACT_APP_BASE_URL}/products/${
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
-																		?.imgURL
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[0]?.imgURL
 																}`}
 																boxSize={"265px"}
 																rounded={"full"}
@@ -3796,20 +3860,19 @@ const StockReport = () => {
 																zIndex={"2"}
 																ml={"730px"}
 																cursor={
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
-																		?.id !== undefined
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[2]?.id !==
+																	undefined
 																		? "pointer"
 																		: "not-allowed"
 																}
 																onClick={() => {
 																	if (
-																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
-																			?.id !== undefined
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[2]?.id !==
+																		undefined
 																	) {
 																		navigate(
 																			`/product/${
-																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
-																					?.topBranchStock[2]?.id
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[2]?.id
 																			}`
 																		);
 																	}
@@ -3818,8 +3881,7 @@ const StockReport = () => {
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
 																src={`${process.env.REACT_APP_BASE_URL}/products/${
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
-																		?.imgURL
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[2]?.imgURL
 																}`}
 																boxSize={"210px"}
 																rounded={"full"}
@@ -3840,15 +3902,15 @@ const StockReport = () => {
 															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
 																<Text>Name ‎ : ‎</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[1]
 																		?.productName || "Product Does Not Exist"}
 																</Text>
 															</Flex>
 															<Flex justify={"space-between"}>
 																<Text>Stock ‎ ‎ :</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[1]
-																		?.Stocks?.currentStock || 0}{" "}
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[1]
+																		?.currentStock || 0}{" "}
 																	Units
 																</Text>
 															</Flex>
@@ -3867,15 +3929,15 @@ const StockReport = () => {
 															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
 																<Text>Name ‎ : ‎</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[0]
 																		?.productName || "Product Does Not Exist"}
 																</Text>
 															</Flex>
 															<Flex justify={"space-between"}>
 																<Text>Stock ‎ ‎ :</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[0]
-																		?.Stocks?.currentStock || 0}{" "}
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[0]
+																		?.currentStock || 0}{" "}
 																	Units
 																</Text>
 															</Flex>
@@ -3894,15 +3956,15 @@ const StockReport = () => {
 															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
 																<Text>Name ‎ : ‎</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[2]
 																		?.productName || "Product Does Not Exist"}
 																</Text>
 															</Flex>
 															<Flex justify={"space-between"}>
 																<Text>Stock ‎ ‎ :</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.topBranchStock[2]
-																		?.Stocks?.currentStock || 0}{" "}
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.topBranchStock[2]
+																		?.currentStock || 0}{" "}
 																	Units
 																</Text>
 															</Flex>
@@ -3930,20 +3992,19 @@ const StockReport = () => {
 																ml={"-27px"}
 																top={"-5px"}
 																cursor={
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
-																		?.id !== undefined
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[1]?.id !==
+																	undefined
 																		? "pointer"
 																		: "not-allowed"
 																}
 																onClick={() => {
 																	if (
-																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
-																			?.id !== undefined
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[1]?.id !==
+																		undefined
 																	) {
 																		navigate(
 																			`/product/${
-																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
-																					?.lowBranchStock[1]?.id
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[1]?.id
 																			}`
 																		);
 																	}
@@ -3952,8 +4013,7 @@ const StockReport = () => {
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
 																src={`${process.env.REACT_APP_BASE_URL}/products/${
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
-																		?.imgURL
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[1]?.imgURL
 																}`}
 																boxSize={"231px"}
 																rounded={"full"}
@@ -3969,20 +4029,19 @@ const StockReport = () => {
 																top={"-5px"}
 																ml={"335px"}
 																cursor={
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
-																		?.id !== undefined
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[0]?.id !==
+																	undefined
 																		? "pointer"
 																		: "not-allowed"
 																}
 																onClick={() => {
 																	if (
-																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
-																			?.id !== undefined
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[0]?.id !==
+																		undefined
 																	) {
 																		navigate(
 																			`/product/${
-																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
-																					?.lowBranchStock[0]?.id
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[0]?.id
 																			}`
 																		);
 																	}
@@ -3991,8 +4050,7 @@ const StockReport = () => {
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
 																src={`${process.env.REACT_APP_BASE_URL}/products/${
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
-																		?.imgURL
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[0]?.imgURL
 																}`}
 																boxSize={"265px"}
 																rounded={"full"}
@@ -4009,20 +4067,19 @@ const StockReport = () => {
 																zIndex={"2"}
 																ml={"730px"}
 																cursor={
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
-																		?.id !== undefined
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[2]?.id !==
+																	undefined
 																		? "pointer"
 																		: "not-allowed"
 																}
 																onClick={() => {
 																	if (
-																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
-																			?.id !== undefined
+																		keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[2]?.id !==
+																		undefined
 																	) {
 																		navigate(
 																			`/product/${
-																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products
-																					?.lowBranchStock[2]?.id
+																				keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[2]?.id
 																			}`
 																		);
 																	}
@@ -4031,8 +4088,7 @@ const StockReport = () => {
 															<Image
 																className={`coin-img ${isFilterChanged ? "filter-change" : ""}`}
 																src={`${process.env.REACT_APP_BASE_URL}/products/${
-																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
-																		?.imgURL
+																	keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[2]?.imgURL
 																}`}
 																boxSize={"210px"}
 																rounded={"full"}
@@ -4053,15 +4109,15 @@ const StockReport = () => {
 															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
 																<Text>Name ‎ : ‎</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[1]
 																		?.productName || "Product Does Not Exist"}
 																</Text>
 															</Flex>
 															<Flex justify={"space-between"}>
 																<Text>Stock ‎ ‎ :</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[1]
-																		?.Stocks?.currentStock || 0}{" "}
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[1]
+																		?.currentStock || 0}{" "}
 																	Units
 																</Text>
 															</Flex>
@@ -4080,15 +4136,15 @@ const StockReport = () => {
 															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
 																<Text>Name ‎ : ‎</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[0]
 																		?.productName || "Product Does Not Exist"}
 																</Text>
 															</Flex>
 															<Flex justify={"space-between"}>
 																<Text>Stock ‎ ‎ :</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[0]
-																		?.Stocks?.currentStock || 0}{" "}
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[0]
+																		?.currentStock || 0}{" "}
 																	Units
 																</Text>
 															</Flex>
@@ -4107,15 +4163,15 @@ const StockReport = () => {
 															<Flex justify={"space-between"} overflow="hidden" whiteSpace="nowrap">
 																<Text>Name ‎ : ‎</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[2]
 																		?.productName || "Product Does Not Exist"}
 																</Text>
 															</Flex>
 															<Flex justify={"space-between"}>
 																<Text>Stock ‎ ‎ :</Text>
 																<Text overflow="hidden" textOverflow="ellipsis">
-																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.products?.lowBranchStock[2]
-																		?.Stocks?.currentStock || 0}{" "}
+																	{keyMetricsBranch[parseInt(selectedSubOption - 1, 10)]?.lowBranchStock[2]
+																		?.currentStock || 0}{" "}
 																	Units
 																</Text>
 															</Flex>

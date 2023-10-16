@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 			});
 			Products.belongsToMany(models.Branches, {
 				through: models.Stocks,
-			});
+			}); // ENABLED: DEPLOY V.4.1
 			Products.hasMany(models.Stocks, {
 				foreignKey: "ProductId",
 			});

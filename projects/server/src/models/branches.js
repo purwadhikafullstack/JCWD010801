@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
 			Branches.hasMany(models.StockMovements);
 			// Branches.belongsToMany(models.Products, {
 			// 	through: models.Stocks,
-			// });
+			// }); // DISABLED: DEPLOY v.4.1. //! STAGING FOR PERMANENT DELETION.
 			Branches.hasMany(models.Discounts);
 			Branches.hasMany(models.Vouchers);
 		}
