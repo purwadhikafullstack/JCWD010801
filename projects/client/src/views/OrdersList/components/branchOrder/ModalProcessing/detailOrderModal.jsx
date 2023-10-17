@@ -73,7 +73,7 @@ export const DetailProcessModal = ({
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader bg={"black"} color={"white"}>
+					<ModalHeader  borderTopRadius={"6px"} bg={"black"} color={"white"}>
 						Detail Order
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />

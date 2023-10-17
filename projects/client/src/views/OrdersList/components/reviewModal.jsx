@@ -24,7 +24,6 @@ export default function ReviewModal({ id, quantity, invoice }) {
 	const token = localStorage.getItem("token");
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [rating, setRating] = useState(0);
-	const [isReviewSubmitted, setReviewSubmitted] = useState(false);
 	const commentRef = useRef();
 
 	const handleRatingClick = (value) => {
@@ -33,17 +32,7 @@ export default function ReviewModal({ id, quantity, invoice }) {
 
 	return (
 		<>
-			<Button
-				onClick={onOpen}
-				ml={"15px"}
-				mt={"4px"}
-				size={"xs"}
-				colorScheme={isReviewSubmitted ? "dark" : "teal"}
-				bg={isReviewSubmitted ? "teal.200" : "teal"}
-				color={isReviewSubmitted ? "white" : "white"}
-				borderRadius={"20px"}
-				w={"90px"}
-			>
+			<Button onClick={onOpen} ml={"15px"} mt={"4px"} size={"xs"} colorScheme="teal" borderRadius={"20px"} w={"90px"}>
 				<Box mt={"1px"} mr={"5px"}>
 					<MdOutlineRateReview />
 				</Box>
@@ -131,7 +120,6 @@ export default function ReviewModal({ id, quantity, invoice }) {
 											progress: undefined,
 											theme: "dark",
 										});
-										setReviewSubmitted(true);
 										onClose();
 									} catch (error) {
 										toast.error(error.response.data.message, {
