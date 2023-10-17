@@ -209,6 +209,8 @@ module.exports = {
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1d" });
 
+			await users.update({ token }, { where: { id: result.id } })
+
 			const data = fs.readFileSync(path.join(__dirname, "../templates/resetPassword.html"), "utf-8"); 
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: result.username, token });
@@ -233,23 +235,29 @@ module.exports = {
 		}
 	},
 	resetPassword: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
 			const isTokenExist = await tokenVerification.findOne({
 				where: { token: req.token },
 			});
-			if (isTokenExist) throw { message: "Verification link is expired." };
+			const checkUser = await users.findOne({ where: { id: req.user.id } });
+			if (isTokenExist || checkUser.token !== req.token) throw { message: "Verification link is expired." };
+			
 			await tokenVerification.create({
 				token: req.token,
-			});
+			}, { transaction });
+
 			const salt = await bcrypt.genSalt(10);
 			const hashPassword = await bcrypt.hash(req.body.password, salt);
-			users.update({ password: hashPassword }, { where: { id: req.user.id } });
+			await users.update({ password: hashPassword, token: null }, { where: { id: req.user.id }, transaction });
 
+			await transaction.commit();
 			res.status(200).send({
 				status: true,
 				message: "Reset password successful.",
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
