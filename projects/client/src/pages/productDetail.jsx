@@ -279,15 +279,17 @@ const ProductDetail = () => {
 	};
 
 	const processDiscount = async () => {
-		if (discountData !== null) {
-			if (discountData.type === "Numeric") {
+		if (discountData) {
+			if (discountData?.type === "Numeric") {
 				setNewPrice(parseInt(product.price, 10) - parseInt(discountData.nominal, 10));
 			}
-			if (discountData.type === "Percentage") {
+			if (discountData?.type === "Percentage") {
 				setNewPrice(
 					parseInt(product.price, 10) - parseInt(product.price, 10) * (parseInt(discountData.nominal, 10) / 100)
 				);
 			}
+		} else {
+			return;
 		}
 	};
 

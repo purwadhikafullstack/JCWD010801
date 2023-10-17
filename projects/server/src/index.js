@@ -1,4 +1,5 @@
-require("dotenv/config");
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
 const { join } = require("path");
@@ -32,7 +33,7 @@ const {
 
 server.use(cors());
 server.use(express.json());
-server.use(express.static("./src/public"));
+server.use("/", express.static(__dirname + "/public"));
 
 //#region API ROUTES
 // ===========================

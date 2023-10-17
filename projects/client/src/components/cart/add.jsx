@@ -56,7 +56,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 				});
 			}
 		} catch (err) {
-			if (!token)
+			if (!token) {
 				toast.error(`You need to sign in first.`, {
 					position: "top-center",
 					autoClose: 3000,
@@ -66,7 +66,8 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 					progress: undefined,
 					theme: "dark",
 				});
-			else if (+err.response.data.status === 403) {
+			}
+			if (+err.response.data.status === 403) {
 				toast.error(err.response.data.message, {
 					position: "top-center",
 					autoClose: 3000,
@@ -161,7 +162,8 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 							<Icon as={HiOutlineExclamationCircle} w="14" h="14" />
 							<Heading>Abandon Cart ?</Heading>
 							<Text textAlign={"center"} fontWeight={"light"}>
-								You currently have an active cart in another branch. Are you sure you want to switch branch. Your cart will be cleared if you switch your branch location.
+								You currently have an active cart in another branch. Are you sure you want to switch branch. Your cart
+								will be cleared if you switch your branch location.
 							</Text>
 							<Flex w="100%" justifyContent={"center"} gap={3}>
 								<Button onClick={onClose}>Cancel</Button>

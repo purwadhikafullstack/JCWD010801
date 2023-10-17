@@ -1,3 +1,4 @@
+const path = require("path");
 const router = require("express").Router();
 const { userControllers } = require("../controllers");
 const { verifyToken } = require("../middlewares/auth");
@@ -6,7 +7,7 @@ const { multerUpload } = require("../middlewares/multer");
 
 router.post("/", checkRegister, userControllers.register);
 router.post("/login", userControllers.login);
-router.post("/avatar", verifyToken, multerUpload(`./src/public/avatars`, 'AV-IMG').single("file"), userControllers.updateAvatar);
+router.post("/avatar", verifyToken, multerUpload(path.join(__dirname, "../public/avatars"), 'AV-IMG').single("file"), userControllers.updateAvatar);
 router.get("/keeplogin", verifyToken, userControllers.keepLogin);
 router.put("/", checkEmail, userControllers.forgotPassword);
 router.patch("/verification", verifyToken, userControllers.verificationAccount);
