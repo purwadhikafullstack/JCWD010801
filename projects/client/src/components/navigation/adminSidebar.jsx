@@ -56,7 +56,8 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 	return (
 		<>
 			<Flex
-				position={navPosProp || null}
+				position={navPosProp || "sticky"}
+				top={0}
 				w={navSize === "small" ? "100px" : "170px"}
 				transition="all 3s ease-in-out"
 				minH={height || "100vh"}
