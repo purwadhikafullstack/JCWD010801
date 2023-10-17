@@ -17,7 +17,7 @@ import { setValue } from "../../redux/userSlice";
 import { sidebarEvent } from "../../events/sidebarEvent";
 import { MdOutlineDiscount } from "react-icons/md";
 
-export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
+export const AdminSidebar = ({ height, navSizeProp, navPosProp, topProp }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state?.user?.value);
@@ -56,8 +56,8 @@ export const AdminSidebar = ({ height, navSizeProp, navPosProp }) => {
 	return (
 		<>
 			<Flex
-				position={navPosProp || "sticky"}
-				top={0}
+				position={navPosProp || null}
+				top={topProp || null}
 				w={navSize === "small" ? "100px" : "170px"}
 				transition="all 3s ease-in-out"
 				minH={height || "100vh"}
