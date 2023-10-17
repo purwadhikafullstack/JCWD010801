@@ -1,3 +1,4 @@
+const path = require("path");
 const db = require("../models");
 const users = db.Users;
 const user_vouchers = db.User_vouchers;
@@ -138,7 +139,7 @@ module.exports = {
 
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
-			const data = fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
+			const data = fs.readFileSync(path.join(__dirname, "../templates/templateVerification.html"), "utf-8"); 
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username, token });
 			transporter.sendMail({
@@ -208,8 +209,8 @@ module.exports = {
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1d" });
 
-			const data = await fs.readFileSync("./src/templates/resetPassword.html", "utf-8");
-			const tempCompile = await handlebars.compile(data);
+			const data = fs.readFileSync(path.join(__dirname, "../templates/resetPassword.html"), "utf-8"); 
+			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: result.username, token });
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,
@@ -295,7 +296,7 @@ module.exports = {
 			const result = await users.update({ email, isVerified: false }, { where: { id: isAccountExist.id } });
 			const payload = { id: req.user.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "1h" });
-			const data = fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
+			const data = fs.readFileSync(path.join(__dirname, "../templates/templateVerification.html"), "utf-8"); 
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({
 				link: process.env.REACT_APP_BASE_URL,
@@ -390,8 +391,8 @@ module.exports = {
 			});
 			const payload = { id: result.id };
 			const token = jwt.sign(payload, process.env.KEY_JWT, { expiresIn: "5m" });
-			const data = await fs.readFileSync("./src/templates/templateVerification.html", "utf-8");
-			const tempCompile = await handlebars.compile(data);
+			const data = fs.readFileSync(path.join(__dirname, "../templates/templateVerification.html"), "utf-8");
+			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL, username: result.username, token });
 			await transporter.sendMail({
 				from: process.env.NODEMAILER_USER,

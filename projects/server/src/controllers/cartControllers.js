@@ -64,10 +64,10 @@ module.exports = {
 			});
 
 			if (!cart_item) {
-				if (quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
-					quantity = checkProduct?.Stocks[0].currentStock;
-				} else if (quantity > checkProduct?.Stocks[0].currentStock) {
-					quantity = checkProduct?.Stocks[0].currentStock;
+				if (quantity > checkProduct?.Stocks[0]?.currentStock / 2 && checkProduct?.Discounts[0]?.type === "Extra") {
+					quantity = checkProduct?.Stocks[0]?.currentStock;
+				} else if (quantity > checkProduct?.Stocks[0]?.currentStock) {
+					quantity = checkProduct?.Stocks[0]?.currentStock;
 				}
 				await cartItems.create(
 					{
@@ -77,33 +77,36 @@ module.exports = {
 					},
 					{ transaction }
 				);
-				} else if (cart_item.quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
-					if ((checkProduct?.Stocks[0].currentStock / 2) % 2 === 1) {
-						await cartItems.update(
-							{ quantity: (checkProduct?.Stocks[0].currentStock / 2) + 1 },
-							{
-								where: {
-									CartId: result.id,
-									ProductId,
-								},
-								transaction,
-							}
-						)
-					} else {
-						await cartItems.update(
-							{ quantity: (checkProduct?.Stocks[0].currentStock / 2) },
-							{
-								where: {
-									CartId: result.id,
-									ProductId,
-								},
-								transaction,
-							}
-						)
-					}
-			} else if (cart_item.quantity >= checkProduct?.Stocks[0].currentStock) {
+			} else if (
+				cart_item.quantity > checkProduct?.Stocks[0]?.currentStock / 2 &&
+				checkProduct?.Discounts[0]?.type === "Extra"
+			) {
+				if ((checkProduct?.Stocks[0]?.currentStock / 2) % 2 === 1) {
+					await cartItems.update(
+						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 + 1 },
+						{
+							where: {
+								CartId: result.id,
+								ProductId,
+							},
+							transaction,
+						}
+					);
+				} else {
+					await cartItems.update(
+						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 },
+						{
+							where: {
+								CartId: result.id,
+								ProductId,
+							},
+							transaction,
+						}
+					);
+				}
+			} else if (cart_item.quantity >= checkProduct?.Stocks[0]?.currentStock) {
 				await cartItems.update(
-					{ quantity: checkProduct?.Stocks[0].currentStock },
+					{ quantity: checkProduct?.Stocks[0]?.currentStock },
 					{
 						where: {
 							CartId: result.id,
@@ -117,7 +120,7 @@ module.exports = {
 
 				return res.status(400).send({
 					status: "Exceed",
-					message: `You are trying to add ${quantity} ${checkProduct.productName} into your cart. You already have ${cart_item.quantity} units in your cart and only ${checkProduct?.Stocks[0].currentStock} units are available.`,
+					message: `You are trying to add ${quantity} ${checkProduct.productName} into your cart. You already have ${cart_item.quantity} units in your cart and only ${checkProduct?.Stocks[0]?.currentStock} units are available.`,
 					checkProduct,
 				});
 			} else if (cart_item) {
@@ -236,12 +239,17 @@ module.exports = {
 					group: ["Cart_items.id"],
 				});
 
-				let subtotal = 0
+				let subtotal = 0;
 				for (let { Product, quantity } of cart_items) {
-					if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1 && Product?.Stocks[0]?.currentStock === quantity ) quantity = quantity / 2 + 0.5
-					else if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1 ) quantity = quantity / 2
-					else if ( Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 0 ) quantity = quantity / 2
-					subtotal = subtotal + ( quantity * Product.price )
+					if (
+						Product?.Discounts[0]?.type === "Extra" &&
+						quantity % 2 === 1 &&
+						Product?.Stocks[0]?.currentStock === quantity
+					)
+						quantity = quantity / 2 + 0.5;
+					else if (Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1) quantity = quantity / 2;
+					else if (Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 0) quantity = quantity / 2;
+					subtotal = subtotal + quantity * Product.price;
 				}
 
 				res.status(200).send({
@@ -253,7 +261,7 @@ module.exports = {
 				});
 			}
 		} catch (err) {
-			console.log(err)
+			console.log(err);
 			res.status(500).send({
 				status: false,
 				message: "Internal server error",
@@ -272,15 +280,18 @@ module.exports = {
 
 			await cartItems.destroy({
 				where: { CartId: cart.id },
-				transaction
+				transaction,
 			});
 
-			await carts.update({ BranchId: req.body.BranchId }, {
+			await carts.update(
+				{ BranchId: req.body.BranchId },
+				{
 					where: {
-						id: cart.id
+						id: cart.id,
 					},
-					transaction
-			});
+					transaction,
+				}
+			);
 
 			await transaction.commit();
 
@@ -390,7 +401,7 @@ module.exports = {
 			});
 
 			await cartItems.destroy({
-				where: { CartId: cart.id }
+				where: { CartId: cart.id },
 			});
 
 			res.status(200).send({
