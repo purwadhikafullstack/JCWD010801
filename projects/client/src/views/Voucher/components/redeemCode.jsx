@@ -5,9 +5,12 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useDispatch } from "react-redux";
+import { setVoucherInfo } from "../../../redux/voucherSlice";
 
 export const RedeemCode = () => {
     const token = localStorage.getItem("token");
+    const dispatch = useDispatch();
 
     const codeSchema = Yup.object().shape({
         code: Yup.string().required()
@@ -20,6 +23,9 @@ export const RedeemCode = () => {
                     authorization: `Bearer ${token}`
                 }
             });
+            const { name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId } = result?.data?.result
+            dispatch(setVoucherInfo({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }))
+            console.log(result.data.result)
             toast.success(`Voucher "${result.data.voucher}" redeemed`, {
                 position: "top-center",
                 autoClose: 2500,

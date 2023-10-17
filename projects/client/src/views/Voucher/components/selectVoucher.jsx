@@ -48,18 +48,18 @@ export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
 	// Array.prototype.map() expects a return value from arrow function array-callback-return
 
 	const checkMissingRequirementType = () => {
-		if (voucher.minPay && voucher.minPay > subtotal) {
-			return `Minimum subtotal: Rp. ${voucher.minPay?.toLocaleString("id-ID")}`;
-		} else if (voucher.type === "Single item") {
+		if (voucher?.minPay && voucher?.minPay > subtotal) {
+			return `Minimum subtotal: Rp. ${voucher?.minPay?.toLocaleString("id-ID")}`;
+		} else if (voucher?.type === "Single item") {
 			let booleanCheck = false;
 			items?.map(({ ProductId }) => {
-				if (ProductId === voucher.ProductId) {
+				if (ProductId === voucher?.ProductId) {
 					booleanCheck = true;
 				}
 				return null;
 			});
 			if (!booleanCheck) {
-				return `You need to have ${voucher.Product.productName} in your cart in order to use this voucher`;
+				return `You need to have ${voucher?.Product?.productName} in your cart in order to use this voucher`;
 			}
 		}
 		return null;
@@ -93,8 +93,8 @@ export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
 					<Icon
 						_hover={{ color: "red.400" }}
 						zIndex={10}
-						onClick={voucher.name ? removeVoucher : null}
-						as={voucher.name ? RxCrossCircled : MdKeyboardArrowRight}
+						onClick={voucher?.name ? removeVoucher : null}
+						as={voucher?.name ? RxCrossCircled : MdKeyboardArrowRight}
 						w="8"
 						h="8"
 						color={checkRequirements ? "red.600" : "lightgray"}

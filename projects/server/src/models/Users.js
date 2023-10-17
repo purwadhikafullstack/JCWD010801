@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
 			isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
 			isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
 			referralCode: DataTypes.STRING,
+			token: { type: DataTypes.STRING, allowNull: true },
 		},
 		{
 			sequelize,

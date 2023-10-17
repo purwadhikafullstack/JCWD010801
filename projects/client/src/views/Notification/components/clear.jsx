@@ -5,10 +5,13 @@ import { toast } from "react-toastify";
 import { BsTrash } from "react-icons/bs";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { ButtonTemp } from "../../../components/button";
+import { useDispatch } from "react-redux";
+import { refreshCart } from "../../../redux/cartSlice";
 
 export const ClearNotifications = ({ setReload }) => {
     const token = localStorage.getItem('token');
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const dispatch = useDispatch();
 
     const handleSubmit = async() => {
         try {
@@ -18,6 +21,7 @@ export const ClearNotifications = ({ setReload }) => {
                 }
             });
             setReload((reload) => !reload);
+            dispatch(refreshCart())
             onClose();
             toast.success("Notifications cleared", {
                 position: "top-right",

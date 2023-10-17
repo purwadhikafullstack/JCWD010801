@@ -81,11 +81,10 @@ export const VoucherTable = () => {
 			const endAvailableFrom = endAvailableFromRef.current.value;
 			const startValidUntil = startValidUntilRef.current.value;
 			const endValidUntil = endValidUntilRef.current.value;
-			console.log(page);
 			const { data } = await axios.get(
 				`${
 					process.env.REACT_APP_API_BASE_URL
-				}/voucher?limit=8&page=${page}search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${
+				}/voucher?page=${page}&limit=8&search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${
 					order ? "ASC" : "DESC"
 				}`,
 				{
@@ -94,7 +93,6 @@ export const VoucherTable = () => {
 					},
 				}
 			);
-			console.log(data.result);
 			setVouchers(data.result);
 			setTotal(data.total);
 			setTotalPages(data.totalPages);

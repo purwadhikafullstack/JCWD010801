@@ -33,6 +33,7 @@ export const Banner = () => {
 					height={{ base: "200px", md: "auto" }}
 					src={Banner0}
 					w={"500px"}
+					borderRadius={"10px"}
 					cursor={"pointer"}
 					onClick={() => navigate(`/search`)}
 				/>
@@ -40,9 +41,9 @@ export const Banner = () => {
 			<SwiperSlide>
 				<Image
 					height={{ base: "200px", md: "auto" }}
-					mt={{ base: "35px", md: "135px" }}
 					src={Banner1}
 					w={"500px"}
+					borderRadius={"10px"}
 					cursor={"pointer"}
 					onClick={() => navigate(`/search?cat=3`)}
 				/>
@@ -50,9 +51,9 @@ export const Banner = () => {
 			<SwiperSlide>
 				<Image
 					height={{ base: "200px", md: "auto" }}
-					mt={{ base: "20px", md: "75px" }}
 					src={Banner2}
 					w={"500px"}
+					borderRadius={"10px"}
 					cursor={"pointer"}
 					onClick={() => navigate(`/search?cat=4`)}
 				/>
@@ -60,9 +61,9 @@ export const Banner = () => {
 			<SwiperSlide>
 				<Image
 					height={{ base: "200px", md: "auto" }}
-					mt={{ base: "20px", md: "75px" }}
 					src={Banner3}
 					w={"500px"}
+					borderRadius={"10px"}
 					cursor={"pointer"}
 					onClick={() => navigate(`/search?cat=2`)}
 				/>

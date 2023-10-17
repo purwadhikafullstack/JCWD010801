@@ -393,7 +393,7 @@ export const UserOrdersList = () => {
 										</Button>
 									) : null}
 									{item.status === "Waiting payment" ? (
-										<UploadProofButton reload={reload} setReload={setReload} orderId={item?.id} />
+										<UploadProofButton date={item?.createdAt} branch={item?.Cart?.Branch?.name} amount={item?.total} reload={reload} setReload={setReload} orderId={item?.id} />
 									) : null}
 									{item.status === "Sent" ? (
 										<ConfirmButtonOrder2 reload={reload} setReload={setReload} orderId={item?.id} />
@@ -434,8 +434,8 @@ export const UserOrdersList = () => {
 											orderId={item?.id}
 											imgURL={item?.paymentProof}
 											date={item?.createdAt}
-											branch={"Bandung"}
-											amount={item.total}
+											branch={item?.Cart?.Branch?.name}
+											amount={item?.total}
 											status={item?.status}
 											invoice={item?.invoice}
 											reload={reload}
