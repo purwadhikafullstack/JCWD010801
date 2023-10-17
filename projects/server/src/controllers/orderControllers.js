@@ -1053,7 +1053,6 @@ module.exports = {
 				},
 				transaction,
 			};
-
 			if (VoucherId) {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
