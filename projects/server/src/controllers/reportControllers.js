@@ -52,18 +52,30 @@ module.exports = {
 			if (startDate && endDate) {
 				const startOfDay = new Date(startDate);
 				const endOfDay = new Date(endDate);
-				endOfDay.setHours(23, 59, 59, 999);
+
+				startOfDay.setHours(startOfDay.getHours() - 7);
+				endOfDay.setHours(endOfDay.getHours() - 7);
+				endOfDay.setMinutes(59);
+				endOfDay.setSeconds(59);
+				endOfDay.setMilliseconds(999);
+
 				condition.createdAt = {
 					[Op.between]: [startOfDay, endOfDay],
 				};
 			} else if (startDate) {
 				const startOfDay = new Date(startDate);
+
+				startOfDay.setHours(startOfDay.getHours() - 7);
 				condition.createdAt = {
 					[Op.gte]: startOfDay,
 				};
 			} else if (endDate) {
 				const endOfDay = new Date(endDate);
-				endOfDay.setHours(23, 59, 59, 999);
+				endOfDay.setHours(endOfDay.getHours() - 7);
+				endOfDay.setMinutes(59);
+				endOfDay.setSeconds(59);
+				endOfDay.setMilliseconds(999);
+
 				condition.createdAt = {
 					[Op.lte]: endOfDay,
 				};
