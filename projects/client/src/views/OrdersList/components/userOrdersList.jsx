@@ -356,7 +356,14 @@ export const UserOrdersList = () => {
 												Total amount
 											</Text>
 											<Text textAlign={["start", "end"]} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												{formatRupiah(item.subtotal)} - {formatRupiah(item.discount)}
+												{formatRupiah(item.subtotal)}
+												{item.discount === 0 || item.discount === null ? null : (
+													<>
+														{" "}
+														{" - "}
+														{formatRupiah(item.discount)}
+													</>
+												)}
 											</Text>
 											<Text textAlign={["start", "end"]} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
 												{formatRupiah(item.total)}
@@ -369,6 +376,7 @@ export const UserOrdersList = () => {
 								<Flex>
 									{item.status === "Received" ? (
 										<Button
+											size={["sm", "md"]}
 											as={Link}
 											to={"/search"}
 											my={"auto"}

@@ -76,11 +76,11 @@ export const UploadProofButton = ({ orderId, date, branch, amount, reload, setRe
 
 	return (
 		<>
-			<Button my={"auto"} mr={"10px"} onClick={onOpen} colorScheme="yellow" color={"red.600"}>
+			<Button size={["sm", "md"]} my={"auto"} mr={"10px"} onClick={onOpen} colorScheme="yellow" color={"red.600"}>
 				<Flex mr={"5px"}>
 					<BiUpload />
 				</Flex>
-				Upload Payment Proof
+				Upload Payment
 			</Button>
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
