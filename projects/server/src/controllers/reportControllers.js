@@ -54,7 +54,7 @@ module.exports = {
 				const endOfDay = new Date(endDate);
 
 				startOfDay.setHours(startOfDay.getHours() - 7);
-				endOfDay.setHours(endOfDay.getHours() + 17);
+				endOfDay.setHours(endOfDay.getHours() + 16);
 				endOfDay.setMinutes(59);
 				endOfDay.setSeconds(59);
 				endOfDay.setMilliseconds(999);
@@ -71,7 +71,7 @@ module.exports = {
 				};
 			} else if (endDate) {
 				const endOfDay = new Date(endDate);
-				endOfDay.setHours(endOfDay.getHours() + 17);
+				endOfDay.setHours(endOfDay.getHours() + 16);
 				endOfDay.setMinutes(59);
 				endOfDay.setSeconds(59);
 				endOfDay.setMilliseconds(999);
