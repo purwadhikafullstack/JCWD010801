@@ -105,7 +105,7 @@ function Pagination({
 						onChange={(value) => {
 							let page = parseInt(value, 10);
 							if (isNaN(page)) {
-								page = pageCount;
+								page = pageIndex + 1;
 							} else {
 								page = Math.min(Math.max(page, 1), pageCount);
 							}
