@@ -687,7 +687,7 @@ module.exports = {
 			} else if (sortBy === "txCount") {
 				orderCriteria.push([
 					Sequelize.literal(
-						`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+						`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = Products.id AND
                 StockMovements.isAddition = false AND
                 StockMovements.isAdjustment = false AND
                 StockMovements.isInitialization = false AND
@@ -698,7 +698,7 @@ module.exports = {
 			} else if (sortBy === "failedTxCount") {
 				orderCriteria.push([
 					Sequelize.literal(
-						`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+						`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = Products.id AND
                 StockMovements.isAddition = true AND
                 StockMovements.isAdjustment = false AND
                 StockMovements.isInitialization = false AND
@@ -726,7 +726,7 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = Products.id AND
 								StockMovements.isAddition = false AND
 								StockMovements.isAdjustment = false AND
 								StockMovements.isInitialization = false AND
@@ -742,7 +742,7 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = Products.id AND
 								StockMovements.isAddition = true AND
 								StockMovements.isAdjustment = false AND
 								StockMovements.isInitialization = false AND
