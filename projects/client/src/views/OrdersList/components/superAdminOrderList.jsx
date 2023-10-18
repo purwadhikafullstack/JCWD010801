@@ -34,7 +34,7 @@ export const SuperAdminOrdersList = () => {
 	const [totalPage, setTotalPage] = useState(1);
 	const [sort, setSort] = useState("DESC");
 	const [reload, setReload] = useState(false);
-	const navigate = useNavigate("")
+	const navigate = useNavigate("");
 	const token = localStorage.getItem("token");
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -427,8 +427,15 @@ export const SuperAdminOrdersList = () => {
 												<Text textAlign={"end"} color={"gray.500"} fontSize={"15px"}>
 													Total amount
 												</Text>
-												<Text textAlign={"end"} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-													{formatRupiah(item.subtotal)} - {formatRupiah(item.discount)}
+												<Text textAlign={["start", "end"]} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
+													{formatRupiah(item.subtotal)}
+													{item.discount === 0 || item.discount === null ? null : (
+														<>
+															{" "}
+															{" - "}
+															{formatRupiah(item.discount)}
+														</>
+													)}
 												</Text>
 												<Text textAlign={"end"} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
 													{formatRupiah(item.total)}

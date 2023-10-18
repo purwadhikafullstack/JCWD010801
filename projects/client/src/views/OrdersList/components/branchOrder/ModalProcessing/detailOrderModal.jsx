@@ -50,6 +50,7 @@ export const DetailProcessModal = ({
 	return (
 		<>
 			<Button
+				size={["sm", "md"]}
 				my={"auto"}
 				mr={"5px"}
 				backgroundColor={"blue.900"}
@@ -72,7 +73,7 @@ export const DetailProcessModal = ({
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader bg={"black"} color={"white"}>
+					<ModalHeader  borderTopRadius={"6px"} bg={"black"} color={"white"}>
 						Detail Order
 					</ModalHeader>
 					<ModalCloseButton color={"white"} />
@@ -137,12 +138,14 @@ export const DetailProcessModal = ({
 									{formatRupiah(subtotal)}
 								</Text>
 							</Flex>
-							<Flex mt={"5px"} justifyContent={"space-between"}>
-								<Text fontWeight={"semibold"}>Discount</Text>
-								<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
-									{discount} %
-								</Text>
-							</Flex>
+							{discount === 0 || discount === null ? null : (
+								<Flex mt={"5px"} justifyContent={"space-between"}>
+									<Text fontWeight={"semibold"}>Discount</Text>
+									<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>
+										<>{formatRupiah(discount)}</>
+									</Text>
+								</Flex>
+							)}
 							<Flex mt={"5px"} justifyContent={"space-between"}>
 								<Text fontWeight={"semibold"}>Tax</Text>
 								<Text fontFamily={"serif"} fontSize={"15px"} color={"balck"}>

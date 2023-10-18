@@ -356,7 +356,14 @@ export const UserOrdersList = () => {
 												Total amount
 											</Text>
 											<Text textAlign={["start", "end"]} color={"gray.500"} fontWeight={"bold"} fontSize={"11px"}>
-												{formatRupiah(item.subtotal)} - {formatRupiah(item.discount)}
+												{formatRupiah(item.subtotal)}
+												{item.discount === 0 || item.discount === null ? null : (
+													<>
+														{" "}
+														{" - "}
+														{formatRupiah(item.discount)}
+													</>
+												)}
 											</Text>
 											<Text textAlign={["start", "end"]} color={"black"} fontWeight={"bold"} fontSize={"18px"}>
 												{formatRupiah(item.total)}
@@ -369,6 +376,7 @@ export const UserOrdersList = () => {
 								<Flex>
 									{item.status === "Received" ? (
 										<Button
+											size={["sm", "md"]}
 											as={Link}
 											to={"/search"}
 											my={"auto"}
@@ -393,7 +401,14 @@ export const UserOrdersList = () => {
 										</Button>
 									) : null}
 									{item.status === "Waiting payment" ? (
-										<UploadProofButton date={item?.createdAt} branch={item?.Cart?.Branch?.name} amount={item?.total} reload={reload} setReload={setReload} orderId={item?.id} />
+										<UploadProofButton
+											date={item?.createdAt}
+											branch={item?.Cart?.Branch?.name}
+											amount={item?.total}
+											reload={reload}
+											setReload={setReload}
+											orderId={item?.id}
+										/>
 									) : null}
 									{item.status === "Sent" ? (
 										<ConfirmButtonOrder2 reload={reload} setReload={setReload} orderId={item?.id} />
