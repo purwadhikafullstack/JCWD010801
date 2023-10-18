@@ -32,7 +32,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 		try {
 			const { data } = await axios.post(
 				`${process.env.REACT_APP_API_BASE_URL}/cart`,
-				{ ProductId, quantity: ( type === "Extra" ? quantity * 2 : quantity ), BranchId },
+				{ ProductId, quantity: type === "Extra" ? quantity * 2 : quantity, BranchId },
 				{
 					headers: {
 						authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 				onOpen();
 			} else {
 				dispatch(refreshCart());
-				toast.success(`${type === "Extra" ? `${quantity} + ${quantity}` : quantity} ${name} added to cart`, {
+				toast.success(`${quantity} ${name} added to cart`, {
 					position: "top-center",
 					autoClose: 4000,
 					hideProgressBar: false,

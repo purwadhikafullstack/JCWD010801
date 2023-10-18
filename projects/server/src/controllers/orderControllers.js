@@ -1,4 +1,3 @@
-const path = require("path");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Axios = require("axios");
@@ -533,7 +532,7 @@ module.exports = {
 		}
 	},
 	paymentConfirmation: async (req, res) => {
-		const transaction = await db.sequelize.transaction();
+		// const transaction = await db.sequelize.transaction();
 		try {
 			const orderId = req.params.id;
 			const order = await orders.findOne({ where: { id: orderId }, include: [{ model: carts }] });
@@ -547,107 +546,78 @@ module.exports = {
 					message: "Order cannot be updated to 'Processing'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Processing" }, { where: { id: orderId }, transaction });
-			await notifications.create(
-				{
-					type: "Transaction",
-					name: "Payment Confirmation Accepted",
-					description: `The payment for your order on 
-				${new Date(order.createdAt)?.toLocaleDateString("en-US", {
-					day: "numeric",
-					month: "long",
-					year: "numeric",
-					hour: "2-digit",
-					minute: "2-digit",
-				})}
-				has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
-					UserId: order.Cart.UserId,
-				},
-				{ transaction }
-			);
+			await orders.update({ status: "Processing", paymentProof: null }, { where: { id: orderId } });
+			// await notifications.create({
+			// 	type: "Transaction",
+			// 	name: "Payment Confirmation Accepted",
+			// 	description: `The payment for your order on
+			// 	${new Date(order.createdAt)?.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+			// 	has been confirmed. We are currently processing your order. Thank you for shopping with us!`,
+			// 	UserId: order.Cart.UserId
+			// }, { transaction })
 
-			//Free shipment voucher
-			const countOrder = await orders.count({
-				where: {
-					status: "Processing",
-				},
-				include: [
-					{
-						model: carts,
-						where: { UserId: order.Cart.UserId },
-					},
-				],
-			});
-			const freeShipmentVoucher = await vouchers.findOne({
-				where: {
-					name: { [Op.like]: `Free Shipment%` },
-					availableFrom: { [Op.lte]: new Date(Date.now()) },
-					validUntil: { [Op.gte]: new Date(Date.now()) },
-				},
-			});
+			// //Free shipment voucher
+			// const countOrder = await orders.count({
+			//     where: {
+			//         UserId: order.Cart.UserId,
+			//         status: "Processing"
+			//     }
+			// });
+			// const freeShipmentVoucher = await vouchers.findOne({
+			//     where: {
+			//         name: { [Op.like]: `Free Shipment%` },
+			//         availableFrom: { [Op.lte]: new Date(Date.now()) },
+			//         validUntil: { [Op.gte]: new Date(Date.now()) }
+			//     }
+			// })
+			// const freeShipmentVoucherCheck = await user_vouchers.findOne({
+			//     where: {
+			//         UserId: order.Cart.UserId,
+			//         VoucherId: freeShipmentVoucher.id
+			//     }
+			// });
+			// if ( countOrder % 3 === 0 && !freeShipmentVoucherCheck ) {
+			//     await user_vouchers.create({
+			//         UserId: order.Cart.UserId,
+			//         VoucherId: freeShipmentVoucher.id,
+			//         amount: 1
+			//     }, { transaction });
+			// 	await notifications.create({
+			// 		type: "Discount",
+			// 		name: "Thank you for choosing us!",
+			// 		description: `Thank you, our loyal customer, for shopping with us!
+			// 		As a token of gratitude, you've received a free shipment voucher.
+			// 		We love having customers like you, and your support means everything to us.`,
+			// 		UserId: order.Cart.UserId
+			// 	})
+			// }
+			// else if ( countOrder % 3 === 0 && freeShipmentVoucherCheck ) {
+			//     await user_vouchers.update({
+			//         amount: freeShipmentVoucherCheck.amount + 1
+			//     }, {
+			//         where: {
+			//             UserId: order.Cart.UserId,
+			//             VoucherId: freeShipmentVoucher.id
+			//         }
+			//     }, { transaction });
+			// 	await notifications.create({
+			// 		type: "Discount",
+			// 		name: "Thank you for choosing us!",
+			// 		description: `Thank you, our loyal customer, for shopping with us!
+			// 		As a token of gratitude, you've received a free shipment voucher.
+			// 		We love having customers like you, and your support means everything to us.`,
+			// 		UserId: order.Cart.UserId
+			// 	})
+			// }
 
-			const freeShipmentVoucherCheck = await user_vouchers.findOne({
-				where: {
-					UserId: order?.Cart?.UserId,
-					VoucherId: freeShipmentVoucher?.id || null,
-				},
-				attributes: { exclude: ["id"] },
-			});
-
-			if (countOrder + (1 % 3) === 0 && !freeShipmentVoucherCheck) {
-				await user_vouchers.create(
-					{
-						UserId: order.Cart.UserId,
-						VoucherId: freeShipmentVoucher?.id,
-						amount: 1,
-					},
-					{ transaction }
-				);
-				await notifications.create(
-					{
-						type: "Discount",
-						name: "Thank you for choosing us!",
-						description: `Thank you, our loyal customer, for shopping with us!
-					As a token of gratitude, you've received a free shipment voucher.
-					We love having customers like you, and your support means everything to us.`,
-						UserId: order.Cart.UserId,
-					},
-					{ transaction }
-				);
-			} else if (countOrder + (1 % 3) === 0 && freeShipmentVoucherCheck) {
-				await user_vouchers.update(
-					{
-						amount: freeShipmentVoucherCheck?.amount + 1,
-					},
-					{
-						where: {
-							UserId: order.Cart.UserId,
-							VoucherId: freeShipmentVoucher?.id,
-						},
-					},
-					{ transaction }
-				);
-				await notifications.create(
-					{
-						type: "Discount",
-						name: "Thank you for choosing us!",
-						description: `Thank you, our loyal customer, for shopping with us!
-					As a token of gratitude, you've received a free shipment voucher.
-					We love having customers like you, and your support means everything to us.`,
-						UserId: order.Cart.UserId,
-					},
-					{ transaction }
-				);
-			}
-
-			await transaction.commit();
+			// await transaction.commit();
 
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Processing' successfully",
 			});
 		} catch (error) {
-			await transaction.rollback();
+			// await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -731,7 +701,7 @@ module.exports = {
 			);
 			await transaction.commit();
 
-			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
@@ -756,6 +726,95 @@ module.exports = {
 	processingToSent: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
 		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Sent") {
+				return res.status(400).send({
+					message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+				});
+			}
+			await orders.update({ status: "Received" }, { where: { id: orderId } });
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Received' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	rejectPaymentProof: async (req, res) => {
+		try {
+			const orderId = req.params.id;
+			const order = await orders.findOne({
+				where: { id: orderId },
+				include: [
+					{
+						model: carts,
+						include: [
+							{
+								model: users,
+							},
+						],
+					},
+				],
+			});
+			if (!order) {
+				return res.status(404).send({
+					message: "Order not found",
+				});
+			}
+			if (order.status !== "Pending payment confirmation") {
+				return res.status(400).send({
+					message:
+						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+				});
+			}
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+			const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+			const tempCompile = handlebars.compile(data);
+			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+			transporter.sendMail({
+				from: process.env.NODEMAILER_USER,
+				to: order.Cart.User.email,
+				subject: "Please Reupload Your Payment Proof",
+				html: tempResult,
+			});
+			res.status(200).send({
+				status: true,
+				message: "Order updated to 'Rejected' successfully",
+			});
+		} catch (error) {
+			return res.status(500).send({
+				error,
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	processingToSent: async (req, res) => {
+		try {
+			const transaction = await db.sequelize.transaction();
 			const orderId = req.params.id;
 			const order = await orders.findOne({
 				where: { id: orderId },
@@ -809,7 +868,7 @@ module.exports = {
 			);
 			await transaction.commit();
 
-			const data = fs.readFileSync(path.join(__dirname, "../templates/sentOrder.html"), "utf-8"); 
+			const data = fs.readFileSync("./src/templates/sentOrder.html", "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({
 				link: process.env.REACT_APP_BASE_URL,
@@ -826,154 +885,6 @@ module.exports = {
 				status: true,
 				invoiceNumber: invoiceNumber,
 				message: "Order updated to 'Sent' successfully",
-			});
-		} catch (error) {
-			await transaction.rollback();
-			return res.status(500).send({
-				error,
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
-	rejectPaymentProof: async (req, res) => {
-		const transaction = await db.sequelize.transaction();
-		try {
-			const orderId = req.params.id;
-			const order = await orders.findOne({
-				where: { id: orderId },
-				include: [
-					{
-						model: carts,
-						include: [
-							{
-								model: users,
-							},
-						],
-					},
-				],
-			});
-			if (!order) {
-				return res.status(404).send({
-					message: "Order not found",
-				});
-			}
-			if (order.status !== "Pending payment confirmation") {
-				return res.status(400).send({
-					message:
-						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
-				});
-			}
-			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId }, transaction });
-			await notifications.create(
-				{
-					type: "Transaction",
-					name: "Payment Proof Rejected",
-					description: `The payment proof for your order on 
-				${new Date(order.createdAt)?.toLocaleDateString("en-US", {
-					day: "numeric",
-					month: "long",
-					year: "numeric",
-					hour: "2-digit",
-					minute: "2-digit",
-				})}
-				has been rejected. 
-				Your order will be automatically cancelled within 24 hours. Please upload another proof as soon as possible. Thank you.`,
-					UserId: order.Cart.UserId,
-				},
-				{ transaction }
-			);
-
-			// Auto cancel order 90 seconds
-			const autoCancelTime = new Date(Date.now() + 90000);
-			schedule.scheduleJob(autoCancelTime, async () => {
-				const transaction = await db.sequelize.transaction();
-				try {
-					const ord = await orders.findOne(
-						{
-							where: { id: orderId },
-							include: { model: carts },
-						},
-						{ transaction }
-					);
-
-					if (!ord.paymentProof) {
-						await orders.update({ status: "Cancelled" }, { where: { id: ord.id }, transaction });
-
-						const result = await order_details.findAll({ where: { OrderId: ord.id } });
-
-						for (const { ProductId, quantity } of result) {
-							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
-							const product = await products.findOne({
-								where: {
-									id: ProductId,
-								},
-							});
-
-							await product.increment(
-								{
-									aggregateStock: parseInt(quantity, 10),
-								},
-								{
-									where: {
-										id: ProductId,
-									},
-									transaction,
-								}
-							);
-
-							const newBranchStock = parseInt(currentStock, 10) + parseInt(quantity, 10);
-
-							await stockMovements.create(
-								{
-									ProductId: ProductId,
-									BranchId: ord.Cart.BranchId,
-									oldValue: currentStock,
-									newValue: parseInt(newBranchStock, 10),
-									change: parseInt(quantity, 10),
-									isAddition: true,
-									isAdjustment: false,
-									isInitialization: false,
-									isBranchInitialization: false,
-									UserId: ord.Cart.UserId,
-								},
-								{ transaction }
-							);
-
-							await stocks.increment(
-								{
-									currentStock: parseInt(quantity, 10),
-								},
-								{
-									where: {
-										ProductId,
-										BranchId: ord.Cart.BranchId,
-									},
-									transaction,
-								}
-							);
-						}
-					}
-					await transaction.commit();
-				} catch (err) {
-					console.log(err)
-					await transaction.rollback();
-				}
-			});
-
-			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
-			const tempCompile = handlebars.compile(data);
-			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
-			transporter.sendMail({
-				from: process.env.NODEMAILER_USER,
-				to: order.Cart.User.email,
-				subject: "Please Reupload Your Payment Proof",
-				html: tempResult,
-			});
-			await transaction.commit();
-			res.status(200).send({
-				status: true,
-				message: "Order updated to 'Rejected' successfully",
 			});
 		} catch (error) {
 			await transaction.rollback();
@@ -1035,7 +946,7 @@ module.exports = {
 				{ transaction }
 			);
 
-			const data = fs.readFileSync(path.join(__dirname, "../templates/cancelOrderAdmin.html"), "utf-8");
+			const data = fs.readFileSync("./src/templates/cancelOrderAdmin.html", "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
@@ -1137,13 +1048,6 @@ module.exports = {
 			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } =
 				req.body;
 
-			const cartCheckedOut = await carts.findOne({
-				where: {
-					UserId: req.user.id,
-					status: "ACTIVE",
-				},
-			});
-
 			// Use voucher
 			const filter = {
 				where: {
@@ -1156,12 +1060,17 @@ module.exports = {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if (cartCheckedOut.BranchId !== voucherTypeCheck.BranchId)
-					return res.status(400).send({ status: false, message: "Voucher is not applicable on this branch" });
 				if (voucherTypeCheck.minimumPayment > subtotal)
 					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
 			}
+
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+			});
 
 			const orderedItems = await cartItems.findAll({
 				where: {
@@ -1268,8 +1177,8 @@ module.exports = {
 				}
 			);
 
-			// Auto cancel order in 90 seconds
-			const autoCancelTime = new Date(Date.now() + 90000);
+			// Auto cancel order 5 minutes
+			const autoCancelTime = new Date(Date.now() + 60000);
 			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
@@ -1475,6 +1384,32 @@ module.exports = {
 				message: "Internal server error.",
 			});
 		}
+	},
+	userAutoConfirmOrder: async (req, res) => {
+		const autoConfirmTime = new Date(Date.now() + 604800000);
+		schedule.scheduleJob(autoConfirmTime, async () => {
+			try {
+				const ord = await orders.findOne({
+					where: { id: req.params.id },
+					include: { model: carts },
+				});
+
+				if (ord.status === "Sent") {
+					await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
+
+					res.status(200).send({
+						status: true,
+						message: "Order confirmed",
+					});
+				}
+			} catch (err) {
+				return res.status(500).send({
+					err,
+					status: 500,
+					message: "Internal server error.",
+				});
+			}
+		});
 	},
 	address: async (req, res) => {
 		try {
