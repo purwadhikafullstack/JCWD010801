@@ -32,7 +32,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 		try {
 			const { data } = await axios.post(
 				`${process.env.REACT_APP_API_BASE_URL}/cart`,
-				{ ProductId, quantity: ( type === "Extra" ? quantity * 2 : quantity ), BranchId },
+				{ ProductId, quantity: type === "Extra" ? quantity * 2 : quantity, BranchId },
 				{
 					headers: {
 						authorization: `Bearer ${token}`,

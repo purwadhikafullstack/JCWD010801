@@ -9,99 +9,107 @@ import { useDispatch } from "react-redux";
 import { refreshCart } from "../../../redux/cartSlice";
 
 export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
-    const token = localStorage.getItem('token');
-    const BranchId = localStorage.getItem("BranchId");
-    const quantityRef = useRef();
-    const dispatch = useDispatch();
+	const token = localStorage.getItem("token");
+	const BranchId = localStorage.getItem("BranchId");
+	const quantityRef = useRef();
+	const dispatch = useDispatch();
 
-    const handleUpdate = async() => {
-        try {
-            let quantity;
-            if (quantityRef.current.value === null) quantity = 1
-            else if (isExtra && stock % 2 === 1 && quantityRef.current.value * 2 > stock) quantity = (quantityRef.current.value * 2) - 1
-            else if (isExtra && stock % 2 === 0 && quantityRef.current.value * 2 > stock) quantity = quantityRef.current.value * 2
-            else if (isExtra) quantity = quantityRef.current.value * 2
-            else quantity = quantityRef.current.value;
-            console.log(quantity)
-            
-            await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cart`, { ProductId, quantity, BranchId }, {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
-            dispatch(refreshCart());
-        } catch (err) {
-            if ( err.response.data.message === "Promo product out of stock" ) {
-                quantityRef.current.value = +err.response.data.maxStock / 2
-                handleUpdate();
-            } else if ( err.response.data.message === "Product out of stock" ) {
-                quantityRef.current.value = +stock;
-                handleUpdate();
-            } else if ( err.response.data.message === "Minimum item 1" && quantityRef.current.value ) {
-                quantityRef.current.value = 1;
-                handleUpdate();
-            } else if ( quantityRef.current.value ) {
-                toast.error("Failed to update cart, please try again later.", {
-                    position: "top-center",
-                    autoClose: 2500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-            }
-        }
-    };
+	const handleUpdate = async () => {
+		try {
+			let quantity;
+			if (quantityRef.current.value === null) quantity = 1;
+			else if (isExtra && stock % 2 === 1 && quantityRef.current.value * 2 > stock)
+				quantity = quantityRef.current.value * 2 - 1;
+			else if (isExtra && stock % 2 === 0 && quantityRef.current.value * 2 > stock)
+				quantity = quantityRef.current.value * 2;
+			else if (isExtra) quantity = quantityRef.current.value * 2;
+			else quantity = quantityRef.current.value;
+			console.log(quantity);
 
-    const increaseQuantity = () => {
-        quantityRef.current.value = +quantityRef.current.value + 1
-        handleUpdate();
-    };
-    
-    const decreaseQuantity = () => {
-        quantityRef.current.value = quantityRef.current.value - 1
-        handleUpdate();
-    };
+			await axios.patch(
+				`${process.env.REACT_APP_API_BASE_URL}/cart`,
+				{ ProductId, quantity, BranchId },
+				{
+					headers: {
+						authorization: `Bearer ${token}`,
+					},
+				}
+			);
+			dispatch(refreshCart());
+		} catch (err) {
+			if (err.response.data.message === "Promo product out of stock") {
+				quantityRef.current.value = +err.response.data.maxStock / 2;
+				handleUpdate();
+			} else if (err.response.data.message === "Product out of stock") {
+				quantityRef.current.value = +stock;
+				handleUpdate();
+			} else if (err.response.data.message === "Minimum item 1" && quantityRef.current.value) {
+				quantityRef.current.value = 1;
+				handleUpdate();
+			} else if (quantityRef.current.value) {
+				toast.error("Failed to update cart, please try again later.", {
+					position: "top-center",
+					autoClose: 2500,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: "dark",
+				});
+			}
+		}
+	};
 
-    return (
-        <Stack justifyContent={'center'} alignItems={'center'}>
-            <Flex gap={1} justifyContent={'center'} alignItems={'center'}>
-                <ButtonTemp  
-                p={0}
-                isDisabled={qty <= 1 ? true : false}
-                onClick={() => decreaseQuantity()}
-                borderRadius={0}
-                content={(<Icon as={HiMinus} w='5' h='5'/>)} />
-                <Input 
-                defaultValue={isExtra ? qty % 2 === 1 ? Math.ceil(qty / 2) : qty / 2 : qty} 
-                borderRadius={0}
-                ref={quantityRef}
-                onChange={(e) => {
-                    e.preventDefault();
-                    handleUpdate();
-                }}
-                w={{ base: '50px', md: '60px' }} 
-                mx='2px' 
-                textAlign={'center'}
-                type="number" 
-                fontSize={{ base: 'sm', md: 'md' }}
-                borderColor={"blackAlpha.300"}
-                focusBorderColor="blackAlpha.400"
-                />
-                <ButtonTemp 
-                p={0}
-                borderRadius={0}
-                isDisabled={qty === +stock  ? true : false}
-                onClick={() => increaseQuantity()}
-                content={(<Icon as={HiPlus} w='5' h='5'/>)} />
-            </Flex>
-            {isExtra && (
-            <Text fontSize={"sm"} fontWeight={"light"} color={"red"}>
-                + {qty % 2 === 1 ? Math.floor(qty / 2) : qty / 2} FREE
-            </Text>
-            )}
-        </Stack>
-    )
-}
+	const increaseQuantity = () => {
+		quantityRef.current.value = +quantityRef.current.value + 1;
+		handleUpdate();
+	};
+
+	const decreaseQuantity = () => {
+		quantityRef.current.value = quantityRef.current.value - 1;
+		handleUpdate();
+	};
+
+	return (
+		<Stack justifyContent={"center"} alignItems={"center"}>
+			<Flex gap={1} justifyContent={"center"} alignItems={"center"}>
+				<ButtonTemp
+					p={0}
+					isDisabled={qty <= 1 ? true : false}
+					onClick={() => decreaseQuantity()}
+					borderRadius={0}
+					content={<Icon as={HiMinus} w="5" h="5" />}
+				/>
+				<Input
+					defaultValue={isExtra ? (qty % 2 === 1 ? Math.ceil(qty / 2) : qty / 2) : qty}
+					borderRadius={0}
+					ref={quantityRef}
+					onChange={(e) => {
+						e.preventDefault();
+						handleUpdate();
+					}}
+					w={{ base: "50px", md: "60px" }}
+					mx="2px"
+					textAlign={"center"}
+					type="number"
+					fontSize={{ base: "sm", md: "md" }}
+					borderColor={"blackAlpha.300"}
+					focusBorderColor="blackAlpha.400"
+				/>
+				<ButtonTemp
+					p={0}
+					borderRadius={0}
+					isDisabled={qty === +stock ? true : false}
+					onClick={() => increaseQuantity()}
+					content={<Icon as={HiPlus} w="5" h="5" />}
+				/>
+			</Flex>
+			{isExtra && (
+				<Text fontSize={"sm"} fontWeight={"light"} color={"red"}>
+					+ {qty % 2 === 1 ? Math.floor(qty / 2) : qty / 2} FREE
+				</Text>
+			)}
+		</Stack>
+	);
+};
