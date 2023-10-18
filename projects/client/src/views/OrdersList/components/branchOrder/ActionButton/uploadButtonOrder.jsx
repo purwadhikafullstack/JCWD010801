@@ -123,8 +123,8 @@ export const UploadProofButton = ({ orderId, date, branch, amount, reload, setRe
 													})}
 												</Text>
 											</Stack>
-											<Flex>
-												<Stack mr={40} gap={1}>
+											<Flex justifyContent={"space-between"}>
+												<Stack gap={1}>
 													<Text fontWeight={"semibold"}>Branch</Text>
 													<Text>{branch}</Text>
 												</Stack>

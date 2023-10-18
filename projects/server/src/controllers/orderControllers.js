@@ -837,6 +837,7 @@ module.exports = {
 		}
 	},
 	rejectPaymentProof: async (req, res) => {
+		const transaction = await db.sequelize.transaction();
 		try {
 			const orderId = req.params.id;
 			const order = await orders.findOne({
@@ -863,7 +864,103 @@ module.exports = {
 						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
 				});
 			}
-			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId }, transaction });
+			await notifications.create(
+				{
+					type: "Transaction",
+					name: "Payment Proof Rejected",
+					description: `The payment proof for your order on 
+				${new Date(order.createdAt)?.toLocaleDateString("en-US", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				})}
+				has been rejected. 
+				Your order will be automatically cancelled within 24 hours. Please upload another proof as soon as possible. Thank you.`,
+					UserId: order.Cart.UserId,
+				},
+				{ transaction }
+			);
+
+			// Auto cancel order 90 seconds
+			const autoCancelTime = new Date(Date.now() + 90000);
+			schedule.scheduleJob(autoCancelTime, async () => {
+				const transaction = await db.sequelize.transaction();
+				try {
+					const ord = await orders.findOne(
+						{
+							where: { id: orderId },
+							include: { model: carts },
+						},
+						{ transaction }
+					);
+
+					if (!ord.paymentProof) {
+						await orders.update({ status: "Cancelled" }, { where: { id: ord.id }, transaction });
+
+						const result = await order_details.findAll({ where: { OrderId: ord.id } });
+
+						for (const { ProductId, quantity } of result) {
+							let { currentStock } = await stocks.findOne({ where: { ProductId, BranchId: ord.Cart.BranchId } });
+							const product = await products.findOne({
+								where: {
+									id: ProductId,
+								},
+							});
+
+							await product.increment(
+								{
+									aggregateStock: parseInt(quantity, 10),
+								},
+								{
+									where: {
+										id: ProductId,
+									},
+									transaction,
+								}
+							);
+
+							const newBranchStock = parseInt(currentStock, 10) + parseInt(quantity, 10);
+
+							await stockMovements.create(
+								{
+									ProductId: ProductId,
+									BranchId: ord.Cart.BranchId,
+									oldValue: currentStock,
+									newValue: parseInt(newBranchStock, 10),
+									change: parseInt(quantity, 10),
+									isAddition: true,
+									isAdjustment: false,
+									isInitialization: false,
+									isBranchInitialization: false,
+									UserId: ord.Cart.UserId,
+								},
+								{ transaction }
+							);
+
+							await stocks.increment(
+								{
+									currentStock: parseInt(quantity, 10),
+								},
+								{
+									where: {
+										ProductId,
+										BranchId: ord.Cart.BranchId,
+									},
+									transaction,
+								}
+							);
+						}
+					}
+					await transaction.commit();
+				} catch (err) {
+					console.log(err)
+					await transaction.rollback();
+				}
+			});
+
 			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
@@ -873,11 +970,13 @@ module.exports = {
 				subject: "Please Reupload Your Payment Proof",
 				html: tempResult,
 			});
+			await transaction.commit();
 			res.status(200).send({
 				status: true,
 				message: "Order updated to 'Rejected' successfully",
 			});
 		} catch (error) {
+			await transaction.rollback();
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -1169,8 +1268,8 @@ module.exports = {
 				}
 			);
 
-			// Auto cancel order 5 minutes
-			const autoCancelTime = new Date(Date.now() + 60000);
+			// Auto cancel order in 90 seconds
+			const autoCancelTime = new Date(Date.now() + 90000);
 			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
@@ -1376,32 +1475,6 @@ module.exports = {
 				message: "Internal server error.",
 			});
 		}
-	},
-	userAutoConfirmOrder: async (req, res) => {
-		const autoConfirmTime = new Date(Date.now() + 604800000);
-		schedule.scheduleJob(autoConfirmTime, async () => {
-			try {
-				const ord = await orders.findOne({
-					where: { id: req.params.id },
-					include: { model: carts },
-				});
-
-				if (ord.status === "Sent") {
-					await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
-
-					res.status(200).send({
-						status: true,
-						message: "Order confirmed",
-					});
-				}
-			} catch (err) {
-				return res.status(500).send({
-					err,
-					status: 500,
-					message: "Internal server error.",
-				});
-			}
-		});
 	},
 	address: async (req, res) => {
 		try {

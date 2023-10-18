@@ -72,6 +72,17 @@ export const CartPageView = () => {
 				}
 			);
 			dispatch(refreshCart());
+			onClose();
+			toast.success(`Cart cleared`, {
+				position: "top-center",
+				autoClose: 4000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "dark",
+			});
 		} catch (err) {
 			toast.error(err.response.data.message, {
 				position: "top-center",
