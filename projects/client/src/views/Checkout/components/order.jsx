@@ -390,7 +390,7 @@ function Order() {
 														)}
 														<Text>{item.Product.weight * item.quantity} gram(s)</Text>
 														<Text fontWeight={"bold"} fontSize={"lg"}>
-															{item?.Product?.Discounts[0]?.type === "Extra" ? formatToRupiah(item.Product.price * item.quantity / 2) : formatToRupiah(item.Product.price * item.quantity)}
+															{formatToRupiah(item.Product.price * item.quantity)}
 														</Text>
 													</Box>
 												</Flex>
@@ -480,7 +480,7 @@ function Order() {
 										</Flex>
 										<Flex justify={"space-between"}>
 											<Text fontWeight={"bold"}>Promos</Text>
-											<Text>{discount > 0 ? formatToRupiah(discount) : "---"}</Text>
+											<Text>{formatToRupiah(discount)}</Text>
 										</Flex>
 										{voucher.VoucherId && (
 											<Flex justify={"space-between"}>
