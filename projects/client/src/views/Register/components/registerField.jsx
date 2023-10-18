@@ -110,7 +110,7 @@ export const RegisterFields = () => {
 							w={"200px"}
 							mr={["0px", "150px", "150px"]}
 							mt={"15px"}
-							mb={"5px"}
+							mb={"15px"}
 							fontSize={"35px"}
 							fontFamily={"monospace"}
 						>
@@ -344,7 +344,7 @@ export const RegisterFields = () => {
 								defaultValue={referralCode}
 							/>
 						</FormControl>
-						<Flex justifyContent={"end"}>
+						<Flex mt={"10px"} justifyContent={"end"}>
 							<Flex mt={"20px"} fontSize={"12px"} justifyContent={"center"}>
 								<Text>Already have an account? ‎</Text>
 								<Text
@@ -361,7 +361,6 @@ export const RegisterFields = () => {
 								isDisabled={!props.dirty || !props.isValid}
 								type="submit"
 								mt={"8px"}
-								mb={"10px"}
 								backgroundColor={"#000000"}
 								color={"white"}
 								ml={"25px"}
