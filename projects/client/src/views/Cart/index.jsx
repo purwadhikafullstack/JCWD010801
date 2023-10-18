@@ -55,7 +55,7 @@ export const CartPageView = () => {
 			setCartInfo(data?.cart);
 		} catch (err) {}
 	};
-	const totalSubtotalValue = subtotal.reduce((total, item) => {
+	const totalSubtotalValue = subtotal?.reduce((total, item) => {
 		const subtotalValue = parseInt(item.subtotal, 10);
 		return total + subtotalValue;
 	}, 0);
@@ -99,12 +99,12 @@ export const CartPageView = () => {
 
 	useEffect(() => {
 		fetchCart();
-        // eslint-disable-next-line
+		// eslint-disable-next-line
 	}, [refresh]);
 
 	useEffect(() => {
 		if (cartInfo?.BranchId !== +BranchId && cartInfo) onOpen();
-         // eslint-disable-next-line
+		// eslint-disable-next-line
 	}, [cartInfo]);
 
 	return (
