@@ -23,6 +23,7 @@ router.get("/alladmin", productControllers.getAllProductsAdmin);
 router.get("/active", productControllers.getActiveProducts);
 router.get("/deactivated", productControllers.getDeactivatedProducts);
 router.get("/deleted", productControllers.getDeletedProducts);
+router.get("/similar/:CID", productControllers.getSimilarProducts);
 router.get("/review/:PID", productControllers.getProductReviews);
 router.get("/like/:PID", productControllers.getLikeStatus);
 router.get("/stock/:id", productControllers.getBranchStock);

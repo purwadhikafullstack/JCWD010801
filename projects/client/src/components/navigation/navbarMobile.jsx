@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { CiLocationOn } from "react-icons/ci";
 import { AiOutlineShopping } from "react-icons/ai";
 import { MdOutlineDiscount } from "react-icons/md";
+import { BsBagHeartFill } from "react-icons/bs";
 import { LuHome } from "react-icons/lu";
 import AlphaMartLogo from "../../assets/public/AM_logo_trans.png";
 import Alpha from "../../assets/public/AM_logo_only_trans.png";
@@ -80,6 +81,7 @@ export const NavbarMobile = () => {
 									</Flex>
 								</ListItem>
 								{+RoleId === 1 && (
+									<>
 									<ListItem cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
 										<Flex gap={7}>
 											<Icon as={MdOutlineDiscount} w="7" h="7" color={"black"} />
@@ -88,6 +90,15 @@ export const NavbarMobile = () => {
 											</Text>
 										</Flex>
 									</ListItem>
+									<ListItem display={{ base: "flex", md: "none" }} cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
+										<Flex gap={7}>
+											<Icon as={BsBagHeartFill} w="7" h="7" color={"black"} />
+											<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
+												Wishlist
+											</Text>
+										</Flex>
+									</ListItem>
+									</>
 								)}
 							</List>
 						</DrawerBody>

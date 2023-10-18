@@ -36,7 +36,7 @@ export const ReferralModal = () => {
                         <Input
                         mt={4}
                         fontSize={{ base: "12px", md: "15px" }}
-                        value={`${process.env.REACT_APP_BASE_URL}/register?r=${referralCode}`}
+                        value={`${process.env.REACT_APP_BASE_URL}register?r=${referralCode}`}
                         borderColor={"gray.300"}
                         focusBorderColor={"inherit"}
                         />

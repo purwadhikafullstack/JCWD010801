@@ -208,36 +208,6 @@ module.exports = {
 						);
 				}
 				const total = await cartItems.count(filter);
-				const subtotalData = await cartItems.findAll({
-					where: { CartId: result.id },
-					include: [
-						{
-							model: products,
-							attributes: { exclude: ["isDeleted", "createdAt", "updatedAt"] },
-							include: [
-								{
-									model: discounts,
-									where: {
-										BranchId: result.BranchId,
-										availableFrom: { [Op.lte]: new Date(Date.now()) },
-										validUntil: { [Op.gte]: new Date(Date.now()) },
-										isActive: true,
-									},
-									separate: true,
-								},
-							],
-						},
-					],
-					attributes: [
-						[
-							Sequelize.literal(`(
-								SELECT sum((Cart_items.quantity * Product.price))
-							)`),
-							`subtotal`,
-						],
-					],
-					group: ["Cart_items.id"],
-				});
 
 				let subtotal = 0;
 				for (let { Product, quantity } of cart_items) {
@@ -261,7 +231,6 @@ module.exports = {
 				});
 			}
 		} catch (err) {
-			console.log(err);
 			res.status(500).send({
 				status: false,
 				message: "Internal server error",

@@ -190,19 +190,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 								display={{ base: "none", lg: "flex" }}
 								ml={"325px"}
 							>
-								{/* {token && address !== undefined && Object.keys(address).length > 0 ? (
-									<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-										<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-										<Stack gap={0}>
-											<Box onClick={() => navigate("/profile#addresses")}>
-												<Text fontSize={{ base: "xs", lg: "sm" }}>Deliver To</Text>
-												<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
-													{address.label}
-												</Text>
-											</Box>
-										</Stack>
-									</Flex>
-								) : null} */}
 								<Text
 									h={"35px"}
 									w={"80px"}
@@ -212,7 +199,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									cursor={"pointer"}
 									fontWeight={"medium"}
 									borderRadius={"20px"}
-									// border={"1px solid #C3C1C1"}
 									alignSelf={"center"}
 									p={"3px"}
 									_hover={{
@@ -232,7 +218,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									fontWeight={"medium"}
 									borderRadius={"20px"}
 									color={+RoleId === 1 ? "black" : "blackAlpha.500"}
-									// border={"1px solid #C3C1C1"}
 									alignSelf={"center"}
 									p={"3px"}
 									_hover={+RoleId === 1 && {
@@ -363,6 +348,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 									)}
 								</Button>
 								<Button
+									display={{ base: "none", md: "flex" }}
 									isDisabled={+RoleId === 1 && RoleId !== undefined ? false : true}
 									bgColor={"white"}
 									rounded={"full"}
@@ -452,7 +438,7 @@ export const Navbar = ({ isNotDisabled = true }) => {
 							</Flex>
 						</Flex>
 					</Flex>
-					{token && address !== undefined && (
+					{token && address !== undefined && RoleId === 1 && (
 					<Flex py={1} bgColor={"gray.100"} w={"100%"} pl={{ base: "10px", md: "30px", lg: "50px" }} pb={1} gap="2" alignItems={"center"}>
 						<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
 						<Text fontSize={{ base: "sm", lg: "md" }}>Deliver To</Text>
@@ -466,17 +452,6 @@ export const Navbar = ({ isNotDisabled = true }) => {
 						</Text>
 					</Flex>
 					)}
-					{/* {token && address !== undefined && Object.keys(address).length > 0 ? (
-						<Flex gap="2" alignItems={"center"} justifyContent={"center"}>
-							<Icon as={CiLocationOn} color={"black"} w={"5"} h={"5"} />
-							<Box onClick={() => navigate("/profile#addresses")}>
-								<Text fontSize={{ base: "sm", lg: "md" }}>Deliver To</Text>
-								<Text cursor={"pointer"} fontSize={{ base: "sm", lg: "md" }} fontWeight={"medium"}>
-									{address.label}
-								</Text>
-							</Box>
-						</Flex>
-					) : null} */}
 					{!isVerified && token ? (
 						<ResendVerification/>
 					) : null}
