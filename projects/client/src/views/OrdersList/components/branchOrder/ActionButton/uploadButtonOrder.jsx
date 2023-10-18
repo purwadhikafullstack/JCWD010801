@@ -21,7 +21,7 @@ import { BiUpload } from "react-icons/bi";
 import { useEffect } from "react";
 import { ButtonTemp } from "../../../../../components/button";
 
-export const UploadProofButton = ({ id, date, branch, amount, reload, setReload }) => {
+export const UploadProofButton = ({ orderId, date, branch, amount, reload, setReload }) => {
 	const token = localStorage.getItem("token");
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -45,7 +45,7 @@ export const UploadProofButton = ({ id, date, branch, amount, reload, setReload 
 			const data = new FormData();
 			data.append("image", image);
 
-			await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/proof/${id}`, data, {
+			await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/order/proof/${orderId}`, data, {
 				headers: {
 					authorization: `Bearer ${token}`,
 				},
