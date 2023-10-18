@@ -25,7 +25,6 @@ export const MenuOrder = ({ reload, setReload, orderId, imgURL, date, branch, am
 				{status === "Waiting payment" && (
 					<MenuItem>
 						<UploadProof
-							invoice={invoice}
 							reload={reload}
 							setReload={setReload}
 							id={orderId}

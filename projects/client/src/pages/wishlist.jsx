@@ -1,7 +1,11 @@
+import "react-toastify/dist/ReactToastify.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import Axios from "axios";
+import Skeleton from "react-loading-skeleton";
 import NoProduct from "../assets/public/404.png";
 import { debounce } from "lodash";
-import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center } from "@chakra-ui/react";
+import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center, Text, Badge } from "@chakra-ui/react";
+import { Skeleton as ChakraSkeleton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Pagination } from "../components/navigation/pagination";
@@ -9,6 +13,7 @@ import { useMediaQuery } from "react-responsive";
 import { useSelector } from "react-redux";
 
 const Wishlist = () => {
+	const token = localStorage.getItem("token");
 	const user = useSelector((state) => state?.user?.value);
 	const RoleId = user.RoleId || 0;
 	const [products, setProducts] = useState([]);
@@ -16,6 +21,7 @@ const Wishlist = () => {
 	const [categories, setCategories] = useState([]);
 	const [selectedCategory, setSelectedCategory] = useState("");
 	const [reload, setReload] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [search, setSearch] = useState("");
@@ -24,6 +30,19 @@ const Wishlist = () => {
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
+
+	const interval = 15000;
+	useEffect(() => {
+		const checkAuth = () => {
+			if (!RoleId || RoleId > 1 || !token) {
+				navigate("/404");
+			}
+		};
+		checkAuth();
+		const intervalId = setInterval(checkAuth, interval);
+		return () => clearInterval(intervalId);
+		// eslint-disable-next-line
+	}, [RoleId]);
 
 	useEffect(() => {
 		fetchData(page);
@@ -69,6 +88,7 @@ const Wishlist = () => {
 
 	const fetchData = async (pageNum) => {
 		try {
+			setIsLoading(true);
 			let apiURL = `${process.env.REACT_APP_API_BASE_URL}/product/wishlist?page=${pageNum}&sortBy=${sortBy}&sortOrder=${sortOrder}&UID=${user?.id}`;
 
 			if (selectedCategory) {
@@ -80,8 +100,7 @@ const Wishlist = () => {
 			}
 
 			const productsResponse = await Axios.get(apiURL);
-            console.log(productsResponse);
-			setProducts(productsResponse.data.wishlist.map(entry => entry.Product));
+			setProducts(productsResponse.data.wishlist.map((entry) => entry.Product));
 			if (products.length === 0) {
 				setIsSearchEmpty(true);
 			} else {
@@ -99,6 +118,9 @@ const Wishlist = () => {
 				value: data.id,
 			}));
 			setCategories(categoryData);
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 1000);
 		} catch (error) {
 			console.log(error);
 		}
@@ -166,6 +188,12 @@ const Wishlist = () => {
 		}
 
 		navigate(`?${queryParams.toString()}`);
+	};
+
+	const handleType = (type, nominal) => {
+		if (type === "Extra") return `B 1 G ${nominal}`;
+		if (type === "Numeric") return `- ${Math.floor(nominal / 1000).toLocaleString("id-ID")}K OFF`;
+		if (type === "Percentage") return `${nominal}% OFF`;
 	};
 
 	const customInputStyle = {
@@ -457,12 +485,50 @@ const Wishlist = () => {
 								onClick={() => productDetail(data.id)}
 							>
 								<Box h={"165px"}>
-									<Image
-										borderTopRadius={"9px"}
-										w={"100%"}
-										h={"100%"}
-										src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
-									/>
+									{isLoading ? (
+										<ChakraSkeleton
+											w={"100%"}
+											h={"100%"}
+											borderTopRadius={"9px"}
+											startColor="#C3C1C1"
+											endColor="#647305"
+										/>
+									) : (
+										<>
+											{data?.Discounts?.find((discount) => discount.isActive === true) ? (
+												<div style={{ position: "relative", width: "100%", height: "100%" }}>
+													<Badge
+														zIndex={2}
+														position="absolute"
+														top="5px"
+														right="5px"
+														h="30px"
+														w="90px"
+														bgColor="red.500"
+														px={1}
+														variant="outline"
+													>
+														<Text fontSize="18px" textAlign="center" color="white" overflow="hidden">
+															{handleType(data?.Discounts[0]?.type, data?.Discounts[0]?.nominal)}
+														</Text>
+													</Badge>
+													<Image
+														borderTopRadius="9px"
+														w="100%"
+														h="100%"
+														src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
+													/>
+												</div>
+											) : (
+												<Image
+													borderTopRadius="9px"
+													w="100%"
+													h="100%"
+													src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
+												/>
+											)}
+										</>
+									)}
 								</Box>
 								<Box
 									flex="1"
@@ -480,26 +546,38 @@ const Wishlist = () => {
 									overflow="hidden"
 									textOverflow="ellipsis"
 								>
-									<Box
-										color={"gray.700"}
-										mb={1}
-										textAlign={"center"}
-										fontWeight={"bold"}
-										fontSize={"16px"}
-										overflow="hidden"
-										textOverflow="ellipsis"
-									>
-										{data.productName}
-									</Box>
-									<Box
-										color={"gray.700"}
-										textAlign={"center"}
-										fontSize={"15px"}
-										overflow="hidden"
-										textOverflow="ellipsis"
-									>
-										Rp. {data.price.toLocaleString("id-ID")}
-									</Box>
+									{isLoading ? (
+										<Box display={"flex"} alignItems="center" justifyContent="center">
+											<Skeleton count={1} width="250px" height="20px" highlightColor="#647305" />
+										</Box>
+									) : (
+										<Box
+											color={"gray.700"}
+											mb={1}
+											textAlign={"center"}
+											fontWeight={"bold"}
+											fontSize={"16px"}
+											overflow="hidden"
+											textOverflow="ellipsis"
+										>
+											{data.productName}
+										</Box>
+									)}
+									{isLoading ? (
+										<Box display={"flex"} alignItems="center" justifyContent="center">
+											<Skeleton count={1} width="250px" height="15px" highlightColor="#647305" />
+										</Box>
+									) : (
+										<Box
+											color={"gray.700"}
+											textAlign={"center"}
+											fontSize={"15px"}
+											overflow="hidden"
+											textOverflow="ellipsis"
+										>
+											Rp. {data.price.toLocaleString("id-ID")}
+										</Box>
+									)}
 								</Box>
 							</Box>
 						))
@@ -534,11 +612,11 @@ const Wishlist = () => {
 					ml={"50px"}
 				>
 					<Box mb={"10px"} borderBottom={"1px solid"} borderColor={"gray.400"} pb={"20px"} align="center">
-						<Box mb={"5px"} fontSize={"24px"} color={"gray"}>
+						<Box mb={"5px"} fontSize={"24px"} color={"gray"} fontWeight={"semibold"}>
 							Welcome To Your Wishlist
 						</Box>
 						<Box mb={"5px"} fontSize={"22px"} color={"gray"}>
-							{user?.username}
+							<Text color={"#BCD709"}>{user?.username}</Text>
 						</Box>
 					</Box>
 					<Box>
@@ -588,7 +666,7 @@ const Wishlist = () => {
 									}}
 									{...customRadioStyle}
 								>
-									Listing Time
+									Time Added
 								</Radio>
 							</Stack>
 						</RadioGroup>
@@ -753,12 +831,41 @@ const Wishlist = () => {
 											onClick={() => productDetail(data.id)}
 										>
 											<Box h={"165px"}>
-												<Image
-													borderTopRadius={"9px"}
-													w={"full"}
-													h={"full"}
-													src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
-												/>
+												{isLoading ? (
+													<ChakraSkeleton
+														w={"full"}
+														h={"full"}
+														borderTopRadius={"9px"}
+														startColor="#C3C1C1"
+														endColor="#647305"
+													/>
+												) : (
+													<>
+														{data?.Discounts?.find((discount) => discount.isActive === true) && (
+															<Badge
+																zIndex={2}
+																ml={"90px"}
+																mt={"5px"}
+																h={"30px"}
+																w={"90px"}
+																position={"absolute"}
+																bgColor={"red.500"}
+																px={1}
+																variant={"outline"}
+															>
+																<Text fontSize={"18px"} textAlign={"center"} color={"white"} overflow={"hidden"}>
+																	{handleType(data?.Discounts[0]?.type, data?.Discounts[0]?.nominal)}
+																</Text>
+															</Badge>
+														)}
+														<Image
+															borderTopRadius={"9px"}
+															w={"full"}
+															h={"full"}
+															src={`${process.env.REACT_APP_BASE_URL}/products/${data?.imgURL}`}
+														/>
+													</>
+												)}
 											</Box>
 											<Box
 												flex="1"
@@ -778,26 +885,38 @@ const Wishlist = () => {
 												overflow="hidden"
 												textOverflow="ellipsis"
 											>
-												<Box
-													color={"gray.700"}
-													mb={1}
-													textAlign={"center"}
-													fontWeight={"bold"}
-													fontSize={"16px"}
-													overflow="hidden"
-													textOverflow="ellipsis"
-												>
-													{data.productName}
-												</Box>
-												<Box
-													color={"gray.700"}
-													textAlign={"center"}
-													fontSize={"15px"}
-													overflow="hidden"
-													textOverflow="ellipsis"
-												>
-													Rp. {data.price.toLocaleString("id-ID")}
-												</Box>
+												{isLoading ? (
+													<Box>
+														<Skeleton count={1} width="138px" height="20px" highlightColor="#647305" />
+													</Box>
+												) : (
+													<Box
+														color={"gray.700"}
+														mb={1}
+														textAlign={"center"}
+														fontWeight={"bold"}
+														fontSize={"16px"}
+														overflow="hidden"
+														textOverflow="ellipsis"
+													>
+														{data.productName}
+													</Box>
+												)}
+												{isLoading ? (
+													<Box>
+														<Skeleton count={1} width="138px" height="15px" highlightColor="#647305" />
+													</Box>
+												) : (
+													<Box
+														color={"gray.700"}
+														textAlign={"center"}
+														fontSize={"15px"}
+														overflow="hidden"
+														textOverflow="ellipsis"
+													>
+														Rp. {data.price.toLocaleString("id-ID")}
+													</Box>
+												)}
 											</Box>
 										</Box>
 									);

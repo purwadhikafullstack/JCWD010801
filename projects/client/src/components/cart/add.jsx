@@ -26,7 +26,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 	const BranchId = localStorage.getItem("BranchId");
 	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const { RoleId } = useSelector((state) => state?.user?.value);
+	const { RoleId, isVerified } = useSelector((state) => state?.user?.value);
 
 	const handleAdd = async () => {
 		try {
@@ -136,7 +136,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 		<>
 			{isText ? (
 				<ButtonTemp
-					isDisabled={RoleId === 1 ? false : true}
+					isDisabled={RoleId === 1 && isVerified ? false : true}
 					ml={ml}
 					content={"Add to cart"}
 					onClick={handleAdd}

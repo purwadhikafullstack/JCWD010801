@@ -684,6 +684,7 @@ module.exports = {
 				order: orderCriteria,
 				limit: itemLimit,
 				offset: itemLimit * (page - 1),
+				include: [discounts],
 			});
 
 			const totalPages = Math.ceil(queriedCount / itemLimit);
@@ -704,7 +705,8 @@ module.exports = {
 	},
 	getAllProductsAdmin: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
+			const { search = "", CategoryId, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
+			const page = parseInt(req.query.page, 10) || 1;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -741,7 +743,7 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
 					sortOrder,
 				]);
 			} else {
@@ -766,9 +768,12 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
+			console.log(error);
+			console.error(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
+				error: error
 			});
 		}
 	},
@@ -1499,6 +1504,7 @@ module.exports = {
 	getUserWishlist: async (req, res) => {
 		try {
 			const { UID, page = 1, sortBy = "createdAt", sortOrder = "ASC" } = req.query;
+			const CategoryId = parseInt(req.query.CategoryId, 10);
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 			const user = await users.findByPk(UID);
 
@@ -1533,6 +1539,11 @@ module.exports = {
 				orderCriteria.push(["createdAt", sortOrder]);
 			}
 
+			let whereCondition;
+			if (CategoryId) {
+				whereCondition = { CategoryId: CategoryId };
+			}
+
 			const { count, rows: wishlistedItems } = await wishlists.findAndCountAll({
 				where: {
 					UserId: UID,
@@ -1541,6 +1552,8 @@ module.exports = {
 				include: [
 					{
 						model: products,
+						where: whereCondition,
+						include: discounts,
 					},
 				],
 				limit: parseInt(itemLimit, 10),
@@ -1579,6 +1592,40 @@ module.exports = {
 				order: Sequelize.literal("rand()"),
 				limit,
 				where: { isActive: true },
+				include: [
+					{
+						model: discounts,
+					},
+				],
+			});
+
+			return res.status(200).send({
+				status: 200,
+				result,
+			});
+		} catch (error) {
+			return res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+			});
+		}
+	},
+	getSimilarProducts: async (req, res) => {
+		try {
+			const { CID } = req.params;
+			const { PID } = req.query;
+			const itemLimit = parseInt(req.query.itemLimit, 10) || 12;
+
+			const result = await products.findAll({
+				order: Sequelize.literal("rand()"),
+				limit: itemLimit,
+				where: {
+					id: {
+						[Sequelize.Op.ne]: PID,
+					},
+					isActive: true,
+					CategoryId: CID,
+				},
 				include: [
 					{
 						model: discounts,

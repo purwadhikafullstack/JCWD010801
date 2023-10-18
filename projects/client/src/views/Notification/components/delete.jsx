@@ -5,10 +5,13 @@ import { toast } from "react-toastify";
 import { BiTrashAlt } from "react-icons/bi";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { ButtonTemp } from "../../../components/button";
+import { useDispatch } from "react-redux";
+import { refreshCart } from "../../../redux/cartSlice";
 
 export const DeleteNotification = ({ setReload, id, onDetail = false }) => {
     const token = localStorage.getItem('token');
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const dispatch = useDispatch();
 
     const handleSubmit = async() => {
         try {
@@ -18,6 +21,7 @@ export const DeleteNotification = ({ setReload, id, onDetail = false }) => {
                 }
             });
             setReload((reload) => !reload);
+            dispatch(refreshCart());
             onClose();
             toast.success("Notification deleted", {
                 position: "top-right",

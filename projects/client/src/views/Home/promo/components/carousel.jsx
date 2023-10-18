@@ -2,33 +2,15 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "./promo.css";
-import axios from "axios";
 import { Navigation, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { ProductCard } from "./card";
 
-export const DiscountCarousel = () => {
-	const [discount, setDiscount] = useState([]);
-	const BranchId = localStorage.getItem("BranchId");
-
-	const fetchData = async () => {
-		try {
-			const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/discount/ongoing?branchId=${BranchId}`);
-			setDiscount(data.result);
-		} catch (err) {
-			console.log(err);
-		}
-	};
-
+export const DiscountCarousel = ({ discount }) => {
 	const sizeLg = useMediaQuery({ query: "(min-width: 1250px)" });
 	const sizeMd = useMediaQuery({ query: "(min-width: 767px)" });
-
-	useEffect(() => {
-		fetchData();
-		// eslint-disable-next-line
-	}, []);
+	
 	return (
 		<>
 			{sizeLg ? (

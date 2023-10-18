@@ -6,6 +6,8 @@ import NoDiscountBanner from "../assets/public/no_discount.jpg";
 import DiscountBanner from "../assets/public/sale_banner.png";
 import NoReview from "../assets/public/no_review.jpg";
 import RatingBar from "../components/ratingBar";
+import { SimilarProducts } from "../components/similarProducts";
+import { SimilarProductsMobile } from "../components/similarProductsMobile";
 import {
 	Box,
 	Flex,
@@ -554,7 +556,8 @@ const ProductDetail = () => {
 							</TabList>
 							<TabPanels mb={"50px"}>
 								<TabPanel w={"340px"}>
-									<Stack fontWeight={"bold"} h={"350px"} justifyContent={"center"} fontSize={"30px"} w={"100%"}>
+									<Stack fontWeight={"bold"} w={"100%"} h={"350px"} justifyContent={"center"} fontSize={"30px"}>
+										<Text fontSize={"20px"}>More Information On {product.productName} :</Text>
 										<Box
 											mt={"10px"}
 											fontSize={"15px"}
@@ -609,6 +612,8 @@ const ProductDetail = () => {
 											AlphaMart Nationwide Availability : {product.aggregateStock} units
 										</Box>
 									</Stack>
+									You Might Like:
+									<SimilarProductsMobile CID={product?.CategoryId} PID={product?.id} />
 								</TabPanel>
 								<TabPanel w={"340px"}>
 									{discountData ? (
@@ -1407,7 +1412,13 @@ const ProductDetail = () => {
 													Rp. {newPrice?.toLocaleString("id-ID")}
 												</Box>
 											) : (
-												<Badge colorScheme="green" color={"#24690D"} fontSize={"30px"}>
+												<Badge
+													colorScheme="green"
+													color={"#24690D"}
+													fontSize={"30px"}
+													border={"1px solid green"}
+													borderRadius={"3px"}
+												>
 													B1G1
 												</Badge>
 											)}
@@ -1526,10 +1537,11 @@ const ProductDetail = () => {
 								</Tab>
 							</TabList>
 							<TabPanels mb={"50px"}>
-								<TabPanel>
+								<TabPanel display={"flex"}>
 									<Box
 										fontWeight={"bold"}
-										h={"350px"}
+										h={"450px"}
+										w={"50%"}
 										alignContent={"center"}
 										justifyContent={"center"}
 										fontSize={"30px"}
@@ -1552,6 +1564,17 @@ const ProductDetail = () => {
 										<Box mt={"30px"} fontSize={"20px"} fontWeight={"semibold"} textAlign={"left"} ml={"20px"}>
 											AlphaMart Nationwide Availability : {product.aggregateStock} units
 										</Box>
+									</Box>
+									<Box
+										fontWeight={"bold"}
+										h={"450px"}
+										w={"50%"}
+										alignContent={"center"}
+										justifyContent={"center"}
+										fontSize={"30px"}
+									>
+										You Might Like:
+										<SimilarProducts CID={product?.CategoryId} PID={product?.id} />
 									</Box>
 								</TabPanel>
 								<TabPanel>
