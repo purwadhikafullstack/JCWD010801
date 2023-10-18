@@ -232,7 +232,7 @@ function Order() {
 				},
 			});
 
-			toast.success(response?.data?.message, {
+			toast.success(response.data.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -246,7 +246,7 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile#orders");
 		} catch (error) {
-			toast.error(error?.response?.data?.error?.message, {
+			toast.error(error?.response.data.error.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
