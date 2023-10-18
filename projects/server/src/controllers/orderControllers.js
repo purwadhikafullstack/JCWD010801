@@ -1207,8 +1207,8 @@ module.exports = {
 				}
 			);
 
-			// Auto cancel order in 90 seconds
-			const autoCancelTime = new Date(Date.now() + 90000);
+			// Auto cancel order 5 minutes
+			const autoCancelTime = new Date(Date.now() + 60000);
 			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
@@ -1414,6 +1414,32 @@ module.exports = {
 				message: "Internal server error.",
 			});
 		}
+	},
+	userAutoConfirmOrder: async (req, res) => {
+		const autoConfirmTime = new Date(Date.now() + 604800000);
+		schedule.scheduleJob(autoConfirmTime, async () => {
+			try {
+				const ord = await orders.findOne({
+					where: { id: req.params.id },
+					include: { model: carts },
+				});
+
+				if (ord.status === "Sent") {
+					await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
+
+					res.status(200).send({
+						status: true,
+						message: "Order confirmed",
+					});
+				}
+			} catch (err) {
+				return res.status(500).send({
+					err,
+					status: 500,
+					message: "Internal server error.",
+				});
+			}
+		});
 	},
 	address: async (req, res) => {
 		try {
