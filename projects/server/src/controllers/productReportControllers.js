@@ -642,7 +642,8 @@ module.exports = {
 	},
 	getAllStocks: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId } = req.query;
+			const { search = null, CategoryId, sortBy = "productName", sortOrder = "ASC", BranchId } = req.query;
+			const page = parseInt(req.query.page, 10) || 1;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 30;
 
 			const whereCondition = {
@@ -767,7 +768,7 @@ module.exports = {
 				totalProducts: queriedCount,
 				productsPerPage: itemLimit,
 				totalPages,
-				currentPage: page,
+				currentPage: parseInt(page, 10),
 				result,
 			});
 		} catch (error) {
@@ -776,6 +777,7 @@ module.exports = {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
+				error: error
 			});
 		}
 	},
