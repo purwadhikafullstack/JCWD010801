@@ -181,9 +181,9 @@ module.exports = {
 			});
 
 			if (!result)
-				return res.status(200).send({
+				res.status(404).send({
 					status: false,
-					message: "Cart not found"
+					message: "Cart not found",
 				});
 			else {
 				const filter = {
