@@ -21,7 +21,7 @@ import { ButtonTemp } from "../button";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshCart } from "../../redux/cartSlice";
 
-export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml = 0 }) => {
+export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml = 0, type }) => {
 	const token = localStorage.getItem("token");
 	const BranchId = localStorage.getItem("BranchId");
 	const dispatch = useDispatch();
@@ -32,7 +32,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 		try {
 			const { data } = await axios.post(
 				`${process.env.REACT_APP_API_BASE_URL}/cart`,
-				{ ProductId, quantity, BranchId },
+				{ ProductId, quantity: type === "Extra" ? quantity * 2 : quantity, BranchId },
 				{
 					headers: {
 						authorization: `Bearer ${token}`,

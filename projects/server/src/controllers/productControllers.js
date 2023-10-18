@@ -743,7 +743,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
@@ -768,12 +770,10 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
-			console.error(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
-				error: error
+				error: error,
 			});
 		}
 	},
@@ -818,7 +818,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
@@ -890,7 +892,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
@@ -962,7 +966,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
