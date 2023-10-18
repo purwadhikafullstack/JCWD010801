@@ -72,6 +72,7 @@ export const ProductCard = ({ Product, type = "", nominal = 0, validUntil, Produ
             name={Product?.productName}
             quantity={1}
             isText
+            type={type}
             />
         </Stack>
     )

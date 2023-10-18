@@ -18,7 +18,8 @@ module.exports = {
                         ProductId: id,
                         availableFrom: { [Op.lte]: new Date(Date.now()) },
                         validUntil: { [Op.gte]: new Date(Date.now()) },
-                        BranchId: checkBranch.BranchId
+                        BranchId: checkBranch.BranchId,
+                        isActive: true
                     },
                     include: [ { model: products, require: false } ]
                 });
