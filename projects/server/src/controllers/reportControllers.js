@@ -40,7 +40,7 @@ module.exports = {
 				condition[Op.and] = [
 					{ status: "Received" },
 					Sequelize.literal(
-						`EXISTS (SELECT 1 FROM order_details INNER JOIN products ON order_details.ProductId = products.id WHERE order_details.OrderId = orders.id AND products.productName LIKE '%${searchProduct}%')`
+						`EXISTS (SELECT 1 FROM Order_details INNER JOIN Products ON Order_details.ProductId = Products.id WHERE Order_details.OrderId = Orders.id AND Products.productName LIKE '%${searchProduct}%')`
 					),
 				];
 			}
