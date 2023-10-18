@@ -705,7 +705,8 @@ module.exports = {
 	},
 	getAllProductsAdmin: async (req, res) => {
 		try {
-			const { search = "", CategoryId, page = 1, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
+			const { search = "", CategoryId, sortBy = "productName", sortOrder = "ASC", BranchId = 1 } = req.query;
+			const page = parseInt(req.query.page, 10) || 1;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 15;
 
 			const whereCondition = {
@@ -772,6 +773,7 @@ module.exports = {
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
+				error: error
 			});
 		}
 	},
