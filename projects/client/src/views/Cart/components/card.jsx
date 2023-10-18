@@ -68,7 +68,6 @@ export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, las
 
                     ) : (
                         <Text mr={3} textAlign={"end"} fontSize={'xl'} fontWeight={'semibold'} mb={0}>
-                            {/* {`Rp. ${(price * quantity / 2)?.toLocaleString("id-ID")}`} */}
                             {`Rp. ${price?.toLocaleString("id-ID")}`}
                         </Text>
                     )}
@@ -129,7 +128,6 @@ export const CartCard = ({ id, name, imgURL, price, stock, weight, quantity, las
 
                 ) : (
                     <Text mr={3} textAlign={"end"} fontSize={'xl'} fontWeight={'semibold'} mb={0}>
-                        {/* {`Rp. ${(price * quantity / 2)?.toLocaleString("id-ID")}`} */}
                         {`Rp. ${price?.toLocaleString("id-ID")}`}
                     </Text>
                 )}

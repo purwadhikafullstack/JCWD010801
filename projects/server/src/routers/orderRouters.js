@@ -13,7 +13,6 @@ router.post("/shipment", orderControllers.shipment);
 router.patch("/proof/:id", verifyToken, checkUser, multerUpload(path.join(__dirname, "../public/orders"), "O-IMG").single("image"), orderControllers.uploadPaymentProof);
 router.patch("/cancel/:id", verifyToken, checkUser, orderControllers.userCancelOrder);
 router.patch("/user-confirm/:id", verifyToken, checkUser, orderControllers.userConfirmOrder);
-router.patch("/auto-confirm/:id", verifyToken, checkUser, orderControllers.userAutoConfirmOrder);
 router.patch("/send/:id", verifyToken, orderControllers.processingToSent);
 router.patch("/payment-confirm/:id", verifyToken, orderControllers.paymentConfirmation);
 router.patch("/received-confirmation/:id", verifyToken, orderControllers.receiveConfirmation);

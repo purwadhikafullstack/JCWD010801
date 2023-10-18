@@ -536,6 +536,7 @@ const ProductDetail = () => {
 											quantity={quantity}
 											name={product.productName}
 											isText={true}
+											type={discountData?.type}
 										/>
 									</Flex>
 								</Box>
@@ -1518,6 +1519,7 @@ const ProductDetail = () => {
 											quantity={quantity}
 											name={product.productName}
 											isText={true}
+											type={discountData?.type}
 										/>
 									</Flex>
 								</Box>
