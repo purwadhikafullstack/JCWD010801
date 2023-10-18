@@ -75,16 +75,18 @@ export const VoucherTable = () => {
 
 	const fetchData = async () => {
 		try {
+			let branchId
 			const search = searchRef.current.value;
 			const type = typeRef.current.value;
 			const startAvailableFrom = startAvailableFromRef.current.value;
 			const endAvailableFrom = endAvailableFromRef.current.value;
 			const startValidUntil = startValidUntilRef.current.value;
 			const endValidUntil = endValidUntilRef.current.value;
+			if (RoleId === 3) branchId = branchIdRef.current.value;
 			const { data } = await axios.get(
 				`${
 					process.env.REACT_APP_API_BASE_URL
-				}/voucher?page=${page}&limit=8&search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${
+				}/voucher?page=${page}&limit=8&BranchId=${branchId}&search=${search}&type=${type}&startAvailableFrom=${startAvailableFrom}&endAvailableFrom=${endAvailableFrom}&startValidUntil=${startValidUntil}&endValidUntil=${endValidUntil}&sortBy=${sortBy}&order=${
 					order ? "ASC" : "DESC"
 				}`,
 				{

@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { refreshCart } from "../../../redux/cartSlice";
+import { setVoucherInfo } from "../../../redux/voucherSlice";
 
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank-transfer");
@@ -231,6 +232,7 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
+			dispatch(setVoucherInfo({}));
 
 			toast.success(response?.data?.message, {
 				position: "top-right",
