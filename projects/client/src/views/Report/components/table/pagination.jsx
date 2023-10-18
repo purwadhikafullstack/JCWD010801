@@ -103,9 +103,14 @@ function Pagination({
 						min={1}
 						max={pageCount}
 						onChange={(value) => {
-							const page = value ? value - 1 : 0;
-							gotoPage(page);
-							updateQueryObj({ page });
+							let page = parseInt(value, 10);
+							if (isNaN(page)) {
+								page = pageIndex + 1;
+							} else {
+								page = Math.min(Math.max(page, 1), pageCount);
+							}
+							gotoPage(page - 1);
+							updateQueryObj({ page: page - 1 });
 						}}
 						value={pageIndex + 1}
 					>
@@ -152,7 +157,7 @@ function Pagination({
 								nextPage();
 								updateQueryObj({ page: pageIndex + 1 });
 							}}
-							isDisabled={!canNextPage && !isMobile}
+							isDisabled={!canNextPage}
 							icon={<ChevronRightIcon h={6} w={6} />}
 							mr={4}
 						/>
@@ -236,7 +241,7 @@ function Pagination({
 								nextPage();
 								updateQueryObj({ page: pageIndex + 1 });
 							}}
-							isDisabled={!canNextPage && !isMobile}
+							isDisabled={!canNextPage}
 							icon={<ChevronRightIcon h={6} w={6} />}
 							ml={2}
 						/>

@@ -222,6 +222,7 @@ module.exports = {
 				status: true,
 				message: "Voucher code succesfully redeemed",
 				voucher: codeCheck.name,
+				result: codeCheck
 			});
 		} catch (err) {
 			res.status(400).send(err);

@@ -18,12 +18,15 @@ import { BiReceipt } from "react-icons/bi";
 import { BsCircleFill } from "react-icons/bs";
 import { DeleteNotification } from "./delete";
 import { AiOutlineClockCircle } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { refreshCart } from "../../../redux/cartSlice";
 
 export const NotificationCard = ({ item, setReload, isLast = false }) => {
 	const { type, name, isRead, id, createdAt } = item;
 	const description = item?.description;
 	const promoCode = item?.promoCode;
 	const token = localStorage.getItem("token");
+	const dispatch = useDispatch();
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -39,28 +42,11 @@ export const NotificationCard = ({ item, setReload, isLast = false }) => {
 				}
 			);
 			setReload((reload) => !reload);
+			dispatch(refreshCart());
 		} catch (err) {
 			console.log(err);
 		}
 	};
-
-	// const handleDelete = async () => {
-	// 	try {
-	// 		console.log(token);
-	// 		await axios.delete(
-	// 			`${process.env.REACT_APP_API_BASE_URL}/notification/${id}`,
-	// 			{},
-	// 			{
-	// 				headers: {
-	// 					authorization: `Bearer ${token}`,
-	// 				},
-	// 			}
-	// 		);
-	// 		setReload((reload) => !reload);
-	// 	} catch (err) {
-	// 		console.log(err);
-	// 	}
-	// };
 
 	const handleOpen = () => {
 		onOpen();

@@ -42,7 +42,8 @@ export const RegisterFields = () => {
 			.required("Phone number is required")
 			.min(10, "Phone number too short")
 			.max(12, "Phone number too long")
-			.matches(/^\d+$/, "Phone number must contain only digits"),
+			.matches(/^\d+$/, "Phone number must contain only digits")
+			.matches(/^0\d+$/, "Phone number must start with '0'"),
 		password: Yup.string()
 			.required("Password is required")
 			.min(6, "Password too short")
