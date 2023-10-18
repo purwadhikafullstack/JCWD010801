@@ -680,29 +680,29 @@ module.exports = {
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
 					Sequelize.literal(
-						`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id AND stocks.BranchId = ${BranchId})`
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = products.id AND Stocks.BranchId = ${BranchId})`
 					),
 					sortOrder,
 				]);
 			} else if (sortBy === "txCount") {
 				orderCriteria.push([
 					Sequelize.literal(
-						`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
-                stockMovements.isAddition = false AND
-                stockMovements.isAdjustment = false AND
-                stockMovements.isInitialization = false AND
-                stockMovements.isBranchInitialization = false)`
+						`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+                StockMovements.isAddition = false AND
+                StockMovements.isAdjustment = false AND
+                StockMovements.isInitialization = false AND
+                StockMovements.isBranchInitialization = false)`
 					),
 					sortOrder,
 				]);
 			} else if (sortBy === "failedTxCount") {
 				orderCriteria.push([
 					Sequelize.literal(
-						`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
-                stockMovements.isAddition = true AND
-                stockMovements.isAdjustment = false AND
-                stockMovements.isInitialization = false AND
-                stockMovements.isBranchInitialization = false)`
+						`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+                StockMovements.isAddition = true AND
+                StockMovements.isAdjustment = false AND
+                StockMovements.isInitialization = false AND
+                StockMovements.isBranchInitialization = false)`
 					),
 					sortOrder,
 				]);
@@ -726,11 +726,11 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
-								stockMovements.isAddition = false AND
-								stockMovements.isAdjustment = false AND
-								stockMovements.isInitialization = false AND
-								stockMovements.isBranchInitialization = false)`
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+								StockMovements.isAddition = false AND
+								StockMovements.isAdjustment = false AND
+								StockMovements.isInitialization = false AND
+								StockMovements.isBranchInitialization = false)`
 								),
 								"txCount",
 							],
@@ -742,11 +742,11 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.ProductId = products.id AND
-								stockMovements.isAddition = true AND
-								stockMovements.isAdjustment = false AND
-								stockMovements.isInitialization = false AND
-								stockMovements.isBranchInitialization = false)`
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.ProductId = products.id AND
+								StockMovements.isAddition = true AND
+								StockMovements.isAdjustment = false AND
+								StockMovements.isInitialization = false AND
+								StockMovements.isBranchInitialization = false)`
 								),
 								"failedTxCount",
 							],
