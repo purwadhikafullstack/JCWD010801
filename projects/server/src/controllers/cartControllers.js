@@ -254,7 +254,7 @@ module.exports = {
 				res.status(200).send({
 					status: true,
 					total,
-					subtotal: [{subtotal}],
+					subtotal: [{ subtotal }],
 					cart: result,
 					cart_items,
 				});

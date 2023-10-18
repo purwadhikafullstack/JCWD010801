@@ -232,7 +232,7 @@ function Order() {
 				},
 			});
 
-			toast.success(response.data.message, {
+			toast.success(response?.data?.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -246,7 +246,7 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile#orders");
 		} catch (error) {
-			toast.error(error?.response.data.error.message, {
+			toast.error(error?.response?.data?.error?.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -390,7 +390,7 @@ function Order() {
 														)}
 														<Text>{item.Product.weight * item.quantity} gram(s)</Text>
 														<Text fontWeight={"bold"} fontSize={"lg"}>
-															{formatToRupiah(item.Product.price * item.quantity)}
+															{item?.Product?.Discounts[0]?.type === "Extra" ? formatToRupiah(item.Product.price * item.quantity / 2) : formatToRupiah(item.Product.price * item.quantity)}
 														</Text>
 													</Box>
 												</Flex>
@@ -480,7 +480,7 @@ function Order() {
 										</Flex>
 										<Flex justify={"space-between"}>
 											<Text fontWeight={"bold"}>Promos</Text>
-											<Text>{formatToRupiah(discount)}</Text>
+											<Text>{discount > 0 ? formatToRupiah(discount) : "---"}</Text>
 										</Flex>
 										{voucher.VoucherId && (
 											<Flex justify={"space-between"}>

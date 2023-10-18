@@ -44,7 +44,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 				onOpen();
 			} else {
 				dispatch(refreshCart());
-				toast.success(`${quantity} ${name} added to cart`, {
+				toast.success(`${type === "Extra" ? `${quantity} + ${quantity}` : quantity} ${name} added to cart`, {
 					position: "top-center",
 					autoClose: 4000,
 					hideProgressBar: false,
