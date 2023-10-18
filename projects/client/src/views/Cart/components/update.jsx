@@ -75,7 +75,7 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
                 borderRadius={0}
                 content={(<Icon as={HiMinus} w='5' h='5'/>)} />
                 <Input 
-                defaultValue={qty} 
+                defaultValue={isExtra ? qty % 2 === 1 ? Math.ceil(qty / 2) : qty / 2 : qty} 
                 borderRadius={0}
                 ref={quantityRef}
                 onChange={(e) => {
@@ -99,7 +99,7 @@ export const UpdateCart = ({ ProductId, qty, stock, isExtra }) => {
             </Flex>
             {isExtra && (
             <Text fontSize={"sm"} fontWeight={"light"} color={"red"}>
-                + {qty === stock && stock % 2 === 1 ? (qty - 1) / 2 : qty / 2} FREE
+                + {qty % 2 === 1 ? Math.floor(qty / 2) : qty / 2} FREE
             </Text>
             )}
         </Stack>

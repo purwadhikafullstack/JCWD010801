@@ -64,7 +64,7 @@ module.exports = {
 			});
 
 			if (!cart_item) {
-				if (quantity > checkProduct?.Stocks[0]?.currentStock / 2 && checkProduct?.Discounts[0]?.type === "Extra") {
+				if (quantity > checkProduct?.Stocks[0]?.currentStock && checkProduct?.Discounts[0]?.type === "Extra") {
 					quantity = checkProduct?.Stocks[0]?.currentStock;
 				} else if (quantity > checkProduct?.Stocks[0]?.currentStock) {
 					quantity = checkProduct?.Stocks[0]?.currentStock;
@@ -78,12 +78,12 @@ module.exports = {
 					{ transaction }
 				);
 			} else if (
-				cart_item.quantity > checkProduct?.Stocks[0]?.currentStock / 2 &&
+				cart_item.quantity > checkProduct?.Stocks[0]?.currentStock &&
 				checkProduct?.Discounts[0]?.type === "Extra"
 			) {
-				if ((checkProduct?.Stocks[0]?.currentStock / 2) % 2 === 1) {
+				if ((checkProduct?.Stocks[0]?.currentStock) % 2 === 1) {
 					await cartItems.update(
-						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 + 1 },
+						{ quantity: checkProduct?.Stocks[0]?.currentStock },
 						{
 							where: {
 								CartId: result.id,
@@ -94,7 +94,7 @@ module.exports = {
 					);
 				} else {
 					await cartItems.update(
-						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 },
+						{ quantity: checkProduct?.Stocks[0]?.currentStock },
 						{
 							where: {
 								CartId: result.id,
@@ -159,9 +159,10 @@ module.exports = {
 			});
 
 			if (!result)
-				res.status(404).send({
+				return res.status(200).send({
 					status: false,
 					message: "Cart not found",
+					cart: []
 				});
 			else {
 				const filter = {
@@ -306,15 +307,15 @@ module.exports = {
 					},
 				],
 			});
-			if (checkProduct?.Discounts[0].type === "Extra" && quantity > checkProduct?.Stocks[0].currentStock + 0.5) {
-				let maxStock = checkProduct?.Stocks[0].currentStock;
-				if (checkProduct?.Stocks[0].currentStock % 2 === 1) maxStock = checkProduct?.Stocks[0].currentStock + 1;
+			if (checkProduct?.Discounts[0]?.type === "Extra" && quantity > checkProduct?.Stocks[0]?.currentStock + 0.5) {
+				let maxStock = checkProduct?.Stocks[0]?.currentStock;
+				if (checkProduct?.Stocks[0]?.currentStock % 2 === 1) maxStock = checkProduct?.Stocks[0]?.currentStock + 1;
 				throw {
 					message: "Promo product out of stock",
 					maxStock,
 				};
 			}
-			if (quantity > checkProduct?.Stocks[0].currentStock) throw { message: "Product out of stock" };
+			if (quantity > checkProduct?.Stocks[0]?.currentStock) throw { message: "Product out of stock" };
 			if (quantity < 1) throw { message: "Minimum item 1" };
 
 			await cartItems.update(
@@ -332,6 +333,7 @@ module.exports = {
 				message: "Item quantity updated",
 			});
 		} catch (err) {
+			console.log(err)
 			res.status(400).send(err);
 		}
 	},
