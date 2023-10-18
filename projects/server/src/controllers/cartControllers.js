@@ -13,7 +13,9 @@ module.exports = {
 	addToCart: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
-			let { ProductId, quantity, BranchId } = req.body;
+			let quantity = parseInt(req.body.quantity, 10);
+			const ProductId = parseInt(req.body.ProductId, 10);
+			const BranchId = parseInt(req.body.BranchId, 10);
 
 			const checkBranch = await carts.findOne({
 				where: {
@@ -22,7 +24,10 @@ module.exports = {
 				},
 			});
 
-			if (checkBranch?.BranchId !== +BranchId && checkBranch) return res.status(200).send({ status: "Switched" });
+			if (checkBranch && checkBranch?.BranchId !== +BranchId) {
+				await transaction.rollback();
+				return res.status(200).send({ status: "Switched" });
+			}
 
 			const checkProduct = await products.findOne({
 				where: {
@@ -31,13 +36,13 @@ module.exports = {
 				include: [
 					{
 						model: stocks,
-						where: { BranchId: parseInt(BranchId) || 1 },
+						where: { BranchId: parseInt(BranchId, 10) || 1 },
 						required: false,
 					},
 					{
 						model: discounts,
 						where: {
-							BranchId: parseInt(BranchId) || 1,
+							BranchId: parseInt(BranchId, 10) || 1,
 							availableFrom: { [Op.lte]: new Date(Date.now()) },
 							validUntil: { [Op.gte]: new Date(Date.now()) },
 							isActive: true,
@@ -46,6 +51,22 @@ module.exports = {
 					},
 				],
 			});
+
+			if (checkProduct.Stocks[0].currentStock === 0) {
+				await transaction.rollback();
+				return res.status(404).send({
+					status: 404,
+					message: "Sorry, stock is unavailable in this branch.",
+				});
+			}
+
+			if (checkProduct.Stocks[0] === undefined) {
+				await transaction.rollback();
+				return res.status(404).send({
+					status: 404,
+					message: "Sorry, stock is unavailable in this branch.",
+				});
+			}
 
 			const [result] = await carts.findOrCreate({
 				where: {
@@ -63,11 +84,11 @@ module.exports = {
 				},
 			});
 
-			if (!cart_item) {
-				if (quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
-					quantity = checkProduct?.Stocks[0].currentStock / 2;
-				} else if (quantity > checkProduct?.Stocks[0].currentStock) {
-					quantity = checkProduct?.Stocks[0].currentStock;
+			if (cart_item === null) {
+				if (quantity > checkProduct?.Stocks[0]?.currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
+					quantity = checkProduct?.Stocks[0]?.currentStock / 2;
+				} else if (quantity > checkProduct?.Stocks[0]?.currentStock) {
+					quantity = checkProduct?.Stocks[0]?.currentStock;
 				}
 				await cartItems.create(
 					{
@@ -141,8 +162,12 @@ module.exports = {
 				checkProduct,
 			});
 		} catch (err) {
+			console.log(err);
 			await transaction.rollback();
-			res.status(400).send(err);
+			res.status(400).send({
+				message: "Failed adding to cart.",
+				error: err,
+			});
 		}
 	},
 	getCartItems: async (req, res) => {
@@ -193,9 +218,9 @@ module.exports = {
 
 				const cart_items = await cartItems.findAll(filter);
 				for (const { Product, CartId, ProductId, quantity } of cart_items) {
-					if (quantity > Product.Stocks[0]?.currentStock)
+					if (quantity > Product?.Stocks[0]?.currentStock)
 						await cartItems.update(
-							{ quantity: Product.Stocks[0]?.currentStock },
+							{ quantity: Product?.Stocks[0]?.currentStock },
 							{
 								where: {
 									CartId,
@@ -254,7 +279,7 @@ module.exports = {
 				res.status(200).send({
 					status: true,
 					total,
-					subtotal: [{subtotal}],
+					subtotal: [{ subtotal }],
 					cart: result,
 					cart_items,
 				});
@@ -269,6 +294,8 @@ module.exports = {
 	switchBranch: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
+			const BranchId = parseInt(req.body.BranchId, 10);
+
 			const cart = await carts.findOne({
 				where: {
 					UserId: req.user.id,
@@ -282,7 +309,7 @@ module.exports = {
 			});
 
 			await carts.update(
-				{ BranchId: req.body.BranchId },
+				{ BranchId: BranchId },
 				{
 					where: {
 						id: cart.id,
@@ -298,8 +325,12 @@ module.exports = {
 				message: "Cart switched branch",
 			});
 		} catch (err) {
+			console.log(err);
 			await transaction.rollback();
-			res.status(400).send(err);
+			res.status(400).send({
+				message: "Switch branch failed.",
+				error: err,
+			});
 		}
 	},
 	updateQuantity: async (req, res) => {

@@ -61,7 +61,7 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (response.data.cart_items.length === 0) {
+			if (response?.data?.cart_items?.length === 0) {
 				toast.warn("Cart is empty", {
 					position: "top-right",
 					autoClose: 5000,
@@ -100,7 +100,7 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (response.data.result.length === 0) {
+			if (response?.data?.result?.length === 0) {
 				navigate("/profile#addresses");
 				toast.warn("You must add your address first, before continue your order", {
 					position: "top-right",
@@ -232,7 +232,7 @@ function Order() {
 				},
 			});
 
-			toast.success(response.data.message, {
+			toast.success(response?.data?.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -246,7 +246,7 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile#orders");
 		} catch (error) {
-			toast.error(error?.response.data.error.message, {
+			toast.error(error?.response?.data?.error?.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
