@@ -402,8 +402,6 @@ const StockReport = () => {
 				setIsLoading(false);
 			}, 500);
 		} catch (error) {
-			console.error(error)
-			console.log(error)
 			setIsLevelSearchEmpty(true);
 			toast.warn(`No matches found for "${levelsSearch}"`, {
 				position: "top-right",
