@@ -15,13 +15,13 @@ export const RegisterPageView = () => {
 				boxShadow="0px 0px 10px black"
 				marginY="auto"
 				w={["200px", "300px", "400px"]}
-				h={["720px"]}
+				h={["741px"]}
 				bg="#373433"
 			>
-				<Flex mt="50px" justifyContent="center">
+				<Flex mt="45px" justifyContent="center">
 					<Image w={["100px", "200px", "300px"]} src={sourceLogo} />
 				</Flex>
-				<Flex mt="276.7px" justifyContent="center">
+				<Flex mt="300.7px" justifyContent="center">
 					<Image w={["100px", "200px", "400px"]} src={sourceGraphic} />
 				</Flex>
 			</Flex>
@@ -30,7 +30,7 @@ export const RegisterPageView = () => {
 				boxShadow="0px 0px 10px black"
 				marginY={{ base: "5", md: "auto" }}
 				w={["260px", "380px", "400px"]}
-				minH={["90%", "700px"]}
+				minH={["90%", "741px"]}
 				// pb={"5"}
 				bg="#F6F6F6"
 			>
