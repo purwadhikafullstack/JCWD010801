@@ -7,6 +7,7 @@ import DiscountBanner from "../assets/public/sale_banner.png";
 import NoReview from "../assets/public/no_review.jpg";
 import RatingBar from "../components/ratingBar";
 import { SimilarProducts } from "../components/similarProducts";
+import { SimilarProductsMobile } from "../components/similarProductsMobile";
 import {
 	Box,
 	Flex,
@@ -555,7 +556,7 @@ const ProductDetail = () => {
 							</TabList>
 							<TabPanels mb={"50px"}>
 								<TabPanel w={"340px"}>
-									<Stack fontWeight={"bold"} h={"350px"} justifyContent={"center"} fontSize={"30px"} w={"100%"}>
+									<Stack fontWeight={"bold"} w={"100%"} h={"350px"} justifyContent={"center"} fontSize={"30px"}>
 										<Text fontSize={"20px"}>More Information On {product.productName} :</Text>
 										<Box
 											mt={"10px"}
@@ -611,6 +612,8 @@ const ProductDetail = () => {
 											AlphaMart Nationwide Availability : {product.aggregateStock} units
 										</Box>
 									</Stack>
+									You Might Like:
+									<SimilarProductsMobile CID={product?.CategoryId} PID={product?.id} />
 								</TabPanel>
 								<TabPanel w={"340px"}>
 									{discountData ? (

@@ -6,7 +6,7 @@ import "swiper/css/autoplay";
 import Axios from "axios";
 import styled from "styled-components";
 import { Navigation, Scrollbar, A11y, Pagination, Autoplay } from "swiper/modules";
-import { Badge, Flex, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, Stack, Text } from "@chakra-ui/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +22,7 @@ const StyledSwiper = styled(Swiper)`
 	}
 `;
 
-export const SimilarProducts = ({ CID, PID }) => {
+export const SimilarProductsMobile = ({ CID, PID }) => {
 	const [products, setProducts] = useState([]);
 	const navigate = useNavigate();
 
@@ -47,14 +47,7 @@ export const SimilarProducts = ({ CID, PID }) => {
 	};
 
 	return (
-		<Flex
-			justifyContent="center"
-			justifyItems="center"
-			alignContent="center"
-			alignItems="center"
-			w={"100%"}
-			h={"450px"}
-		>
+		<Box justifyContent="center" justifyItems="center" alignContent="center" alignItems="center" w={"100%"} h={"200px"}>
 			<StyledSwiper
 				modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}
 				spaceBetween={15}
@@ -85,19 +78,19 @@ export const SimilarProducts = ({ CID, PID }) => {
 								}}
 							/>
 							<Stack position="absolute" zIndex={1} top={5} right={5}>
-								<Text fontFamily="monospace" fontSize="25px" color="black" textAlign={"right"}>
+								<Text fontFamily="monospace" fontSize="18px" color="black" textAlign={"right"}>
 									{product?.productName}
 								</Text>
 							</Stack>
-							<Stack position={"absolute"} zIndex={1} fontSize="18px" ml={"15px"}>
+							<Stack position={"absolute"} zIndex={1} fontSize="10px" ml={"15px"}>
 								<div style={{ fontFamily: "monospace", textAlign: "left" }}>
 									<Text
 										color="#CA3A3A"
 										fontWeight="bold"
-										fontSize="35px"
+										fontSize="18px"
 										fontFamily="monospace"
 										textAlign={"left"}
-										mt={"80px"}
+										mt={"40px"}
 									>
 										{product?.likeCount}
 									</Text>
@@ -105,17 +98,17 @@ export const SimilarProducts = ({ CID, PID }) => {
 								</div>
 							</Stack>
 							{product?.Discounts?.find((discount) => discount.isActive === true) && (
-								<Stack zIndex={1} w={"100%"} mt={"245px"} position={"absolute"} align={"center"} justify={"center"}>
+								<Stack zIndex={1} w={"100%"} mt={"110px"} position={"absolute"} align={"center"} justify={"center"}>
 									<Badge
 										zIndex={2}
-										h={"30px"}
-										w={"150px"}
+										h={"20px"}
+										w={"85px"}
 										bgColor={"red.500"}
 										px={1}
 										variant={"outline"}
 										borderRadius={"5px"}
 									>
-										<Text fontSize={"18px"} textAlign={"center"} color={"white"} overflow={"hidden"}>
+										<Text fontSize={"14px"} textAlign={"center"} color={"white"} overflow={"hidden"}>
 											{handleType(product?.Discounts[0]?.type, product?.Discounts[0]?.nominal)}
 										</Text>
 									</Badge>
@@ -126,19 +119,19 @@ export const SimilarProducts = ({ CID, PID }) => {
 								w={"100%"}
 								zIndex={1}
 								position={"absolute"}
-								mt={"300px"}
+								mt={"135px"}
 								align={"center"}
 								justify={"center"}
 							>
 								<Badge
 									variant={"subtle"}
-									w={"200px"}
+									w={"100px"}
 									colorScheme="green"
 									color="#BCD709"
 									fontFamily="monospace"
 									fontStyle="italic"
 									textAlign={"center"}
-									fontSize="30px"
+									fontSize="16px"
 									css={{ textTransform: "none" }}
 								>
 									Rp. {Math.floor(product?.price / 1000).toLocaleString("id-ID")}K
@@ -148,6 +141,6 @@ export const SimilarProducts = ({ CID, PID }) => {
 					</SwiperSlide>
 				))}
 			</StyledSwiper>
-		</Flex>
+		</Box>
 	);
 };
