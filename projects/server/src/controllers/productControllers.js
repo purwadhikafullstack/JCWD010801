@@ -743,7 +743,7 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = products.id)`),
+					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
 					sortOrder,
 				]);
 			} else {
