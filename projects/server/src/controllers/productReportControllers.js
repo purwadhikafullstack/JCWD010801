@@ -903,11 +903,11 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.BranchId = branches.id AND
-								stockMovements.isAddition = false AND
-								stockMovements.isAdjustment = false AND
-								stockMovements.isInitialization = false AND
-								stockMovements.isBranchInitialization = false)`
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.BranchId = Branches.id AND
+								StockMovements.isAddition = false AND
+								StockMovements.isAdjustment = false AND
+								StockMovements.isInitialization = false AND
+								StockMovements.isBranchInitialization = false)`
 								),
 								"txCount",
 							],
@@ -919,11 +919,11 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.BranchId = branches.id AND
-								stockMovements.isAddition = true AND
-								stockMovements.isAdjustment = false AND
-								stockMovements.isInitialization = false AND
-								stockMovements.isBranchInitialization = false)`
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.BranchId = Branches.id AND
+								StockMovements.isAddition = true AND
+								StockMovements.isAdjustment = false AND
+								StockMovements.isInitialization = false AND
+								StockMovements.isBranchInitialization = false)`
 								),
 								"failedTxCount",
 							],
