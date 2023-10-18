@@ -38,8 +38,8 @@ export const ReceiptMobile = ({ subtotal, items }) => {
 		if (voucher.minPay && voucher.minPay > subtotal) return true;
 		if (voucher.type === "Single item") {
 			let booleanCheck = true;
-			items.forEach(({ ProductId }) => {
-				if (ProductId === voucher.ProductId) {
+			items?.forEach(({ ProductId }) => {
+				if (ProductId === voucher?.Product?.id) {
 					booleanCheck = false;
 				}
 			});

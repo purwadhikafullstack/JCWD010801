@@ -183,8 +183,7 @@ module.exports = {
 			if (!result)
 				return res.status(200).send({
 					status: false,
-					message: "Cart not found",
-					cart: []
+					message: "Cart not found"
 				});
 			else {
 				const filter = {
