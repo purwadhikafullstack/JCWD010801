@@ -69,6 +69,7 @@ export const ConfirmButtonOrder2 = ({ reload, setReload, invoice, orderId }) => 
 	return (
 		<>
 			<Button
+				size={["sm", "md"]}
 				my={"auto"}
 				backgroundColor={"green"}
 				color={"white"}
