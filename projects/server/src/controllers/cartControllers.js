@@ -81,7 +81,7 @@ module.exports = {
 				cart_item.quantity > checkProduct?.Stocks[0]?.currentStock &&
 				checkProduct?.Discounts[0]?.type === "Extra"
 			) {
-				if ((checkProduct?.Stocks[0]?.currentStock) % 2 === 1) {
+				if (checkProduct?.Stocks[0]?.currentStock % 2 === 1) {
 					await cartItems.update(
 						{ quantity: checkProduct?.Stocks[0]?.currentStock },
 						{
@@ -145,7 +145,11 @@ module.exports = {
 			});
 		} catch (err) {
 			await transaction.rollback();
-			res.status(400).send(err);
+			res.status(500).send({
+				status: 500,
+				message: "Internal server error.",
+				error: err,
+			});
 		}
 	},
 	getCartItems: async (req, res) => {
@@ -162,7 +166,7 @@ module.exports = {
 				return res.status(200).send({
 					status: false,
 					message: "Cart not found",
-					cart: []
+					cart: [],
 				});
 			else {
 				const filter = {
@@ -333,7 +337,7 @@ module.exports = {
 				message: "Item quantity updated",
 			});
 		} catch (err) {
-			console.log(err)
+			console.log(err);
 			res.status(400).send(err);
 		}
 	},
