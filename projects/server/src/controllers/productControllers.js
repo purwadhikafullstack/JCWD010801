@@ -455,9 +455,9 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			return res.status(500).send({
-				status: 500,
-				message: "Internal server error.",
+			return res.status(400).send({
+				status: 400,
+				message: "Operation Failed! Product name already exist.",
 			});
 		}
 	},
