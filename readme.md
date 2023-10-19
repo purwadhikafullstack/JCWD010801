@@ -5,9 +5,9 @@
 
 ### TEAM MEMBERS:
 ### Amadeo Filberto Marli [@asc33nzio](https://github.com/asc33nzio)
-### Alvian Aryo Bimo [@Raffael47](https://github.com/Raffael47)
-### Raffael W [@rifkyrizkita](https://github.com/rifkyrizkita)
-### Rifky Rizkita Gandawidura [@alvianaryobimo](https://github.com/alvianaryobimo)
+### Alvian Aryo Bimo [@alvianaryobimo](https://github.com/alvianaryobimo)
+### Raffael W [@Raffael47](https://github.com/Raffael47)
+### Rifky Rizkita Gandawidura [@rifkyrizkita](https://github.com/rifkyrizkita)
 
 ### MENTOR:
 ### Gangsar Aryo [@gangsararyop](https://github.com/gangsararyop)
