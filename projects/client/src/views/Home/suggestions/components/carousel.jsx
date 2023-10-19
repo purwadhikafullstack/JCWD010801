@@ -11,6 +11,7 @@ import { ProductCard } from "../../promo/components/card";
 
 export const SuggestionsCarousel = () => {
 	const [products, setProducts] = useState([]);
+	const currentBranch = localStorage.getItem("BranchId");
 
 	const fetchData = async () => {
 		try {
@@ -32,13 +33,16 @@ export const SuggestionsCarousel = () => {
 			{sizeLg ? (
 				<Swiper modules={[Navigation, A11y, Scrollbar]} slidesPerView={4} navigation scrollbar={{ draggable: true }}>
 					{products.map((item, idx) => {
+						const discountData = item?.Discounts?.find((discount) => {
+							return discount.BranchId === parseInt(currentBranch) && discount.isActive === true && new Date(discount.validUntil) > new Date( Date.now()) ;
+						});
 						return (
 							<SwiperSlide key={idx}>
 								<ProductCard
 									Product={item}
 									ProductId={item?.id}
-									type={item?.Discounts[0]?.type}
-									nominal={item?.Discounts[0]?.nominal}
+									type={discountData?.type}
+									nominal={discountData?.nominal}
 								/>
 							</SwiperSlide>
 						);
@@ -47,13 +51,16 @@ export const SuggestionsCarousel = () => {
 			) : sizeMd ? (
 				<Swiper modules={[Navigation, A11y, Scrollbar]} slidesPerView={3} navigation scrollbar={{ draggable: true }}>
 					{products.map((item, idx) => {
+						const discountData = item?.Discounts?.find((discount) => {
+							return discount.BranchId === parseInt(currentBranch) && discount.isActive === true && new Date(discount.validUntil) > new Date(Date.now()) ;
+						});
 						return (
 							<SwiperSlide key={idx}>
 								<ProductCard
 									Product={item}
 									ProductId={item?.id}
-									type={item?.Discounts[0]?.type}
-									nominal={item?.Discounts[0]?.nominal}
+									type={discountData?.type}
+									nominal={discountData?.nominal}
 								/>
 							</SwiperSlide>
 						);
@@ -62,13 +69,16 @@ export const SuggestionsCarousel = () => {
 			) : (
 				<Swiper modules={[Navigation, A11y, Scrollbar]} slidesPerView={2} scrollbar={{ draggable: true }}>
 					{products.map((item, idx) => {
+						const discountData = item?.Discounts?.find((discount) => {
+							return discount.BranchId === parseInt(currentBranch) && discount.isActive === true && new Date(discount.validUntil) > new Date( Date.now()) ;
+						});
 						return (
 							<SwiperSlide key={idx}>
 								<ProductCard
 									Product={item}
 									ProductId={item?.id}
-									type={item?.Discounts[0]?.type}
-									nominal={item?.Discounts[0]?.nominal}
+									type={discountData?.type}
+									nominal={discountData?.nominal}
 								/>
 							</SwiperSlide>
 						);

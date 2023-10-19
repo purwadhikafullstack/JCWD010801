@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { refreshCart } from "../../../redux/cartSlice";
+import { setVoucherInfo } from "../../../redux/voucherSlice";
 
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank-transfer");
@@ -231,6 +232,7 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
+			dispatch(setVoucherInfo({}));
 
 			toast.success(response?.data?.message, {
 				position: "top-right",
@@ -390,7 +392,7 @@ function Order() {
 														)}
 														<Text>{item.Product.weight * item.quantity} gram(s)</Text>
 														<Text fontWeight={"bold"} fontSize={"lg"}>
-															{formatToRupiah(item.Product.price * item.quantity)}
+															{item?.Product?.Discounts[0]?.type === "Extra" ? formatToRupiah(item.Product.price * item.quantity / 2) : formatToRupiah(item.Product.price * item.quantity)}
 														</Text>
 													</Box>
 												</Flex>
@@ -480,7 +482,7 @@ function Order() {
 										</Flex>
 										<Flex justify={"space-between"}>
 											<Text fontWeight={"bold"}>Promos</Text>
-											<Text>{formatToRupiah(discount)}</Text>
+											<Text>{discount > 0 ? formatToRupiah(discount) : "---"}</Text>
 										</Flex>
 										{voucher.VoucherId && (
 											<Flex justify={"space-between"}>

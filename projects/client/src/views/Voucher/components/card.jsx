@@ -8,8 +8,8 @@ import { RiMenu3Line } from "react-icons/ri"
 
 export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay, maxDisc, Product, BranchId, amount, validUntil, availableFrom, VoucherId, Branch }) => {
     const dispatch = useDispatch();
-    const applyVoucher = ({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }) => {
-        dispatch(setVoucherInfo({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId }));
+    const applyVoucher = ({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId, BranchId }) => {
+        dispatch(setVoucherInfo({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId, BranchId }));
     };
     const appliedVoucherCheck = useSelector((state) => state?.voucher?.value?.VoucherId);
 
@@ -72,7 +72,7 @@ export const VoucherCard = ({ name, imgURL, type, isPercentage, nominal, minPay,
                 <ButtonTemp 
                 borderRadius={0} 
                 mb={2} 
-                onClick={() => applyVoucher({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId })} 
+                onClick={() => applyVoucher({ name, type, isPercentage, nominal, minPay, maxDisc, Product, amount, validUntil, availableFrom, VoucherId, BranchId })} 
                 isDisabled={BranchId === +currentBranch || BranchId === null ? appliedVoucherCheck === VoucherId ? true : false : true}
                 content={(appliedVoucherCheck === VoucherId ? <Text fontSize={"16px"}>APPLIED</Text> : <Text fontSize={"16px"}>REDEEM</Text>)} 
                 />
