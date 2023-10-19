@@ -25,6 +25,7 @@ import LikeCountBarChart from "../components/stockReport/likeCountBarChart";
 import StatusStackedBarChart from "../components/stockReport/statusStackedBarChart";
 import BranchTxStackedBarChart from "../components/stockReport/branchTxStackedBarChart";
 import StockMovementLineChart from "../components/stockReport/stockMovementLineChart";
+import { utils, writeFileXLSX } from "xlsx";
 import { debounce } from "lodash";
 import { DateRangePicker } from "react-date-range";
 import { toast } from "react-toastify";
@@ -1128,6 +1129,35 @@ const StockReport = () => {
 		},
 	};
 
+	const downloadDataAsExcel = (data) => {
+		const workbook = utils.book_new();
+		const worksheet = utils.json_to_sheet(data);
+		utils.book_append_sheet(workbook, worksheet, "StockLevels");
+		writeFileXLSX(workbook, "StockLevels.xlsx");
+	};
+
+	const mapExcelData = (levelEntries) => {
+		return levelEntries.map((item) => {
+			return {
+				PID: item?.id,
+				"Product Name": item?.productName,
+				"Aggregate Stock": item?.aggregateStock + " units",
+				Category: getCategoryLabel(item?.CategoryId),
+				"Jakarta Stock": item?.Stocks.find((stock) => stock.BranchId === 1)?.currentStock || 0,
+				"Bandung Stock": item?.Stocks.find((stock) => stock.BranchId === 2)?.currentStock || 0,
+				"Jogjakarta Stock": item?.Stocks.find((stock) => stock.BranchId === 3)?.currentStock || 0,
+				"Surabaya Stock": item?.Stocks.find((stock) => stock.BranchId === 4)?.currentStock || 0,
+				"Batam Stock": item?.Stocks.find((stock) => stock.BranchId === 5)?.currentStock || 0,
+				"Transactions Count": item?.StockMovements?.txCount || 0,
+				"Failed Transactions Count": item?.StockMovements?.failedTxCount || 0,
+				"View Count": item?.viewCount || 0,
+				"Like Count": item?.likeCount || 0,
+			};
+		});
+	};
+
+	const excelData = mapExcelData(levelEntries);
+
 	return (
 		<Box w={"100%"} h={"100%"} align={"center"} justify={"center"}>
 			<AdminSidebar navSizeProp="large" navPosProp="fixed" />
@@ -1273,6 +1303,25 @@ const StockReport = () => {
 							>
 								Statistics
 							</Tab>
+							{activeTab === 0 ? (
+								<Button
+									ml={"255px"}
+									bgColor={"#000000"}
+									borderRadius={"5px"}
+									color={"white"}
+									_hover={{
+										color: "#0A0A0B",
+										bg: "#F0F0F0",
+										_before: { bg: "inherit" },
+										_after: { bg: "inherit" },
+									}}
+									onClick={() => {
+										downloadDataAsExcel(excelData);
+									}}
+								>
+									Download
+								</Button>
+							) : null}
 						</TabList>
 						{/* //! Stock Levels Tab */}
 						{activeTab === 0 ? (
