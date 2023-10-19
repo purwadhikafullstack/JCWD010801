@@ -594,7 +594,7 @@ module.exports = {
 				attributes: { exclude: ["id"] },
 			});
 
-			if (countOrder + (1 % 3) === 0 && !freeShipmentVoucherCheck) {
+			if ((countOrder + 1) % 3 === 0 && !freeShipmentVoucherCheck) {
 				await user_vouchers.create(
 					{
 						UserId: order.Cart.UserId,
@@ -614,7 +614,7 @@ module.exports = {
 					},
 					{ transaction }
 				);
-			} else if (countOrder + (1 % 3) === 0 && freeShipmentVoucherCheck) {
+			} else if ((countOrder + 1) % 3 === 0 && freeShipmentVoucherCheck) {
 				await user_vouchers.update(
 					{
 						amount: freeShipmentVoucherCheck?.amount + 1,
@@ -682,6 +682,55 @@ module.exports = {
 			});
 		}
 	},
+	// rejectPaymentProof: async (req, res) => {
+	// 	try {
+	// 		const orderId = req.params.id;
+	// 		const order = await orders.findOne({
+	// 			where: { id: orderId },
+	// 			include: [
+	// 				{
+	// 					model: carts,
+	// 					include: [
+	// 						{
+	// 							model: users,
+	// 						},
+	// 					],
+	// 				},
+	// 			],
+	// 		});
+	// 		if (!order) {
+	// 			return res.status(404).send({
+	// 				message: "Order not found",
+	// 			});
+	// 		}
+	// 		if (order.status !== "Pending payment confirmation") {
+	// 			return res.status(400).send({
+	// 				message:
+	// 					"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
+	// 			});
+	// 		}
+	// 		await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
+	// 		const data = fs.readFileSync("./src/templates/rejectPaymentProof.html", "utf-8");
+	// 		const tempCompile = handlebars.compile(data);
+	// 		const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
+	// 		transporter.sendMail({
+	// 			from: process.env.NODEMAILER_USER,
+	// 			to: order.Cart.User.email,
+	// 			subject: "Please Reupload Your Payment Proof",
+	// 			html: tempResult,
+	// 		});
+	// 		res.status(200).send({
+	// 			status: true,
+	// 			message: "Order updated to 'Rejected' successfully",
+	// 		});
+	// 	} catch (error) {
+	// 		return res.status(500).send({
+	// 			error,
+	// 			status: 500,
+	// 			message: "Internal server error.",
+	// 		});
+	// 	}
+	// },
 	rejectPaymentProof: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
 		try {
@@ -731,7 +780,7 @@ module.exports = {
 			);
 			await transaction.commit();
 
-			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
+			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
 			transporter.sendMail({
@@ -753,6 +802,46 @@ module.exports = {
 			});
 		}
 	},
+	// processingToSent: async (req, res) => {
+	// 	const transaction = await db.sequelize.transaction();
+	// 	try {
+	// 		const orderId = req.params.id;
+	// 		const order = await orders.findOne({
+	// 			where: { id: orderId },
+	// 			include: [
+	// 				{
+	// 					model: carts,
+	// 					include: [
+	// 						{
+	// 							model: users,
+	// 						},
+	// 					],
+	// 				},
+	// 			],
+	// 		});
+	// 		if (!order) {
+	// 			return res.status(404).send({
+	// 				message: "Order not found",
+	// 			});
+	// 		}
+	// 		if (order.status !== "Sent") {
+	// 			return res.status(400).send({
+	// 				message: "Order cannot be updated to 'Received'. Current status is not 'Sent'.",
+	// 			});
+	// 		}
+	// 		await orders.update({ status: "Received" }, { where: { id: orderId } });
+	// 		res.status(200).send({
+	// 			status: true,
+	// 			message: "Order updated to 'Received' successfully",
+	// 		});
+	// 	} catch (error) {
+	// 		return res.status(500).send({
+	// 			error,
+	// 			status: 500,
+	// 			message: "Internal server error.",
+	// 		});
+	// 	}
+	// },
 	processingToSent: async (req, res) => {
 		const transaction = await db.sequelize.transaction();
 		try {
@@ -780,13 +869,13 @@ module.exports = {
 					message: "Order cannot be updated to 'Sent'. Current status is not 'Processing'.",
 				});
 			}
-			const userId = req.user.id;
+			const userId = req?.user?.id;
 			const invoiceNumber = generateInvoiceNumber(userId);
 			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId }, transaction });
 
-			// Auto confirm order 5 minutes
+			// Auto confirm order 2 minutes
 			// 604800000 = 7 days
-			const autoConfirmTime = new Date(Date.now() + 300000);
+			const autoConfirmTime = new Date(Date.now() + 120000);
 			schedule.scheduleJob(autoConfirmTime, async () => {
 				try {
 					const ord = await orders.findOne({
@@ -809,7 +898,7 @@ module.exports = {
 			);
 			await transaction.commit();
 
-			const data = fs.readFileSync(path.join(__dirname, "../templates/sentOrder.html"), "utf-8"); 
+			const data = fs.readFileSync(path.join(__dirname, "../templates/sentOrder.html"), "utf-8");
 			const tempCompile = handlebars.compile(data);
 			const tempResult = tempCompile({
 				link: process.env.REACT_APP_BASE_URL,
@@ -829,55 +918,6 @@ module.exports = {
 			});
 		} catch (error) {
 			await transaction.rollback();
-			return res.status(500).send({
-				error,
-				status: 500,
-				message: "Internal server error.",
-			});
-		}
-	},
-	rejectPaymentProof: async (req, res) => {
-		try {
-			const orderId = req.params.id;
-			const order = await orders.findOne({
-				where: { id: orderId },
-				include: [
-					{
-						model: carts,
-						include: [
-							{
-								model: users,
-							},
-						],
-					},
-				],
-			});
-			if (!order) {
-				return res.status(404).send({
-					message: "Order not found",
-				});
-			}
-			if (order.status !== "Pending payment confirmation") {
-				return res.status(400).send({
-					message:
-						"Order cannot be updated to 'Waiting payment'. Current status is not 'Pending payment confirmation'.",
-				});
-			}
-			await orders.update({ status: "Waiting payment", paymentProof: null }, { where: { id: orderId } });
-			const data = fs.readFileSync(path.join(__dirname, "../templates/rejectPaymentProof.html"), "utf-8"); 
-			const tempCompile = handlebars.compile(data);
-			const tempResult = tempCompile({ link: process.env.REACT_APP_BASE_URL });
-			transporter.sendMail({
-				from: process.env.NODEMAILER_USER,
-				to: order.Cart.User.email,
-				subject: "Please Reupload Your Payment Proof",
-				html: tempResult,
-			});
-			res.status(200).send({
-				status: true,
-				message: "Order updated to 'Rejected' successfully",
-			});
-		} catch (error) {
 			return res.status(500).send({
 				error,
 				status: 500,
@@ -1038,13 +1078,6 @@ module.exports = {
 			const { shipment, shipmentMethod, etd, shippingFee, tax, subtotal, total, discount, AddressId, VoucherId } =
 				req.body;
 
-			const cartCheckedOut = await carts.findOne({
-				where: {
-					UserId: req.user.id,
-					status: "ACTIVE",
-				},
-			});
-
 			// Use voucher
 			const filter = {
 				where: {
@@ -1057,12 +1090,17 @@ module.exports = {
 				const voucherCheck = await user_vouchers.findOne(filter);
 				if (!voucherCheck.amount) return res.status(400).send({ status: false, message: "You are out of voucher" });
 				const voucherTypeCheck = await vouchers.findOne({ where: { id: VoucherId } });
-				if (cartCheckedOut.BranchId !== voucherTypeCheck.BranchId)
-					return res.status(400).send({ status: false, message: "Voucher is not applicable on this branch" });
 				if (voucherTypeCheck.minimumPayment > subtotal)
 					return res.status(400).send({ status: false, message: "Minimum transaction has not been reached" });
 				await user_vouchers.update({ amount: voucherCheck.amount - 1 }, filter);
 			}
+
+			const cartCheckedOut = await carts.findOne({
+				where: {
+					UserId: req.user.id,
+					status: "ACTIVE",
+				},
+			});
 
 			const orderedItems = await cartItems.findAll({
 				where: {
@@ -1169,8 +1207,8 @@ module.exports = {
 				}
 			);
 
-			// Auto cancel order 5 minutes
-			const autoCancelTime = new Date(Date.now() + 60000);
+			// Auto cancel order 2 minutes
+			const autoCancelTime = new Date(Date.now() + 120000);
 			schedule.scheduleJob(autoCancelTime, async () => {
 				const transaction = await db.sequelize.transaction();
 				try {
@@ -1376,32 +1414,6 @@ module.exports = {
 				message: "Internal server error.",
 			});
 		}
-	},
-	userAutoConfirmOrder: async (req, res) => {
-		const autoConfirmTime = new Date(Date.now() + 604800000);
-		schedule.scheduleJob(autoConfirmTime, async () => {
-			try {
-				const ord = await orders.findOne({
-					where: { id: req.params.id },
-					include: { model: carts },
-				});
-
-				if (ord.status === "Sent") {
-					await orders.update({ status: "Confirmed" }, { where: { id: req.params.id } });
-
-					res.status(200).send({
-						status: true,
-						message: "Order confirmed",
-					});
-				}
-			} catch (err) {
-				return res.status(500).send({
-					err,
-					status: 500,
-					message: "Internal server error.",
-				});
-			}
-		});
 	},
 	address: async (req, res) => {
 		try {

@@ -3,8 +3,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import Axios from "axios";
 import Skeleton from "react-loading-skeleton";
 import NoProduct from "../assets/public/404.png";
-import { debounce } from "lodash";
-import { Box, Flex, Input, Radio, RadioGroup, Stack, Image, Select, Center, Text, Badge } from "@chakra-ui/react";
+import { Box, Flex, Radio, RadioGroup, Stack, Image, Select, Center, Text, Badge } from "@chakra-ui/react";
 import { Skeleton as ChakraSkeleton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
@@ -24,7 +23,6 @@ const Wishlist = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState("createdAt");
 	const [sortOrder, setSortOrder] = useState("ASC");
 	const [isSearchEmpty, setIsSearchEmpty] = useState(false);
@@ -47,7 +45,7 @@ const Wishlist = () => {
 	useEffect(() => {
 		fetchData(page);
 		// eslint-disable-next-line
-	}, [reload, search, sortOrder, selectedCategory, sortBy, totalPages]);
+	}, [reload, sortOrder, selectedCategory, sortBy, totalPages]);
 
 	useEffect(() => {
 		const queryParams = new URLSearchParams(location.search);
@@ -155,29 +153,6 @@ const Wishlist = () => {
 		navigate(`/product/${PID}`);
 	};
 
-	const handleSearch = debounce(
-		(e) => {
-			setSearch(e);
-			if (products.length === 0) {
-				setIsSearchEmpty(true);
-			} else {
-				setIsSearchEmpty(false);
-			}
-			const newSearchParams = new URLSearchParams();
-			newSearchParams.set("q", e);
-			newSearchParams.set("sort", sortBy);
-			newSearchParams.set("order", sortOrder);
-			newSearchParams.set("cat", selectedCategory);
-			newSearchParams.set("p", 1);
-			navigate(`?${newSearchParams.toString()}`);
-		},
-		1000,
-		{
-			leading: false,
-			trailing: true,
-		}
-	);
-
 	const updateQueryParams = (paramsToUpdate) => {
 		const queryParams = new URLSearchParams(location.search);
 
@@ -194,19 +169,6 @@ const Wishlist = () => {
 		if (type === "Extra") return `B 1 G ${nominal}`;
 		if (type === "Numeric") return `- ${Math.floor(nominal / 1000).toLocaleString("id-ID")}K OFF`;
 		if (type === "Percentage") return `${nominal}% OFF`;
-	};
-
-	const customInputStyle = {
-		borderColor: "gray",
-		_focus: {
-			boxShadow: "0 0 3px 2px #39393C",
-			borderColor: "#39393C",
-		},
-		_placeholder: {
-			color: "#535256",
-			fontSize: "14px",
-		},
-		color: "#535256",
 	};
 
 	const customRadioStyle = {
@@ -264,22 +226,8 @@ const Wishlist = () => {
 					position="relative"
 				>
 					<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={"center"}>
-						Search For Products
+						{user?.username}'s Wishlist
 					</Box>
-					<Input
-						type="search"
-						defaultValue={""}
-						onChange={(e) => {
-							setPage(1);
-							handleSearch(e.target.value);
-						}}
-						w={"100%"}
-						h={"30px"}
-						borderColor={"gray"}
-						bgColor={"white"}
-						placeholder="Enter a Product Name"
-						{...customInputStyle}
-					/>
 					<Box mt={2} p={2} borderColor={"gray.400"}>
 						<Box mb={"5px"} fontWeight={"thin"} color={"gray"}>
 							Sort by

@@ -642,7 +642,7 @@ module.exports = {
 	},
 	getAllStocks: async (req, res) => {
 		try {
-			const { search = null, CategoryId, sortBy = "productName", sortOrder = "ASC", BranchId } = req.query;
+			const { search = "", CategoryId, sortBy = "productName", sortOrder = "ASC", BranchId } = req.query;
 			const page = parseInt(req.query.page, 10) || 1;
 			const itemLimit = parseInt(req.query.itemLimit, 10) || 30;
 
@@ -680,7 +680,7 @@ module.exports = {
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
 					Sequelize.literal(
-						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = products.id AND Stocks.BranchId = ${BranchId})`
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
 					),
 					sortOrder,
 				]);
@@ -772,8 +772,6 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
-			console.error(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
@@ -903,11 +901,11 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.BranchId = branches.id AND
-								stockMovements.isAddition = false AND
-								stockMovements.isAdjustment = false AND
-								stockMovements.isInitialization = false AND
-								stockMovements.isBranchInitialization = false)`
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.BranchId = Branches.id AND
+								StockMovements.isAddition = false AND
+								StockMovements.isAdjustment = false AND
+								StockMovements.isInitialization = false AND
+								StockMovements.isBranchInitialization = false)`
 								),
 								"txCount",
 							],
@@ -919,11 +917,11 @@ module.exports = {
 						attributes: [
 							[
 								Sequelize.literal(
-									`(SELECT COUNT(*) FROM stockMovements WHERE stockMovements.BranchId = branches.id AND
-								stockMovements.isAddition = true AND
-								stockMovements.isAdjustment = false AND
-								stockMovements.isInitialization = false AND
-								stockMovements.isBranchInitialization = false)`
+									`(SELECT COUNT(*) FROM StockMovements WHERE StockMovements.BranchId = Branches.id AND
+								StockMovements.isAddition = true AND
+								StockMovements.isAdjustment = false AND
+								StockMovements.isInitialization = false AND
+								StockMovements.isBranchInitialization = false)`
 								),
 								"failedTxCount",
 							],

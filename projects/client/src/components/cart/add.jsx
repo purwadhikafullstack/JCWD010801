@@ -21,9 +21,9 @@ import { ButtonTemp } from "../button";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshCart } from "../../redux/cartSlice";
 
-export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml = 0 }) => {
+export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml = 0, type }) => {
 	const token = localStorage.getItem("token");
-	const BranchId = localStorage.getItem("BranchId");
+	const BranchId = parseInt(localStorage.getItem("BranchId"), 10);
 	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { RoleId, isVerified } = useSelector((state) => state?.user?.value);
@@ -32,7 +32,7 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 		try {
 			const { data } = await axios.post(
 				`${process.env.REACT_APP_API_BASE_URL}/cart`,
-				{ ProductId, quantity, BranchId },
+				{ ProductId, quantity: type === "Extra" ? parseInt(quantity * 2, 10) : parseInt(quantity, 10), BranchId: parseInt(BranchId, 10) },
 				{
 					headers: {
 						authorization: `Bearer ${token}`,
@@ -40,11 +40,11 @@ export const AddToCartButton = ({ ProductId, quantity, name, isText = false, ml 
 				}
 			);
 
-			if (data.status === "Switched") {
+			if (data?.status === "Switched") {
 				onOpen();
 			} else {
 				dispatch(refreshCart());
-				toast.success(`${quantity} ${name} added to cart`, {
+				toast.success(`${type === "Extra" ? `${quantity} + ${quantity}` : quantity} ${name} added to cart`, {
 					position: "top-center",
 					autoClose: 4000,
 					hideProgressBar: false,

@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { refreshCart } from "../../../redux/cartSlice";
+import { setVoucherInfo } from "../../../redux/voucherSlice";
 
 function Order() {
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank-transfer");
@@ -61,7 +62,7 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (response.data.cart_items.length === 0) {
+			if (response?.data?.cart_items?.length === 0) {
 				toast.warn("Cart is empty", {
 					position: "top-right",
 					autoClose: 5000,
@@ -100,7 +101,7 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
-			if (response.data.result.length === 0) {
+			if (response?.data?.result?.length === 0) {
 				navigate("/profile#addresses");
 				toast.warn("You must add your address first, before continue your order", {
 					position: "top-right",
@@ -231,8 +232,9 @@ function Order() {
 					Authorization: `Bearer ${token}`,
 				},
 			});
+			dispatch(setVoucherInfo({}));
 
-			toast.success(response.data.message, {
+			toast.success(response?.data?.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -246,7 +248,7 @@ function Order() {
 			dispatch(refreshCart());
 			navigate("/profile#orders");
 		} catch (error) {
-			toast.error(error?.response.data.error.message, {
+			toast.error(error?.response?.data?.error?.message, {
 				position: "top-right",
 				autoClose: 5000,
 				hideProgressBar: false,
@@ -370,7 +372,18 @@ function Order() {
 														<Text fontWeight={"bold"}>{item.Product.productName}</Text>
 														{item?.Product?.Discounts[0]?.type === "Extra" ? (
 															<Text>
-																{`(${item.Product?.Stocks[0].currentStock % 2 === 1 && item.quantity >= item.Product?.Stocks[0].currentStock ? item.quantity / 2 + 0.5 : item.quantity / 2}+${item.Product?.Stocks[0].currentStock % 2 === 1 && item.quantity >= item.Product?.Stocks[0].currentStock ? item.quantity / 2 - 0.5 : item.quantity / 2})`} x {formatToRupiah(item.Product.price)}
+																{`(${
+																	item?.Product?.Stocks[0]?.currentStock % 2 === 1 &&
+																	item?.quantity >= item?.Product?.Stocks[0]?.currentStock
+																		? item?.quantity / 2 + 0.5
+																		: item?.quantity / 2
+																}+${
+																	item?.Product?.Stocks[0]?.currentStock % 2 === 1 &&
+																	item?.quantity >= item?.Product?.Stocks[0]?.currentStock
+																		? item?.quantity / 2 - 0.5
+																		: item?.quantity / 2
+																})`}{" "}
+																x {formatToRupiah(item?.Product?.price)}
 															</Text>
 														) : (
 															<Text>
@@ -379,7 +392,7 @@ function Order() {
 														)}
 														<Text>{item.Product.weight * item.quantity} gram(s)</Text>
 														<Text fontWeight={"bold"} fontSize={"lg"}>
-															{formatToRupiah(item.Product.price * item.quantity)}
+															{item?.Product?.Discounts[0]?.type === "Extra" ? formatToRupiah(item.Product.price * item.quantity / 2) : formatToRupiah(item.Product.price * item.quantity)}
 														</Text>
 													</Box>
 												</Flex>
@@ -469,7 +482,7 @@ function Order() {
 										</Flex>
 										<Flex justify={"space-between"}>
 											<Text fontWeight={"bold"}>Promos</Text>
-											<Text>{formatToRupiah(discount)}</Text>
+											<Text>{discount > 0 ? formatToRupiah(discount) : "---"}</Text>
 										</Flex>
 										{voucher.VoucherId && (
 											<Flex justify={"space-between"}>

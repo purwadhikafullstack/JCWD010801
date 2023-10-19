@@ -4,7 +4,6 @@ import "react-toastify/dist/ReactToastify.css";
 import {
 	Flex,
 	Text,
-	Icon,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
@@ -86,10 +85,12 @@ export const UploadProofButton = ({ orderId, date, branch, amount, reload, setRe
 
 	return (
 		<>
-			<Flex alignItems={"center"} color={"black"} gap={3} onClick={onOpen} w="100%">
-				<Icon as={BiUpload} w="5" h="5" />
-				<Text>Upload Payment Proof</Text>
-			</Flex>
+			<Button size={["sm", "md"]} my={"auto"} mr={"10px"} onClick={onOpen} colorScheme="yellow" color={"red.600"}>
+				<Flex mr={"5px"}>
+					<BiUpload />
+				</Flex>
+				Upload Payment
+			</Button>
 			<Modal size={{ base: "xs", sm: "sm", md: "md" }} isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent borderRadius={"10px"}>
@@ -122,8 +123,8 @@ export const UploadProofButton = ({ orderId, date, branch, amount, reload, setRe
 													})}
 												</Text>
 											</Stack>
-											<Flex>
-												<Stack mr={40} gap={1}>
+											<Flex justifyContent={"space-between"}>
+												<Stack gap={1}>
 													<Text fontWeight={"semibold"}>Branch</Text>
 													<Text>{branch}</Text>
 												</Stack>

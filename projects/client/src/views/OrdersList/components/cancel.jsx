@@ -19,7 +19,7 @@ import { MdOutlineCancel } from "react-icons/md";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { ButtonTemp } from "../../../components/button";
 
-export const CancelOrder = ({ id, orderNumber = "INV/20230813/MPL/3400120239" }) => {
+export const CancelOrder = ({ id, reload, setReload }) => {
     const token = localStorage.getItem("token");
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -30,8 +30,10 @@ export const CancelOrder = ({ id, orderNumber = "INV/20230813/MPL/3400120239" })
 					authorization: `Bearer ${token}`,
 				}
 			});
+            onClose();
+            setReload(!reload)
 
-            toast.success(`Order ${orderNumber} cancelled`, {
+            toast.success(`Order cancelled`, {
                 position: "top-right",
                 autoClose: 4000,
                 hideProgressBar: false,
@@ -72,7 +74,7 @@ export const CancelOrder = ({ id, orderNumber = "INV/20230813/MPL/3400120239" })
                             Cancel Order ?
                         </Heading>
                         <Text fontWeight={'light'}>
-                            Are you sure you want to cancel order {orderNumber}?
+                            Are you sure you want to cancel this order?
                         </Text>
                         <Flex w='100%' justifyContent={'center'} gap={3}>
                             <Button onClick={onClose}>

@@ -211,6 +211,19 @@ module.exports = {
 				required: false,
 			};
 
+			const nameCheck = await products.findOne({
+				where: {
+					productName : productName
+				}
+			})
+
+			if (nameCheck) {
+				return res.status(400).send({
+					status: 400,
+					message: "Operation failed. Product name already exists!",
+				});
+			}
+
 			const product = await products.findOne({
 				where: { id: PID },
 				include: [joinCondition],
@@ -743,7 +756,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
@@ -768,12 +783,10 @@ module.exports = {
 				result,
 			});
 		} catch (error) {
-			console.log(error);
-			console.error(error);
 			return res.status(500).send({
 				status: 500,
 				message: "Internal server error.",
-				error: error
+				error: error,
 			});
 		}
 	},
@@ -818,7 +831,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
@@ -890,7 +905,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {
@@ -962,7 +979,9 @@ module.exports = {
 				orderCriteria.push(["aggregateStock", sortOrder]);
 			} else if (sortBy === "branchStock") {
 				orderCriteria.push([
-					Sequelize.literal(`(SELECT IFNULL(SUM(currentStock), 0) FROM stocks WHERE stocks.ProductId = products.id)`),
+					Sequelize.literal(
+						`(SELECT IFNULL(SUM(currentStock), 0) FROM Stocks WHERE Stocks.ProductId = Products.id AND Stocks.BranchId = ${BranchId})`
+					),
 					sortOrder,
 				]);
 			} else {

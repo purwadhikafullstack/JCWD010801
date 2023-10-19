@@ -13,7 +13,9 @@ module.exports = {
 	addToCart: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
-			let { ProductId, quantity, BranchId } = req.body;
+			let quantity = parseInt(req.body.quantity, 10);
+			const ProductId = parseInt(req.body.ProductId, 10);
+			const BranchId = parseInt(req.body.BranchId, 10);
 
 			const checkBranch = await carts.findOne({
 				where: {
@@ -22,7 +24,10 @@ module.exports = {
 				},
 			});
 
-			if (checkBranch?.BranchId !== +BranchId && checkBranch) return res.status(200).send({ status: "Switched" });
+			if (checkBranch && checkBranch?.BranchId !== +BranchId) {
+				await transaction.rollback();
+				return res.status(200).send({ status: "Switched" });
+			}
 
 			const checkProduct = await products.findOne({
 				where: {
@@ -31,13 +36,13 @@ module.exports = {
 				include: [
 					{
 						model: stocks,
-						where: { BranchId: parseInt(BranchId) || 1 },
+						where: { BranchId: parseInt(BranchId, 10) || 1 },
 						required: false,
 					},
 					{
 						model: discounts,
 						where: {
-							BranchId: parseInt(BranchId) || 1,
+							BranchId: parseInt(BranchId, 10) || 1,
 							availableFrom: { [Op.lte]: new Date(Date.now()) },
 							validUntil: { [Op.gte]: new Date(Date.now()) },
 							isActive: true,
@@ -46,6 +51,22 @@ module.exports = {
 					},
 				],
 			});
+
+			if (checkProduct.Stocks[0].currentStock === 0) {
+				await transaction.rollback();
+				return res.status(404).send({
+					status: 404,
+					message: "Sorry, stock is unavailable in this branch.",
+				});
+			}
+
+			if (checkProduct.Stocks[0] === undefined) {
+				await transaction.rollback();
+				return res.status(404).send({
+					status: 404,
+					message: "Sorry, stock is unavailable in this branch.",
+				});
+			}
 
 			const [result] = await carts.findOrCreate({
 				where: {
@@ -63,9 +84,9 @@ module.exports = {
 				},
 			});
 
-			if (!cart_item) {
-				if (quantity > checkProduct?.Stocks[0]?.currentStock / 2 && checkProduct?.Discounts[0]?.type === "Extra") {
-					quantity = checkProduct?.Stocks[0]?.currentStock;
+			if (cart_item === null) {
+				if (quantity > checkProduct?.Stocks[0]?.currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
+					quantity = checkProduct?.Stocks[0]?.currentStock / 2;
 				} else if (quantity > checkProduct?.Stocks[0]?.currentStock) {
 					quantity = checkProduct?.Stocks[0]?.currentStock;
 				}
@@ -77,36 +98,33 @@ module.exports = {
 					},
 					{ transaction }
 				);
-			} else if (
-				cart_item.quantity > checkProduct?.Stocks[0]?.currentStock / 2 &&
-				checkProduct?.Discounts[0]?.type === "Extra"
-			) {
-				if ((checkProduct?.Stocks[0]?.currentStock / 2) % 2 === 1) {
-					await cartItems.update(
-						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 + 1 },
-						{
-							where: {
-								CartId: result.id,
-								ProductId,
-							},
-							transaction,
-						}
-					);
-				} else {
-					await cartItems.update(
-						{ quantity: checkProduct?.Stocks[0]?.currentStock / 2 },
-						{
-							where: {
-								CartId: result.id,
-								ProductId,
-							},
-							transaction,
-						}
-					);
-				}
-			} else if (cart_item.quantity >= checkProduct?.Stocks[0]?.currentStock) {
+				// } else if (cart_item.quantity > checkProduct?.Stocks[0].currentStock / 2 && checkProduct?.Discounts[0].type === "Extra") {
+				// 	if ((checkProduct?.Stocks[0].currentStock / 2) % 2 === 1) {
+				// 		await cartItems.update(
+				// 			{ quantity: (checkProduct?.Stocks[0].currentStock / 2) + 1 },
+				// 			{
+				// 				where: {
+				// 					CartId: result.id,
+				// 					ProductId,
+				// 				},
+				// 				transaction,
+				// 			}
+				// 		)
+				// 	} else {
+				// 		await cartItems.update(
+				// 			{ quantity: (checkProduct?.Stocks[0].currentStock / 2) },
+				// 			{
+				// 				where: {
+				// 					CartId: result.id,
+				// 					ProductId,
+				// 				},
+				// 				transaction,
+				// 			}
+				// 		)
+				// 	}
+			} else if (cart_item.quantity >= checkProduct?.Stocks[0].currentStock) {
 				await cartItems.update(
-					{ quantity: checkProduct?.Stocks[0]?.currentStock },
+					{ quantity: checkProduct?.Stocks[0].currentStock },
 					{
 						where: {
 							CartId: result.id,
@@ -120,7 +138,7 @@ module.exports = {
 
 				return res.status(400).send({
 					status: "Exceed",
-					message: `You are trying to add ${quantity} ${checkProduct.productName} into your cart. You already have ${cart_item.quantity} units in your cart and only ${checkProduct?.Stocks[0]?.currentStock} units are available.`,
+					message: `You are trying to add ${quantity} ${checkProduct.productName} into your cart. You already have ${cart_item.quantity} units in your cart and only ${checkProduct?.Stocks[0].currentStock} units are available.`,
 					checkProduct,
 				});
 			} else if (cart_item) {
@@ -144,8 +162,12 @@ module.exports = {
 				checkProduct,
 			});
 		} catch (err) {
+			console.log(err);
 			await transaction.rollback();
-			res.status(400).send(err);
+			res.status(400).send({
+				message: "Failed adding to cart.",
+				error: err,
+			});
 		}
 	},
 	getCartItems: async (req, res) => {
@@ -196,9 +218,9 @@ module.exports = {
 
 				const cart_items = await cartItems.findAll(filter);
 				for (const { Product, CartId, ProductId, quantity } of cart_items) {
-					if (quantity > Product.Stocks[0]?.currentStock)
+					if (quantity > Product?.Stocks[0]?.currentStock)
 						await cartItems.update(
-							{ quantity: Product.Stocks[0]?.currentStock },
+							{ quantity: Product?.Stocks[0]?.currentStock },
 							{
 								where: {
 									CartId,
@@ -219,8 +241,40 @@ module.exports = {
 						quantity = quantity / 2 + 0.5;
 					else if (Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 1) quantity = quantity / 2;
 					else if (Product?.Discounts[0]?.type === "Extra" && quantity % 2 === 0) quantity = quantity / 2;
-					subtotal = subtotal + quantity * Product.price;
+					subtotal = subtotal + quantity * Product?.price;
 				}
+
+				// const subtotal = await cartItems.findAll({
+				// 	where: { CartId: result.id },
+				// 	include: [
+				// 		{
+				// 			model: products,
+				// 			attributes: { exclude: ["isDeleted", "createdAt", "updatedAt"] },
+				// 			include: [
+				// 				{
+				// 					model: discounts,
+				// 					where: {
+				// 						BranchId: result.BranchId,
+				// 						availableFrom: { [Op.lte]: new Date(Date.now()) },
+				// 						validUntil: { [Op.gte]: new Date(Date.now()) },
+				// 						isActive: true,
+				// 					},
+				// 					separate: true,
+				// 				},
+				// 			],
+				// 		},
+				// 	],
+				// 	attributes: [
+				// 		[
+				// 			Sequelize.literal(`(
+				// 				SELECT sum((Cart_items.quantity * Product.price))
+				// 			)`),
+				// 			`subtotal`,
+				// 		],
+				// 	],
+				// 	group: ["Cart_items.id"],
+				// });
+				//! DISABLED DEPLOY V.5.5.1.a
 
 				res.status(200).send({
 					status: true,
@@ -240,6 +294,8 @@ module.exports = {
 	switchBranch: async (req, res) => {
 		const transaction = await sequelize.transaction();
 		try {
+			const BranchId = parseInt(req.body.BranchId, 10);
+
 			const cart = await carts.findOne({
 				where: {
 					UserId: req.user.id,
@@ -253,7 +309,7 @@ module.exports = {
 			});
 
 			await carts.update(
-				{ BranchId: req.body.BranchId },
+				{ BranchId: BranchId },
 				{
 					where: {
 						id: cart.id,
@@ -269,8 +325,12 @@ module.exports = {
 				message: "Cart switched branch",
 			});
 		} catch (err) {
+			console.log(err);
 			await transaction.rollback();
-			res.status(400).send(err);
+			res.status(400).send({
+				message: "Switch branch failed.",
+				error: err,
+			});
 		}
 	},
 	updateQuantity: async (req, res) => {
@@ -306,15 +366,15 @@ module.exports = {
 					},
 				],
 			});
-			if (checkProduct?.Discounts[0].type === "Extra" && quantity > checkProduct?.Stocks[0].currentStock + 0.5) {
-				let maxStock = checkProduct?.Stocks[0].currentStock;
-				if (checkProduct?.Stocks[0].currentStock % 2 === 1) maxStock = checkProduct?.Stocks[0].currentStock + 1;
+			if (checkProduct?.Discounts[0]?.type === "Extra" && quantity > checkProduct?.Stocks[0]?.currentStock + 0.5) {
+				let maxStock = checkProduct?.Stocks[0]?.currentStock;
+				if (checkProduct?.Stocks[0]?.currentStock % 2 === 1) maxStock = checkProduct?.Stocks[0]?.currentStock + 1;
 				throw {
 					message: "Promo product out of stock",
 					maxStock,
 				};
 			}
-			if (quantity > checkProduct?.Stocks[0].currentStock) throw { message: "Product out of stock" };
+			if (quantity > checkProduct?.Stocks[0]?.currentStock) throw { message: "Product out of stock" };
 			if (quantity < 1) throw { message: "Minimum item 1" };
 
 			await cartItems.update(
@@ -332,6 +392,7 @@ module.exports = {
 				message: "Item quantity updated",
 			});
 		} catch (err) {
+			console.log(err);
 			res.status(400).send(err);
 		}
 	},
