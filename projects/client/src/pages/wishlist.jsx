@@ -264,22 +264,8 @@ const Wishlist = () => {
 					position="relative"
 				>
 					<Box mb={2} fontSize={"18px"} color={"gray"} textAlign={"center"}>
-						Search For Products
+						{user?.username}'s Wishlist
 					</Box>
-					<Input
-						type="search"
-						defaultValue={""}
-						onChange={(e) => {
-							setPage(1);
-							handleSearch(e.target.value);
-						}}
-						w={"100%"}
-						h={"30px"}
-						borderColor={"gray"}
-						bgColor={"white"}
-						placeholder="Enter a Product Name"
-						{...customInputStyle}
-					/>
 					<Box mt={2} p={2} borderColor={"gray.400"}>
 						<Box mb={"5px"} fontWeight={"thin"} color={"gray"}>
 							Sort by
