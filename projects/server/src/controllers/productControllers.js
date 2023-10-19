@@ -211,19 +211,6 @@ module.exports = {
 				required: false,
 			};
 
-			const nameCheck = await products.findOne({
-				where: {
-					productName : productName
-				}
-			})
-
-			if (nameCheck) {
-				return res.status(400).send({
-					status: 400,
-					message: "Operation failed. Product name already exists!",
-				});
-			}
-
 			const product = await products.findOne({
 				where: { id: PID },
 				include: [joinCondition],
@@ -513,9 +500,9 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			return res.status(500).send({
-				status: 500,
-				message: "Internal server error.",
+			return res.status(400).send({
+				status: 400,
+				message: "Operation Failed! Product name already exists.",
 			});
 		}
 	},
