@@ -4,13 +4,13 @@
 ## **PURWADHIKA _BANDUNG_ BATCH 1**
 
 ### TEAM MEMBERS:
-### Amadeo Filberto Marli [@asc33nzio](https://github.com/asc33nzio)
-### Alvian Aryo Bimo [@alvianaryobimo](https://github.com/alvianaryobimo)
-### Raffael W [@Raffael47](https://github.com/Raffael47)
-### Rifky Rizkita Gandawidura [@rifkyrizkita](https://github.com/rifkyrizkita)
+### * Amadeo Filberto Marli [@asc33nzio](https://github.com/asc33nzio)
+### * Alvian Aryo Bimo [@alvianaryobimo](https://github.com/alvianaryobimo)
+### * Raffael W [@Raffael47](https://github.com/Raffael47)
+### * Rifky Rizkita Gandawidura [@rifkyrizkita](https://github.com/rifkyrizkita)
 
 ### MENTOR:
-### Gangsar Aryo [@gangsararyop](https://github.com/gangsararyop)
+### * Gangsar Aryo [@gangsararyop](https://github.com/gangsararyop)
 
 ## STABLE RELEASES
 > **V. 5.1. Alpha** <sup>17/10/23</sup> hosted@[https://jcwd010801.purwadhikabootcamp.com/](https://jcwd010801.purwadhikabootcamp.com/)
