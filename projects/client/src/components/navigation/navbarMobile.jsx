@@ -90,7 +90,7 @@ export const NavbarMobile = () => {
 											</Text>
 										</Flex>
 									</ListItem>
-									<ListItem display={{ base: "flex", md: "none" }} cursor={"pointer"} onClick={() => handleNavigate("/voucher")} p={2} borderRadius={"10px"}>
+									<ListItem display={{ base: "flex", md: "none" }} cursor={"pointer"} onClick={() => handleNavigate("/wishlist")} p={2} borderRadius={"10px"}>
 										<Flex gap={7}>
 											<Icon as={BsBagHeartFill} w="7" h="7" color={"black"} />
 											<Text fontSize={"xl"} cursor={"pointer"} fontWeight={"medium"}>
