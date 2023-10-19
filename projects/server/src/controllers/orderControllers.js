@@ -594,7 +594,7 @@ module.exports = {
 				attributes: { exclude: ["id"] },
 			});
 
-			if (countOrder + (1 % 3) === 0 && !freeShipmentVoucherCheck) {
+			if ((countOrder + 1) % 3 === 0 && !freeShipmentVoucherCheck) {
 				await user_vouchers.create(
 					{
 						UserId: order.Cart.UserId,
@@ -614,7 +614,7 @@ module.exports = {
 					},
 					{ transaction }
 				);
-			} else if (countOrder + (1 % 3) === 0 && freeShipmentVoucherCheck) {
+			} else if ((countOrder + 1) % 3 === 0 && freeShipmentVoucherCheck) {
 				await user_vouchers.update(
 					{
 						amount: freeShipmentVoucherCheck?.amount + 1,
