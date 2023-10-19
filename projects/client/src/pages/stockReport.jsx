@@ -1141,7 +1141,7 @@ const StockReport = () => {
 			return {
 				PID: item?.id,
 				"Product Name": item?.productName,
-				"Aggregate Stock": item?.aggregateStock + " units",
+				"Aggregate Stock": item?.aggregateStock,
 				Category: getCategoryLabel(item?.CategoryId),
 				"Jakarta Stock": item?.Stocks.find((stock) => stock.BranchId === 1)?.currentStock || 0,
 				"Bandung Stock": item?.Stocks.find((stock) => stock.BranchId === 2)?.currentStock || 0,
