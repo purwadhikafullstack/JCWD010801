@@ -12,6 +12,7 @@
 ### MENTOR:
 * Gangsar Aryo [@gangsararyop](https://github.com/gangsararyop)
 
+
 ## STABLE RELEASES
 * **V. 5.1. Alpha** <sup>17/10/23</sup> hosted@[https://jcwd010801.purwadhikabootcamp.com/](https://jcwd010801.purwadhikabootcamp.com/)
 * **V. 1.0. Beta** <sup>19/10/23</sup> hosted@[https://jcwd010801.purwadhikabootcamp.com/](https://jcwd010801.purwadhikabootcamp.com/)
