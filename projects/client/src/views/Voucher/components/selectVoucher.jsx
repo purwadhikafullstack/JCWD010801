@@ -18,14 +18,17 @@ import { FiArrowLeft } from "react-icons/fi";
 import { RxCrossCircled } from "react-icons/rx";
 import { RedeemCode } from "./redeemCode";
 import { setVoucherInfo } from "../../../redux/voucherSlice";
+import { useEffect, useState } from "react";
 
 export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
 	const voucher = useSelector((state) => state?.voucher?.value);
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [ description, setDescription ] = useState("");
 	const dispatch = useDispatch();
 
 	const removeVoucher = () => {
 		onClose();
+		setDescription("")
 		dispatch(setVoucherInfo({}));
 	};
 
@@ -49,21 +52,28 @@ export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
 
 	const checkMissingRequirementType = () => {
 		if (voucher?.minPay && voucher?.minPay > subtotal) {
-			return `Minimum subtotal: Rp. ${voucher?.minPay?.toLocaleString("id-ID")}`;
+			return setDescription(`Minimum subtotal: Rp. ${voucher?.minPay?.toLocaleString("id-ID")}`);
 		} else if (voucher?.type === "Single item") {
 			let booleanCheck = false;
 			items?.map(({ ProductId }) => {
-				if (ProductId === voucher?.ProductId) {
-					booleanCheck = true;
+				if (ProductId === voucher?.Product?.id) {
+					return booleanCheck = true;
 				}
-				return null;
+				return null
 			});
 			if (!booleanCheck) {
-				return `You need to have ${voucher?.Product?.productName} in your cart in order to use this voucher`;
+				return setDescription(`You need to have ${voucher?.Product?.productName} in your cart in order to use this voucher`);
+			} else {
+				return setDescription("")
 			}
 		}
-		return null;
+		return setDescription("");
 	};
+
+	useEffect(() => {
+		checkMissingRequirementType()
+		//eslint-disable-next-line
+	}, [ voucher, items, subtotal ])
 
 	return (
 		<>
@@ -84,7 +94,7 @@ export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
 						<Text fontWeight={"medium"}>{voucher.name ? voucher.name : "Save more using promos"}</Text>
 						{/* {voucher.minPay && ( */}
 						<Text fontWeight={"light"} fontSize={"sm"}>
-							{checkMissingRequirementType()}
+							{description}
 						</Text>
 						{/* )} */}
 					</Stack>

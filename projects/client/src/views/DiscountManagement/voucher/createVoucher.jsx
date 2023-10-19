@@ -50,7 +50,7 @@ export const CreateVoucher = () => {
 		code: Yup.string().required("This field is required"),
 		nominal: Yup.number().min(1).required("This field is required"),
 		minimumPayment: Yup.number().min(0).required("This field is required"),
-		maximumDiscount: Yup.number().min(1).required("This field is required"),
+		maximumDiscount: Yup.number().min(0).required("This field is required"),
 		amountPerRedeem: Yup.number().min(1).required("This field is required"),
 		availableFrom: Yup.string().required("This field is required"),
 		validUntil: Yup.string().required("This field is required"),
@@ -130,6 +130,7 @@ export const CreateVoucher = () => {
 
 	const handleReset = () => {
 		setSelectedProduct({});
+		setNotifyUsers(false);
 		toast.success("Form Cleared", {
 			position: "top-right",
 			autoClose: 4000,
@@ -162,7 +163,7 @@ export const CreateVoucher = () => {
 			validationSchema={isPercentage ? percentageSchema : fixedAmountSchema}
 			onSubmit={(value, action) => {
 				handleSubmit(value);
-				// action.resetForm()
+				action.resetForm()
 			}}
 		>
 			{() => {
@@ -218,8 +219,8 @@ export const CreateVoucher = () => {
 												style={{ color: "red", marginBottom: "-15px", marginTop: "-8px", fontSize: "10px" }}
 											/>
 										</Stack>
-										<Stack>
 											{RoleId === 3 && (
+											<Stack>
 												<Select
 													w={"150px"}
 													borderColor={"gray.300"}
@@ -233,8 +234,8 @@ export const CreateVoucher = () => {
 														return <option value={id}>{name}</option>;
 													})}
 												</Select>
+											</Stack>
 											)}
-										</Stack>
 										<Stack>
 											<Select
 												name="type"

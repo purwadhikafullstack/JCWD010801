@@ -15,34 +15,31 @@ import { Receipt } from "./receipt";
 import { useNavigate } from "react-router-dom";
 import { SelectVoucher } from "../../Voucher/components/selectVoucher";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 export const ReceiptMobile = ({ subtotal, items }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const voucher = useSelector((state) => state?.voucher?.value);
 	const navigate = useNavigate();
+	const [discount, setDiscount] = useState(0);
 
-	// const checkDisableCheckout = () => {
-	//     if (voucher.minPay && voucher.minPay > subtotal) return true;
-	//     if (voucher.type === "Single item") {
-	//         let booleanCheck = true
-	//         items.map(({ ProductId }) => {
-	//             if (ProductId === voucher.ProductId) {
-	//                 booleanCheck = false
-	//             }
-	//         });
-	//         return booleanCheck
-	//     }
-	//     return false
-	// };
-	// !FAIL BUILD!
-	// Line 19:39: Array.prototype.map() expects a return value from arrow function array-callback-return
+	const checkVoucherRequirements = () => {
+		if (voucher.minPay && voucher.minPay > subtotal) return setDiscount(0);
+		if (voucher.isPercentage) {
+			if ((subtotal * voucher.nominal) / 100 > voucher.maxDisc) return setDiscount(voucher.maxDisc);
+			else return setDiscount((subtotal * voucher.nominal) / 100);
+		} else setDiscount(voucher.nominal);
+	};
+
+	const tax = voucher.VoucherId ? (subtotal - discount) / 10 : subtotal / 10;
+	const total = voucher.VoucherId ? tax + (subtotal - discount) : tax + subtotal;
 
 	const checkDisableCheckout = () => {
 		if (voucher.minPay && voucher.minPay > subtotal) return true;
 		if (voucher.type === "Single item") {
 			let booleanCheck = true;
-			items.forEach(({ ProductId }) => {
-				if (ProductId === voucher.ProductId) {
+			items?.forEach(({ ProductId }) => {
+				if (ProductId === voucher?.Product?.id) {
 					booleanCheck = false;
 				}
 			});
@@ -50,6 +47,11 @@ export const ReceiptMobile = ({ subtotal, items }) => {
 		}
 		return false;
 	};
+
+	useEffect(() => {
+		checkVoucherRequirements();
+		// eslint-disable-next-line
+	}, [ voucher, items ])
 
 	return (
 		<>
@@ -70,7 +72,7 @@ export const ReceiptMobile = ({ subtotal, items }) => {
 						<Text fontSize={"sm"}>Estimated Total</Text>
 						<Flex alignItems={"center"} gap={2}>
 							<Text fontSize={"xl"} fontWeight={"semibold"}>
-								{`Rp. ${(subtotal + subtotal / 10).toLocaleString("id-ID")}`}
+								{`Rp. ${total?.toLocaleString("id-ID")}`}
 							</Text>
 							<Icon as={MdKeyboardArrowUp} w="5" h="5" />
 						</Flex>
