@@ -85,6 +85,12 @@ module.exports = {
 				where: condition,
 				include: [
 					{
+						model: order_details,
+						include: {
+							model: products,
+						},
+					},
+					{
 						model: carts,
 						where: branchCondition,
 						include: [
