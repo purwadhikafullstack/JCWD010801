@@ -6,7 +6,7 @@ export const ProductCard = ({ Product, type = "", nominal = 0, validUntil, Produ
     const navigate = useNavigate();
 
     const handleType = () => {
-        if (type === "Extra") return `BUY 1 GET ${nominal} FREE`;
+        if (type === "Extra") return `BUY 1 GET 1 FREE`;
         if (type === "Numeric") return (`- ${nominal.toLocaleString("id-ID")} IDR`);
         if (type === "Percentage") return (`${nominal}% OFF`);
     };

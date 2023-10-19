@@ -73,7 +73,7 @@ export const SelectVoucher = ({ subtotal, checkRequirements, items }) => {
 	useEffect(() => {
 		checkMissingRequirementType()
 		//eslint-disable-next-line
-	}, [ voucher, items ])
+	}, [ voucher, items, subtotal ])
 
 	return (
 		<>

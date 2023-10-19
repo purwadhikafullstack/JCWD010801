@@ -873,9 +873,9 @@ module.exports = {
 			const invoiceNumber = generateInvoiceNumber(userId);
 			await orders.update({ status: "Sent", invoice: invoiceNumber }, { where: { id: orderId }, transaction });
 
-			// Auto confirm order 5 minutes
+			// Auto confirm order 20 minutes
 			// 604800000 = 7 days
-			const autoConfirmTime = new Date(Date.now() + 300000);
+			const autoConfirmTime = new Date(Date.now() + 1200000);
 			schedule.scheduleJob(autoConfirmTime, async () => {
 				try {
 					const ord = await orders.findOne({
